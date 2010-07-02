@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client;
 
@@ -93,19 +93,19 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 				ioe.printStackTrace();
 			}
 			return;
-		
+
 		case setLiveTypingLabel:
-			MapTool.getFrame().getCommandPanel().setLiveTypingLabel(parameters[0].toString());
+			MapTool.getFrame().setChatTypingLabel(parameters[0].toString(), (Boolean) parameters[1]);
 			return;
-			
+
 		case enforceNotification:
 			Boolean enforce = (Boolean) parameters[0];
-			
+
 			MapTool.getFrame().getCommandPanel().disableNotifyButton(enforce);
-			return;		
-		
+			return;
+
 		}
-		
+
 		// Model events need to update on the EDT
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -540,7 +540,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					} // endif
 					ti.update((Boolean) parameters[2], (String) parameters[3]);
 					return;
-					
+
 				case setUseVision:
 					zoneGUID = (GUID) parameters[0];
 					VisionType visionType = (VisionType) parameters[1];
@@ -560,7 +560,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					MapTool.getCampaign().setMacroButtonPropertiesArray(new ArrayList<MacroButtonProperties>((ArrayList<MacroButtonProperties>) parameters[0]));
 					MapTool.getFrame().getCampaignPanel().reset();
 					return;
-				
+
 
 				}
 			}

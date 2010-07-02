@@ -70,7 +70,6 @@ import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.client.ui.chat.ChatProcessor;
 import net.rptools.maptool.client.ui.chat.SmileyChatTranslationRuleGroup;
 import net.rptools.maptool.client.ui.htmlframe.HTMLFrameFactory;
-import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
@@ -80,7 +79,6 @@ import net.rptools.maptool.util.StringUtil;
 public class CommandPanel extends JPanel implements Observer {
 
 	private JLabel characterLabel;
-	private JLabel liveTypingLabel;
 	private JTextPane commandTextArea;
 	private MessagePanel messagePanel;
 	private final List<String> commandHistory = new LinkedList<String>();
@@ -107,7 +105,6 @@ public class CommandPanel extends JPanel implements Observer {
 
 		add(BorderLayout.SOUTH, createSouthPanel());
 		add(BorderLayout.CENTER, getMessagePanel());
-		initializeNotifyDuration();
 		initializeSmilies();
 		addFocusHotKey();
 	}
@@ -238,7 +235,6 @@ public class CommandPanel extends JPanel implements Observer {
 		subPanel.add(BorderLayout.EAST, createTextPropertiesPanel());
 		subPanel.add(BorderLayout.NORTH, createCharacterLabel());
 		subPanel.add(BorderLayout.CENTER, createCommandPanel());
-		subPanel.add(BorderLayout.SOUTH, createLiveTypingLabel());
 
 		panel.add(BorderLayout.WEST, createAvatarPanel());
 		panel.add(BorderLayout.CENTER, subPanel);
@@ -295,15 +291,6 @@ public class CommandPanel extends JPanel implements Observer {
 		characterLabel.setText(label);
 	}
 
-	public void setLiveTypingLabel(String label) {
-		MapTool.getFrame().setChatTypingLabel(label);
-
-	}
-
-	public JLabel getLiveTypingLabel() {
-		return liveTypingLabel;
-	}
-
 	@Override
 	public Dimension getPreferredSize() {
 		return new Dimension(50, 50);
@@ -328,13 +315,6 @@ public class CommandPanel extends JPanel implements Observer {
 	 * 
 	 * @return
 	 */
-
-	public JLabel createLiveTypingLabel() {
-		liveTypingLabel = new JLabel("", JLabel.LEFT);
-		liveTypingLabel.setText("");
-		liveTypingLabel.setBorder(BorderFactory.createEmptyBorder(1, 5, 1, 5));
-		return liveTypingLabel;
-	}
 
 	public JTextPane getCommandTextArea() {
 		if (commandTextArea == null) {
@@ -391,38 +371,12 @@ public class CommandPanel extends JPanel implements Observer {
 
 			// Get the key released
 			int key = kre.getKeyCode();
-			final long mark = kre.getWhen();
 
 			if (key == KeyEvent.VK_ENTER) {
 				// User hit enter, reset the label and stop the timer
-				MapTool.serverCommand().setLiveTypingLabel("");
-				if (chatTimer != null) {
-					chatTimer.stop();
-					chatTimer = null;
-				}
-				return;
-			}
-			if (!chatNotifyButton.isSelected()) {
-				// Set up the idle timer if needed
-				if (chatTimer == null) {
-					chatTimer = new Timer(100, new ActionListener() {
-						public void actionPerformed(ActionEvent ae) {
-							long idleTime = System.currentTimeMillis() - mark;
-
-							if (idleTime > chatNotifyDuration) {
-								MapTool.serverCommand().setLiveTypingLabel("");
-								chatTimer.stop();
-								chatTimer = null;
-							}
-						}
-					});
-					chatTimer.start();
-				} else {
-					chatTimer.restart();
-				}
-				MapTool.serverCommand().setLiveTypingLabel(I18N.getText("msg.commandPanel.liveTyping", MapTool.getPlayer().getName()));
-			} else {
-				chatTimer = null;
+				MapTool.serverCommand().setLiveTypingLabel(MapTool.getPlayer().getName(), false);
+			} else if (!chatNotifyButton.isSelected()) {
+				MapTool.serverCommand().setLiveTypingLabel(MapTool.getPlayer().getName(), true);
 			}
 		}
 	}
@@ -504,7 +458,7 @@ public class CommandPanel extends JPanel implements Observer {
 		}
 		MacroManager.executeMacro(text, macroContext);
 		commandTextArea.setText("");
-		setLiveTypingLabel("");
+		MapTool.serverCommand().setLiveTypingLabel("", false);
 	}
 
 	public void clearMessagePanel() {
@@ -761,18 +715,6 @@ public class CommandPanel extends JPanel implements Observer {
 		quickCommit(command, true);
 	}
 
-	/**
-	 * Sets the chat notification duration. Invoked when that value is changed in AppPreferences. Done to reduce
-	 * overhead for the ChatTypingListener (so we're not invoking a call to AppPreferences for every key pressed)
-	 * 
-	 * @param duration
-	 *            time in milliseconds before the chat typing notification disappears
-	 */
-	public void setChatNotifyDuration(int duration) {
-		chatNotifyDuration = duration;
-
-	}
-
 	/*
 	 * Gets the chat notification duration. Method is unused at this time.
 	 * 
@@ -789,11 +731,6 @@ public class CommandPanel extends JPanel implements Observer {
 		if (commandTextArea.getListeners(ChatTypingListener.class).length == 0) {
 			commandTextArea.addKeyListener(new ChatTypingListener());
 		}
-	}
-
-	private void initializeNotifyDuration() {
-		chatNotifyDuration = AppPreferences.getTypingNotificationDuration();
-
 	}
 
 }

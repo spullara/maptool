@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client;
 
@@ -39,133 +39,133 @@ import net.rptools.maptool.server.ServerPolicy;
 
 public class ServerCommandClientImpl implements ServerCommand {
 
-    private TimedEventQueue movementUpdateQueue = new TimedEventQueue(100);
-    private LinkedBlockingQueue<MD5Key> assetRetrieveQueue = new LinkedBlockingQueue<MD5Key>();
-	
+	private final TimedEventQueue movementUpdateQueue = new TimedEventQueue(100);
+	private final LinkedBlockingQueue<MD5Key> assetRetrieveQueue = new LinkedBlockingQueue<MD5Key>();
+
 	public ServerCommandClientImpl() {
 		movementUpdateQueue.start();
 //		new AssetRetrievalThread().start();
 	}
-	
+
 	public void heartbeat(String data) {
 		makeServerCall(COMMAND.heartbeat, data);
 	}
-    
+
 	public void movePointer(String player, int x, int y) {
 		makeServerCall(COMMAND.movePointer, player, x, y);
 	}
-	
+
 	public void bootPlayer(String player) {
 		makeServerCall(COMMAND.bootPlayer, player);
 	}
-    
-    public void setCampaign(Campaign campaign) {
-    	try {
-	    	campaign.setBeingSerialized(true);
-	        makeServerCall(COMMAND.setCampaign, campaign);
-    	} finally {
-	        campaign.setBeingSerialized(false);
-    	}
-    }
-    
-    public void setVisionType(GUID zoneGUID, VisionType visionType) {
-    	makeServerCall(COMMAND.setVisionType, zoneGUID, visionType);
-    }
 
-    public void updateCampaign(CampaignProperties properties) {
-    	makeServerCall(COMMAND.updateCampaign, properties);
-    }
-    
-    public void getZone(GUID zoneGUID) {
-        makeServerCall(COMMAND.getZone, zoneGUID);
-    }
+	public void setCampaign(Campaign campaign) {
+		try {
+			campaign.setBeingSerialized(true);
+			makeServerCall(COMMAND.setCampaign, campaign);
+		} finally {
+			campaign.setBeingSerialized(false);
+		}
+	}
 
-    public void putZone(Zone zone) {
-        makeServerCall(COMMAND.putZone, zone);
-    }
+	public void setVisionType(GUID zoneGUID, VisionType visionType) {
+		makeServerCall(COMMAND.setVisionType, zoneGUID, visionType);
+	}
 
-    public void removeZone(GUID zoneGUID) {
-        makeServerCall(COMMAND.removeZone, zoneGUID);
-    }
+	public void updateCampaign(CampaignProperties properties) {
+		makeServerCall(COMMAND.updateCampaign, properties);
+	}
 
-    public void renameZone(GUID zoneGUID, String name) {
-        makeServerCall(COMMAND.renameZone, zoneGUID, name);
-    }
-    
-    public void putAsset(Asset asset) {
-        makeServerCall(COMMAND.putAsset, asset);
-    }
+	public void getZone(GUID zoneGUID) {
+		makeServerCall(COMMAND.getZone, zoneGUID);
+	}
 
-    public void getAsset(MD5Key assetID) {
+	public void putZone(Zone zone) {
+		makeServerCall(COMMAND.putZone, zone);
+	}
+
+	public void removeZone(GUID zoneGUID) {
+		makeServerCall(COMMAND.removeZone, zoneGUID);
+	}
+
+	public void renameZone(GUID zoneGUID, String name) {
+		makeServerCall(COMMAND.renameZone, zoneGUID, name);
+	}
+
+	public void putAsset(Asset asset) {
+		makeServerCall(COMMAND.putAsset, asset);
+	}
+
+	public void getAsset(MD5Key assetID) {
 		makeServerCall(COMMAND.getAsset, assetID);
-    }
+	}
 
-    public void removeAsset(MD5Key assetID) {
-        makeServerCall(COMMAND.removeAsset, assetID);
-    }
-    
-    public void enforceZoneView(GUID zoneGUID, int x, int y, double scale, int width, int height) {
-    	makeServerCall(COMMAND.enforceZoneView, zoneGUID, x, y, scale, width, height);
-    }
+	public void removeAsset(MD5Key assetID) {
+		makeServerCall(COMMAND.removeAsset, assetID);
+	}
 
-    public void putToken(GUID zoneGUID, Token token) {
-        
-        // Hack to generate zone event. All functions that update tokens call this method 
-        // After changing the token. But they don't tell the zone about it so classes
-        // waiting for the zone change event don't get it. 
-        MapTool.getCampaign().getZone(zoneGUID).putToken(token);
+	public void enforceZoneView(GUID zoneGUID, int x, int y, double scale, int width, int height) {
+		makeServerCall(COMMAND.enforceZoneView, zoneGUID, x, y, scale, width, height);
+	}
 
-        makeServerCall(COMMAND.putToken, zoneGUID, token);
-    }
+	public void putToken(GUID zoneGUID, Token token) {
 
-    public void removeToken(GUID zoneGUID, GUID tokenGUID) {
-        makeServerCall(COMMAND.removeToken, zoneGUID, tokenGUID);
-    }
+		// Hack to generate zone event. All functions that update tokens call this method
+		// After changing the token. But they don't tell the zone about it so classes
+		// waiting for the zone change event don't get it.
+		MapTool.getCampaign().getZone(zoneGUID).putToken(token);
 
-    public void putLabel(GUID zoneGUID, Label label) {
-        makeServerCall(COMMAND.putLabel, zoneGUID, label);
-    }
+		makeServerCall(COMMAND.putToken, zoneGUID, token);
+	}
 
-    public void removeLabel(GUID zoneGUID, GUID labelGUID) {
-        makeServerCall(COMMAND.removeLabel, zoneGUID, labelGUID);
-    }
+	public void removeToken(GUID zoneGUID, GUID tokenGUID) {
+		makeServerCall(COMMAND.removeToken, zoneGUID, tokenGUID);
+	}
 
-    public void draw(GUID zoneGUID, Pen pen, Drawable drawable) {
-        makeServerCall(COMMAND.draw, zoneGUID, pen, drawable);
-    }
+	public void putLabel(GUID zoneGUID, Label label) {
+		makeServerCall(COMMAND.putLabel, zoneGUID, label);
+	}
 
-    public void clearAllDrawings(GUID zoneGUID) {
-        makeServerCall(COMMAND.clearAllDrawings, zoneGUID);
-    }
+	public void removeLabel(GUID zoneGUID, GUID labelGUID) {
+		makeServerCall(COMMAND.removeLabel, zoneGUID, labelGUID);
+	}
 
-    public void undoDraw(GUID zoneGUID, GUID drawableGUID) {
-        makeServerCall(COMMAND.undoDraw, zoneGUID, drawableGUID);
-    }
+	public void draw(GUID zoneGUID, Pen pen, Drawable drawable) {
+		makeServerCall(COMMAND.draw, zoneGUID, pen, drawable);
+	}
 
-    public void setZoneGridSize(GUID zoneGUID, int xOffset, int yOffset, int size, int color) {
-        makeServerCall(COMMAND.setZoneGridSize, zoneGUID, xOffset, yOffset, size, color);
-    }
-    
-    public void setZoneVisibility(GUID zoneGUID, boolean visible) {
-    	makeServerCall(COMMAND.setZoneVisibility, zoneGUID, visible);
-    }
+	public void clearAllDrawings(GUID zoneGUID) {
+		makeServerCall(COMMAND.clearAllDrawings, zoneGUID);
+	}
 
-    public void message(TextMessage message) {
-        makeServerCall(COMMAND.message, message);
-    }
+	public void undoDraw(GUID zoneGUID, GUID drawableGUID) {
+		makeServerCall(COMMAND.undoDraw, zoneGUID, drawableGUID);
+	}
+
+	public void setZoneGridSize(GUID zoneGUID, int xOffset, int yOffset, int size, int color) {
+		makeServerCall(COMMAND.setZoneGridSize, zoneGUID, xOffset, yOffset, size, color);
+	}
+
+	public void setZoneVisibility(GUID zoneGUID, boolean visible) {
+		makeServerCall(COMMAND.setZoneVisibility, zoneGUID, visible);
+	}
+
+	public void message(TextMessage message) {
+		makeServerCall(COMMAND.message, message);
+	}
 
 	public void showPointer(String player, Pointer pointer) {
 		makeServerCall(COMMAND.showPointer, player, pointer);
 	}
-	
+
 	public void hidePointer(String player) {
 		makeServerCall(COMMAND.hidePointer, player);
 	}
-	
-	public void setLiveTypingLabel(String label){
-		makeServerCall(COMMAND.setLiveTypingLabel, label);
+
+	public void setLiveTypingLabel(String label, boolean show){
+		makeServerCall(COMMAND.setLiveTypingLabel, label, show);
 	}
-	
+
 	public void enforceNotification(Boolean enforce){
 		// MapTool.showInformation(enforce.toString());
 		makeServerCall(COMMAND.enforceNotification, enforce);
@@ -176,126 +176,127 @@ public class ServerCommandClientImpl implements ServerCommand {
 	}
 
 	public void stopTokenMove(GUID zoneGUID, GUID tokenGUID) {
-        movementUpdateQueue.flush();
+		movementUpdateQueue.flush();
 		makeServerCall(COMMAND.stopTokenMove, zoneGUID, tokenGUID);
 	}
-	
+
 	public void updateTokenMove(GUID zoneGUID, GUID tokenGUID, int x, int y) {
 		movementUpdateQueue.enqueue(COMMAND.updateTokenMove, zoneGUID, tokenGUID, x, y);
 	}
 
 	public void toggleTokenMoveWaypoint(GUID zoneGUID, GUID tokenGUID, ZonePoint cp) {
-    	movementUpdateQueue.flush();
-    	makeServerCall(COMMAND.toggleTokenMoveWaypoint, zoneGUID, tokenGUID, cp);
-    }
+		movementUpdateQueue.flush();
+		makeServerCall(COMMAND.toggleTokenMoveWaypoint, zoneGUID, tokenGUID, cp);
+	}
 
 	public void addTopology(GUID zoneGUID, Area area) {
-    	makeServerCall(COMMAND.addTopology, zoneGUID, area);
+		makeServerCall(COMMAND.addTopology, zoneGUID, area);
 	}
-	
+
 	public void removeTopology(GUID zoneGUID, Area area) {
-    	makeServerCall(COMMAND.removeTopology, zoneGUID, area);
+		makeServerCall(COMMAND.removeTopology, zoneGUID, area);
 	}
-	
+
 	public void exposeFoW(GUID zoneGUID, Area area) {
-    	makeServerCall(COMMAND.exposeFoW, zoneGUID, area);
+		makeServerCall(COMMAND.exposeFoW, zoneGUID, area);
 	}
-	
+
 	public void setFoW(GUID zoneGUID, Area area) {
-    	makeServerCall(COMMAND.setFoW, zoneGUID, area);
+		makeServerCall(COMMAND.setFoW, zoneGUID, area);
 	}
-	
+
 	public void hideFoW(GUID zoneGUID, Area area) {
-    	makeServerCall(COMMAND.hideFoW, zoneGUID, area);
+		makeServerCall(COMMAND.hideFoW, zoneGUID, area);
 	}
-	
+
 	public void setZoneHasFoW(GUID zoneGUID, boolean hasFog) {
-    	makeServerCall(COMMAND.setZoneHasFoW, zoneGUID, hasFog);
+		makeServerCall(COMMAND.setZoneHasFoW, zoneGUID, hasFog);
 	}
-	
-    public void bringTokensToFront(GUID zoneGUID, Set<GUID> tokenList) {
-        makeServerCall(COMMAND.bringTokensToFront, zoneGUID, tokenList);
-    }
-    
-    public void sendTokensToBack(GUID zoneGUID, Set<GUID> tokenList) {
-        makeServerCall(COMMAND.sendTokensToBack, zoneGUID, tokenList);
-    }
-    
-    public void enforceZone(GUID zoneGUID) {
-    	makeServerCall(COMMAND.enforceZone, zoneGUID);
-    }
-    
-    public void setServerPolicy(ServerPolicy policy) {
-    	makeServerCall(COMMAND.setServerPolicy, policy);
-    }
-    
-    public void updateInitiative(InitiativeList list, Boolean ownerPermission) {
-        makeServerCall(COMMAND.updateInitiative, list, ownerPermission);
-    }
-    
-    public void updateTokenInitiative(GUID zone, GUID token, Boolean holding, String state, Integer index) {
-        makeServerCall(COMMAND.updateTokenInitiative, zone, token, holding, state, index);
-    }
-        
-    public void updateCampaignMacros(List<MacroButtonProperties> properties) {
-    	makeServerCall(COMMAND.updateCampaignMacros, properties);
-    }
-    
+
+	public void bringTokensToFront(GUID zoneGUID, Set<GUID> tokenList) {
+		makeServerCall(COMMAND.bringTokensToFront, zoneGUID, tokenList);
+	}
+
+	public void sendTokensToBack(GUID zoneGUID, Set<GUID> tokenList) {
+		makeServerCall(COMMAND.sendTokensToBack, zoneGUID, tokenList);
+	}
+
+	public void enforceZone(GUID zoneGUID) {
+		makeServerCall(COMMAND.enforceZone, zoneGUID);
+	}
+
+	public void setServerPolicy(ServerPolicy policy) {
+		makeServerCall(COMMAND.setServerPolicy, policy);
+	}
+
+	public void updateInitiative(InitiativeList list, Boolean ownerPermission) {
+		makeServerCall(COMMAND.updateInitiative, list, ownerPermission);
+	}
+
+	public void updateTokenInitiative(GUID zone, GUID token, Boolean holding, String state, Integer index) {
+		makeServerCall(COMMAND.updateTokenInitiative, zone, token, holding, state, index);
+	}
+
+	public void updateCampaignMacros(List<MacroButtonProperties> properties) {
+		makeServerCall(COMMAND.updateCampaignMacros, properties);
+	}
+
 	private static void makeServerCall(ServerCommand.COMMAND command, Object... params) {
-        if (MapTool.getConnection() != null) {
-            MapTool.getConnection().callMethod(command.name(), params);
-        	
-        }
-    }
-    
-    /**
-     * Some events become obsolete very quickly, such as dragging a token
-     * around.  This queue always has exactly one element, the more current
-     * version of the event.  The event is then dispatched at some time interval.
-     * If a new event arrives before the time interval elapses, it is replaced.
-     * In this way, only the most current version of the event is released.
-     */
-    private static class TimedEventQueue extends Thread {
-        
-        ServerCommand.COMMAND command;
-        Object[] params;
-        
-        long delay;
+		if (MapTool.getConnection() != null) {
+			MapTool.getConnection().callMethod(command.name(), params);
+
+		}
+	}
+
+	/**
+	 * Some events become obsolete very quickly, such as dragging a token
+	 * around.  This queue always has exactly one element, the more current
+	 * version of the event.  The event is then dispatched at some time interval.
+	 * If a new event arrives before the time interval elapses, it is replaced.
+	 * In this way, only the most current version of the event is released.
+	 */
+	private static class TimedEventQueue extends Thread {
+
+		ServerCommand.COMMAND command;
+		Object[] params;
+
+		long delay;
 
 		Object sleepSemaphore = new Object();
-		
-        public TimedEventQueue(long millidelay) {
-            delay = millidelay;
-        }
-        
-        public synchronized void enqueue (ServerCommand.COMMAND command, Object... params) {
-            
-            this.command = command;
-            this.params = params;
-        }
 
-        public synchronized void flush() {
-            
-            if (command != null) {
-                makeServerCall(command, params);
-            }
-            command = null;
-            params = null;
-        }
-        
-        public void run() {
-            
-            while(true) {
-             
-                flush();
-                synchronized (sleepSemaphore) {
-                    try {
-                        Thread.sleep(delay);
-                    } catch (InterruptedException ie) {
-                        // nothing to do
-                    }
-                }
-            }
-        }
-    }
+		public TimedEventQueue(long millidelay) {
+			delay = millidelay;
+		}
+
+		public synchronized void enqueue (ServerCommand.COMMAND command, Object... params) {
+
+			this.command = command;
+			this.params = params;
+		}
+
+		public synchronized void flush() {
+
+			if (command != null) {
+				makeServerCall(command, params);
+			}
+			command = null;
+			params = null;
+		}
+
+		@Override
+		public void run() {
+
+			while(true) {
+
+				flush();
+				synchronized (sleepSemaphore) {
+					try {
+						Thread.sleep(delay);
+					} catch (InterruptedException ie) {
+						// nothing to do
+					}
+				}
+			}
+		}
+	}
 }

@@ -78,7 +78,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 			case hideFoW:								hideFoW(context.getGUID(0), (Area) context.get(1)); break;
 			case setFoW:									setFoW(context.getGUID(0), (Area) context.get(1)); break;
 			case hidePointer:							hidePointer(context.getString(0)); break;
-			case setLiveTypingLabel:				setLiveTypingLabel(context.getString(0)); break;
+			case setLiveTypingLabel:				setLiveTypingLabel(context.getString(0), context.getBool(1)); break;
 			case enforceNotification:				enforceNotification(context.getBool(0)); break;
 			case message:								message((TextMessage)context.get(0)); break;
 			case putAsset:								putAsset((Asset) context.get(0)); break;
@@ -451,7 +451,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.showPointer.name(), RPCContext.getCurrent().parameters);
 	}
 
-	public void setLiveTypingLabel(String label){
+	public void setLiveTypingLabel(String label, boolean show){
 		forwardToClients();
 	}
 

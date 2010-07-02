@@ -23,6 +23,7 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
@@ -58,6 +59,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.TreePath;
@@ -183,7 +185,10 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private CoordinateStatusBar coordinateStatusBar;
 	private ZoomStatusBar zoomStatusBar;
 	private JLabel chatActionLabel;
+
 	private JLabel chatTypingLabel;
+	private Timer chatTimer;
+	private long chatNotifyDuration;
 	private final GlassPane glassPane;
 
 	private TokenPanelTreeModel tokenPanelTreeModel;
@@ -237,6 +242,9 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		} catch (IOException ioe) {
 			System.err.println(I18N.getText("msg.error.loadingIconImage"));
 		}
+
+		// Notify duration
+		initializeNotifyDuration();
 
 		// Components
 		glassPane = new GlassPane();
@@ -709,14 +717,48 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		}
 	}
 
-	public void setChatTypingLabel(String label) {
-		chatTypingLabel.setText(label);
+	public void setChatTypingLabel(String playerName, boolean show) {
 
-		if (!label.equals("")) {
+		if(show)
+		{
+			final long mark = System.currentTimeMillis();
+			if (chatTimer == null) {
+				chatTimer = new Timer(100, new ActionListener() {
+					public void actionPerformed(ActionEvent ae) {
+						long idleTime = System.currentTimeMillis() - mark;
+
+						if (idleTime >= chatNotifyDuration) {
+							chatTypingLabel.setText("");
+							chatTypingLabel.setVisible(false);
+							chatTimer.stop();
+							chatTimer = null;
+						}
+					}
+				});
+				chatTimer.start();
+			} else {
+				chatTimer.restart();
+			}
+			chatTypingLabel.setText(I18N.getText("msg.commandPanel.liveTyping", playerName));
 			chatTypingLabel.setVisible(true);
 		} else {
+			chatTypingLabel.setText("");
 			chatTypingLabel.setVisible(false);
+			if (chatTimer != null) {
+				chatTimer.stop();
+				chatTimer = null;
+			}
+			return;
 		}
+	}
+
+	public void setChatNotifyDuration(int duration) {
+		chatNotifyDuration = duration;
+
+	}
+
+	private void initializeNotifyDuration() {
+		chatNotifyDuration = AppPreferences.getTypingNotificationDuration();
 
 	}
 
