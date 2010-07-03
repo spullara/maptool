@@ -712,7 +712,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	public ChatTypingNotification getChatTypingPanel() {
 		if (chatTypingPanel == null) {
 			chatTypingPanel = new ChatTypingNotification();
-			chatTypingPanel.setVisible(false);
+			chatTypingPanel.setVisible(true);
 			chatTypingPanel.setSize(220, 100);
 			chatTypingNotificationTimers = new HashMap<String, Long>();
 		}
@@ -750,7 +750,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		{
 			chatTimer = newChatTimer();
 		}
-		if(!chatTimer.isRunning())
+  		if(!chatTimer.isRunning())
 		{
 			chatTimer.start();
 		}

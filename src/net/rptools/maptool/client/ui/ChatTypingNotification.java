@@ -38,7 +38,7 @@ public class ChatTypingNotification extends JPanel{
 		super.paintComponent(g);
 		
 		Composite oldComp = statsG.getComposite();
-		this.setVisible(false);
+		//this.setVisible(false);
 		
 		Font boldFont = AppStyle.labelFont.deriveFont(Font.BOLD);
 		Font font = AppStyle.labelFont;
