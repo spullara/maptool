@@ -469,7 +469,7 @@ public class PersistenceUtil {
 						|| asset.getImage().length < 4	// New XStreamConverter creates empty byte[] for image
 				) {
 					String ext = asset.getImageExtension();
-					pathname = pathname + "." + (ext.isEmpty() ? "dat" : ext);
+					pathname = pathname + "." + (StringUtil.isEmpty(ext) ? "dat" : ext);
 					pathname = assetnameVersionManager.transform(pathname, campVersion);
 					byte[] imageData = pakFile.getFileData(pathname);
 					asset.setImage(imageData);

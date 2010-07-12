@@ -23,6 +23,7 @@ import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.model.TokenProperty;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.ImageManager;
+import net.rptools.maptool.util.StringUtil;
 import net.rptools.maptool.util.TokenUtil;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
@@ -766,7 +767,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			return false;
 		}
 
-		if (val.toString().isEmpty()) {
+		if (StringUtil.isEmpty(val.toString())) {
 			return false;
 		}
 

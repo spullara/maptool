@@ -95,9 +95,11 @@ public class StringUtil {
 
 	/**
 	 * Whether the string is null or all whitespace chars
+	 * (This should use {@link String#isEmpty()} but that's new to Java 6
+	 * and we're trying to stay compatible with Java 5 if possible.)
 	 */
 	public static boolean isEmpty(String string) {
-		return string == null || string.trim().isEmpty();
+		return string == null || string.trim().length() == 0;
 	}
 
 	public static int countOccurances(String source, String str) {

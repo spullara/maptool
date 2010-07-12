@@ -2367,7 +2367,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				}
 
 				String name = token.getName();
-				if (view.isGMView() && token.getGMName() != null && !token.getGMName().isEmpty()) {
+				if (view.isGMView() && token.getGMName() != null && !StringUtil.isEmpty(token.getGMName())) {
 					name += " (" + token.getGMName() + ")";
 				}
 
