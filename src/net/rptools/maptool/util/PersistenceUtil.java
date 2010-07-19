@@ -78,7 +78,9 @@ public class PersistenceUtil {
 	private static final String PROP_CAMPAIGN_VERSION = "campaignVersion";
 	private static final String ASSET_DIR = "assets/";
 
-	private static final String CAMPAIGN_VERSION = "1.3.65";
+	private static final String CAMPAIGN_VERSION = "1.3.70";
+	// Please add a single note regarding why the campaign version number has been updated:
+	// 1.3.70	ownerOnly added to model.Light (not backward compatible)
 
 	private static final ModelVersionManager campaignVersionManager = new ModelVersionManager();
 	private static final ModelVersionManager assetnameVersionManager = new ModelVersionManager();
