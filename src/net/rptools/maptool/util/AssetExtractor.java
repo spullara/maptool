@@ -9,15 +9,15 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.util.Set;
 
 import javax.swing.JFileChooser;
@@ -35,22 +35,22 @@ import com.thoughtworks.xstream.XStream;
 public class AssetExtractor {
 
 	public static void extract() throws Exception {
-		
+
 		new Thread() {
 			@Override
 			public void run() {
-				
+
 				JFileChooser chooser = new JFileChooser();
 				chooser.setMultiSelectionEnabled(false);
 				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				if (chooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) {
 					return;
 				}
-				
+
 				File file = chooser.getSelectedFile();
 
 				File newDir = new File(file.getParentFile(), file.getName().substring(0, file.getName().lastIndexOf('.')) + "_images");
-				
+
 				JLabel label = new JLabel("", JLabel.CENTER);
 				JFrame frame = new JFrame();
 				frame.setTitle("Campaign Image Extractor");
@@ -74,11 +74,11 @@ public class AssetExtractor {
 						if (filename.indexOf("assets") < 0) {
 							continue;
 						}
-						
-						InputStream in = pakfile.getFile(filename);
-						Asset asset = (Asset) xstream.fromXML(in);
-						in.close();
-						
+
+						Reader r = pakfile.getFileAsReader(filename);
+						Asset asset = (Asset) xstream.fromXML(r);
+						r.close();
+
 						File newFile = new File(newDir, asset.getName() + ".jpg");
 						label.setText("Extracting image " + count + " of " + files.size() + ": " + newFile);
 						if (newFile.exists()) {
@@ -86,11 +86,11 @@ public class AssetExtractor {
 						}
 						newFile.createNewFile();
 						OutputStream out = new FileOutputStream(newFile);
-						FileUtil.copy(new ByteArrayInputStream(asset.getImage()), out);
+						FileUtil.copyWithClose(new ByteArrayInputStream(asset.getImage()), out);
 						out.close();
 
 					}
-					
+
 					label.setText("Done.");
 				} catch (Exception ioe) {
 					ioe.printStackTrace();

@@ -118,22 +118,22 @@ public class StrListFunctions extends AbstractFunction {
 		return retval;
 	}
 
-	/** MapTool call: <code>listGet(list, index [,delim])</code> 
+	/** MapTool call: <code>listGet(list, index [,delim])</code>
 	 * @param index A zero-based number
 	 * @param delim An optional list delimiter (default ",")
 	 * @return The item at position <code>index</code>, or <code>""</code> if out of bounds. */
-	public Object listGet(List<Object> parameters, String listStr, String lastParam, List<String> list) 
+	public Object listGet(List<Object> parameters, String listStr, String lastParam, List<String> list)
 	throws ParameterException {
 		Object retval = "";
 		String delim = ",";
-		
+
 		int minParams = 2;
 		int maxParams = minParams + 1;
 		checkVaryingParameters("listGet()", minParams, maxParams, parameters, new Class[] {null, BigDecimal.class, String.class});
 		if (parameters.size() == maxParams)
 			delim = lastParam;
 		parse(listStr, list, delim);
-		
+
 		int index = ((BigDecimal)parameters.get(1)).intValue();
 		if (index >= 0 && index < list.size()) {
 			String value = list.get(index);
@@ -149,11 +149,11 @@ public class StrListFunctions extends AbstractFunction {
 	}
 
 	/** <code>listDelete(list, index [,delim])</code>
-	 * @param index A number from 0 to (list length)-1.  Out of range values are ignored. 
+	 * @param index A number from 0 to (list length)-1.  Out of range values are ignored.
 	 * @param delim An optional list delimiter (default ",")
 	 * @return A new list with the item at position <code>index</code> deleted.
 	 */
-	public Object listDelete(List<Object> parameters, String listStr, String lastParam, List<String> list) 
+	public Object listDelete(List<Object> parameters, String listStr, String lastParam, List<String> list)
 	throws ParameterException {
 		Object retval = "";
 		String delim = ",";
@@ -165,7 +165,7 @@ public class StrListFunctions extends AbstractFunction {
 			delim = lastParam;
 		}
 		parse(listStr, list, delim);
-		
+
 		int index = ((BigDecimal)parameters.get(1)).intValue();
 		StringBuilder sb = new StringBuilder();
 		boolean inRange = ( index >= 0 && index < list.size());
@@ -184,10 +184,10 @@ public class StrListFunctions extends AbstractFunction {
 		return retval;
 	}
 
-	/** MapTool call: <code>listCount(list [,delim])</code> 
+	/** MapTool call: <code>listCount(list [,delim])</code>
 	 * @param delim An optional list delimiter (default ",")
 	 * @return The number of entries in the list. */
-	public Object listCount(List<Object> parameters, String listStr, String lastParam, List<String> list) 
+	public Object listCount(List<Object> parameters, String listStr, String lastParam, List<String> list)
 	throws ParameterException {
 		Object retval = "";
 		String delim = ",";
@@ -199,16 +199,16 @@ public class StrListFunctions extends AbstractFunction {
 			delim = lastParam;
 		}
 		parse(listStr, list, delim);
-		
+
 		retval = new BigDecimal(list.size());
 		return retval;
 	}
 
-	/** MapTool call: <code>listFind(list, target [,delim])</code> 
+	/** MapTool call: <code>listFind(list, target [,delim])</code>
 	 * @param target A string or number to search for
 	 * @param delim An optional list delimiter (default ",")
 	 * @return The index of the first occurence of <code>target</code>, or -1 if not found.*/
-	public Object listFind(List<Object> parameters, String listStr, String lastParam, List<String> list) 
+	public Object listFind(List<Object> parameters, String listStr, String lastParam, List<String> list)
 	throws ParameterException {
 		Object retval = "";
 		String delim = ",";
@@ -220,7 +220,7 @@ public class StrListFunctions extends AbstractFunction {
 			delim = lastParam;
 		}
 		parse(listStr, list, delim);
-		
+
 		String target = parameters.get(1).toString().trim();
 		int index;
 		for (index=0; index<list.size(); index++) {
@@ -233,7 +233,7 @@ public class StrListFunctions extends AbstractFunction {
 		return retval;
 	}
 
-	/** MapTool call: <code>listContains(list, target [,delim])</code> 
+	/** MapTool call: <code>listContains(list, target [,delim])</code>
 	 * @param target A string or number to search for
 	 * @param delim An optional list delimiter (default ",")
 	 * @return Number of occurrences of <code>target</code> in <code>list</code>.*/
@@ -249,7 +249,7 @@ public class StrListFunctions extends AbstractFunction {
 			delim = lastParam;
 		}
 		parse(listStr, list, delim);
-		
+
 		String target = parameters.get(1).toString().trim();
 		int numMatches = 0;
 		for (int index=0; index<list.size(); index++) {
@@ -261,11 +261,11 @@ public class StrListFunctions extends AbstractFunction {
 		return retval;
 	}
 
-	/** MapTool call: <code>listAppend(list, target [,delim])</code> 
+	/** MapTool call: <code>listAppend(list, target [,delim])</code>
 	 * @param target A string or number to append.
 	 * @param delim An optional list delimiter (default ",")
 	 * @return A new list with <code>target</code> appended. */
-	public Object listAppend(List<Object> parameters, String listStr, String lastParam, List<String> list) 
+	public Object listAppend(List<Object> parameters, String listStr, String lastParam, List<String> list)
 	throws ParameterException {
 		Object retval = "";
 		String delim = ",";
@@ -277,7 +277,7 @@ public class StrListFunctions extends AbstractFunction {
 			delim = lastParam;
 		}
 		parse(listStr, list, delim);
-		
+
 		String target = parameters.get(1).toString().trim();
 		StringBuilder sb = new StringBuilder();
 		for (String item: list) {
@@ -290,12 +290,12 @@ public class StrListFunctions extends AbstractFunction {
 		return retval;
 	}
 
-	/** MapTool call: <code>listInsert(list, index, target [,delim])</code> 
+	/** MapTool call: <code>listInsert(list, index, target [,delim])</code>
 	 * @param index A zero-based number from 0 to the list length (if equal to list length, <code>target</code> is appended)
 	 * @param target A string or number to insert
 	 * @param delim An optional list delimiter (default ",")
 	 * @return A new list with <code>target</code> inserted before the item at position <code>index</code> */
-	public Object listInsert(List<Object> parameters, String listStr, String lastParam, List<String> list) 
+	public Object listInsert(List<Object> parameters, String listStr, String lastParam, List<String> list)
 	throws ParameterException {
 		Object retval = "";
 		String delim = ",";
@@ -307,7 +307,7 @@ public class StrListFunctions extends AbstractFunction {
 			delim = lastParam;
 		}
 		parse(listStr, list, delim);
-		
+
 		int index = ((BigDecimal)parameters.get(1)).intValue();
 		String target = parameters.get(2).toString().trim();
 		StringBuilder sb = new StringBuilder();
@@ -334,12 +334,12 @@ public class StrListFunctions extends AbstractFunction {
 		return retval;
 	}
 
-	/** MapTool call: <code>listReplace(list, index, target [,delim])</code> 
+	/** MapTool call: <code>listReplace(list, index, target [,delim])</code>
 	 * @param index A number from 0 to (list length)-1.  Out of range values are ignored.
 	 * @param target A string or number to be placed in the list
 	 * @param delim An optional list delimiter (default ",")
 	 * @return A new list with the entry at <code>index</code> repaced by <code>target</code> */
-	public Object listReplace(List<Object> parameters, String listStr, String lastParam, List<String> list) 
+	public Object listReplace(List<Object> parameters, String listStr, String lastParam, List<String> list)
 	throws ParameterException {
 		Object retval = "";
 		String delim = ",";
@@ -353,7 +353,7 @@ public class StrListFunctions extends AbstractFunction {
 		parse(listStr, list, delim);
 
 		if (list.size() == 0)	// can't replace if there are no entries
-			return retval;	
+			return retval;
 
 		int index = ((BigDecimal)parameters.get(1)).intValue();
 		String target = parameters.get(2).toString().trim();
@@ -372,11 +372,11 @@ public class StrListFunctions extends AbstractFunction {
 		return retval;
 	}
 
-	/** MapTool call: <code>listSort(list, sortType [,delim])</code> 
+	/** MapTool call: <code>listSort(list, sortType [,delim])</code>
 	 * @param sortType Either "A" or "N" for alphabetic vs. numeric sorting,
 	 * and optional second character "+" or "-" to control ascending vs. descending sort.
 	 * @return A new sorted list */
-	public Object listSort(List<Object> parameters, String listStr, String lastParam, List<String> list) 
+	public Object listSort(List<Object> parameters, String listStr, String lastParam, List<String> list)
 	throws ParameterException {
 		Object retval = "";
 		String delim = ",";
@@ -414,7 +414,7 @@ public class StrListFunctions extends AbstractFunction {
 	 * @param itemFormat Controls appearance of each item, with "%item" where the item goes.
 	 * @param separator Placed between each output item.
 	 * @return A string containing the formatted list. */
-	public Object listFormat(List<Object> parameters, String listStr, String lastParam, List<String> list) 
+	public Object listFormat(List<Object> parameters, String listStr, String lastParam, List<String> list)
 	throws ParameterException {
 		Object retval = "";
 		String delim = ",";
@@ -427,11 +427,11 @@ public class StrListFunctions extends AbstractFunction {
 			delim = lastParam;
 		}
 		parse(listStr, list, delim);
-		
+
 		String listFormat  = parameters.get(1).toString();
 		String entryFormat = parameters.get(2).toString();
 		String separator   = parameters.get(3).toString();
-		
+
 		StringBuilder sb = new StringBuilder();
 		boolean firstEntry = true;
 		for (String item : list) {
@@ -445,7 +445,7 @@ public class StrListFunctions extends AbstractFunction {
 			entry = entry.replaceAll("\\%item", item);
 			sb.append(entry);
 		}
-		
+
 		retval = listFormat.replaceFirst("\\%list", sb.toString());
 		return retval;
 	}
@@ -500,7 +500,7 @@ public class StrListFunctions extends AbstractFunction {
 			case ALPHA:
 			default:
 				order = s0.compareToIgnoreCase(s1);
-			break;
+				break;
 			}
 
 			if (so < 1) order = - order;
@@ -539,14 +539,14 @@ public class StrListFunctions extends AbstractFunction {
 
 	/** Checks number and types of parameters (pass null type to suppress typechecking for that slot). */
 	public void checkVaryingParameters(
-			String funcName, int minParams, int maxParams, List<Object> parameters, Class[] expected) 
+			String funcName, int minParams, int maxParams, List<Object> parameters, Class[] expected)
 	throws ParameterException {
 		if (parameters.size() < minParams || parameters.size() > maxParams) {
 			String msg;
 			if (minParams == maxParams) {
 				throw new ParameterException(I18N.getText("macro.function.strLst.incorrectParamExact", funcName, minParams));
 			} else {
-				throw new ParameterException(I18N.getText("macro.function.strLst.incorrectParamExact", funcName, minParams, maxParams));
+				throw new ParameterException(I18N.getText("macro.function.strLst.incorrectParam", funcName, minParams, maxParams));
 			}
 		}
 
@@ -555,7 +555,7 @@ public class StrListFunctions extends AbstractFunction {
 
 		for (int i=0; i<numToCheck; i++) {
 			if (expected[i]!=null && !(expected[i].isInstance(parameters.get(i))))
-				throw new ParameterException(I18N.getText("macro.function.strLst.incorrectParamExact", funcName, i+1, expected[i].getSimpleName(),
+				throw new ParameterException(I18N.getText("macro.function.strLst.incorrectParamType", funcName, i+1, expected[i].getSimpleName(),
 						parameters.get(i), parameters.get(i).getClass().getSimpleName()));
 		}
 	}
@@ -566,40 +566,40 @@ public class StrListFunctions extends AbstractFunction {
 
 <b>Tests</b>
 [h: OK = "OK"] [h: Fail = "<font color=red><b>Fail</b></font>"]
-<br>listGet(): 
+<br>listGet():
 {if( listGet("",0)=="" && listGet("x",0)=="x" && listGet("a,b",1)=="b" && listGet("1",0)==1
      && listGet("0,1",1)==1 && (listGet("0,1",1)+5)==6
      , OK, Fail)}
 
-<br>listDelete(): 
-{if( listDelete("",0)=="" && listDelete("x",0)=="" && listDelete("a,b",0)=="b" 
+<br>listDelete():
+{if( listDelete("",0)=="" && listDelete("x",0)=="" && listDelete("a,b",0)=="b"
      && listDelete("a,b",1)=="a" && listDelete("a,b",2)=="a, b"
      , OK, Fail)}
 
-<br>listCount(): 
+<br>listCount():
 {if( listCount("")==0 && listCount("x")==1 && listCount(",")==2
      , OK, Fail)}
 
-<br>listFind(): 
-{if( listFind("","x")==-1 && listFind(",","")==0 && listFind("x","x")==0 && listFind("a,b","b")==1 
+<br>listFind():
+{if( listFind("","x")==-1 && listFind(",","")==0 && listFind("x","x")==0 && listFind("a,b","b")==1
      && listFind("a,b","c")==-1 && listFind("a,0,b",0)==1 && listFind("a,0,b",1)==-1
      , OK, Fail)}
 
-<br>listAppend(): 
-{if( listAppend("","a")=="a" && listAppend("",0)=="0" && listAppend("x","y")=="x, y" 
+<br>listAppend():
+{if( listAppend("","a")=="a" && listAppend("",0)=="0" && listAppend("x","y")=="x, y"
      && listAppend("x",1)=="x, 1" && listAppend("a,b","c")=="a, b, c" && listAppend("1,b",2)=="1, b, 2"
      && listAppend(",","z")==", , z"
      , OK, Fail)}
 
-<br>listInsert(): 
+<br>listInsert():
 {if( listInsert("",0,"x")=="x" && listInsert("",1,"x")=="" && listInsert("",0,5)=="5"
      && listInsert("x",0,"y")=="y, x" && listInsert("x",1,5)=="x, 5" && listInsert("x",2,"y")=="x"
      && listInsert("a,b",0,3)=="3, a, b" && listInsert("a,b",2,"c")=="a, b, c" && listInsert("a,b",3,"c")=="a, b"
      , OK, Fail)}
 
-<br>listReplace(): 
-{if( listReplace("",0,"a")=="" && listReplace("",0,55)=="" 
-     && listReplace("x",0,3)=="3" && listReplace("x",1,"y")=="x" 
+<br>listReplace():
+{if( listReplace("",0,"a")=="" && listReplace("",0,55)==""
+     && listReplace("x",0,3)=="3" && listReplace("x",1,"y")=="x"
      && listReplace(",",0,"a")=="a, " && listReplace(",",1,"b")==", b" && listReplace(",",2,"c")==", "
      && listReplace("a,b",1,"d")=="a, d"
      , OK, Fail)}
@@ -617,40 +617,40 @@ public class StrListFunctions extends AbstractFunction {
 
 <br><br><b>Tests with non-default separator:</b>
 [h: OK = "OK"] [h: Fail = "<font color=red><b>Fail</b></font>"]
-<br>listGet(): 
-{if( listGet("",0,";")=="" && listGet("x",0,";")=="x" && listGet("a;b",1,";")=="b" 
+<br>listGet():
+{if( listGet("",0,";")=="" && listGet("x",0,";")=="x" && listGet("a;b",1,";")=="b"
      && listGet("0;1",1,";")==1 && (listGet("0;1",1,";")+5)==6
      , OK, Fail)}
 
-<br>listDelete(): 
-{if( listDelete("",0,";")=="" && listDelete("x",0,";")=="" && listDelete("a;b",0,";")=="b" 
+<br>listDelete():
+{if( listDelete("",0,";")=="" && listDelete("x",0,";")=="" && listDelete("a;b",0,";")=="b"
      && listDelete("a;b",1,";")=="a" && listDelete("a;b",2,";")=="a; b"
      , OK, Fail)}
 
-<br>listCount(): 
+<br>listCount():
 {if( listCount("",";")==0 && listCount("x",";")==1 && listCount(";",";")==2
      , OK, Fail)}
 
-<br>listFind(): 
-{if( listFind("","x",";")==-1 && listFind(";","",";")==0 && listFind("x","x",";")==0 && listFind("a;b","b",";")==1 
+<br>listFind():
+{if( listFind("","x",";")==-1 && listFind(";","",";")==0 && listFind("x","x",";")==0 && listFind("a;b","b",";")==1
      && listFind("a;b","c",";")==-1 && listFind("a;0;b",0,";")==1 && listFind("a;0;b",1,";")==-1
      , OK, Fail)}
 
-<br>listAppend(): 
-{if( listAppend("","a",";")=="a" && listAppend("",0,";")=="0" && listAppend("x","y",";")=="x; y" 
+<br>listAppend():
+{if( listAppend("","a",";")=="a" && listAppend("",0,";")=="0" && listAppend("x","y",";")=="x; y"
      && listAppend("x",1,";")=="x; 1" && listAppend("a;b","c",";")=="a; b; c" && listAppend("1;b",2,";")=="1; b; 2"
      && listAppend(";","z",";")=="; ; z"
      , OK, Fail)}
 
-<br>listInsert(): 
+<br>listInsert():
 {if( listInsert("",0,"x",";")=="x" && listInsert("",1,"x",";")=="" && listInsert("",0,5,";")=="5"
      && listInsert("x",0,"y",";")=="y; x" && listInsert("x",1,5,";")=="x; 5" && listInsert("x",2,"y",";")=="x"
      && listInsert("a;b",0,3,";")=="3; a; b" && listInsert("a;b",2,"c",";")=="a; b; c" && listInsert("a;b",3,"c",";")=="a; b"
      , OK, Fail)}
 
-<br>listReplace(): 
-{if( listReplace("",0,"a",";")=="" && listReplace("",0,55,";")=="" 
-     && listReplace("x",0,3,";")=="3" && listReplace("x",1,"y",";")=="x" 
+<br>listReplace():
+{if( listReplace("",0,"a",";")=="" && listReplace("",0,55,";")==""
+     && listReplace("x",0,3,";")=="3" && listReplace("x",1,"y",";")=="x"
      && listReplace(";",0,"a",";")=="a; " && listReplace(";",1,"b",";")=="; b" && listReplace(";",2,"c",";")=="; "
      && listReplace("a;b",1,"d",";")=="a; d"
      , OK, Fail)}

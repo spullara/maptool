@@ -7,7 +7,6 @@ public class PCVisionTransform implements ModelVersionTransformation {
 	private static final String subField = "<hasSight>";
 
 	public String transform(String xml) {
-
 		int index = 0;
 		int start = 0;
 		while ((start = xml.indexOf(searchFor, index)) > 0) {

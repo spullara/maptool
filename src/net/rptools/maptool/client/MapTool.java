@@ -868,12 +868,10 @@ public class MapTool {
 			// This isn't critical, we're closing it anyway
 			log.debug("While closing connection", ioe);
 		}
-
 		MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.disconnected);
 
 		if (!isPersonalServer) {
-			addLocalMessage("<span style='color:blue'><i>"
-					+ I18N.getText("msg.info.disconnected") + "</i></span>");
+			addLocalMessage("<span style='color:blue'><i>" + I18N.getText("msg.info.disconnected") + "</i></span>");
 		}
 	}
 
@@ -882,12 +880,11 @@ public class MapTool {
 	}
 
 	private static void configureLogging() {
-
 		String logging = null;
 		try {
-			logging = new String(FileUtil.getBytes(MapTool.class.getClassLoader().getResourceAsStream("net/rptools/maptool/client/logging.xml")));
-		} catch (IOException e) {
-			System.err.println("Could not load logging file: " + e);
+			logging = new String(FileUtil.loadResource("net/rptools/maptool/client/logging.xml"), "UTF-8");
+		} catch (IOException ioe) {
+			System.err.println("Could not load logging configuration file: " + ioe);
 			return;
 		}
 

@@ -61,6 +61,7 @@ import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.transform.campaign.AssetNameTransform;
 import net.rptools.maptool.model.transform.campaign.PCVisionTransform;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import com.caucho.hessian.io.HessianInput;
@@ -92,6 +93,7 @@ public class PersistenceUtil {
 		// variable, and use that as the key to the following register call
 		// This gives us a rough estimate how far backwards compatible the model is
 		// If you need sub-minor version level granularity, simply add another dot value at the end (e.g. 1.3.51.1)
+		// XXX Need to change this to use XSLTC and allow the XSLT to be specified external to the code.
 		campaignVersionManager.registerTransformation("1.3.51", new PCVisionTransform());
 
 		// For a short time, assets were stored separately in files ending with ".dat".  As of 1.3.64, they are
@@ -180,20 +182,14 @@ public class PersistenceUtil {
 		CodeTimer saveTimer;		// FJE Previously this was 'private static' -- why?
 		saveTimer = new CodeTimer("Save");
 		saveTimer.setThreshold(5);
+		saveTimer.setEnabled(log.isDebugEnabled());		// Don't bother keeping track if it won't be displayed...
 
-		if (!log.isDebugEnabled()) {
-			saveTimer.setEnabled(false);		// Don't bother keeping track if it won't be displayed...
-		}
-
-		// Strategy: save the file to a tmp location so that if there's a
-		// failure the original file
-		// won't be touched. Then once we're finished, replace the old with the
-		// new
+		// Strategy: save the file to a tmp location so that if there's a failure the original file
+		// won't be touched. Then once we're finished, replace the old with the new.
 		File tmpDir = AppUtil.getTmpDir();
 		File tmpFile = new File(tmpDir.getAbsolutePath() + "/" + campaignFile.getName());
-		if (tmpFile.exists()) {
+		if (tmpFile.exists())
 			tmpFile.delete();
-		}
 
 		PackedFile pakFile = new PackedFile(tmpFile);
 
@@ -242,13 +238,19 @@ public class PersistenceUtil {
 		// provides
 		saveTimer.start("backup");
 		File bakFile = new File(tmpDir.getAbsolutePath() + "/" + campaignFile.getName() + ".bak");
-		if (campaignFile.exists()) {
-			FileUtil.copyFile(campaignFile, bakFile);
-			campaignFile.delete();
-		}
-		FileUtil.copyFile(tmpFile, campaignFile);
-		tmpFile.delete();
 		bakFile.delete();
+		if (campaignFile.exists()) {
+			if (!campaignFile.renameTo(bakFile)) {
+				FileUtil.copyFile(campaignFile, bakFile);
+				campaignFile.delete();
+			}
+		}
+		if (!tmpFile.renameTo(campaignFile)) {
+			FileUtil.copyFile(tmpFile, campaignFile);
+			tmpFile.delete();
+		}
+		if (bakFile.exists())
+			bakFile.delete();
 		saveTimer.stop("backup");
 
 		// Save the campaign thumbnail
@@ -325,7 +327,6 @@ public class PersistenceUtil {
 				for (Zone zone : persistedCampaign.campaign.getZones()) {
 					zone.optimize();
 				}
-
 				return persistedCampaign;
 			}
 		} catch (RuntimeException rte) {
@@ -379,23 +380,19 @@ public class PersistenceUtil {
 	}
 
 	public static BufferedImage getTokenThumbnail(File file) throws Exception {
-
 		PackedFile pakFile = new PackedFile(file);
-
 		BufferedImage thumb = null;
 		if (pakFile.hasFile(Token.FILE_THUMBNAIL)) {
-			InputStream in = pakFile.getFile(Token.FILE_THUMBNAIL);
+			InputStream is = pakFile.getFileAsInputStream(Token.FILE_THUMBNAIL);
 			try {
-				thumb = ImageIO.read(in);
+				thumb = ImageIO.read(is);
 			} finally {
-				if (in != null) {
-					in.close();
+				if (is != null) {
+					is.close();
 				}
 			}
 		}
-
 		pakFile.close();
-
 		return thumb;
 	}
 
@@ -451,7 +448,9 @@ public class PersistenceUtil {
 				String pathname = ASSET_DIR + key;
 				Asset asset;
 				if (mtVersion.equals("1.3.b64")) {
-					asset = new Asset(key.toString(), pakFile.getFileData(pathname));	// Ugly bug fix :(
+					InputStream is = pakFile.getFileAsInputStream(pathname);
+					asset = new Asset(key.toString(), IOUtils.toByteArray(is));	// Ugly bug fix :(
+					is.close();
 				} else {
 					asset = (Asset) pakFile.getFileObject(pathname);			// XML deserialization
 				}
@@ -466,15 +465,16 @@ public class PersistenceUtil {
 					log.warn("Reference to 'broken' asset '" + pathname + "' not restored.");
 					continue;
 				}
-				// pre 1.3b51 campaign files stored the image data directly in the asset serialization
+				// pre 1.3b52 campaign files stored the image data directly in the asset serialization
 				if (asset.getImage() == null
 						|| asset.getImage().length < 4	// New XStreamConverter creates empty byte[] for image
 				) {
 					String ext = asset.getImageExtension();
 					pathname = pathname + "." + (StringUtil.isEmpty(ext) ? "dat" : ext);
 					pathname = assetnameVersionManager.transform(pathname, campVersion);
-					byte[] imageData = pakFile.getFileData(pathname);
-					asset.setImage(imageData);
+					InputStream is = pakFile.getFileAsInputStream(pathname);
+					asset.setImage(IOUtils.toByteArray(is));
+					is.close();
 				}
 				AssetManager.putAsset(asset);
 

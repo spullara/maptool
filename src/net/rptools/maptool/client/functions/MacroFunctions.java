@@ -721,7 +721,7 @@ public class MacroFunctions extends AbstractFunction {
 								+ token.getName());
 					} else {
 						setMacroProps(mbp, param.get(1).toString(), delim);
-						mbp.save();
+						mbp.save();		// FJE Shouldn't this be outside the 'for' loop?
 					}
 				}
 			}
