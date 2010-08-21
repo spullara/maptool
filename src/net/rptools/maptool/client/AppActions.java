@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
@@ -2699,11 +2700,9 @@ public class AppActions {
 	}
 
 	public static class OpenMRUCampaign extends AbstractAction {
-
 		private final File campaignFile;
 
 		public OpenMRUCampaign(File file, int position) {
-
 			campaignFile = file;
 			String label = position + " " + campaignFile.getName();
 			putValue(Action.NAME, label);
@@ -2712,13 +2711,23 @@ public class AppActions {
 				int keyCode = KeyStroke.getKeyStroke(Integer.toString(position)).getKeyCode();
 				putValue(Action.MNEMONIC_KEY, keyCode);
 			}
-
 			// Use the saved campaign thumbnail as a tooltip
 			File thumbFile = PersistenceUtil.getCampaignThumbnailFile(campaignFile.getName());
 			String htmlTip;
 
 			if (thumbFile.exists()) {
-				htmlTip = "<html><img src=\"file:///" + thumbFile.getPath() + "\"></html>";
+				URL url = null;
+				try {
+					url = thumbFile.toURI().toURL();
+				} catch (MalformedURLException e) {
+					// Can this even happen?
+					MapTool.showWarning("Converting File to URL threw an exception?!", e);
+					return;
+				}
+				htmlTip = "<html><img src=\"" + url.toExternalForm() + "\"></html>";
+				// The above should really be something like:
+				// htmlTip = new Node("html").addChild("img").attr("src", thumbFile.toURI().toURL()).end();
+				// The idea being that each method returns a proper value that allows them to be chained.
 			} else {
 				htmlTip = I18N.getText("msg.info.noCampaignPreview");
 			}
@@ -2733,12 +2742,9 @@ public class AppActions {
 		}
 
 		public void actionPerformed(ActionEvent ae) {
-			if (MapTool.isCampaignDirty() && !MapTool.confirm("msg.confirm.loseChanges")) {
+			if (MapTool.isCampaignDirty() && !MapTool.confirm("msg.confirm.loseChanges"))
 				return;
-			}
-
 			AppActions.loadCampaign(campaignFile);
 		}
 	}
-
 }

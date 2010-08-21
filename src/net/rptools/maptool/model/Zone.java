@@ -306,9 +306,16 @@ public class Zone extends BaseModel {
 		return id;
 	}
 
+	/**
+	 * Should be invoked only when a Zone has been imported from an external source
+	 * and needs to be cleaned up before being used.  Currently this cleanup
+	 * consists of allocating a new GUID, setting the creation time to `now', and
+	 * clearing the initiative list of all tokens.
+	 */
 	public void imported() {
 		id = new GUID();
 		creationTime = System.currentTimeMillis();
+		initiativeList.clearModel();
 	}
 
 	public int getHeight() {

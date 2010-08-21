@@ -18,14 +18,14 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -65,7 +65,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import com.caucho.hessian.io.HessianInput;
-import com.caucho.hessian.io.HessianOutput;
 import com.thoughtworks.xstream.XStream;
 
 /**
@@ -120,8 +119,6 @@ public class PersistenceUtil {
 
 	public static void saveMap(Zone z, File mapFile) throws IOException {
 		PackedFile pakFile = new PackedFile(mapFile);
-
-		// Configure the meta file (this is for legacy support)
 		PersistedMap pMap = new PersistedMap();
 		pMap.zone = z;
 
@@ -141,12 +138,11 @@ public class PersistenceUtil {
 	}
 
 	public static PersistedMap loadMap(File mapFile) throws IOException {
-		// Try the new way first
 		PackedFile pakfile = new PackedFile(mapFile);
 		try {
 			// Sanity check
-			String version = (String) pakfile.getProperty(PROP_VERSION);
-			PersistedMap persistedMap = (PersistedMap) pakfile.getContent(version);
+//			String version = (String) pakfile.getProperty(PROP_VERSION);
+			PersistedMap persistedMap = (PersistedMap) pakfile.getContent();
 
 			// Now load up any images that we need
 			loadAssets(persistedMap.assetMap.keySet(), pakfile);
@@ -159,6 +155,8 @@ public class PersistenceUtil {
 				Token token = iter.next();
 				token.imported();
 			}
+			// XXX FJE This doesn't work the way I want it to.  But doing this the Right Way
+			// is too much work right now. :-}
 			Zone z = persistedMap.zone;
 			String n = z.getName();
 			String count = n.replaceFirst("Import (\\d+) of.*", "$1");
@@ -169,11 +167,11 @@ public class PersistenceUtil {
 			}
 			n = n.replaceFirst("Import \\d+ of ", "Import " + next + " of ");
 			z.setName(n);
-			z.imported();	// Resets creation timestamp; not needed when loading a campaign
+			z.imported();			// Resets creation timestamp, amongst other things
 			z.optimize();
 			return persistedMap;
 		} catch (IOException ioe) {
-			MapTool.showError("while reading map data from file", ioe);
+			MapTool.showError("While reading map data from file", ioe);
 			throw ioe;
 		}
 	}
@@ -291,8 +289,7 @@ public class PersistenceUtil {
 		try {
 			ImageIO.write(thumb, "jpg", thumbFile);
 		} catch (IOException ioe) {
-			MapTool.showError("msg.error.failedSaveCampaignPreview");
-			log.error("Failed to save campaign preview image", ioe);
+			MapTool.showError("msg.error.failedSaveCampaignPreview", ioe);
 		}
 	}
 
@@ -307,13 +304,11 @@ public class PersistenceUtil {
 	}
 
 	public static PersistedCampaign loadCampaign(File campaignFile) throws IOException {
-
 		// Try the new way first
 		PackedFile pakfile = new PackedFile(campaignFile);
 		pakfile.setModelVersionManager(campaignVersionManager);
 
 		try {
-
 			// Sanity check
 			String version = (String)pakfile.getProperty(PROP_CAMPAIGN_VERSION);
 			version = version == null ? "1.3.50" : version;	// This is where the campaignVersion was added
@@ -323,7 +318,6 @@ public class PersistenceUtil {
 				// Note that the values are all placeholders
 				Set<MD5Key> allAssetIds = persistedCampaign.assetMap.keySet();
 				loadAssets(allAssetIds, pakfile);
-
 				for (Zone zone : persistedCampaign.campaign.getZones()) {
 					zone.optimize();
 				}
@@ -336,46 +330,49 @@ public class PersistenceUtil {
 			// Even the old legacy technique probably won't work, but we should at least try...
 		}
 		log.error("Could not load campaign in the current format, trying old format");
-		try {
-			return loadLegacyCampaign(campaignFile);
-		} catch (Exception e) {
-			return null;
-		}
+		return loadLegacyCampaign(campaignFile);
 	}
 
-	public static PersistedCampaign loadLegacyCampaign(File campaignFile) throws IOException {
+	public static PersistedCampaign loadLegacyCampaign(File campaignFile) {
+		HessianInput his = null;
+		PersistedCampaign persistedCampaign = null;
+		try {
+			InputStream is = new BufferedInputStream(new FileInputStream(campaignFile));
+			his = new HessianInput(is);
+			persistedCampaign = (PersistedCampaign) his.readObject(null);
 
-		InputStream is = new BufferedInputStream(new FileInputStream(campaignFile));
-		HessianInput in = new HessianInput(is);
-
-		PersistedCampaign persistedCampaign = (PersistedCampaign) in.readObject(null);
-		is.close();
-
-		for (MD5Key key : persistedCampaign.assetMap.keySet()) {
-
-			Asset asset = persistedCampaign.assetMap.get(key);
-
-			if (!AssetManager.hasAsset(key)) {
-				AssetManager.putAsset(asset);
+			for (MD5Key key : persistedCampaign.assetMap.keySet()) {
+				Asset asset = persistedCampaign.assetMap.get(key);
+				if (!AssetManager.hasAsset(key))
+					AssetManager.putAsset(asset);
+				if (!MapTool.isHostingServer() && !MapTool.isPersonalServer()) {
+					// If we are remotely installing this campaign, we'll need to
+					// send the image data to the server
+					MapTool.serverCommand().putAsset(asset);
+				}
 			}
-
-			if (!MapTool.isHostingServer() && !MapTool.isPersonalServer()) {
-				// If we are remotely installing this campaign, we'll need to
-				// send the image data to the server
-				MapTool.serverCommand().putAsset(asset);
+			// Do some sanity work on the campaign
+			// This specifically handles the case when the zone mappings
+			// are out of sync in the save file
+			Campaign campaign = persistedCampaign.campaign;
+			Set<Zone> zoneSet = new HashSet<Zone>(campaign.getZones());
+			campaign.removeAllZones();
+			for (Zone zone : zoneSet) {
+				campaign.putZone(zone);
 			}
+		} catch (FileNotFoundException fnfe) {
+			if (log.isInfoEnabled())
+				log.info("Campaign file not found (this can't happen?!)", fnfe);
+			persistedCampaign = null;
+		} catch (IOException ioe) {
+			if (log.isInfoEnabled())
+				log.info("Campaign is not in legacy Hessian format", ioe);
+			persistedCampaign = null;
+		} finally {
+			try {
+				his.close();
+			} catch (Exception e) { }
 		}
-
-		// Do some sanity work on the campaign
-		// This specifically handles the case when the zone mappings
-		// are out of sync in the save file
-		Campaign campaign = persistedCampaign.campaign;
-		Set<Zone> zoneSet = new HashSet<Zone>(campaign.getZones());
-		campaign.removeAllZones();
-		for (Zone zone : zoneSet) {
-			campaign.putZone(zone);
-		}
-
 		return persistedCampaign;
 	}
 
@@ -439,6 +436,8 @@ public class PersistenceUtil {
 		pakFile.getXStream().processAnnotations(Asset.class);
 		String campVersion = (String)pakFile.getProperty(PROP_CAMPAIGN_VERSION);
 		String mtVersion = (String)pakFile.getProperty(PROP_VERSION);
+		List<Asset> addToServer = new ArrayList<Asset>(assetIds.size());
+
 		for (MD5Key key : assetIds) {
 			if (key == null) {
 				continue;
@@ -454,7 +453,6 @@ public class PersistenceUtil {
 				} else {
 					asset = (Asset) pakFile.getFileObject(pathname);			// XML deserialization
 				}
-
 				if (asset == null) {	// Referenced asset not included in PackedFile??
 					log.error("Referenced asset '" + pathname + "' not found while loading?!");
 					continue;
@@ -477,22 +475,33 @@ public class PersistenceUtil {
 					is.close();
 				}
 				AssetManager.putAsset(asset);
-
-				if (!MapTool.isHostingServer() && !MapTool.isPersonalServer()) {
-					// If we are remotely installing this token, we'll need to
-					// send the image data to the server
+				addToServer.add(asset);
+			}
+		}
+		if (!addToServer.isEmpty()) {
+			// Isn't this the same as (MapTool.getServer() == null) ?  And won't there always
+			// be a server?  Even if we don't start one explicitly, MapTool keeps a server
+			// running in the background all the time so that the rest of the code is
+			// consistent with regard to client<->server operations...
+			boolean server = !MapTool.isHostingServer() && !MapTool.isPersonalServer();
+			if (server) {
+				if (MapTool.isDevelopment())
+					MapTool.showInformation("Please report this:  !isHostingServer() && !isPersonalServer() == true");
+				// If we are remotely installing this token, we'll need to
+				// send the image data to the server
+				for (Asset asset : addToServer) {
 					MapTool.serverCommand().putAsset(asset);
 				}
 			}
+			addToServer.clear();
 		}
 	}
 
 	private static void saveAssets(Collection<MD5Key> assetIds, PackedFile pakFile) throws IOException {
 		pakFile.getXStream().processAnnotations(Asset.class);
 		for (MD5Key assetId : assetIds) {
-			if (assetId == null) {
+			if (assetId == null)
 				continue;
-			}
 
 			// And store the asset elsewhere
 			// As of 1.3.b64, assets are written in binary to allow them to be readable
@@ -516,10 +525,8 @@ public class PersistenceUtil {
 	}
 
 	public static CampaignProperties loadLegacyCampaignProperties(File file) throws IOException {
-
-		if (!file.exists()) {
+		if (!file.exists())
 			throw new FileNotFoundException();
-		}
 
 		FileInputStream in = new FileInputStream(file);
 		try {
@@ -532,8 +539,7 @@ public class PersistenceUtil {
 	}
 
 	public static CampaignProperties loadCampaignProperties(InputStream in) throws IOException {
-
-		return (CampaignProperties) new XStream().fromXML(in);
+		return (CampaignProperties) new XStream().fromXML(new InputStreamReader(in, "UTF-8"));
 	}
 
 	public static CampaignProperties loadCampaignProperties(File file) throws IOException {
@@ -564,37 +570,23 @@ public class PersistenceUtil {
 		pakFile.close();
 	}
 
-	public static <T> T hessianClone(T object) throws IOException {
-
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		HessianOutput out = new HessianOutput(os);
-		out.writeObject(object);
-
-		HessianInput in = new HessianInput(new ByteArrayInputStream(os.toByteArray()));
-
-		return (T) in.readObject();
-	}
-
 	// Macro import/export support
 	public static MacroButtonProperties loadLegacyMacro(File file) throws IOException {
-
-		if (!file.exists()) {
+		if (!file.exists())
 			throw new FileNotFoundException();
-		}
 
 		FileInputStream in = new FileInputStream(file);
 		try {
 			return loadMacro(in);
 		} finally {
-			if (in != null) {
-				in.close();
-			}
+			try {
+				if (in != null) in.close();
+			} catch (Exception e) { }
 		}
 	}
 
 	public static MacroButtonProperties loadMacro(InputStream in) throws IOException {
-
-		return (MacroButtonProperties) new XStream().fromXML(in);
+		return (MacroButtonProperties) new XStream().fromXML(new InputStreamReader(in, "UTF-8"));
 	}
 
 	public static MacroButtonProperties loadMacro(File file) throws IOException {
@@ -639,8 +631,7 @@ public class PersistenceUtil {
 
 	@SuppressWarnings("unchecked")
 	public static List<MacroButtonProperties> loadMacroSet(InputStream in) throws IOException {
-
-		return (List<MacroButtonProperties>) new XStream().fromXML(in);
+		return (List<MacroButtonProperties>) new XStream().fromXML(new InputStreamReader(in, "UTF-8"));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -673,10 +664,8 @@ public class PersistenceUtil {
 
 	// Table import/export support
 	public static LookupTable loadLegacyTable(File file) throws IOException {
-
-		if (!file.exists()) {
+		if (!file.exists())
 			throw new FileNotFoundException();
-		}
 
 		FileInputStream in = new FileInputStream(file);
 		try {
@@ -689,14 +678,13 @@ public class PersistenceUtil {
 	}
 
 	public static LookupTable loadTable(InputStream in) throws IOException {
-
-		return (LookupTable) new XStream().fromXML(in);
+		return (LookupTable) new XStream().fromXML(new InputStreamReader(in, "UTF-8"));
 	}
 
 	public static LookupTable loadTable(File file) throws IOException {
 		try {
 			PackedFile pakFile = new PackedFile(file);
-			String version = (String) pakFile.getProperty(PROP_VERSION); // Sanity
+//			String version = (String) pakFile.getProperty(PROP_VERSION); // Sanity
 			// check
 			LookupTable lookupTable = (LookupTable) pakFile.getContent();
 			loadAssets(lookupTable.getAllAssetIds(), pakFile);
@@ -707,10 +695,9 @@ public class PersistenceUtil {
 	}
 
 	public static void saveTable(LookupTable lookupTable, File file) throws IOException {
-
 		// Put this in FileUtil
 		if (file.getName().indexOf(".") < 0) {
-			file = new File(file.getAbsolutePath() + ".mttable");
+			file = new File(file.getAbsolutePath() + AppConstants.TABLE_FILE_EXTENSION);
 		}
 		PackedFile pakFile = new PackedFile(file);
 		pakFile.setContent(lookupTable);
@@ -719,6 +706,4 @@ public class PersistenceUtil {
 		pakFile.save();
 		pakFile.close();
 	}
-
-	// end of Table import/export support
 }

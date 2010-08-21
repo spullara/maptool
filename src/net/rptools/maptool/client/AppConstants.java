@@ -40,9 +40,9 @@ public class AppConstants {
 			// added here? The question is really whether the Java2D libraries can read TIFF
 			// or my desktop GUI is converting the image during the drop operation... FJE
 			return name.endsWith(".bmp") ||
-						name.endsWith(".png") || name.endsWith(".gif") ||
-						name.endsWith(".jpg") || name.endsWith(".jpeg") ||
-						name.endsWith(Token.FILE_EXTENSION);			// RPTools Token format
+			name.endsWith(".png") || name.endsWith(".gif") ||
+			name.endsWith(".jpg") || name.endsWith(".jpeg") ||
+			name.endsWith(Token.FILE_EXTENSION);			// RPTools Token format
 		}
 	};
 
@@ -51,4 +51,5 @@ public class AppConstants {
 	public static final String MAP_FILE_EXTENSION = ".rpmap";
 	public static final String MACRO_FILE_EXTENSION = ".mtmacro";
 	public static final String MACROSET_FILE_EXTENSION = ".mtmacset";
+	public static final String TABLE_FILE_EXTENSION = ".mttable";
 }

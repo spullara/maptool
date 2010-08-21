@@ -46,19 +46,19 @@ public class MapToolUtil {
 	 * Set up the color map
 	 */
 	static {
-		COLOR_MAP.put("white", Color.WHITE);
-		COLOR_MAP.put("lightgray", Color.LIGHT_GRAY);
-		COLOR_MAP.put("gray", Color.GRAY);
-		COLOR_MAP.put("darkgray", Color.DARK_GRAY);
-		COLOR_MAP.put("black", Color.BLACK);
-		COLOR_MAP.put("blue", Color.BLUE);
-		COLOR_MAP.put("cyan", Color.CYAN);
-		COLOR_MAP.put("green", Color.GREEN);
-		COLOR_MAP.put("magenta", Color.MAGENTA);
-		COLOR_MAP.put("orange", Color.ORANGE);
-		COLOR_MAP.put("pink", Color.PINK);
-		COLOR_MAP.put("red", Color.RED);
-		COLOR_MAP.put("yellow", Color.YELLOW);
+		COLOR_MAP.put("black",		Color.BLACK);
+		COLOR_MAP.put("blue",			Color.BLUE);
+		COLOR_MAP.put("cyan",		Color.CYAN);
+		COLOR_MAP.put("darkgray",	Color.DARK_GRAY);
+		COLOR_MAP.put("gray",			Color.GRAY);
+		COLOR_MAP.put("green",		Color.GREEN);
+		COLOR_MAP.put("lightgray",	Color.LIGHT_GRAY);
+		COLOR_MAP.put("magenta",	Color.MAGENTA);
+		COLOR_MAP.put("orange",		Color.ORANGE);
+		COLOR_MAP.put("pink",			Color.PINK);
+		COLOR_MAP.put("red",			Color.RED);
+		COLOR_MAP.put("white",		Color.WHITE);
+		COLOR_MAP.put("yellow",		Color.YELLOW);
 	}
 
 	public static int getRandomNumber ( int max )
@@ -92,26 +92,31 @@ public class MapToolUtil {
 		return roll < percentage;
 	}
 
-	private static final Pattern NAME_PATTERN = Pattern.compile("(.*) (\\d+)");
-	public static String nextTokenId(Zone zone, Token token) {
+	private static final Pattern NAME_PATTERN = Pattern.compile("^(.*)\\s+(\\d+)\\s*$");
 
+	/**
+	 * Determine what the name of the new token should be.  This method tries to choose
+	 * a token name which is (a) unique and (b) adheres to a numeric sequence.
+	 * 
+	 * @param zone the map that the token is being placed onto
+	 * @param token the new token to be named
+	 * @return the new token's algorithmically generated name
+	 */
+	public static String nextTokenId(Zone zone, Token token) {
 		boolean isToken = token.isToken();
 		String baseName = token.getName();
 		String newName;
-
 		Integer newNum = null;
+
 		if(isToken && AppPreferences.getNewTokenNaming().equals(Token.NAME_USE_CREATURE)) {
 			newName = "Creature";
 		} else if (baseName == null) {
-
 			int nextId = nextTokenId.getAndIncrement();
 			char ch = (char)('a' + MapTool.getPlayerList().indexOf(MapTool.getPlayer()));
 			return ch + Integer.toString(nextId);
 		} else {
-
 			baseName = baseName.trim();
 			Matcher m = NAME_PATTERN.matcher(baseName);
-
 			if (m.find()) {
 				newName = m.group(1);
 				newNum = Integer.parseInt(m.group(2));
@@ -119,60 +124,54 @@ public class MapToolUtil {
 				newName = baseName;
 			}
 		}
-
 		boolean random = (isToken && AppPreferences.getDuplicateTokenNumber().equals(Token.NUM_RANDOM));
 		boolean addNumToGM = !AppPreferences.getTokenNumberDisplay().equals(Token.NUM_ON_NAME);
 		boolean addNumToName = !AppPreferences.getTokenNumberDisplay().equals(Token.NUM_ON_GM);
 
+		/*
+		 * If the token already has a number suffix, if the preferences indicate that token
+		 * numbering should be random and this token is on the Token layer, or if the
+		 * token already exists somewhere on this map, then we need to choose a new
+		 * name.
+		 */
 		if (newNum != null || random || zone.getTokenByName(newName) != null) {
+			// Figure out the proper number of digits and generate a random number.
 			int maxNum = 99;
-			if (random && isToken) {
-				if (zone.getTokenCount() >= 89) {
+			if (random && isToken) {		// XXX Isn't 'isToken' redundant here?
+				if (zone.getTokenCount() >= 89)
 					maxNum = 999;
-				}
-				if (zone.getTokenCount() >= 900) {
+				if (zone.getTokenCount() >= 900)
 					maxNum = 9999;
-				}
-
 				newNum = getRandomNumber(10,maxNum);
 			}
-
 			if ( random ) {
-
+				/*
+				 * If we're generating a random number suffix, check to see if the value we
+				 * have is already taken and pick a new one if so.  The "Token Name" field
+				 * is separate from the "GM Name" field.
+				 */
 				while ( true ) {
 					boolean repeat = false;
-					if ( addNumToName ) {
+					if ( addNumToName )
 						repeat = repeat || (zone.getTokenByName(newName + " " + newNum) != null);
-					}
-
-					if ( addNumToGM ) {
+					if ( addNumToGM )
 						repeat = repeat || (zone.getTokenByGMName(Integer.toString(newNum)) != null);
-					}
-
-					if ( !repeat ) {
+					if ( !repeat )
 						break;
-					}
-
 					newNum = getRandomNumber(10,maxNum);
 				}
 			} else {
 				newNum = zone.findFreeNumber(addNumToName ? newName : null, addNumToGM);
 			}
-
 			if ( addNumToName ) {
 				newName += " ";
 				newName += newNum;
 			}
-
-			if ( addNumToGM ) {
+			if ( addNumToGM )
 				token.setGMName(Integer.toString(newNum));
-			}
 		}
-
 		return newName;
-
 	}
-
 
 	public static boolean isDebugEnabled() {
 		return System.getProperty("MAPTOOL_DEV") != null;

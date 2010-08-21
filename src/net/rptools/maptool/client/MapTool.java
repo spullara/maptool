@@ -689,16 +689,14 @@ public class MapTool {
 		}
 		// Don't announce personal servers
 		if (!config.isPersonalServer()) {
-			announcer = new ServiceAnnouncer(id, server.getConfig().getPort(),
-					AppConstants.SERVICE_GROUP);
+			announcer = new ServiceAnnouncer(id, server.getConfig().getPort(), AppConstants.SERVICE_GROUP);
 			announcer.start();
 		}
 
 		// Registered ?
 		if (config.isServerRegistered() && !config.isPersonalServer()) {
 			try {
-				int result = MapToolRegistry.registerInstance(config
-						.getServerName(), config.getPort());
+				int result = MapToolRegistry.registerInstance(config.getServerName(), config.getPort());
 				if (result == 3) {
 					MapTool.showError("msg.error.alreadyRegistered");
 				}
@@ -1117,7 +1115,10 @@ public class MapTool {
 	}
 
 	/**
-	 * Return whether the campaign file has changed
+	 * Return whether the campaign file has changed.  Only checks to see if there is a
+	 * single empty map with the default name (ZoneFactory.DEFAULT_MAP_NAME).
+	 * If so, the campaign is "empty".  We really should check against things like
+	 * campaign property changes as well, including campaign macros...
 	 */
 	public static boolean isCampaignDirty() {
 
@@ -1128,7 +1129,6 @@ public class MapTool {
 				return false;
 			}
 		}
-
 		return true;
 	}
 

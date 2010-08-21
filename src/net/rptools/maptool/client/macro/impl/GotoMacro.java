@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.macro.impl;
 
@@ -27,37 +27,37 @@ import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 
 @MacroDefinition(
-	name = "goto",
-	aliases = { "g" },
-	description = "goto.desc"
+		name = "goto",
+		aliases = { "g" },
+		description = "goto.desc"
 )
 public class GotoMacro implements Macro {
-	private static Pattern COORD_PAT = Pattern.compile("(-?\\d+)\\s*,?\\s*(-?\\d+)");
+	private static Pattern COORD_PATTERN = Pattern.compile("(-?\\d+)\\s*,?\\s*(-?\\d+)");
 
-    public void execute(MacroContext context, String parameter, MapToolMacroContext executionContext) {
-    	Matcher m = COORD_PAT.matcher(parameter.trim());
+	public void execute(MacroContext context, String parameter, MapToolMacroContext executionContext) {
+		Matcher m = COORD_PATTERN.matcher(parameter.trim());
 
-    	if (m.matches()) {
-    		// goto coordinate locations
-    		int x = Integer.parseInt(m.group(1));
-    		int y = Integer.parseInt(m.group(2));
+		if (m.matches()) {
+			// goto coordinate locations
+			int x = Integer.parseInt(m.group(1));
+			int y = Integer.parseInt(m.group(2));
 
-    		MapTool.getFrame().getCurrentZoneRenderer().centerOn(new CellPoint(x, y));
-    	} else {
-    		// goto token location
-    		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
-    		Token token = zone.getTokenByName(parameter);
-    		
-            if (!MapTool.getPlayer().isGM() && !zone.isTokenVisible(token)) {
-                return;
-            }
-            
-    		if (token != null) {
-    			int x = token.getX();
-    			int y = token.getY();
+			MapTool.getFrame().getCurrentZoneRenderer().centerOn(new CellPoint(x, y));
+		} else {
+			// goto token location
+			Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
+			Token token = zone.getTokenByName(parameter);
 
-        		MapTool.getFrame().getCurrentZoneRenderer().centerOn(new ZonePoint(x, y));
-    		}
-    	}
-    }
+			if (!MapTool.getPlayer().isGM() && !zone.isTokenVisible(token)) {
+				return;
+			}
+
+			if (token != null) {
+				int x = token.getX();
+				int y = token.getY();
+
+				MapTool.getFrame().getCurrentZoneRenderer().centerOn(new ZonePoint(x, y));
+			}
+		}
+	}
 }
