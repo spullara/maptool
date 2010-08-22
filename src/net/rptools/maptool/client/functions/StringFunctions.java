@@ -50,7 +50,7 @@ public class StringFunctions extends AbstractFunction {
 
 				if (parameters.size() > 3) {
 					if (!(parameters.get(3) instanceof BigDecimal)) {
-						throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 4));
+						throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 4, parameters.get(3).toString()));
 					}
 					return replace(parameters.get(0).toString(), parameters.get(1).toString(),
 							parameters.get(2).toString(), ((BigDecimal)parameters.get(3)).intValue());
@@ -77,13 +77,13 @@ public class StringFunctions extends AbstractFunction {
 					throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 2, parameters.size()));
 				}
 				if (!(parameters.get(1) instanceof BigDecimal)) {
-					throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 2));
+					throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 2, parameters.get(1).toString()));
 				}
 
 				int end;
 				if (parameters.size() > 2) {
 					if (!(parameters.get(2) instanceof BigDecimal)) {
-						throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 3));
+						throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 3, parameters.get(2).toString()));
 					}
 					end = ((BigDecimal)parameters.get(2)).intValue();
 				} else {
@@ -105,7 +105,7 @@ public class StringFunctions extends AbstractFunction {
 						len = Math.min(len, str.length());
 						return str.substring(0, len).toUpperCase() + str.substring(len);
 					} catch (NumberFormatException nfe) {
-						throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 2));
+						throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 2, parameters.get(1).toString()));
 					}
 				} else {
 					return parameters.get(0).toString().toUpperCase();
@@ -120,7 +120,7 @@ public class StringFunctions extends AbstractFunction {
 						len = Math.min(len, str.length());
 						return str.substring(0, len).toLowerCase() + str.substring(len);
 					} catch (NumberFormatException nfe) {
-						throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 2));
+						throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 2, parameters.get(1).toString()));
 					}
 				} else {
 					return parameters.get(0).toString().toLowerCase();
@@ -135,7 +135,7 @@ public class StringFunctions extends AbstractFunction {
 				int from = 0;
 				if (parameters.size() > 2) {
 					if (!(parameters.get(2) instanceof BigDecimal)) {
-						throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 3));
+						throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 3, parameters.get(2).toString()));
 					}
 					from = ((BigDecimal) parameters.get(2)).intValue();
 				} else {
@@ -197,7 +197,7 @@ public class StringFunctions extends AbstractFunction {
 			try {
 				return BigDecimal.valueOf(Double.parseDouble(parameters.get(0).toString()));
 			} catch (NumberFormatException e) {
-				throw new ParserException(I18N.getText("macro.function.general.macro.function.number.invalid", functionName, parameters.get(0).toString()));
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 1, parameters.get(0).toString()));
 			}
 		}
 

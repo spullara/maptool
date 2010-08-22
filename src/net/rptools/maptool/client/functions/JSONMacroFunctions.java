@@ -30,17 +30,17 @@ public class JSONMacroFunctions extends AbstractFunction {
 
 
 	private static final JSONMacroFunctions instance =
-							new JSONMacroFunctions();
+		new JSONMacroFunctions();
 
 	private JSONMacroFunctions() {
 		super(1, UNLIMITED_PARAMETERS, "json.get", "json.type", "json.fields",
-				    "json.length", "json.fromList", "json.set",
-				    "json.fromStrProp", "json.toStrProp", "json.toList",
-				    "json.append", "json.remove", "json.indent", "json.contains",
-				    "json.sort", "json.shuffle", "json.reverse", "json.evaluate",
-				    "json.isEmpty", "json.equals", "json.count", "json.indexOf",
-				    "json.merge", "json.unique", "json.removeAll", "json.union",
-				    "json.intersection", "json.difference", "json.isSubset");
+				"json.length", "json.fromList", "json.set",
+				"json.fromStrProp", "json.toStrProp", "json.toList",
+				"json.append", "json.remove", "json.indent", "json.contains",
+				"json.sort", "json.shuffle", "json.reverse", "json.evaluate",
+				"json.isEmpty", "json.equals", "json.count", "json.indexOf",
+				"json.merge", "json.unique", "json.removeAll", "json.union",
+				"json.intersection", "json.difference", "json.isSubset");
 	}
 
 	public static JSONMacroFunctions getInstance() {
@@ -266,7 +266,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 			int start = 0;
 			if (parameters.size() > 2) {
 				if (!(parameters.get(2) instanceof BigDecimal)) {
-					throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 3));
+					throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 3, parameters.get(2).toString()));
 				}
 				start = ((BigDecimal)parameters.get(2)).intValue();
 			}
@@ -280,7 +280,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 			int start = 0;
 			if (parameters.size() > 2) {
 				if (!(parameters.get(2) instanceof BigDecimal)) {
-					throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 3));
+					throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 3, parameters.get(2).toString()));
 				}
 				start = ((BigDecimal)parameters.get(2)).intValue();
 			}
@@ -519,7 +519,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 	 * @param obj The JSON array to remove the duplicates from.
 	 * @return a JSON array.
 	 * @throws ParserException if an exception occurs.
- 	 */
+	 */
 	private JSONArray JSONUnique(Object obj) throws ParserException {
 		if (!(obj instanceof JSONArray)) {
 			throw new ParserException(I18N.getText("macro.function.json.onlyArray", obj==null ? "NULL" : obj.toString(), "json.unique"));
@@ -898,7 +898,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 				}
 				int end = Integer.parseInt(keys.get(1).toString());
 				if (end < 0) {
-						end = jarr.size()+end;
+					end = jarr.size()+end;
 				}
 				if (end >= jarr.size() || end < 0) {
 					throw new ParserException(I18N.getText("macro.function.json.getInvalidEndIndex", "json.end", start, jarr.size()));
@@ -1020,7 +1020,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 					if (sb.length() > 0) {
 						sb.append(delim);
 					}
-				sb.append(ob.toString());
+					sb.append(ob.toString());
 				}
 				return sb.toString();
 			}
@@ -1108,11 +1108,12 @@ public class JSONMacroFunctions extends AbstractFunction {
 		Object[] array = new Object[stringArray.length];
 		// Try to convert it to a number and if that works we store it that way
 		for (int i = 0; i < stringArray.length; i++) {
+			String value = stringArray[i].trim();
 			try {
-				BigDecimal bd = new BigDecimal(stringArray[i].toString().trim());
+				BigDecimal bd = new BigDecimal(value);
 				array[i] = bd;
 			} catch (NumberFormatException nfe) {
-				array[i] = stringArray[i].trim();
+				array[i] = value;
 			}
 		}
 		return JSONArray.fromObject(array);
@@ -1121,7 +1122,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 	/**
 	 * Creates a JSON object from a String property list.
 	 * @param prop The String Property list.
-	 * @param delim The delimeter used to seperate items in the list.
+	 * @param delim The delimiter used to separate items in the list.
 	 * @return The JSON Object.
 	 */
 	public JSONObject fromStrProp(String prop, String delim) {
@@ -1130,15 +1131,17 @@ public class JSONMacroFunctions extends AbstractFunction {
 		HashMap<String, Object> obmap = new HashMap<String, Object>();
 		for (String s : props) {
 			String[] vals = s.split("=", 2);
+			String key = vals[0].trim();
 			if (vals.length > 1) {
 				// Try to convert it to a number and if that works we store it that way
+				String value = vals[1].trim();
 				try {
-					obmap.put(vals[0].trim(), new BigDecimal(vals[1].trim()));
+					obmap.put(key, new BigDecimal(value));
 				} catch (Exception e) {
-					obmap.put(vals[0].trim(), vals[1].trim());
+					obmap.put(key, value);
 				}
 			} else {
-				obmap.put(vals[0].trim(), "");
+				obmap.put(key, "");
 			}
 		}
 		return JSONObject.fromObject(obmap);
@@ -1157,7 +1160,9 @@ public class JSONMacroFunctions extends AbstractFunction {
 		} else {
 			String str = obj.toString().trim();
 			if (str.startsWith("{") || str.startsWith("[")) {
-				return getJSONObjectType(asJSON(str));
+				JSONObjectType jot = getJSONObjectType(asJSON(str));
+				if (jot != null)
+					return jot;
 			}
 			return JSONObjectType.UNKNOWN;
 		}
@@ -1186,7 +1191,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 		} else {
 			throw new ParserException(I18N.getText("macro.function.json.unknownType", obj==null ? "NULL" : obj.toString(), "json.delete"));
 		}
- 	}
+	}
 
 	/**
 	 * Returns and indented version of a JSON string.

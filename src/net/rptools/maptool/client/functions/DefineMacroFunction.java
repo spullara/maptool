@@ -45,14 +45,14 @@ public class DefineMacroFunction extends AbstractFunction {
 			boolean ignoreOutput = false;
 			if (parameters.size() > 2) {
 				if (!(parameters.get(2) instanceof BigDecimal)) {
-					throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 3));
+					throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 3, parameters.get(2).toString()));
 				}
 				ignoreOutput = !BigDecimal.ZERO.equals(parameters.get(2));
 			}
 			boolean newVariableContext = true;
 			if (parameters.size() > 3) {
 				if (!(parameters.get(3) instanceof BigDecimal)) {
-					throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 4));
+					throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 4, parameters.get(3).toString()));
 				}
 				newVariableContext = !BigDecimal.ZERO.equals(parameters.get(3));
 			}

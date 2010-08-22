@@ -46,11 +46,11 @@ public class FindTokenFunctions extends AbstractFunction {
 		public boolean matchToken(Token t) {
 			// Filter out the utility lib: and image: tokens
 			if (t.getName().toLowerCase().startsWith("image:") ||
-			    t.getName().toLowerCase().startsWith("lib:")) {
+					t.getName().toLowerCase().startsWith("lib:")) {
 				return false;
 			}
 			return t.getLayer() == Zone.Layer.TOKEN ||
-				   t.getLayer() == Zone.Layer.GM;
+			t.getLayer() == Zone.Layer.GM;
 		}
 	}
 
@@ -61,12 +61,12 @@ public class FindTokenFunctions extends AbstractFunction {
 		public boolean matchToken(Token t) {
 			// Filter out the utility lib: and image: tokens
 			if (t.getName().toLowerCase().startsWith("image:") ||
-			    t.getName().toLowerCase().startsWith("lib:")) {
+					t.getName().toLowerCase().startsWith("lib:")) {
 				return false;
 			}
 			return (t.getLayer() == Zone.Layer.TOKEN ||
-			        t.getLayer() == Zone.Layer.GM) &&
-			        t.getType() == Token.Type.NPC;
+					t.getLayer() == Zone.Layer.GM) &&
+					t.getType() == Token.Type.NPC;
 		}
 	}
 
@@ -77,12 +77,12 @@ public class FindTokenFunctions extends AbstractFunction {
 		public boolean matchToken(Token t) {
 			// Filter out the utility lib: and image: tokens
 			if (t.getName().toLowerCase().startsWith("image:") ||
-			    t.getName().toLowerCase().startsWith("lib:")) {
+					t.getName().toLowerCase().startsWith("lib:")) {
 				return false;
 			}
 			return (t.getLayer() == Zone.Layer.TOKEN ||
-			        t.getLayer() == Zone.Layer.GM) &&
-			        t.getType() == Token.Type.PC;
+					t.getLayer() == Zone.Layer.GM) &&
+					t.getType() == Token.Type.PC;
 		}
 	}
 
@@ -93,7 +93,7 @@ public class FindTokenFunctions extends AbstractFunction {
 		public boolean matchToken(Token t) {
 			// Filter out the utility lib: and image: tokens
 			if (t.getName().toLowerCase().startsWith("image:") ||
-			    t.getName().toLowerCase().startsWith("lib:")) {
+					t.getName().toLowerCase().startsWith("lib:")) {
 				return false;
 			}
 
@@ -116,7 +116,7 @@ public class FindTokenFunctions extends AbstractFunction {
 			Object val = t.getState(stateName);
 			// Filter out the utility lib: and image: tokens
 			if (t.getName().toLowerCase().startsWith("image:") ||
-			    t.getName().toLowerCase().startsWith("lib:")) {
+					t.getName().toLowerCase().startsWith("lib:")) {
 				return false;
 			}
 
@@ -154,7 +154,7 @@ public class FindTokenFunctions extends AbstractFunction {
 		public boolean matchToken(Token t) {
 			// Filter out the utility lib: and image: tokens
 			if (t.getName().toLowerCase().startsWith("image:") ||
-			    t.getName().toLowerCase().startsWith("lib:")) {
+					t.getName().toLowerCase().startsWith("lib:")) {
 				return false;
 			}
 
@@ -165,11 +165,11 @@ public class FindTokenFunctions extends AbstractFunction {
 
 	private FindTokenFunctions() {
 		super(0,2, "findToken", "currentToken", "getTokenName", "getTokenNames",
-				   "getSelectedNames", "getTokens", "getSelected", "getImpersonated",
-				   "getImpersonatedName", "getExposedTokens", "getExposedTokenNames",
-				   "getPC", "getNPC", "getPCNames", "getNPCNames", "getWithState",
-				   "getWithStateNames", "getOwned", "getOwnedNames", "getVisibleTokens",
-				   "getVisibleTokenNames");
+				"getSelectedNames", "getTokens", "getSelected", "getImpersonated",
+				"getImpersonatedName", "getExposedTokens", "getExposedTokenNames",
+				"getPC", "getNPC", "getPCNames", "getNPCNames", "getWithState",
+				"getWithStateNames", "getOwned", "getOwnedNames", "getVisibleTokens",
+		"getVisibleTokenNames");
 	}
 
 
@@ -185,7 +185,7 @@ public class FindTokenFunctions extends AbstractFunction {
 		boolean nameOnly = false;
 
 		if (!functionName.equals("currentToken") && !functionName.startsWith("getImpersonated") &&
-			!functionName.startsWith("getVisible") && !functionName.startsWith("getSelected")) {
+				!functionName.startsWith("getVisible") && !functionName.startsWith("getSelected")) {
 			if (!MapTool.getParser().isMacroTrusted()) {
 				throw new ParserException(I18N.getText("macro.function.general.noPerm", functionName));
 			}
@@ -253,9 +253,7 @@ public class FindTokenFunctions extends AbstractFunction {
 		return getTokens(parser, findType, nameOnly, delim, findArgs);
 	}
 
-
-	private Object getTokenList(Parser parser, boolean nameOnly, String delim,
-			String jsonString) throws ParserException {
+	private Object getTokenList(Parser parser, boolean nameOnly, String delim, String jsonString) throws ParserException {
 		JSONObject jobj = JSONObject.fromObject(jsonString);
 		// First get a list of all our tokens.
 		List<Token> allTokens = getTokenList(parser, FindType.ALL, "");
@@ -495,46 +493,47 @@ public class FindTokenFunctions extends AbstractFunction {
 		}
 	}
 
-
 	private List<Token> getTokenList(Parser parser, FindType findType, String findArgs) {
 		List<Token> tokenList = new LinkedList<Token>();
 		ZoneRenderer zoneRenderer = MapTool.getFrame().getCurrentZoneRenderer();
 		Zone zone = zoneRenderer.getZone();
 		switch (findType) {
-			case ALL:
-				tokenList = zone.getTokensFiltered(new AllFilter());
-				break;
-			case NPC:
-				tokenList = zone.getTokensFiltered(new NPCFilter());
-				break;
-			case PC:
-				tokenList = zone.getTokensFiltered(new PCFilter());
-				break;
-			case SELECTED:
-				tokenList = MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList();
-				break;
-			case CURRENT:
-				if (((MapToolVariableResolver) parser.getVariableResolver()).getTokenInContext() != null) {
-					tokenList.add(((MapToolVariableResolver) parser.getVariableResolver()).getTokenInContext());
-				}
-				break;
-			case IMPERSONATED:
-				String identity = MapTool.getFrame().getCommandPanel().getIdentity();
-				tokenList.add(zone.resolveToken(identity));
-				break;
-			case EXPOSED:
-				tokenList = zone.getTokensFiltered(new ExposedFilter());
-				break;
-			case STATE:
-				tokenList = zone.getTokensFiltered(new StateFilter(findArgs));
-				break;
-			case OWNED:
-				tokenList = zone.getTokensFiltered(new OwnedFilter(findArgs));
-				break;
-			case VISIBLE:
-				for (GUID id : zoneRenderer.getVisibleTokenSet())  {
-					tokenList.add(zone.getToken(id));
-				}
+		case ALL:
+			tokenList = zone.getTokensFiltered(new AllFilter());
+			break;
+		case NPC:
+			tokenList = zone.getTokensFiltered(new NPCFilter());
+			break;
+		case PC:
+			tokenList = zone.getTokensFiltered(new PCFilter());
+			break;
+		case SELECTED:
+			tokenList = MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList();
+			break;
+		case CURRENT:
+			if (((MapToolVariableResolver) parser.getVariableResolver()).getTokenInContext() != null) {
+				tokenList.add(((MapToolVariableResolver) parser.getVariableResolver()).getTokenInContext());
+			}
+			break;
+		case IMPERSONATED:
+			String identity = MapTool.getFrame().getCommandPanel().getIdentity();
+			Token t = zone.resolveToken(identity);
+			if (t != null)
+				tokenList.add(t);
+			break;
+		case EXPOSED:
+			tokenList = zone.getTokensFiltered(new ExposedFilter());
+			break;
+		case STATE:
+			tokenList = zone.getTokensFiltered(new StateFilter(findArgs));
+			break;
+		case OWNED:
+			tokenList = zone.getTokensFiltered(new OwnedFilter(findArgs));
+			break;
+		case VISIBLE:
+			for (GUID id : zoneRenderer.getVisibleTokenSet())  {
+				tokenList.add(zone.getToken(id));
+			}
 		}
 		return tokenList;
 	}
@@ -552,7 +551,11 @@ public class FindTokenFunctions extends AbstractFunction {
 
 
 		ArrayList<String> values = new ArrayList<String>();
-		for (Token token : getTokenList(parser, findType, findArgs)) {
+		List<Token> tokens = getTokenList(parser, findType, findArgs);
+		if (tokens == null || tokens.isEmpty())
+			return "";
+
+		for (Token token : tokens) {
 			if (nameOnly) {
 				values.add(token.getName());
 			} else {

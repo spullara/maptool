@@ -15,21 +15,16 @@ package net.rptools.maptool.client.functions;
 
 import java.awt.geom.Area;
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.MapToolLineParser;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Token;
-import net.rptools.maptool.model.Zone;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
-import net.sf.json.JSONFunction;
 
 public class isVisibleFunction extends AbstractFunction {
 
@@ -58,7 +53,7 @@ public class isVisibleFunction extends AbstractFunction {
 	throws ParserException {
 		ZoneRenderer zr = MapTool.getFrame().getCurrentZoneRenderer();
 		Token token = null;
-		
+
 		// If there is more than two parameters (x,y) then the third parameter is the token
 		// to test visibility for, so perform all the usual checks for trusted and fetch
 		// the token from the zone.
@@ -80,23 +75,23 @@ public class isVisibleFunction extends AbstractFunction {
 			}
 		}
 
-		if (!(param.get(0) instanceof BigDecimal)) {			
-			throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 1));
+		if (!(param.get(0) instanceof BigDecimal)) {
+			throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 1, param.get(0).toString()));
 		}
-		
-		if (!(param.get(1) instanceof BigDecimal)) {			
-			throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 2));
+
+		if (!(param.get(1) instanceof BigDecimal)) {
+			throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 2, param.get(1).toString()));
 		}
 
 		int x = ((BigDecimal)param.get(0)).intValue();
 		int y = ((BigDecimal)param.get(1)).intValue();
-		
+
 		Area visArea = zr.getZoneView().getVisibleArea(token);
 		if (visArea == null) {
 			return BigDecimal.valueOf(0);
 		}
-		
-		return visArea.contains((double)x, (double)y) ? BigDecimal.ONE : BigDecimal.ZERO;
+
+		return visArea.contains(x, y) ? BigDecimal.ONE : BigDecimal.ZERO;
 	}
 
 }

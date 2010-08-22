@@ -80,10 +80,10 @@ public class TokenLocationFunctions extends AbstractFunction {
 		if (functionName.equals("setTokenDrawOrder")) {
 			Token token = getTokenFromParam(res, functionName, parameters, 1);
 			if (parameters.size() < 0) {
-				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 1));
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 1, "")); // XXX notEnoughParam
 			}
 			if (!(parameters.get(0) instanceof BigDecimal)) {
-				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 1));
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 1, parameters.get(0).toString()));
 			}
 			token.setZOrder(((BigDecimal)parameters.get(0)).intValue());
 			MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
@@ -185,7 +185,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 
 		if (args.size() > 2) {
 			if (!(args.get(2) instanceof BigDecimal)) {
-				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 2));
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 2, args.get(2).toString()));
 			} else {
 				x = ((BigDecimal)args.get(2)).intValue();
 			}
@@ -193,7 +193,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 
 		if (args.size() > 3) {
 			if (!(args.get(3) instanceof BigDecimal)) {
-				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 3));
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 3, args.get(3).toString()));
 			} else {
 				y = ((BigDecimal)args.get(3)).intValue();
 			}
@@ -201,7 +201,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 
 		if (args.size() > 4) {
 			if (!(args.get(4) instanceof BigDecimal)) {
-				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 4));
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 4, args.get(4).toString()));
 			} else {
 				z = ((BigDecimal)args.get(4)).intValue();
 			}
@@ -248,7 +248,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 
 		if (args.size() > 0) {
 			if (!(args.get(0) instanceof BigDecimal)) {
-				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "getTokenLocation", 1));
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "getTokenLocation", 1, args.get(0).toString()));
 			}
 			BigDecimal val = (BigDecimal)args.get(0);
 			useDistancePerCell = val.equals(BigDecimal.ZERO) ? false : true;
@@ -419,7 +419,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 		boolean useDistancePerCell = true;
 		if (args.size() > 1) {
 			if (!(args.get(1) instanceof BigDecimal)) {
-				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "getDistance", 2));
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "getDistance", 2, args.get(1).toString()));
 			}
 			BigDecimal val = (BigDecimal)args.get(1);
 			useDistancePerCell = val.equals(BigDecimal.ZERO) ? false : true;
@@ -456,10 +456,10 @@ public class TokenLocationFunctions extends AbstractFunction {
 
 
 		if (!(args.get(0) instanceof BigDecimal)) {
-			throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "getDistanceToXY", 1));
+			throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "getDistanceToXY", 1, args.get(0).toString()));
 		}
 		if (!(args.get(1) instanceof BigDecimal)) {
-			throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "getDistanceToXY", 2));
+			throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "getDistanceToXY", 2, args.get(1).toString()));
 		}
 
 		int x = ((BigDecimal)args.get(0)).intValue();
@@ -468,7 +468,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 		boolean useDistancePerCell = true;
 		if (args.size() > 2) {
 			if (!(args.get(2) instanceof BigDecimal)) {
-				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "getDistanceXY", 3));
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "getDistanceXY", 3, args.get(2).toString()));
 			}
 			BigDecimal val = (BigDecimal)args.get(2);
 			useDistancePerCell = val.equals(BigDecimal.ZERO) ? false : true;
@@ -529,10 +529,10 @@ public class TokenLocationFunctions extends AbstractFunction {
 		int x,y,z;
 
 		if (!(args.get(0) instanceof BigDecimal)) {
-			throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "moveToken", 1));
+			throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "moveToken", 1, args.get(0).toString()));
 		}
 		if (!(args.get(1) instanceof BigDecimal)) {
-			throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "moveToken", 2));
+			throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "moveToken", 2, args.get(1).toString()));
 		}
 
 		x = ((BigDecimal)args.get(0)).intValue();
@@ -541,7 +541,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 
 		if (args.size() > 2) {
 			if (!(args.get(2) instanceof BigDecimal)) {
-				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "moveToken", 3));
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "moveToken", 3, args.get(2).toString()));
 			}
 			BigDecimal val = (BigDecimal)args.get(2);
 			useDistance = val.equals(BigDecimal.ZERO) ? false : true;
@@ -579,11 +579,11 @@ public class TokenLocationFunctions extends AbstractFunction {
 		} else {
 
 			if (!(args.get(0) instanceof BigDecimal)) {
-				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "moveToken", 1));
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "moveToken", 1, args.get(0).toString()));
 			}
 
 			if (!(args.get(1) instanceof BigDecimal)) {
-				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "moveToken", 2));
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "moveToken", 2, args.get(1).toString()));
 			}
 
 			x = ((BigDecimal)args.get(0)).intValue();

@@ -85,7 +85,7 @@ public class TokenImage extends AbstractFunction {
 				token = res.getTokenInContext();
 				size = (BigDecimal) args.get(0);
 			} else
-				throw new ParserException(I18N.getText("macro.function.general.argumentTypeInvalid", functionName, 1));
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeInvalid", functionName, 1, args.get(0).toString()));
 		} else {
 			MapToolVariableResolver res = (MapToolVariableResolver) parser.getVariableResolver();
 			token = res.getTokenInContext();
@@ -135,7 +135,7 @@ public class TokenImage extends AbstractFunction {
 		} else if (assetName.toLowerCase().startsWith("image:")) {
 			assetId = findImageToken(assetName, "setImage").getImageAssetId().toString();
 		} else {
-			throw new ParserException(I18N.getText("macro.function.general.argumentTypeInvalid", "setImage", 1));
+			throw new ParserException(I18N.getText("macro.function.general.argumentTypeInvalid", "setImage", 1, assetName));
 		}
 
 		token.setImageAsset(null, new MD5Key(assetId));

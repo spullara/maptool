@@ -217,19 +217,42 @@ public class PersistenceUtil {
 		saveAssets(allAssetIds, pakFile);
 		saveTimer.stop("Save assets");
 
-		saveTimer.start("Set content");
-		pakFile.setContent(persistedCampaign);
-		pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
-		pakFile.setProperty(PROP_CAMPAIGN_VERSION, CAMPAIGN_VERSION);
-		saveTimer.stop("Set content");
+		try {
+			saveTimer.start("Set content");
+			pakFile.setContent(persistedCampaign);
+			pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
+			pakFile.setProperty(PROP_CAMPAIGN_VERSION, CAMPAIGN_VERSION);
+			saveTimer.stop("Set content");
 
-		saveTimer.start("Save");
-		pakFile.save();
-		saveTimer.stop("Save");
+			saveTimer.start("Save");
+			pakFile.save();
+			saveTimer.stop("Save");
 
-		saveTimer.start("Close");
-		pakFile.close();
-		saveTimer.stop("Close");
+			saveTimer.start("Close");
+			pakFile.close();
+			saveTimer.stop("Close");
+		} catch (OutOfMemoryError oom) {
+			/*
+			 * This error is normally because the heap space has been exceeded while trying to
+			 * save the campaign.  Since MapTool caches the images used by the current Zone,
+			 * and since the VersionManager must keep the XML for objects in memory in
+			 * order to apply transforms to them, the memory usage can spike very high
+			 * during the save() operation.  A common solution is to switch to an empty map
+			 * and perform the save from there; this causes MapTool to unload any images
+			 * that it may have had cached and this can frequently free up enough memory
+			 * for the save() to work.  We'll tell the user all this right here and then fail the
+			 * save and they can try again.
+			 */
+			if (log.isDebugEnabled()) {
+				log.debug(saveTimer);
+			}
+			try {
+				pakFile.close();
+			} catch (Exception e) { }
+			pakFile = null;
+			tmpFile.delete();
+			MapTool.showError("msg.error.failedSaveCampaignOOM");
+		}
 
 		// Copy to the new location
 		// Not the fastest solution in the world, but worth the safety net it
@@ -327,7 +350,7 @@ public class PersistenceUtil {
 			MapTool.showError("Error while reading campaign file", rte);
 		} catch (java.lang.Error e) {
 			// Probably an issue with XStream not being able to instantiate a given class
-			// Even the old legacy technique probably won't work, but we should at least try...
+			// The old legacy technique probably won't work, but we should at least try...
 		}
 		log.error("Could not load campaign in the current format, trying old format");
 		return loadLegacyCampaign(campaignFile);

@@ -44,8 +44,8 @@ public class TokenLightFunctions extends AbstractFunction {
 
 		if (functionName.equals("clearLights")) {
 			tokenInContext.clearLightSources();
-            MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), tokenInContext);
-            MapTool.getFrame().updateTokenTree();
+			MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), tokenInContext);
+			MapTool.getFrame().updateTokenTree();
 			return "";
 		}
 
@@ -55,11 +55,11 @@ public class TokenLightFunctions extends AbstractFunction {
 			}
 
 			if (!(parameters.get(2) instanceof BigDecimal)) {
-				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 3));
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 3, parameters.get(2).toString()));
 			}
 
 			return setLight(tokenInContext, parameters.get(0).toString(), parameters.get(1).toString(),
-							(BigDecimal)parameters.get(2));
+					(BigDecimal)parameters.get(2));
 		}
 
 		if (functionName.equals("getLights")) {
@@ -129,9 +129,9 @@ public class TokenLightFunctions extends AbstractFunction {
 			}
 		}
 		MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
- 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
-        MapTool.getFrame().updateTokenTree();
-    	MapTool.getFrame().getCurrentZoneRenderer().flushLight();
+		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
+		MapTool.getFrame().updateTokenTree();
+		MapTool.getFrame().getCurrentZoneRenderer().flushLight();
 
 
 		return found ? BigDecimal.ONE : BigDecimal.ZERO;

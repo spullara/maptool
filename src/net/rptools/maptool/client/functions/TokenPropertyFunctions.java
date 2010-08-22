@@ -7,8 +7,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -77,11 +77,13 @@ public class TokenPropertyFunctions extends AbstractFunction {
 		}
 
 		/*
-		 * String empty = setPropertyType(String propTypeName)
+		 * String empty = setPropertyType(String propTypeName, Token id: self)
 		 */
 		if (functionName.equals("setPropertyType")) {
-			if (parameters.size() != 1) {
-				throw new ParserException(I18N.getText("macro.function.general.wrongNumParam", functionName, 1, parameters.size()));
+			if (parameters.size() < 1)
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 1, parameters.size()));
+			if (parameters.size() > 2) {
+				throw new ParserException(I18N.getText("macro.function.general.tooManyParam", functionName, 2, parameters.size()));
 			}
 
 			Token token = getTokenFromParam(resolver, "setPropertyType", parameters, 1);
@@ -602,7 +604,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 					throw new ParserException(I18N.getText("macro.function.general.tooManyParam", functionName, 2, parameters.size()));
 				}
 			if (!(parameters.get(0) instanceof BigDecimal)) {
-				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName,1));
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName,1, parameters.get(0).toString()));
 			}
 
 			Token token = getTokenFromParam(resolver, "setTokenFacing", parameters, 1);

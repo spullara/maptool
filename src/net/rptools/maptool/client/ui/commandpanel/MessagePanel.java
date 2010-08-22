@@ -42,8 +42,8 @@ import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.functions.MacroLinkFunction;
 import net.rptools.maptool.client.swing.MessagePanelEditorKit;
-import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Player.Role;
+import net.rptools.maptool.model.TextMessage;
 
 public class MessagePanel extends JPanel {
 
@@ -56,7 +56,8 @@ public class MessagePanel extends JPanel {
 	/**
 	 * From ImageView
 	 */
-    private static final String IMAGE_CACHE_PROPERTY = "imageCache";
+	private static final String IMAGE_CACHE_PROPERTY = "imageCache";
+	private static final Pattern URL_PATTERN = Pattern.compile("([^:]*)://([^/]*)/([^?]*)(?:\\?(.*))?");
 
 	public MessagePanel() {
 		setLayout(new GridLayout());
@@ -82,7 +83,7 @@ public class MessagePanel extends JPanel {
 					if (e.getURL() != null) {
 						MapTool.showDocument(e.getURL().toString());
 					} else {
-						Matcher m = Pattern.compile("([^:]*)://([^/]*)/([^?]*)(?:\\?(.*))?").matcher(e.getDescription());
+						Matcher m = URL_PATTERN.matcher(e.getDescription());
 						if (m.matches()) {
 							if (m.group(1).equalsIgnoreCase("macro")) {
 								MacroLinkFunction.getInstance().runMacroLink(e.getDescription());
@@ -191,8 +192,8 @@ public class MessagePanel extends JPanel {
 						String replacement = null;
 						if (m.group(3) != null) {
 							if (!options.contains("st") && !options.contains("gt") ||
-								options.contains("st") && message.getSource().equals(MapTool.getPlayer().getName()) ||
-								options.contains("gt") && MapTool.getPlayer().getRole() == Role.GM)
+									options.contains("st") && message.getSource().equals(MapTool.getPlayer().getName()) ||
+									options.contains("gt") && MapTool.getPlayer().getRole() == Role.GM)
 								replacement = "<span class='roll' title='&#171; $2 &#187;'>$3</span>";
 							else
 								replacement = "$3";

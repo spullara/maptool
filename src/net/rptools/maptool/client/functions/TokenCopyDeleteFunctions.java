@@ -2,7 +2,6 @@
 package net.rptools.maptool.client.functions;
 
 
-import java.awt.Dimension;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +11,6 @@ import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
-import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenFootprint;
@@ -24,14 +22,14 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class TokenCopyDeleteFunctions extends AbstractFunction {
-	
+
 	private static final TokenCopyDeleteFunctions instance = new TokenCopyDeleteFunctions();
 
 	private TokenCopyDeleteFunctions() {
 		super(1, 4, "copyToken", "removeToken");
 	}
-	
-	
+
+
 	public static TokenCopyDeleteFunctions getInstance() {
 		return instance;
 	}
@@ -43,21 +41,21 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 		if (!MapTool.getParser().isMacroTrusted()) {
 			throw new ParserException(I18N.getText("macro.function.general.noPerm", functionName));
 		}
-		
+
 		MapToolVariableResolver res = (MapToolVariableResolver) parser.getVariableResolver();
 		if (functionName.equals("copyToken")) {
 			return copyTokens(res, parameters);
 		}
-		
+
 		if (functionName.equals("removeToken")) {
 			return deleteToken(res, parameters);
 		}
-		
+
 		throw new ParserException(I18N.getText("macro.function.general.unknownFunction", functionName));
 	}
-	
-	
-	
+
+
+
 	private String deleteToken(MapToolVariableResolver res, List<Object> parameters) throws ParserException {
 		Token token = FindTokenFunctions.findToken(parameters.get(0).toString(), null);
 
@@ -72,45 +70,45 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 
 	private Object copyTokens(MapToolVariableResolver res, List<Object> param) throws ParserException {
 		if (param.size() < 1) {
-			throw new ParserException(I18N.getText("macro.function.general.argumentTypeT", "copyToken", 1));
+			throw new ParserException(I18N.getText("macro.function.general.argumentTypeT", "copyToken", 1, ""));	// should be notEnoughParams
 		}
 
 		String zoneName = null;
 		if (param.size() > 2) {
 			zoneName = param.get(2).toString();
 		}
-		
+
 		Token token = FindTokenFunctions.findToken(param.get(0).toString(), zoneName);
-		
-		
+
+
 		if (token == null) {
 			throw new ParserException(I18N.getText("macro.function.general.unknownToken", "copyToken", param.get(0)));
 		}
 		int numberCopies = 1;
 		if (param.size() > 1) {
 			if (!(param.get(1) instanceof BigDecimal)) {
-				throw new ParserException(I18N.getText("macro.function.general.argumentTypeI", "copyToken", 2));
-			}		
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeI", "copyToken", 2, param.get(1).toString()));
+			}
 			numberCopies = ((BigDecimal)param.get(1)).intValue();
-			
+
 		}
 
 		JSONObject newVals = null;
 		if (param.size() > 3) {
 			Object o = JSONMacroFunctions.asJSON(param.get(3));
 			if (!(o instanceof JSONObject)) {
-				throw new ParserException(I18N.getText("macro.function.general.argumentTypeO", "copyToken", 3));
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeO", "copyToken", 4, param.get(3).toString()));
 			}
 			newVals = (JSONObject) o;
 		}
 		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 
 		List<String> newTokens = new ArrayList<String>(numberCopies);
-		
+
 
 		for (int i = 0; i < numberCopies; i++) {
 			Token t = new Token(token);
-			zone.putToken(t);			
+			zone.putToken(t);
 			setTokenValues(t, newVals, zone, res);
 
 			MapTool.serverCommand().putToken(zone.getId(), t);
@@ -123,14 +121,14 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 			return JSONArray.fromObject(newTokens);
 		}
 	}
-	
-	
+
+
 	private void setTokenValues(Token token, JSONObject vals, Zone zone, MapToolVariableResolver res) throws ParserException {
 
 		JSONObject newVals = JSONObject.fromObject(vals);
 		newVals = (JSONObject)JSONMacroFunctions.getInstance().JSONEvaluate(res, newVals);
-		
-		
+
+
 		// Update the Token Name.
 		if (newVals.containsKey("name")) {
 			if(newVals.getString("name").equals("")){
@@ -143,30 +141,30 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 				token.setName(MapToolUtil.nextTokenId(zone, token));
 			}
 		}
-		
+
 		// Label
 		if (newVals.containsKey("label")) {
 			token.setLabel(newVals.getString("label"));
 		}
-		
+
 		// GM Name
 		if (newVals.containsKey("gmName")) {
 			token.setGMName(newVals.getString("gmName"));
 		}
-		
-		
+
+
 		// Layer
 		if (newVals.containsKey("layer")) {
-			TokenPropertyFunctions.getInstance().setLayer(token, 
+			TokenPropertyFunctions.getInstance().setLayer(token,
 					newVals.getString("layer"));
 		}
-		
+
 		// Location...
 		int x = token.getX();
 		int y = token.getY();
 		boolean tokenMoved = false;
 		boolean useDistance = true;
-		
+
 		// X
 		if (newVals.containsKey("x")) {
 			x= newVals.getInt("x");
@@ -184,7 +182,7 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 				useDistance = false;
 			}
 		}
-		
+
 		if (tokenMoved) {
 			TokenLocationFunctions.getInstance().moveToken(token, x, y, useDistance);
 		}
@@ -192,9 +190,9 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 		// Facing
 		if (newVals.containsKey("facing")) {
 			token.setFacing(newVals.getInt("facing"));
-	    	MapTool.getFrame().getCurrentZoneRenderer().flushLight();
+			MapTool.getFrame().getCurrentZoneRenderer().flushLight();
 		}
-		
+
 
 		// Size
 		if (newVals.containsKey("size")) {
@@ -205,13 +203,13 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 				if (token.isSnapToScale() && footprint.getName().equalsIgnoreCase(size)) {
 					token.setFootprint(grid, footprint);
 					token.setSnapToScale(true);
-				}	
-				
+				}
+
 			}
 		}
-		
+
 	}
-	
+
 
 }
 

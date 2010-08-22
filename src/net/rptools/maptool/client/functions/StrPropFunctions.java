@@ -133,7 +133,7 @@ public class StrPropFunctions extends AbstractFunction {
 		return retval;
 	}
 
-	/** MapTool code: <code>getStrProp(properties, key [, defaultValue])</code>
+	/** MapTool code: <code>getStrProp(properties, key [, defaultValue [, delim]])</code>
 	 * @param key A string to look up
 	 * @param defaultValue An optional default returned when <code>key</code> is not found (default is <code>""</code>
 	 * @return The matching value for <code>key</code>, or <code>""</code> if not found.
