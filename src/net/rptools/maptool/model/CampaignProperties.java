@@ -20,8 +20,8 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.AppPreferences;
@@ -301,15 +301,15 @@ public class CampaignProperties implements Serializable {
 		return defaultSightType;
 	}
 
-    private static final Object[][] starter = new Object[][] {
+	private static final Object[][] starter = new Object[][] {
 		// Sight Type Name						Dist	Mult		Arc	LtSrc  Shape
-		{ "Normal",									22.5, 1.0,		0,		null, null },
-		{ "Lowlight",									22.5, 2.0,		0,		null, null },
-		{ "Square Vision",							32.5, 1.0,		0,		null, ShapeType.SQUARE },
+		{ "Normal",									  0.0, 1.0,		0,		null, null },
+		{ "Lowlight",									  0.0, 2.0,		0,		null, null },
+		{ "Square Vision",							  0.0, 1.0,		0,		null, ShapeType.SQUARE },
 		{ "Normal Vision - Short Range",	12.5, 1.0,		0,		null, ShapeType.CIRCLE },
-		{ "Conic Vision",							32.5, 1.0,		120,	null, ShapeType.CONE },
+		{ "Conic Vision",							  0.0, 1.0,		120,	null, ShapeType.CONE },
 		{ "Darkvision",								62.5, 1.0,		0,		null, null },
-};
+	};
 
 	private void initSightTypeMap() {
 		sightTypeMap = new HashMap<String, SightType>();

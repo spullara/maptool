@@ -330,12 +330,23 @@ public class PersistenceUtil {
 		// Try the new way first
 		PackedFile pakfile = new PackedFile(campaignFile);
 		pakfile.setModelVersionManager(campaignVersionManager);
-
+		PersistedCampaign persistedCampaign = null;
 		try {
 			// Sanity check
 			String version = (String)pakfile.getProperty(PROP_CAMPAIGN_VERSION);
 			version = version == null ? "1.3.50" : version;	// This is where the campaignVersion was added
-			PersistedCampaign persistedCampaign = (PersistedCampaign) pakfile.getContent(version);
+
+			// If this version of MapTool is equal to or later than the one in the file, all is good. :)
+			if ( // !MapTool.isDevelopment() &&
+					ModelVersionManager.isBefore(MapTool.getVersion(), version)) {
+				// If this version of MapTool is prior to the one in the file, give a chance to abort.
+				boolean okay;
+				okay = MapTool.confirm("msg.confirm.newerVersion", MapTool.getVersion(), version);
+				if (!okay) {
+					return null;
+				}
+			}
+			persistedCampaign = (PersistedCampaign) pakfile.getContent(version);
 			if (persistedCampaign != null) {
 				// Now load up any images that we need
 				// Note that the values are all placeholders
@@ -351,9 +362,14 @@ public class PersistenceUtil {
 		} catch (java.lang.Error e) {
 			// Probably an issue with XStream not being able to instantiate a given class
 			// The old legacy technique probably won't work, but we should at least try...
+		} finally {
+			pakfile.close();
 		}
 		log.error("Could not load campaign in the current format, trying old format");
-		return loadLegacyCampaign(campaignFile);
+		persistedCampaign = loadLegacyCampaign(campaignFile);
+		if (persistedCampaign == null)
+			MapTool.showWarning("Cannot determine campaign file format; not loaded");
+		return persistedCampaign;
 	}
 
 	public static PersistedCampaign loadLegacyCampaign(File campaignFile) {

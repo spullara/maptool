@@ -55,9 +55,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TooManyListenersException;
-import java.util.Map.Entry;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
@@ -1039,9 +1039,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			Graphics2D g2 = (Graphics2D) g.create();
 			if (zone.hasFog()) {
 				Area clip = new Area(new Rectangle(getSize().width, getSize().height));
-
 				clip.intersect(exposedFogArea);
-
 				g2.setClip(clip);
 			}
 			renderVisionOverlay(g2, view);
@@ -1056,28 +1054,44 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	}
 
 	private void renderVisionOverlay(Graphics2D g, PlayerView view) {
-
 		Area currentTokenVisionArea = zoneView.getVisibleArea(tokenUnderMouse);
-		if (currentTokenVisionArea == null) {
+		if (currentTokenVisionArea == null)
 			return;
-		}
 
-		AffineTransform af = new AffineTransform();
-		af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
-		af.scale(getScale(), getScale());
+		String player = MapTool.getPlayer().getName();
+		boolean isOwner = tokenUnderMouse.isOwner(player);
+		boolean tokenIsPC = tokenUnderMouse.getType() == Token.Type.PC;
+		boolean strictOwnership = MapTool.getServer().getPolicy().useStrictTokenManagement();
+//		System.err.print("tokenUnderMouse.ownedBy(" + player + "): " + isOwner);
+//		System.err.print(", tokenIsPC: " + tokenIsPC);
+//		System.err.print(", isGMView(): " + view.isGMView());
+//		System.err.println(", strictOwnership: " + strictOwnership);
 
-		Area area = currentTokenVisionArea.createTransformedArea(af);
+		/*
+		 * The vision arc and optional halo-filled visible area shouldn't be shown to everyone.
+		 * If
+		 *		we are in GM view, or
+		 *		if we are the owner of the token in question, or
+		 *		if the token is a PC and strict token ownership is off...
+		 * then the vision arc should be displayed.
+		 */
+		if (isOwner || view.isGMView() || (tokenIsPC && !strictOwnership)) {
+			AffineTransform af = new AffineTransform();
+			af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
+			af.scale(getScale(), getScale());
 
-		SwingUtil.useAntiAliasing(g);
-		g.setColor(new Color(200, 200, 200)); // outline around visible area
-		g.draw(area);
+			Area area = currentTokenVisionArea.createTransformedArea(af);
 
-		boolean useHaloColor = tokenUnderMouse.getHaloColor() != null && AppPreferences.getUseHaloColorOnVisionOverlay();
+			SwingUtil.useAntiAliasing(g);
+			g.setColor(new Color(200, 200, 200)); // outline around visible area
+			g.draw(area);
 
-		if (tokenUnderMouse.getVisionOverlayColor() != null || useHaloColor) {
-			Color visionColor = useHaloColor ? tokenUnderMouse.getHaloColor() : tokenUnderMouse.getVisionOverlayColor();
-			g.setColor(new Color(visionColor.getRed(), visionColor.getGreen(), visionColor.getBlue(), AppPreferences.getHaloOverlayOpacity()));
-			g.fill(area);
+			boolean useHaloColor = tokenUnderMouse.getHaloColor() != null && AppPreferences.getUseHaloColorOnVisionOverlay();
+			if (tokenUnderMouse.getVisionOverlayColor() != null || useHaloColor) {
+				Color visionColor = useHaloColor ? tokenUnderMouse.getHaloColor() : tokenUnderMouse.getVisionOverlayColor();
+				g.setColor(new Color(visionColor.getRed(), visionColor.getGreen(), visionColor.getBlue(), AppPreferences.getHaloOverlayOpacity()));
+				g.fill(area);
+			}
 		}
 	}
 

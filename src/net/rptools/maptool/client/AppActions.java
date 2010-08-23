@@ -1896,69 +1896,58 @@ public class AppActions {
 		new Thread() {
 			@Override
 			public void run() {
-
 				try {
 					StaticMessageDialog progressDialog = new StaticMessageDialog(I18N.getText("msg.info.campaignLoading"));
-
+					ZoneRenderer current = null;
 					try {
-						// I'm going to get struck by lighting for
-						// writing code like this.
-						// CLEAN ME CLEAN ME CLEAN ME ! I NEED A
-						// SWINGWORKER !
+						// I'm going to get struck by lighting for writing code like this.
+						// CLEAN ME CLEAN ME CLEAN ME !   I NEED A SWINGWORKER!
+						current = MapTool.getFrame().getCurrentZoneRenderer();
 						MapTool.getFrame().setCurrentZoneRenderer(null);
-						ImageManager.flush(); // Clear out the old campaign's images
+						ImageManager.flush();								// Clear out the old campaign's images
 						MapTool.getFrame().showFilledGlassPane(progressDialog);
+						MapTool.getAutoSaveManager().pause();	// Pause auto-save while loading
 
 						// Before we do anything, let's back it up
-						if (MapTool.getBackupManager() != null) {
+						if (MapTool.getBackupManager() != null)
 							MapTool.getBackupManager().backup(campaignFile);
-						}
 
 						// Load
 						final PersistedCampaign campaign = PersistenceUtil.loadCampaign(campaignFile);
-
 						if (campaign != null) {
-
+							current = null;
 							AppState.setCampaignFile(campaignFile);
 							AppPreferences.setLoadDir(campaignFile.getParentFile());
-
 							AppMenuBar.getMruManager().addMRUCampaign(campaignFile);
 
-							// Bypass the serialization when we are hosting the
-							// server
-							// TODO: This optimization doesn't work since the
-							// player name isn't the right thing to exclude this
-							// thread
-							// if (MapTool.isHostingServer() ||
-							// MapTool.isPersonalServer()) {
-							// MapTool.getServer().getMethodHandler().handleMethod(MapTool.getPlayer().getName(),
-							// ServerCommand.COMMAND.setCampaign.name(), new
-							// Object[]{campaign.campaign});
-							// } else {
+							/*
+							 * Bypass the serialization when we are hosting the server.
+							 * TODO: This optimization doesn't work since the player name isn't
+							 * the right thing to use to exclude this thread...
+							 */
+//							if (MapTool.isHostingServer() || MapTool.isPersonalServer()) {
+//								String playerName = MapTool.getPlayer().getName();
+//								String command = ServerCommand.COMMAND.setCampaign.name();
+//								MapTool.getServer().getMethodHandler().handleMethod(playerName, command, new Object[]{campaign.campaign});
+//							} else {
 							MapTool.serverCommand().setCampaign(campaign.campaign);
-							// }
-
+//							}
 							MapTool.setCampaign(campaign.campaign, campaign.currentZoneId);
-							// TODO: This is wrong (FJE What do we need to fix this?)
 							if (campaign.currentView != null && MapTool.getFrame().getCurrentZoneRenderer() != null) {
 								MapTool.getFrame().getCurrentZoneRenderer().setZoneScale(campaign.currentView);
 							}
-
-							MapTool.getAutoSaveManager().restart();
 							MapTool.getAutoSaveManager().tidy();
 
 							// UI related stuff
 							MapTool.getFrame().getCommandPanel().setIdentity(null);
 							MapTool.getFrame().resetPanels();
-
-						} else {
-							MapTool.showWarning("Cannot determine campaign file format; not loaded");
 						}
-
 					} finally {
+						if (current != null)
+							MapTool.getFrame().setCurrentZoneRenderer(current);
+						MapTool.getAutoSaveManager().restart();
 						MapTool.getFrame().hideGlassPane();
 					}
-
 				} catch (IOException ioe) {
 					MapTool.showError("msg.error.failedLoadCampaign", ioe);
 				}

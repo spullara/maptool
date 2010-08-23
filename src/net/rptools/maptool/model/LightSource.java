@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.model;
 
@@ -23,9 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 import net.rptools.lib.FileUtil;
-import net.rptools.maptool.model.ShapeType;
-
-import com.thoughtworks.xstream.XStream;
 
 public class LightSource  {
 
@@ -33,17 +30,17 @@ public class LightSource  {
 		NORMAL,
 		AURA
 	}
-	
+
 	private List<Light> lightList;
 	private String name;
 	private GUID id;
 	private Type type;
 	private ShapeType shapeType;
-	
+
 	public LightSource() {
 		// for serialization
 	}
-	
+
 	public LightSource(String name) {
 		id = new GUID();
 		this.name = name;
@@ -54,37 +51,37 @@ public class LightSource  {
 		if (!(obj instanceof LightSource)) {
 			return false;
 		}
-		
+
 		return ((LightSource)obj).id.equals(id);
 	}
-	
+
 	public double getMaxRange() {
 		double range = 0;
-		
+
 		for (Light light : getLightList()) {
 			range = Math.max(range, light.getRadius());
 		}
-		
+
 		return range;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return id.hashCode();
 	}
-	
+
 	public void setId(GUID id) {
 		this.id = id;
 	}
-	
+
 	public GUID getId() {
 		return id;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
-	
+
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -92,11 +89,11 @@ public class LightSource  {
 	public void add(Light source) {
 		getLightList().add(source);
 	}
-	
+
 	public void remove(Light source) {
 		getLightList().remove(source);
 	}
-	
+
 	public List<Light> getLightList() {
 		if (lightList == null) {
 			lightList = new LinkedList<Light>();
@@ -111,16 +108,16 @@ public class LightSource  {
 	public void setType(Type type) {
 		this.type = type;
 	}
-	
+
 	public void setShapeType (ShapeType type)
 	{
-		this.shapeType = type;		
+		this.shapeType = type;
 	}
-	
+
 	public ShapeType getShapeType() {
 		return shapeType != null ? shapeType : ShapeType.CIRCLE;
-	}	
-	
+	}
+
 	/**
 	 * Area for a single light, subtracting any previous lights
 	 */
@@ -143,7 +140,7 @@ public class LightSource  {
 		for (Light light : getLightList()) {
 			area.add(light.getArea(token, zone));
 		}
-		
+
 		return getArea(token, zone, position, area);
 	}
 
@@ -186,20 +183,22 @@ public class LightSource  {
 			ty += footprintBounds.height/2;
 			break;
 		}
-		
+
 		area.transform(AffineTransform.getTranslateInstance(tx, ty));
 		return area;
 	}
 
 	public void render(Graphics2D g, Token token, Grid grid) {
-		
+
 	}
 
+	@SuppressWarnings("unchecked")
 	public static Map<String, List<LightSource>> getDefaultLightSources() throws IOException {
-		
-		return (Map<String, List<LightSource>>) new XStream().fromXML(new String(FileUtil.loadResource("net/rptools/maptool/model/defaultLightSourcesMap.xml")));
+		Object defaultLights = FileUtil.objFromResource("net/rptools/maptool/model/defaultLightSourcesMap.xml");
+		return (Map<String, List<LightSource>>) defaultLights;
 	}
-	
+
+	@Override
 	public String toString() {
 		return name;
 	}
