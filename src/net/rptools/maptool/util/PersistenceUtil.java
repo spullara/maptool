@@ -333,12 +333,13 @@ public class PersistenceUtil {
 		PersistedCampaign persistedCampaign = null;
 		try {
 			// Sanity check
+			String mtversion = MapTool.getVersion();
 			String version = (String)pakfile.getProperty(PROP_CAMPAIGN_VERSION);
 			version = version == null ? "1.3.50" : version;	// This is where the campaignVersion was added
 
 			// If this version of MapTool is equal to or later than the one in the file, all is good. :)
-			if ( // !MapTool.isDevelopment() &&
-					ModelVersionManager.isBefore(MapTool.getVersion(), version)) {
+			if (!MapTool.isDevelopment() &&
+					ModelVersionManager.isBefore(ModelVersionManager.cleanVersionNumber(mtversion), version)) {
 				// If this version of MapTool is prior to the one in the file, give a chance to abort.
 				boolean okay;
 				okay = MapTool.confirm("msg.confirm.newerVersion", MapTool.getVersion(), version);
