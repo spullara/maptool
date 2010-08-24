@@ -102,11 +102,14 @@ As described above, each operating system has its own start file.
 For Windows, the EXE will ask for memory size parameters -- try
 increasing the maximum memory and running MapTool again.  For OS X
 and Linux/Unix users, edit the corresponding script and modify the
-memory settings at the top of the file.
+memory settings at the top of the file (if you're using a script).
 
 Mac Users:  If you installed from the DMG file, look inside the
 resulting app package for a file named "Info.plist" and edit it with a
-text editor.  It contains the memory settings.
+text editor.  Search for "VMOptions" and the line immediately
+below it will have the memory settings.  The "-Xss" option sets the
+stack size, the "-Xms" option sets the starting/minimum memory
+size, and the "-Xmx" option sets the maximum memory size.
 
 			<<< Troubleshooting >>>
 		<<< Troubleshooting WebStart Version >>>
