@@ -20,6 +20,7 @@ import java.util.List;
 
 import javax.swing.AbstractListModel;
 
+import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.InitiativeList.TokenInitiative;
 import net.rptools.maptool.model.Token.Type;
@@ -132,6 +133,7 @@ public class InitiativeListModel extends AbstractListModel implements PropertyCh
         if (token == null) return false;
         if (MapTool.getFrame().getInitiativePanel().hasGMPermission()) return true;
         if (!token.isVisible() || token.getLayer() == Zone.Layer.GM) return false;
+        if (token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token)) return false;
         if (hideNPC && token.getType() == Type.NPC) return false;
         return true;
     }

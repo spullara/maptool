@@ -136,6 +136,7 @@ public class Token extends BaseModel {
 	// current grid or is free floating
 
 	private boolean isVisible = true;
+	private boolean visibleOnlyToOwner = false;
 
 	private String name;
 	private Set<String> ownerList;
@@ -781,6 +782,21 @@ public class Token extends BaseModel {
 	public boolean isVisible() {
 		return isVisible;
 	}
+	
+	/**
+	 * @return the visibleOnlyToOwner
+	 */
+	public boolean isVisibleOnlyToOwner() {
+		return visibleOnlyToOwner;
+	}
+
+	/**
+	 * @param visibleOnlyToOwner the visibleOnlyToOwner to set
+	 */
+	public void setVisibleOnlyToOwner(boolean visibleOnlyToOwner) {
+		this.visibleOnlyToOwner = visibleOnlyToOwner;
+	}
+
 
 	public String getName() {
 		return name != null ? name : "";

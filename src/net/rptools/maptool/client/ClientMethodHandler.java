@@ -156,10 +156,29 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 
 					zoneGUID = (GUID) parameters[0];
 					Area area = (Area) parameters[1];
+					Token tok = null;
+					if (parameters.length > 2)
+					{
+						if (parameters[2] != null)
+						{
+							tok = (Token) parameters[2];
+						}
+					}
 
-					zone = MapTool.getCampaign().getZone(zoneGUID);
-					zone.exposeArea(area);
-
+					
+					if (tok != null && MapTool.getServerPolicy().isUseIndividualViews() && tok.isVisibleOnlyToOwner() && !AppUtil.playerOwns(tok))
+					{
+						return;
+					}
+					else if(tok != null && MapTool.getServerPolicy().isUseIndividualViews() && !AppUtil.playerOwns(tok))
+					{
+						return;
+					} 
+					else 
+					{
+						zone = MapTool.getCampaign().getZone(zoneGUID);
+						zone.exposeArea(area);
+					}
 					MapTool.getFrame().refresh();
 					return;
 

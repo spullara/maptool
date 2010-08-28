@@ -124,7 +124,7 @@ public class FacingTool extends DefaultTool {
 			}
 			renderer.flush(token);
 		}
-		MapTool.serverCommand().exposeFoW(renderer.getZone().getId(), visibleArea);
+		MapTool.serverCommand().exposeFoW(renderer.getZone().getId(), visibleArea, null);
 
 		renderer.repaint(); // TODO: shrink this
 	}

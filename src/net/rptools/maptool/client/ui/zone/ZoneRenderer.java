@@ -1498,6 +1498,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				if (!token.isVisible() && !view.isGMView()) {
 					continue;
 				}
+				if (token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token)) 
+				{
+					 continue;
+				}
 
 				Asset asset = AssetManager.getAsset(token.getImageAssetId());
 				if (asset == null) {
@@ -1971,6 +1975,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			// NOTE: Not going to use zone.isTokenVisible as it is very slow.  In fact, it's faster
 			// to just draw the tokens and let them be clipped
 			if (!token.isVisible() && !view.isGMView()) {
+				continue;
+			}
+			if (token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token)) 
+			{
 				continue;
 			}
 

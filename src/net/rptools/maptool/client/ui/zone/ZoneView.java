@@ -454,7 +454,7 @@ public class ZoneView implements ModelChangeListener {
 
 			// Permission
 			if (MapTool.getServerPolicy().isUseIndividualViews()) {
-				if (!AppUtil.playerOwns(token)) {
+				if (token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token)) {
 					continue;
 				}
 			} else {

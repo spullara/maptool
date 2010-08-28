@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.InitiativeList.TokenInitiative;
 import net.rptools.maptool.model.drawing.DrawableColorPaint;
@@ -419,7 +420,11 @@ public class Zone extends BaseModel {
 		if (!hasFog()) {
 			return true;
 		}
-
+		if (token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token))
+		{
+			return false;
+		}
+		
 		// Token is visible, and there is fog
 		int x = token.getX();
 		int y = token.getY();

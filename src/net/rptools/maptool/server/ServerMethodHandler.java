@@ -72,7 +72,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 			case bringTokensToFront:			bringTokensToFront(context.getGUID(0), (Set<GUID>) context.get(1)); break;
 			case draw:									draw(context.getGUID(0), (Pen) context.get(1), (Drawable) context.get(2)); break;
 			case enforceZoneView:					enforceZoneView(context.getGUID(0), context.getInt(1), context.getInt(2), context.getDouble(3), context.getInt(4), context.getInt(5)); break;
-			case exposeFoW:							exposeFoW(context.getGUID(0), (Area) context.get(1)); break;
+			case exposeFoW:							exposeFoW(context.getGUID(0), (Area) context.get(1), (Token) context.get(2)); break;
 			case getAsset:								getAsset((MD5Key) context.get(0)); break;
 			case getZone:								getZone(context.getGUID(0)); break;
 			case hideFoW:								hideFoW(context.getGUID(0), (Area) context.get(1)); break;
@@ -217,7 +217,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 		forwardToClients();
 	}
 
-	public void exposeFoW(GUID zoneGUID, Area area) {
+	public void exposeFoW(GUID zoneGUID, Area area, Token token) {
 
 		Zone zone = server.getCampaign().getZone(zoneGUID);
 		zone.exposeArea(area);

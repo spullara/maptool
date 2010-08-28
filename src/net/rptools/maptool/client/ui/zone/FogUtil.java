@@ -183,15 +183,16 @@ public class FogUtil {
 			if (!token.getHasSight()) {
 				continue;
 			}
-			if(!AppUtil.playerOwns(token)){
+			if(token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token)){
 				continue;
 			}
+			
 
 			Area tokenVision = renderer.getVisibleArea(token);
 
 			if (tokenVision != null) {
 				zone.exposeArea(tokenVision);
-				MapTool.serverCommand().exposeFoW(zone.getId(), tokenVision);
+				MapTool.serverCommand().exposeFoW(zone.getId(), tokenVision, token);
 			}
 		}
 	}
@@ -257,7 +258,7 @@ public class FogUtil {
 			}
 
 			zone.exposeArea(visionArea);
-			MapTool.serverCommand().exposeFoW(zone.getId(), visionArea);
+			MapTool.serverCommand().exposeFoW(zone.getId(), visionArea,token);
 		}
 
 	}

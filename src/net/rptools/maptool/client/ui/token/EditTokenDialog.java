@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.swing.AbstractButton;
 import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -106,7 +107,7 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 	 *            The token being displayed.
 	 */
 	public EditTokenDialog() {
-		super("net/rptools/maptool/client/ui/forms/tokenPropertiesDialog.jfrm");
+		super("net/rptools/maptool/client/ui/forms/tokenPropertiesDialog.xml");
 
 		panelInit();
 	}
@@ -218,6 +219,18 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		getCharSheetPanel().setImageId(token.getCharsheetImage());
 		getPortraitPanel().setImageId(token.getPortraitImage());
 		getTokenLayoutPanel().setToken(token);
+		
+		// we will disable the Owner only visible check box if the token is not
+		// visible to players to signify the relationship
+	    ActionListener tokenVisibleActionListener = new ActionListener() {
+	        public void actionPerformed(ActionEvent actionEvent) {
+	          AbstractButton abstractButton = (AbstractButton)actionEvent.getSource();
+	          boolean selected = abstractButton.getModel().isSelected();
+	          getVisibleOnlyToOwnerCheckBox().setEnabled(selected);
+	          getVisibleOnlyToOwnerLabel().setEnabled(selected);
+	        }
+	      };
+		getVisibleCheckBox().addActionListener(tokenVisibleActionListener);
 
 		// Character Sheets
 /*
@@ -637,6 +650,17 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 
 	private JLabel getVisibleLabel() {
 		return (JLabel) getComponent("visibleLabel");
+	}
+	
+	private JCheckBox getVisibleCheckBox() {
+		return (JCheckBox) getComponent("@visible");
+	}
+	
+	private JLabel getVisibleOnlyToOwnerLabel() {
+		return (JLabel) getComponent("visibleOnlyToOwnerLabel");
+	}
+	private JCheckBox getVisibleOnlyToOwnerCheckBox() {
+		return (JCheckBox) getComponent("@visibleOnlyToOwner");
 	}
 
 	private JPanel getGMNotesPanel() {

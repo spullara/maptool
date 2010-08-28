@@ -88,7 +88,7 @@ public interface ServerCommand {
 
 	public void bootPlayer(String player);
 	public void setZoneHasFoW(GUID zoneGUID, boolean hasFog);
-	public void exposeFoW(GUID zoneGUID, Area area);
+	public void exposeFoW(GUID zoneGUID, Area area, Token token);
 	public void hideFoW(GUID zoneGUID, Area area);
 	public void setFoW(GUID zoneGUID, Area area);
 	public void addTopology(GUID zoneGUID, Area area);

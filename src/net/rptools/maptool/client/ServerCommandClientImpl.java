@@ -197,8 +197,8 @@ public class ServerCommandClientImpl implements ServerCommand {
 		makeServerCall(COMMAND.removeTopology, zoneGUID, area);
 	}
 
-	public void exposeFoW(GUID zoneGUID, Area area) {
-		makeServerCall(COMMAND.exposeFoW, zoneGUID, area);
+	public void exposeFoW(GUID zoneGUID, Area area, Token token) {
+		makeServerCall(COMMAND.exposeFoW, zoneGUID, area, token);
 	}
 
 	public void setFoW(GUID zoneGUID, Area area) {
