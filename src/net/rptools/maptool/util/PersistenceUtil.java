@@ -337,7 +337,7 @@ public class PersistenceUtil {
 			String version = (String)pakfile.getProperty(PROP_CAMPAIGN_VERSION);
 			version = version == null ? "1.3.50" : version;	// This is where the campaignVersion was added
 
-			// If this version of MapTool is equal to or later than the one in the file, all is good. :)
+			// If this version of MapTool is earlier than the one in the file, warn the user. :)
 			if (!MapTool.isDevelopment() &&
 					ModelVersionManager.isBefore(mtversion, version)) {
 				// If this version of MapTool is prior to the one in the file, give a chance to abort.
@@ -724,8 +724,7 @@ public class PersistenceUtil {
 	public static LookupTable loadTable(File file) throws IOException {
 		try {
 			PackedFile pakFile = new PackedFile(file);
-//			String version = (String) pakFile.getProperty(PROP_VERSION); // Sanity
-			// check
+//			String version = (String) pakFile.getProperty(PROP_VERSION); // Sanity check
 			LookupTable lookupTable = (LookupTable) pakFile.getContent();
 			loadAssets(lookupTable.getAllAssetIds(), pakFile);
 			return lookupTable;
