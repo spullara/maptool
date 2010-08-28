@@ -1084,12 +1084,11 @@ public class MapTool {
 			Method getApplication = appClass.getDeclaredMethod("getApplication", (Class[]) null);
 			Object appl = getApplication.invoke(null, (Object[]) null);
 			Method setDockIconImage = appl.getClass().getDeclaredMethod("setDockIconImage", new Class[] { java.awt.Image.class });
-			Method setDockIconBadge = appl.getClass().getDeclaredMethod("setDockIconBadge", new Class[] { java.lang.String.class });
-
 			// If we couldn't grab the image for some reason, don't set the dock bar icon!  Duh!
-			if (img != null) {
+			if (img != null)
 				setDockIconImage.invoke(appl, new Object[] { img });
-			}
+
+			Method setDockIconBadge = appl.getClass().getDeclaredMethod("setDockIconBadge", new Class[] { java.lang.String.class });
 			String vers = getVersion();
 			vers = vers.substring(vers.length() - 2);
 			vers = vers.replaceAll("[^0-9]", "0");		// Convert all non-digits to zeroes
@@ -1100,7 +1099,6 @@ public class MapTool {
 	}
 
 	private static void postInitialize() {
-
 		// Check to see if there is an autosave file from mt crashing
 		getAutoSaveManager().check();
 		getAutoSaveManager().restart();
