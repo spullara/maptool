@@ -3237,7 +3237,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 			// Token type
 			if (isGM) {
-				token.setType(Token.Type.NPC);
+				// FJE Yes, this looks redundant.  But calling getType() retrieves the type of
+				// the Token and returns NPC if the type can't be determined (raw image,
+				// corrupted token file, etc).  So retrieving it and then turning around and
+				// setting it ensures it has a valid value without necessarily changing what
+				// it was. :)
+				Token.Type type = token.getType();
+				token.setType(type);
+
 				if (getActiveLayer() == Zone.Layer.TOKEN) {
 					if (AppPreferences.getShowDialogOnNewToken() || showDialog) {
 						NewTokenDialog dialog = new NewTokenDialog(token, dropPoint.x, dropPoint.y);
@@ -3248,7 +3255,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 					}
 				}
 			} else {
-				// Player dropped, player token
+				// Player dropped, ensure it's a PC token
 				token.setType(Token.Type.PC);
 			}
 

@@ -455,7 +455,8 @@ public class Token extends BaseModel {
 
 	public Type getType() {
 		try {
-			return tokenType != null ? Type.valueOf(tokenType) : Type.NPC;  // TODO: make this a psf
+			// TODO: make this a psf
+			return tokenType != null ? Type.valueOf(tokenType) : Type.NPC;
 		} catch (IllegalArgumentException iae) {
 			return Type.NPC;
 		}

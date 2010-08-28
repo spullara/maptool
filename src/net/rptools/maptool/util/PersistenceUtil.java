@@ -295,9 +295,8 @@ public class PersistenceUtil {
 	 */
 	static public void saveCampaignThumbnail(String fileName) {
 		BufferedImage screen = MapTool.takeMapScreenShot(new PlayerView(MapTool.getPlayer().getRole()));
-		if (screen == null) {
+		if (screen == null)
 			return;
-		}
 
 		Dimension imgSize = new Dimension(screen.getWidth(null), screen.getHeight(null));
 		SwingUtil.constrainTo(imgSize, 200, 200);
@@ -424,9 +423,7 @@ public class PersistenceUtil {
 			try {
 				thumb = ImageIO.read(is);
 			} finally {
-				if (is != null) {
-					is.close();
-				}
+				IOUtils.closeQuietly(is);
 			}
 		}
 		pakFile.close();
@@ -434,7 +431,6 @@ public class PersistenceUtil {
 	}
 
 	public static void saveToken(Token token, File file) throws IOException {
-
 		PackedFile pakFile = new PackedFile(file);
 		saveAssets(token.getAllImageAssets(), pakFile);
 
@@ -460,15 +456,12 @@ public class PersistenceUtil {
 	}
 
 	public static Token loadToken(File file) throws IOException {
-
 		PackedFile pakFile = new PackedFile(file);
 
 		// TODO: Check version
 //		String mtVersion = (String)pakFile.getProperty(PROP_VERSION);
 		Token token = (Token) pakFile.getContent();
-
 		loadAssets(token.getAllImageAssets(), pakFile);
-
 		return token;
 	}
 
@@ -479,9 +472,8 @@ public class PersistenceUtil {
 		List<Asset> addToServer = new ArrayList<Asset>(assetIds.size());
 
 		for (MD5Key key : assetIds) {
-			if (key == null) {
+			if (key == null)
 				continue;
-			}
 
 			if (!AssetManager.hasAsset(key)) {
 				String pathname = ASSET_DIR + key;
