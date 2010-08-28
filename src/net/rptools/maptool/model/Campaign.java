@@ -374,6 +374,7 @@ public class Campaign {
 				prop.setMinWidth(properties.getMinWidth());
 				prop.setMaxWidth(properties.getMaxWidth());
 				prop.setToolTip(properties.getToolTip());
+				prop.setAllowPlayerEdits(properties.getAllowPlayerEdits());
 				MapTool.getFrame().getCampaignPanel().reset();
 				return;
 			}
