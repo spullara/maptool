@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignProperties;
@@ -82,7 +83,8 @@ public interface ServerCommand {
 		updateCampaignMacros,
 		setTokenLocation,// NOTE: This is to support third party token placement and shouldn't be depended on for general purpose token movement
 		setLiveTypingLabel, // Experimental
-		enforceNotification // Override toggle button to show typing notifications
+		enforceNotification, // Override toggle button to show typing notifications
+		exposePCArea
 
 	};
 
@@ -131,4 +133,5 @@ public interface ServerCommand {
 	public void updateCampaignMacros(List<MacroButtonProperties> properties);
 	public void setLiveTypingLabel(String name, boolean show);
 	public void enforceNotification(Boolean enforce);
+	public void exposePCArea(GUID zoneGUID);
 }

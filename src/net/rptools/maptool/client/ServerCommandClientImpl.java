@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignProperties;
@@ -196,7 +197,11 @@ public class ServerCommandClientImpl implements ServerCommand {
 	public void removeTopology(GUID zoneGUID, Area area) {
 		makeServerCall(COMMAND.removeTopology, zoneGUID, area);
 	}
-
+	
+	public void exposePCArea(GUID zoneGUID){
+		makeServerCall(COMMAND.exposePCArea, zoneGUID);
+	}
+	
 	public void exposeFoW(GUID zoneGUID, Area area, Token token) {
 		makeServerCall(COMMAND.exposeFoW, zoneGUID, area, token);
 	}

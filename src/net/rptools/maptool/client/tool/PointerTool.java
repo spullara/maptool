@@ -1083,6 +1083,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			public void actionPerformed(ActionEvent e) {
 				if (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision()) {
 					FogUtil.exposePCArea(renderer);
+					MapTool.serverCommand().exposePCArea(renderer.getZone().getId());
 				}
 			}
 		});

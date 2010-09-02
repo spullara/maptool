@@ -216,6 +216,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 		public void actionPerformed(ActionEvent e) {
 			FogUtil.exposePCArea(getRenderer());
+			MapTool.serverCommand().exposePCArea(getRenderer().getZone().getId());
 			getRenderer().repaint();
 		}
 

@@ -24,6 +24,8 @@ import net.rptools.clientserver.hessian.AbstractMethodHandler;
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.ClientCommand;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.zone.FogUtil;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.common.MapToolConstants;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -114,6 +116,8 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 			case setVisionType:						setVisionType(context.getGUID(0), (VisionType)context.get(1));break;
 			case updateCampaignMacros:		updateCampaignMacros((List<MacroButtonProperties>) context.get(0));break;
 			case setTokenLocation:					setTokenLocation(context.getGUID(0), context.getGUID(1), context.getInt(2), context.getInt(3));break;
+			case exposePCArea:					exposePCArea(context.getGUID(0));break;
+			//exposePCArea
 			}
 		} finally {
 			RPCContext.setCurrent(null);
@@ -224,7 +228,13 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 
 		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.exposeFoW.name(), RPCContext.getCurrent().parameters);
 	}
-
+	public void exposePCArea(GUID zoneGUID) {
+		
+		ZoneRenderer renderer = MapTool.getFrame().getZoneRenderer(zoneGUID);
+		
+		FogUtil.exposePCArea(renderer);
+		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.exposePCArea.name(), RPCContext.getCurrent().parameters);
+	}
 	public void getAsset(MD5Key assetID) {
 
 		if (assetID == null || assetID.toString().length() == 0) {

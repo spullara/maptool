@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
+import net.rptools.maptool.client.ui.zone.FogUtil;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.ZoneRendererFactory;
 import net.rptools.maptool.model.Asset;
@@ -92,10 +93,6 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 				// gets requested again
 				ioe.printStackTrace();
 			}
-			return;
-
-		case setLiveTypingLabel:
-			MapTool.getFrame().setNewTyper(parameters[0].toString() );
 			return;
 
 		case enforceNotification:
@@ -579,8 +576,18 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					MapTool.getCampaign().setMacroButtonPropertiesArray(new ArrayList<MacroButtonProperties>((ArrayList<MacroButtonProperties>) parameters[0]));
 					MapTool.getFrame().getCampaignPanel().reset();
 					return;
+				// moved this down into the event queue section so that the threading works as expected
+				case setLiveTypingLabel:
+					MapTool.getFrame().setNewTyper(parameters[0].toString() );
+					return;
 
-
+				case exposePCArea:
+					if (parameters[0] != null && parameters[0] instanceof GUID)
+					{
+						ZoneRenderer currentRenderer1 = MapTool.getFrame().getZoneRenderer((GUID) parameters[0]);
+						FogUtil.exposePCArea(currentRenderer1);
+						return;
+					}
 				}
 			}
 		});
