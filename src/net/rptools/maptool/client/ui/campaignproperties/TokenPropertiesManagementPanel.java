@@ -69,7 +69,12 @@ public class TokenPropertiesManagementPanel extends AbeillePanel<CampaignPropert
 	}
 
 	public JList getTokenTypeList() {
-		return (JList) getComponent("tokenTypeList");
+		JList list = (JList) getComponent("tokenTypeList");
+		if (list == null)
+		{
+			list = new JList();
+		}
+		return list;
 	}
 
 	public JTextField getTokenTypeName() {

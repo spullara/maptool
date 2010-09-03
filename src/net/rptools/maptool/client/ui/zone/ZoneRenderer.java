@@ -43,6 +43,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -77,6 +78,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.TransferableHelper;
+import net.rptools.maptool.client.functions.TokenMoveFunctions;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.tool.StampTool;
 import net.rptools.maptool.client.ui.Scale;
@@ -92,6 +94,7 @@ import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.GridCapabilities;
+import net.rptools.maptool.model.GridlessGrid;
 import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.LightSource;
 import net.rptools.maptool.model.ModelChangeEvent;
@@ -102,6 +105,7 @@ import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.Token.Type;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.util.GraphicsUtil;
@@ -164,6 +168,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	private PlayerView lastView;
 	private Set<GUID> visibleTokenSet;
 	private CodeTimer timer;
+	
+	
+	
+	public static enum TokenMoveCompletion
+	{
+		TRUE,
+		FALSE,
+		OTHER
+	}
 
 	public ZoneRenderer(Zone zone) {
 		if (zone == null) {
@@ -423,13 +436,40 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			int cellOffY = originPoint.y - tokenCell.y;
 
 			token.applyMove(set.getOffsetX(), set.getOffsetY(), path != null ? path.derive(cellOffX, cellOffY) : null);
-
-			// No longer need this version
-			replacementImageMap.remove(token);
-
+			
 			flush(token);
 			MapTool.serverCommand().putToken(zone.getId(), token);
 			zone.putToken(token);
+			// No longer need this version
+			replacementImageMap.remove(token);
+			
+			BigDecimal tmc = null;
+			if(token.isToken() && token.isVisible()){
+				tmc = TokenMoveFunctions.tokenMoveCompleteFunctions(token, path);
+			}
+			if(tmc != null && tmc == BigDecimal.ZERO)
+			{
+				if(path != null)
+				{
+					ZonePoint zp = null;
+					if (path.getCellPath().get(0) instanceof CellPoint) {
+						zp = zone.getGrid().convert((CellPoint) path.getCellPath().get(0));
+					} else {
+						zp = (ZonePoint) path.getCellPath().get(0);
+					}
+	
+					// Relocate
+					token.setX(zp.x);
+					token.setY(zp.y);
+	
+					// Do it again to cancel out the last move position
+					token.setX(zp.x);
+					token.setY(zp.y);
+	
+					// No more last path
+					token.setLastPath(null);
+				}	
+			}
 		}
 
 		MapTool.getFrame().updateTokenTree();
