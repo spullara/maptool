@@ -37,8 +37,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -66,8 +66,8 @@ import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.Zone.Layer;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.util.ImageManager;
 
 /**
@@ -242,26 +242,20 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 			Point p = event.getPoint();
 			for (TokenLocation location : tokenLocationList) {
 				if (location.getBounds().contains(p.x, p.y)) {
-
 					if (!AppUtil.playerOwns(location.getToken())) {
 						return;
 					}
-
 					renderer.clearSelectedTokens();
-					boolean selected = renderer.selectToken(location.getToken()
-							.getId());
+					boolean selected = renderer.selectToken(location.getToken().getId());
 
 					if (selected) {
-						Tool tool = MapTool.getFrame().getToolbox()
-						.getSelectedTool();
+						Tool tool = MapTool.getFrame().getToolbox().getSelectedTool();
 						if (!(tool instanceof StampTool)) {
 							return;
 						}
-
 						tokenUnderMouse = location.getToken();
 						((StampTool) tool).startTokenDrag(location.getToken());
 					}
-
 					return;
 				}
 			}

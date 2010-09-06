@@ -578,7 +578,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 						if(!gmOnly)
 						{
 							owner = true;
-						}						
+						}
 						continue;
 					}
 					// Shape designation ?
@@ -624,13 +624,13 @@ public class CampaignPropertiesDialog extends JDialog  {
 
 						color = Color.decode(colorString);
 					}
-					// 
+					//
 					owner = gmOnly == true? false: owner;
 					try {
 						lightSource.add(new Light(shape, 0, StringUtil.parseDecimal(distance), arc
 								, color != null ? new DrawableColorPaint(color): null
-								, lightSource.getType() != LightSource.Type.AURA? false: gmOnly
-								, lightSource.getType() != LightSource.Type.AURA? false: owner)
+										, lightSource.getType() != LightSource.Type.AURA? false: gmOnly
+												, lightSource.getType() != LightSource.Type.AURA? false: owner)
 						);
 					} catch (ParseException pe) {
 						errlog.add( I18N.getText("msg.error.mtprops.light.distance", reader.getLineNumber(), distance) );

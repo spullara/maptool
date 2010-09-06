@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.ui;
 
@@ -34,9 +34,9 @@ public class Toolbox {
 
 	private Tool currentTool;
 
-	private Map<Class, Tool> toolMap = new HashMap<Class, Tool>();
+	private final Map<Class, Tool> toolMap = new HashMap<Class, Tool>();
 
-	private ButtonGroup buttonGroup = new ButtonGroup();
+	private final ButtonGroup buttonGroup = new ButtonGroup();
 
 	public void updateTools() {
 		for (Tool tool : toolMap.values()) {
@@ -71,23 +71,18 @@ public class Toolbox {
 			toolMap.put(toolClass, tool);
 			tool.setToolbox(this);
 		} catch (InstantiationException e) {
-			e.printStackTrace();
-			MapTool.showError(I18N.getText("msg.error.toolCannotInstantiate", toolClass.getName()));
+			MapTool.showError(I18N.getText("msg.error.toolCannotInstantiate", toolClass.getName()), e);
 			return null;
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-			MapTool.showError(I18N.getText("msg.error.toolNeedPublicConstructor", toolClass.getName()));
+			MapTool.showError(I18N.getText("msg.error.toolNeedPublicConstructor", toolClass.getName()), e);
 			return null;
 		} catch (NoSuchMethodException nsme) {
-			nsme.printStackTrace();
-			MapTool.showError(I18N.getText("msg.error.toolNeedValidConstructor", toolClass.getName()));
+			MapTool.showError(I18N.getText("msg.error.toolNeedValidConstructor", toolClass.getName()), nsme);
 			return null;
 		} catch (InvocationTargetException ite) {
-			ite.printStackTrace();
-			MapTool.showError(I18N.getText("msg.error.toolConstructorFailed", toolClass.getName()));
+			MapTool.showError(I18N.getText("msg.error.toolConstructorFailed", toolClass.getName()), ite);
 			return null;
 		}
-
 		return tool;
 	}
 
