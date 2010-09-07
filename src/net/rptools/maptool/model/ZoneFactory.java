@@ -17,6 +17,8 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
+
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.AppPreferences;
@@ -35,7 +37,7 @@ public class ZoneFactory {
     	File grassImage = new File(AppUtil.getAppHome("resource/Default/Textures").getAbsolutePath() + "/Grass.png");
     	if (grassImage.exists()) {
     		try {
-    			Asset asset = new Asset(DEFAULT_MAP_NAME, FileUtil.loadFile(grassImage));
+    			Asset asset = new Asset(DEFAULT_MAP_NAME, FileUtils.readFileToByteArray(grassImage));
     			defaultImageId = asset.getId();
     			
 				// Make sure the image is loaded to avoid a flash screen when it becomes visible

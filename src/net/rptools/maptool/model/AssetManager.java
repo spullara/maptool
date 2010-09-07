@@ -37,6 +37,7 @@ import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -271,7 +272,7 @@ public class AssetManager {
 
 				try {
 					String name = FileUtil.getNameWithoutExtension(imageFile);
-					byte[] data = FileUtil.getBytes(imageFile);
+					byte[] data = FileUtils.readFileToByteArray(imageFile);
 
 					asset = new Asset(name, data);
 
@@ -345,7 +346,7 @@ public class AssetManager {
 		File assetFile = getAssetCacheFile(id);
 
 		try {
-			byte[] data = FileUtil.loadFile(assetFile);
+			byte[] data = FileUtils.readFileToByteArray(assetFile);
 			Properties props = getAssetInfo(id);
 
 			Asset asset = new Asset(props.getProperty(NAME), data);
@@ -371,7 +372,7 @@ public class AssetManager {
 	 * @throws IOException
 	 */
 	public static Asset createAsset(File file) throws IOException {
-		return  new Asset(FileUtil.getNameWithoutExtension(file), FileUtil.loadFile(file));
+		return  new Asset(FileUtil.getNameWithoutExtension(file), FileUtils.readFileToByteArray(file));
 	}
 
 	/**

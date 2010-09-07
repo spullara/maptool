@@ -32,6 +32,7 @@ import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.InitiativeList;
+import net.rptools.maptool.model.InitiativeList.TokenInitiative;
 import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Player;
@@ -39,9 +40,8 @@ import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.ZonePoint;
-import net.rptools.maptool.model.InitiativeList.TokenInitiative;
 import net.rptools.maptool.model.Zone.VisionType;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.Pen;
@@ -61,7 +61,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 	public ClientMethodHandler() {
 	}
 
-	public void handleMethod(final String id, final String method, final Object[] parameters) {
+	public void handleMethod(final String id, final String method, final Object ... parameters) {
 		final ClientCommand.COMMAND cmd = Enum.valueOf(ClientCommand.COMMAND.class, method);
 		// System.out.println("ClientMethodHandler#handleMethod: " +
 		// cmd.name());
@@ -105,6 +105,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 
 		// Model events need to update on the EDT
 		EventQueue.invokeLater(new Runnable() {
+			@SuppressWarnings("unchecked")
 			public void run() {
 				GUID zoneGUID;
 				Zone zone;
@@ -162,7 +163,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 						}
 					}
 
-					
+
 					if (tok != null && MapTool.getServerPolicy().isUseIndividualViews() && tok.isVisibleOnlyToOwner() && !AppUtil.playerOwns(tok))
 					{
 						return;
@@ -170,8 +171,8 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					else if(tok != null && MapTool.getServerPolicy().isUseIndividualViews() && !AppUtil.playerOwns(tok))
 					{
 						return;
-					} 
-					else 
+					}
+					else
 					{
 						zone = MapTool.getCampaign().getZone(zoneGUID);
 						zone.exposeArea(area);
@@ -576,7 +577,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					MapTool.getCampaign().setMacroButtonPropertiesArray(new ArrayList<MacroButtonProperties>((ArrayList<MacroButtonProperties>) parameters[0]));
 					MapTool.getFrame().getCampaignPanel().reset();
 					return;
-				// moved this down into the event queue section so that the threading works as expected
+					// moved this down into the event queue section so that the threading works as expected
 				case setLiveTypingLabel:
 					MapTool.getFrame().setNewTyper(parameters[0].toString() );
 					return;

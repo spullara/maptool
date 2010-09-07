@@ -32,6 +32,16 @@ import net.rptools.maptool.model.Asset;
 
 import com.thoughtworks.xstream.XStream;
 
+/**
+ * Appears to be unused within MapTool.  What was its original purpose?  It appears
+ * to be some way to extract individual images from a campaign, but it has multiple
+ * problems:  always names output images with <b>.jpg</b> extensions, doesn't
+ * allow a choice of which images are extracted, doesn't turn on annotation processing
+ * for {@link Asset} objects (needed for XStream processing), and doesn't used
+ * buffered I/O classes.
+ * 
+ * @author ??
+ */
 public class AssetExtractor {
 
 	public static void extract() throws Exception {

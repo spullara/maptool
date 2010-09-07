@@ -17,6 +17,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 
+import org.apache.commons.io.FileUtils;
+
 import net.rptools.lib.FileUtil;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -32,7 +34,7 @@ public class AssetTransferHandler implements ConsumerListener {
 
 		byte[] assetData = null;
 		try {
-			assetData = FileUtil.loadFile(data);
+			assetData = FileUtils.readFileToByteArray(data);
 		} catch (IOException ioe) {
 			MapTool.showError("Error loading composed asset file: " + id);
 			return;

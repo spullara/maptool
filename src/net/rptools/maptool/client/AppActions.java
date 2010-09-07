@@ -113,6 +113,7 @@ import net.rptools.maptool.util.PersistenceUtil.PersistedCampaign;
 import net.rptools.maptool.util.PersistenceUtil.PersistedMap;
 import net.rptools.maptool.util.UPnPUtil;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingworker.SwingWorker;
 
@@ -669,7 +670,7 @@ public class AppActions {
 
 			try {
 				String messageHistory = MapTool.getFrame().getCommandPanel().getMessageHistory();
-				FileUtil.writeBytes(saveFile, messageHistory.getBytes());
+				FileUtils.writeByteArrayToFile(saveFile, messageHistory.getBytes());
 			} catch (IOException ioe) {
 				MapTool.showError("msg.error.failedSavingMessageHistory", ioe);
 			}
@@ -2332,7 +2333,7 @@ public class AppActions {
 		public QuickMapAction(String name, File imagePath) {
 
 			try {
-				Asset asset = new Asset(name, FileUtil.loadFile(imagePath));
+				Asset asset = new Asset(name, FileUtils.readFileToByteArray(imagePath));
 				assetId = asset.getId();
 
 				// Make smaller

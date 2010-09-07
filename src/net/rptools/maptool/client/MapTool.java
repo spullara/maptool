@@ -91,6 +91,7 @@ import net.rptools.maptool.transfer.AssetTransferManager;
 import net.rptools.maptool.util.UPnPUtil;
 import net.tsc.servicediscovery.ServiceAnnouncer;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
@@ -890,7 +891,7 @@ public class MapTool {
 		String localConfig = "";
 		if (localLoggingConfigFile.exists()) {
 			try {
-				localConfig = new String(FileUtil.getBytes(localLoggingConfigFile));
+				localConfig = FileUtils.readFileToString(localLoggingConfigFile, "UTF-8");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -1059,14 +1060,14 @@ public class MapTool {
 			showError("Attemping to form URL -- shouldn't happen as URL is hard-coded", e);
 		}
 		try {
-			img = ImageUtil.bytesToImage(FileUtil.getBytes(logoFile));
+			img = ImageUtil.bytesToImage(FileUtils.readFileToByteArray(logoFile));
 		} catch (IOException e) {
 			log.debug("Attemping to read cached icon: " + logoFile, e);
 			try {
 				img = ImageUtil.bytesToImage(FileUtil.getBytes(logoURL));
 				// If we did download the logo, save it to the 'config' dir for later use.
 				BufferedImage bimg = ImageUtil.createCompatibleImage(img, img.getWidth(null), img.getHeight(null), null);
-				FileUtil.writeBytes(logoFile, ImageUtil.imageToBytes(bimg, "png"));
+				FileUtils.writeByteArrayToFile(logoFile, ImageUtil.imageToBytes(bimg, "png"));
 				img = bimg;
 			} catch (IOException e1) {
 				log.warn("Cannot read '" + logoURL + "' or  cached '" + logoFile + "'; no dock icon", e1);

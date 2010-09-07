@@ -1,6 +1,5 @@
 package net.rptools.maptool.client;
 
-import java.util.Stack;
 
 public class MapToolMacroContext {
 

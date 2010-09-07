@@ -33,6 +33,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.zip.GZIPInputStream;
 
+import org.apache.commons.io.FileUtils;
+
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.AppUtil;
@@ -116,7 +118,7 @@ public class AssetLoader {
 				index = FileUtil.getBytes(url);
 				storeIndexFile(repository, index);
 			} else {
-				index = FileUtil.loadFile(getRepoIndexFile(repository));
+				index = FileUtils.readFileToByteArray(getRepoIndexFile(repository));
 			}
 			indexMap = parseIndex(decode(index));
 		} catch (MalformedURLException e) {
@@ -187,7 +189,7 @@ public class AssetLoader {
 	
 	protected void storeIndexFile(String repository, byte[] data) throws IOException {
 		File file = getRepoIndexFile(repository);
-		FileUtil.writeBytes(file, data);
+		FileUtils.writeByteArrayToFile(file, data);
 	}
 	
 	protected boolean hasCurrentIndexFile(String repository) {

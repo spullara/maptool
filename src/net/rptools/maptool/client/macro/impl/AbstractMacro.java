@@ -13,10 +13,6 @@
  */
 package net.rptools.maptool.client.macro.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.Macro;
 
