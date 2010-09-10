@@ -1732,7 +1732,6 @@ public class AppActions {
 				}
 			});
 		}
-
 	};
 
 	public static final Action CONNECT_TO_SERVER = new ClientAction() {

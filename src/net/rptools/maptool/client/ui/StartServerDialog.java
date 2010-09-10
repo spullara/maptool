@@ -15,6 +15,7 @@ package net.rptools.maptool.client.ui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.net.ConnectException;
 import java.text.DecimalFormat;
 
@@ -28,6 +29,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolRegistry;
 import net.rptools.maptool.client.swing.AbeillePanel;
 import net.rptools.maptool.client.swing.GenericDialog;
+import net.rptools.maptool.util.StringUtil;
 import net.rptools.maptool.util.UPnPUtil;
 import yasb.Binder;
 
@@ -103,7 +105,6 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 	public void initOKButton() {
 		getOKButton().addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent e) {
-
 				if (getPortTextField().getText().length() == 0) {
 					MapTool.showError("Must supply a port");
 					return;
@@ -114,17 +115,14 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 					MapTool.showError("Port must be numeric");
 					return;
 				}
-
-				if (getUsernameTextField().getText().length() == 0) {
+				if (StringUtil.isEmpty(getUsernameTextField().getText())) {
 					MapTool.showError("Must supply a username");
 					return;
 				}
-
 				if (commit()) {
 					accepted = true;
 					dialog.closeDialog();
 				}
-
 			}
 		});
 	}
@@ -147,11 +145,15 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 				MapTool.getFrame().showFilledGlassPane(smdSettingUp);
 				new Thread(new Runnable() {
 					public void run() {
-
 						EchoServer server = null;
+						int port;
 						try {
-							int port = Integer.parseInt(getPortTextField().getText());
-
+							port = Integer.parseInt(getPortTextField().getText());
+						} catch (NumberFormatException nfe) {
+							MapTool.showError("Port must be a number.");
+							return;
+						}
+						try {
 							// Create a temporary server that will listen on the port we
 							// want to start MapTool on.  This provides two things: First
 							// it tells us we can open that port, second it creates a way
@@ -171,19 +173,16 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 							} else {
 								MapTool.showError("Could not see your computer from the Internet.<br><br>It could be a port forwarding issue.  Visit the RPTools forum (<b>Tools -> MapTool -> HOWTO</b>) to find the Networking FAQ.");
 							}
-							if (getUseUPnPCheckbox().isSelected()) {
-								UPnPUtil.closePort(port);
-							}
-						} catch (NumberFormatException nfe) {
-							MapTool.showError("Port must be a number.");
-							return;
 						} catch (ConnectException e) {
 							MapTool.showError("Unable to see your computer from the Internet.<br><br>It could be a port forwarding issue.  Visit the RPTools forum (<b>Tools -> MapTool -> HOWTO</b>) to find the Networking FAQ.");
 						} catch (HessianRuntimeException e) {
-							MapTool.showError("Communication error during test..", e);
-						} catch (Exception e) {
+							MapTool.showError("Communication error during test...", e);
+						} catch (IOException e) {
 							MapTool.showError("Unknown or unexpected exception during test.", e);
 						} finally {
+							if (getUseUPnPCheckbox().isSelected()) {
+								UPnPUtil.closePort(port);
+							}
 							MapTool.getFrame().hideGlassPane();
 							dialog.setVisible(true);
 							// Need to make sure it dies so that it doesn't keep the port open ...

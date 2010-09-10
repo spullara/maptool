@@ -23,10 +23,13 @@ import net.sbbi.upnp.impls.InternetGatewayDevice;
 import net.sbbi.upnp.messages.ActionResponse;
 import net.sbbi.upnp.messages.UPNPResponseException;
 
+import org.apache.log4j.Logger;
+
 /**
  * @author Phil Wright
  */
 public class UPnPUtil {
+	private static final Logger log = Logger.getLogger(UPnPUtil.class);
 	private static NetworkInterface ni;
 	private static int discoveryTimeout = 5000; // Should be made a preference setting
 	private static InternetGatewayDevice[] IGDs;
@@ -40,7 +43,8 @@ public class UPnPUtil {
 		}
 
 		if (IGDs != null) {
-			System.out.println("UPnP:  Found device: "	+ IGDs[0].getIGDRootDevice().getModelName());
+			if (log.isInfoEnabled())
+				log.info("UPnP:  Found device: "	+ IGDs[0].getIGDRootDevice().getModelName());
 			return true;
 		} else {
 			return false;
@@ -70,8 +74,8 @@ public class UPnPUtil {
 			localHostIP = localAddy.getHostAddress();
 
 			mapped = ourIGD.addPortMapping(
-						"MapTool", null,
-						port, port, localHostIP, 0, "TCP");
+					"MapTool", null,
+					port, port, localHostIP, 0, "TCP");
 
 		} catch (UPNPResponseException respEx) {
 			// oops the IGD did not like something !!
@@ -81,12 +85,12 @@ public class UPnPUtil {
 		}
 
 		if (mapped) {
-			System.out.println("UPnP: Port " + port + " mapped");
-			return true;
+			if (log.isInfoEnabled())
+				log.info("UPnP: Port " + port + " mapped");
 		} else {
 			MapTool.showError("UPnP: Port Mapping Failed");
-			return false;
 		}
+		return mapped;
 	}
 
 	public static boolean closePort(int port) {
@@ -103,13 +107,13 @@ public class UPnPUtil {
 				ActionResponse actResp = testIGD.getSpecificPortMappingEntry(null, port, "TCP");
 
 				if (actResp != null) {
-					// Gonna just assume the mapping belongs to us. as I can't make
-					// One of these days should figure out the  action response to verify it
+					// Gonna just assume the mapping belongs to us.
+					// One of these days should figure out the ActionResponse to verify it
 					boolean unmapped = testIGD.deletePortMapping(null, port, "TCP");
 					if (unmapped) {
-						System.out.println("UPnP: Port unmapped");
+						log.info("UPnP: Port unmapped");
 					} else {
-						System.out.println("UPnP: Failed to unmap port.");
+						log.info("UPnP: Failed to unmap port.");
 					}
 				}
 			}
