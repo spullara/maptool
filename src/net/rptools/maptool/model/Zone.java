@@ -424,7 +424,7 @@ public class Zone extends BaseModel {
 		{
 			return false;
 		}
-		
+
 		// Token is visible, and there is fog
 		int x = token.getX();
 		int y = token.getY();
@@ -881,7 +881,6 @@ public class Zone extends BaseModel {
 	 * only happen when you can't undo your changes and reexpose a drawable, typically at load.
 	 */
 	private void collapseDrawables() {
-
 		collapseDrawableLayer(drawables);
 		collapseDrawableLayer(gmDrawables);
 		collapseDrawableLayer(objectDrawables);
@@ -889,54 +888,45 @@ public class Zone extends BaseModel {
 	}
 
 	private void collapseDrawableLayer(List<DrawnElement> layer) {
-
 		if (layer.size() == 0) {
 			return;
 		}
-
 		Area area = new Area();
 		List<DrawnElement> list = new ArrayList<DrawnElement>(layer);
 		Collections.reverse(list);
 		int count = 0;
 		for (ListIterator<DrawnElement> drawnIter = list.listIterator(); drawnIter.hasNext();) {
-
 			if (count++ > 25) {
 //    			System.out.println("");
 				count = 0;
 			}
-
 			char statusChar = '.';
 			DrawnElement drawn = drawnIter.next();
 			try {
-
 				// Are we covered ourselves ?
 				Area drawnArea = drawn.getDrawable().getArea();
 				if (drawnArea == null) {
 					statusChar = '?';
 					continue;
 				}
-
 				// Does drawable cover area?  If not, get rid of it.
 				if (drawnArea.isEmpty()) {
 					statusChar = 'e';
 					drawnIter.remove();
 					continue;
 				}
-
 				//    		if (GraphicsUtil.contains(area, drawnArea)) {  // Too expensive
 				if (area.contains(drawnArea.getBounds())) { // Not as accurate, but faster
 					statusChar = '-';
 					drawnIter.remove();
 					continue;
 				}
-
 				// Are we possibly covering something up?
 				if (drawn.getPen().isEraser() && (drawn.getPen().getBackgroundMode() == Pen.MODE_SOLID)) {
 					statusChar = '/';
 					area.add(drawnArea);
 					continue;
 				}
-
 				// Should we check if we're covering anyone under us?
 //	    		if (drawn.getPen().getOpacity() == 1 && drawn.getPen().getForegroundMode() == Pen.MODE_SOLID) {
 //	    			statusChar = '+';
@@ -945,13 +935,10 @@ public class Zone extends BaseModel {
 //	    		}
 			} finally {
 //        		System.out.print(statusChar);
-
-				//    			System.out.println(statusChar + " " + drawn.getDrawable().getClass().getName());
+//    			System.out.println(statusChar + " " + drawn.getDrawable().getClass().getName());
 //        		System.out.flush();
-
 			}
 		}
-
 		// Now use the new list
 //    	System.out.println("\nBefore: " + layer.size() + " After: " + list.size());
 		layer.clear();
@@ -980,7 +967,6 @@ public class Zone extends BaseModel {
 				visionType = VisionType.OFF;
 			}
 		}
-
 		// Look for the bizarre z-ordering disappearing trick
 		boolean foundZero = false;
 		boolean fixZOrder = false;
@@ -999,8 +985,6 @@ public class Zone extends BaseModel {
 				token.setZOrder(z++);
 			}
 		}
-
 		return this;
 	}
-
 }

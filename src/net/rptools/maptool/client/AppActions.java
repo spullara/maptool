@@ -1893,7 +1893,6 @@ public class AppActions {
 	}
 
 	public static void loadCampaign(final File campaignFile) {
-
 		new Thread() {
 			@Override
 			public void run() {
@@ -2004,6 +2003,10 @@ public class AppActions {
 			@Override
 			protected Object doInBackground() throws Exception {
 				try {
+					if (AppState.isSaving()) {
+						MapTool.confirm("Campaign currently being auto-saved.  Try again later.", (Object[]) null);
+						return null;
+					}
 					AppState.setIsSaving(true);
 
 					long start = System.currentTimeMillis();
@@ -2024,7 +2027,6 @@ public class AppActions {
 				} finally {
 					AppState.setIsSaving(false);
 				}
-
 				return null;
 			}
 			@Override

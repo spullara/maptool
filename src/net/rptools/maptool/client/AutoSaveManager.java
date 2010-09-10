@@ -34,7 +34,6 @@ public class AutoSaveManager implements ActionListener {
 	private static final Logger log = Logger.getLogger(AutoSaveManager.class);
 	private Timer autoSaveTimer;
 	public static final File AUTOSAVE_FILE = new File(AppUtil.getAppHome("autosave"), "AutoSave" + AppConstants.CAMPAIGN_FILE_EXTENSION);
-	private boolean working;
 
 	public void start() {
 		restart();
@@ -49,6 +48,8 @@ public class AutoSaveManager implements ActionListener {
 
 		//convert to milliseconds
 		int delay = interval*60*1000;
+		if (log.isDebugEnabled())
+			log.debug("Starting autosave manager); interval in seconds is " + (interval*60));
 
 		if (autoSaveTimer == null) {
 			if (interval <= 0) {					// auto-save is turned with <= 0
@@ -83,9 +84,11 @@ public class AutoSaveManager implements ActionListener {
 		if (!MapTool.isHostingServer() && !MapTool.isPersonalServer())
 			return;
 
-		if (working || AppState.isSaving())
+		if (AppState.isSaving()) {
+			log.debug("Canceling autosave because user has initiated save operation");
 			return;
-		working = true;
+		}
+		AppState.setIsSaving(true);
 
 		MapTool.getFrame().setStatusMessage("Autosaving campaign ...");
 
@@ -95,23 +98,26 @@ public class AutoSaveManager implements ActionListener {
 		//
 		// NOTE: This is a cheesy way to clone the campaign, but it makes it so that I
 		// don't have to keep all the various models' clone methods updated on each change.
-		long start = System.currentTimeMillis();
+		long startCopy = System.currentTimeMillis();
 		final Campaign campaign = new Campaign(MapTool.getCampaign());
-		//System.out.println("Time: " + (System.currentTimeMillis() - start));
+		if (log.isInfoEnabled())
+			log.info("Time to copy Campaign object (ms): " + (System.currentTimeMillis() - startCopy));
 
 		// Now that we have a copy of the model, save that one
 		// TODO: Replace this with a swing worker
 		new Thread(new Runnable() {
 			public void run() {
+				long startSave = System.currentTimeMillis();
 				try {
 					PersistenceUtil.saveCampaign(campaign, AUTOSAVE_FILE);
-					MapTool.getFrame().setStatusMessage("Autosave complete.");
+					MapTool.getFrame().setStatusMessage("Autosave complete.  Elapsed time (ms): " + (System.currentTimeMillis() - startSave));
 				} catch (IOException ioe) {
 					MapTool.showError("Autosave failed: ", ioe);
 				} catch (Throwable t) {
 					MapTool.showError("Autosave failed: ", t);
+				} finally {
+					AppState.setIsSaving(false);
 				}
-				working = false;
 			}
 		}).start();
 	}

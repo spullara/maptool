@@ -78,9 +78,10 @@ public class PersistenceUtil {
 	private static final String PROP_CAMPAIGN_VERSION = "campaignVersion";
 	private static final String ASSET_DIR = "assets/";
 
-	private static final String CAMPAIGN_VERSION = "1.3.70";
+	private static final String CAMPAIGN_VERSION = "1.3.75";
 	// Please add a single note regarding why the campaign version number has been updated:
 	// 1.3.70	ownerOnly added to model.Light (not backward compatible)
+	// 1.3.75	model.Token.visibleOnlyToOwner (actually added to 1.3.74 but I didn't catch it before release)
 
 	private static final ModelVersionManager campaignVersionManager = new ModelVersionManager();
 	private static final ModelVersionManager assetnameVersionManager = new ModelVersionManager();
@@ -326,27 +327,29 @@ public class PersistenceUtil {
 	}
 
 	public static PersistedCampaign loadCampaign(File campaignFile) throws IOException {
+		String mtversion = ModelVersionManager.cleanVersionNumber(MapTool.getVersion());
+
 		// Try the new way first
 		PackedFile pakfile = new PackedFile(campaignFile);
 		pakfile.setModelVersionManager(campaignVersionManager);
 		PersistedCampaign persistedCampaign = null;
 		try {
 			// Sanity check
-			String mtversion = ModelVersionManager.cleanVersionNumber(MapTool.getVersion());
-			String version = (String)pakfile.getProperty(PROP_CAMPAIGN_VERSION);
-			version = version == null ? "1.3.50" : version;	// This is where the campaignVersion was added
+			String progVersion = (String)pakfile.getProperty(PROP_VERSION);
+			String campaignVersion = (String)pakfile.getProperty(PROP_CAMPAIGN_VERSION);
+			// This is where the campaignVersion was added
+			campaignVersion = campaignVersion == null ? "1.3.50" : campaignVersion;
 
-			// If this version of MapTool is earlier than the one in the file, warn the user. :)
-			if (!MapTool.isDevelopment() &&
-					ModelVersionManager.isBefore(mtversion, version)) {
-				// If this version of MapTool is prior to the one in the file, give a chance to abort.
+			// If this version of MapTool is earlier than the one that created the campaign file, warn the user. :)
+			if (!MapTool.isDevelopment() && ModelVersionManager.isBefore(mtversion, progVersion)) {
+				// Give the user a chance to abort this attempt to load the campaign
 				boolean okay;
-				okay = MapTool.confirm("msg.confirm.newerVersion", MapTool.getVersion(), version);
+				okay = MapTool.confirm("msg.confirm.newerVersion", MapTool.getVersion(), campaignVersion);
 				if (!okay) {
 					return null;
 				}
 			}
-			persistedCampaign = (PersistedCampaign) pakfile.getContent(version);
+			persistedCampaign = (PersistedCampaign) pakfile.getContent(campaignVersion);
 			if (persistedCampaign != null) {
 				// Now load up any images that we need
 				// Note that the values are all placeholders

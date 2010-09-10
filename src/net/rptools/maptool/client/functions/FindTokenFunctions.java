@@ -548,21 +548,18 @@ public class FindTokenFunctions extends AbstractFunction {
 	 * @return a string list that contains the ids or names of the tokens.
 	 */
 	private String getTokens(Parser parser, FindType findType, boolean nameOnly, String delim, String findArgs) {
-
-
 		ArrayList<String> values = new ArrayList<String>();
 		List<Token> tokens = getTokenList(parser, findType, findArgs);
-		if (tokens == null || tokens.isEmpty())
-			return "";
 
-		for (Token token : tokens) {
-			if (nameOnly) {
-				values.add(token.getName());
-			} else {
-				values.add(token.getId().toString());
+		if (tokens != null && !tokens.isEmpty()) {
+			for (Token token : tokens) {
+				if (nameOnly) {
+					values.add(token.getName());
+				} else {
+					values.add(token.getId().toString());
+				}
 			}
 		}
-
 		if ("json".equals(delim)) {
 			return JSONArray.fromObject(values).toString();
 		} else {
