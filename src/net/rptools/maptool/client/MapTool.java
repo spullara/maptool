@@ -946,7 +946,9 @@ public class MapTool {
 			SwingUtil.centerOnScreen(frame);
 			frame.setVisible(true);
 
-			JOptionPane.showMessageDialog(frame, t.getMessage(), "Error creating data dir", JOptionPane.ERROR_MESSAGE);
+			String errorCreatingDir = "Error creating data directory";
+			log.error(errorCreatingDir, t);
+			JOptionPane.showMessageDialog(frame, t.getMessage(), errorCreatingDir, JOptionPane.ERROR_MESSAGE);
 			System.exit(1);
 		}
 

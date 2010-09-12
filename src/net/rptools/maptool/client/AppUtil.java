@@ -60,7 +60,7 @@ public class AppUtil {
 	public static File getAppHome(String subdir) {
 		File path = getDataDir();
 		if (!StringUtils.isEmpty(subdir)) {
-			path = new File(path.getAbsolutePath() + "/" + subdir);
+			path = new File(path.getAbsolutePath(), subdir);
 		}
 		// Now check for characters known to cause problems.
 		// On Unix systems this means only the '!' character for jar:// URLs.
@@ -101,10 +101,13 @@ public class AppUtil {
 			if (path.indexOf("/") < 0 && path.indexOf("\\") < 0) {
 				path = getUserHome() + "/" + path;
 			}
-			// Check if the resulting path contains a (Unicode) punctuation symbol.
-			// See the docs for java.lang.Character for details.
-			String s = path.replace('/', 'a').replace(':', 'b').replace('\\', 'c').replace('.', 'd');
-			if (s.matches(".*\\p{P}.*"))
+			// Now we need to check for characters that are known to cause problems in
+			// path names.  We want to allow the local platform to make this decision, but
+			// the built-in "jar://" URL uses the "!" as a separator between the archive name
+			// and the archive member. :(  Right now we're only checking for that one character
+			// but the list may need to be expanded in the future.
+			String s = path.replace('!', 'a');
+			if (!s.equals(path))
 				throw new RuntimeException(I18N.getText("msg.error.unusableDataDir", path));
 
 			dataDirPath = new File(path);
