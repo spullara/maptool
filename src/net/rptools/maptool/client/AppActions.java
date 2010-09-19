@@ -56,6 +56,7 @@ import javax.swing.KeyStroke;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
+import net.rptools.maptool.client.tool.BoardTool;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.AppActions.ClientAction;
 import net.rptools.maptool.client.AppActions.DefaultClientAction;
@@ -95,7 +96,6 @@ import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignFactory;
 import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.model.CellPoint;
-import net.rptools.maptool.model.ExportInfo;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.Player;
@@ -192,21 +192,17 @@ public class AppActions {
 
 		@Override
 		public void execute(ActionEvent e) {
-
-			ExportInfo exportInfo = MapTool.getCampaign().getExportInfo();
-			ExportDialog dialog = new ExportDialog(exportInfo);
-
-			dialog.setVisible(true);
-
-			exportInfo = dialog.getExportInfo();
-
-			if (exportInfo == null) {
-				return;
+			try {
+				ExportDialog d = MapTool.getCampaign().getExportDialog();
+				if (d == null) {
+					d = new ExportDialog();
+				}
+				MapTool.getCampaign().setExportDialog(d);
+				d.setVisible(true);
 			}
-
-			MapTool.getCampaign().setExportInfo(exportInfo);
-
-			exportScreenCap(exportInfo);
+			catch (Exception ex) {
+				MapTool.showError(I18N.getString("Cannot create the ExportDialog object"), ex);
+			}
 		}
 	};
 
@@ -217,54 +213,22 @@ public class AppActions {
 
 		@Override
 		public void execute(ActionEvent e) {
-
-			ExportInfo exportInfo = MapTool.getCampaign().getExportInfo();
-			if (exportInfo == null) {
-				EXPORT_SCREENSHOT.actionPerformed(e);
-				return;
+			ExportDialog d = MapTool.getCampaign().getExportDialog();
+			if (d == null) {
+				// Can't do a save.. so try "save as"
+				EXPORT_SCREENSHOT.actionPerformed(e); 
+			} else {
+				try {
+					d.screenCapture();
+				} catch (Exception ex) {
+					MapTool.showError(I18N.getString("msg.error.failedExportingImage"), ex);
+				}
+				
 			}
-
-			exportScreenCap(exportInfo);
 		}
 	};
 
-	private static void exportScreenCap(ExportInfo exportInfo) {
 
-		BufferedImage screenCap = null;
-
-		Player.Role role = exportInfo.getView() == ExportInfo.View.GM ? Player.Role.GM : Player.Role.PLAYER;
-
-		switch (exportInfo.getType()) {
-		case ExportInfo.Type.CURRENT_VIEW:
-			screenCap = MapTool.takeMapScreenShot(new PlayerView(role));
-			if (screenCap == null) {
-				MapTool.getFrame().setStatusMessage(I18N.getString("msg.error.failedScreenCapture"));
-				return;
-			}
-			break;
-		case ExportInfo.Type.FULL_MAP:
-			break;
-		}
-
-		MapTool.getFrame().setStatusMessage(I18N.getString("msg.info.screenshotSaving"));
-
-		try {
-
-			ByteArrayOutputStream imageOut = new ByteArrayOutputStream();
-
-			ImageIO.write(screenCap, "png", imageOut);
-			screenCap = null;		// Free up the memory as soon as possible
-
-			exportInfo.getLocation().putContent(new BufferedInputStream(new ByteArrayInputStream(imageOut.toByteArray())));
-
-			MapTool.getFrame().setStatusMessage(I18N.getString("msg.info.screenshotSaved"));
-
-		} catch (IOException ioe) {
-			MapTool.showError("msg.error.failedExportingImage", ioe);
-		} catch (Exception e) {
-			MapTool.showError("msg.error.failedExportingImage", e);
-		}
-	}
 
 	public static final Action EXPORT_CAMPAIGN_REPO = new AdminClientAction() {
 
@@ -349,7 +313,7 @@ public class AppActions {
 				}
 
 			} catch (IOException ioe) {
-				MapTool.showError("msg.error.failedExportingCampaignRepo" ,ioe);
+				MapTool.showError(I18N.getString("msg.error.failedExportingCampaignRepo") ,ioe);
 				return;
 			}
 
@@ -418,18 +382,15 @@ public class AppActions {
 
 			Campaign campaign = MapTool.getCampaign();
 			CampaignProperties props = campaign.getCampaignProperties();
-			ExportInfo exportInfo = campaign.getExportInfo();
-			if (exportInfo == null)
-				exportInfo = new ExportInfo();
+
 			urd = new UpdateRepoDialog(MapTool.getFrame(), props.getRemoteRepositoryList(),
-					exportInfo.getLocation());
+					MapTool.getCampaign().getExportDialog().getExportLocation());
 			urd.pack();
 			urd.setVisible(true);
 			if (urd.getStatus() == JOptionPane.CANCEL_OPTION) {
 				return;
 			}
-			exportInfo.setLocation(urd.getFTPLocation());
-			campaign.setExportInfo(exportInfo);
+			MapTool.getCampaign().getExportDialog().setExportLocation(urd.getFTPLocation());
 
 			/*
 			 * 3.  Check all assets against the repository indices and build a new list from
@@ -672,7 +633,7 @@ public class AppActions {
 				String messageHistory = MapTool.getFrame().getCommandPanel().getMessageHistory();
 				FileUtils.writeByteArrayToFile(saveFile, messageHistory.getBytes());
 			} catch (IOException ioe) {
-				MapTool.showError("msg.error.failedSavingMessageHistory", ioe);
+				MapTool.showError(I18N.getString("msg.error.failedSavingMessageHistory"), ioe);
 			}
 		}
 	};
@@ -1284,6 +1245,23 @@ public class AppActions {
 		public void execute(ActionEvent e) {
 
 			MapTool.getFrame().getToolbox().setSelectedTool(GridTool.class);
+		}
+
+	};
+
+	public static final Action ADJUST_BOARD = new ZoneAdminClientAction() {
+		{
+			init("action.adjustBoard");
+		}
+
+		@Override
+		public void execute(ActionEvent e) {
+
+			if (MapTool.getFrame().getCurrentZoneRenderer().getZone().getMapAssetId() != null) {
+				MapTool.getFrame().getToolbox().setSelectedTool(BoardTool.class);
+			} else {
+				MapTool.showInformation(I18N.getText("action.error.noMapBoard"));
+			}
 		}
 
 	};
@@ -2399,6 +2377,32 @@ public class AppActions {
 					if (newMapDialog.getStatus() == MapPropertiesDialog.Status.OK) {
 						MapTool.addZone(zone);
 					}
+				}
+			});
+		}
+	};
+
+	public static final Action EDIT_MAP = new AdminClientAction() {
+		{
+			init("action.editMap");
+		}
+
+		@Override
+		public void execute(java.awt.event.ActionEvent e) {
+
+			runBackground(new Runnable() {
+
+				public void run() {
+
+					Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
+					MapPropertiesDialog newMapDialog = new MapPropertiesDialog(MapTool.getFrame());
+					newMapDialog.setZone(zone);
+					newMapDialog.setVisible(true);
+					// Too many things can change to send them 1 by 1 to the client... just resend the zone
+//					MapTool.serverCommand().setBoard(zone.getId(), zone.getMapAssetId(), zone.getBoardX(), zone.getBoardY());
+					MapTool.serverCommand().removeZone(zone.getId());
+					MapTool.serverCommand().putZone(zone);
+					MapTool.getFrame().getCurrentZoneRenderer().flush();
 				}
 			});
 		}

@@ -119,7 +119,9 @@ public class AppMenuBar extends JMenuBar {
 
 		menu.addSeparator();
 
+		menu.add(new JMenuItem(AppActions.EDIT_MAP));
 		menu.add(new JMenuItem(AppActions.ADJUST_GRID));
+		menu.add(new JMenuItem(AppActions.ADJUST_BOARD));
 		menu.add(new JMenuItem(AppActions.RENAME_ZONE));
 		menu.add(new JMenuItem(AppActions.COPY_ZONE));
 		menu.add(new JMenuItem(AppActions.REMOVE_ZONE));

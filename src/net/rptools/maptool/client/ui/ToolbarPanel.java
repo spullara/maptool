@@ -31,6 +31,7 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 import net.rptools.lib.image.ImageUtil;
+import net.rptools.maptool.client.tool.BoardTool;
 import net.rptools.maptool.client.tool.FacingTool;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.tool.MeasureTool;
@@ -100,6 +101,7 @@ public class ToolbarPanel extends JToolBar {
 		
 		// Non visible tools
 		toolbox.createTool(GridTool.class);
+		toolbox.createTool(BoardTool.class);
 		toolbox.createTool(FacingTool.class);
 		toolbox.createTool(StampTool.class);
 	

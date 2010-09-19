@@ -14,6 +14,7 @@
 package net.rptools.maptool.client;
 
 import java.awt.EventQueue;
+import java.awt.Point;
 import java.awt.geom.Area;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
+import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.ui.zone.FogUtil;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.ZoneRendererFactory;
@@ -561,7 +563,6 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 				case setUseVision:
 					zoneGUID = (GUID) parameters[0];
 					VisionType visionType = (VisionType) parameters[1];
-
 					zone = MapTool.getCampaign().getZone(zoneGUID);
 					if (zone != null) {
 						zone.setVisionType(visionType);
@@ -571,6 +572,13 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 						}
 						MapTool.getFrame().refresh();
 					}
+					return;
+				case setBoard:
+					zoneGUID = (GUID) parameters[0];
+					zone = MapTool.getCampaign().getZone(zoneGUID);
+
+					Point boardXY  = new Point((Integer) parameters[2], (Integer) parameters[3]);
+					zone.setBoard(boardXY, (MD5Key) parameters[1]);
 					return;
 
 				case updateCampaignMacros:

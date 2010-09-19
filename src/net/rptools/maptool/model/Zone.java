@@ -14,6 +14,7 @@
 package net.rptools.maptool.model;
 
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.util.ArrayList;
@@ -43,9 +44,7 @@ import net.rptools.maptool.util.StringUtil;
 import org.apache.log4j.Logger;
 
 /**
- * This object represents the maps that will appear for placement of {@link Token}s.  This
- * object extends Token because the background image is a scaled asset, which
- * is exactly the definition of a Token.
+ * This object represents the maps that will appear for placement of {@link Token}s.  
  */
 public class Zone extends BaseModel {
 
@@ -69,7 +68,8 @@ public class Zone extends BaseModel {
 		LABEL_REMOVED,
 		LABEL_CHANGED,
 		TOPOLOGY_CHANGED,
-		INITIATIVE_LIST_CHANGED
+		INITIATIVE_LIST_CHANGED,
+		BOARD_CHANGED
 	}
 
 	public enum Layer {
@@ -79,7 +79,7 @@ public class Zone extends BaseModel {
 		BACKGROUND("Background");
 
 		private String displayName;
-
+		
 		private Layer(String displayName) {
 			this.displayName = displayName;
 		}
@@ -88,6 +88,17 @@ public class Zone extends BaseModel {
 		public String toString() {
 			return displayName;
 		}
+
+		// A simple interface to allow layers to be turned on/off
+		private boolean drawEnabled = true;
+
+		public boolean isEnabled() {
+			return drawEnabled;
+		}
+		
+		public void setEnabled(boolean enabled) {
+			drawEnabled = enabled;
+		}		
 	}
 
 	public static final int DEFAULT_TOKEN_VISION_DISTANCE = 250; // In units
@@ -95,7 +106,7 @@ public class Zone extends BaseModel {
 	public static final int DEFAULT_UNITS_PER_CELL = 5;
 
 	public static final DrawablePaint DEFAULT_FOG = new DrawableColorPaint(Color.black);
-
+	
 	// The zones should be ordered.  We could have the server assign each zone
 	// an incrementing number as new zones are created, but that would take a lot
 	// more elegance than we really need.  Instead, let's just keep track of the
@@ -128,12 +139,19 @@ public class Zone extends BaseModel {
 
 	private Area exposedArea = new Area();
 	private boolean hasFog;
+	private DrawablePaint fogPaint;
 
 	private Area topology = new Area();
 
+	// The 'board' layer, at the very bottom of the layer stack.
+	// Itself has two sub-layers: 
+	//   The top one is an optional texture, typically a pre-drawn map. 
+	//   The bottom one is either an infinitely tiling texture or a color. 
 	private DrawablePaint backgroundPaint;
-	private MD5Key mapAsset;
-	private DrawablePaint fogPaint;
+	private MD5Key  mapAsset;
+	private Point   boardPosition = new Point(0,0);
+	private boolean drawBoard = true;
+	private boolean boardChanged = false;
 
 	private String name;
 	private boolean isVisible;
@@ -146,6 +164,11 @@ public class Zone extends BaseModel {
 
 	private transient HashMap<String, Integer> tokenNumberCache;
 
+	/**
+	 * Note: When adding new fields to this Object, make sure to 
+	 * add functionality to <code>readResolved()</code> to ensure they are properly initialized
+	 * (in addition to the normal constructor) for backward compatibility of saved files.
+	 */
 	public Zone() {
 		// TODO: Was this needed?
 		//setGrid(new SquareGrid());
@@ -157,6 +180,7 @@ public class Zone extends BaseModel {
 
 	public void setMapAsset(MD5Key id) {
 		mapAsset = id;
+		boardChanged = true;
 	}
 
 	public void setTokenVisionDistance(int units) {
@@ -215,6 +239,11 @@ public class Zone extends BaseModel {
 		return fogPaint != null ? fogPaint : DEFAULT_FOG;
 	}
 
+	/**
+	 * Note: When adding new fields to this Object, make sure to 
+	 * add functionality to <code>readResolved()</code> to ensure they are properly initialized
+	 * (in addition to the normal constructor) for backward compatibility of saved files.
+	 */
 	public Zone(Zone zone) {
 		backgroundPaint = zone.backgroundPaint;
 		mapAsset = zone.mapAsset;
@@ -297,6 +326,7 @@ public class Zone extends BaseModel {
 		initiativeList.setRound(zone.initiativeList.getRound());
 		initiativeList.setHideNPC(zone.initiativeList.isHideNPC());
 
+		boardPosition = (Point)zone.boardPosition.clone();
 		exposedArea = (Area)zone.exposedArea.clone();
 		topology = (Area)zone.topology.clone();
 		isVisible = zone.isVisible;
@@ -362,9 +392,55 @@ public class Zone extends BaseModel {
 		gridColor = color;
 	}
 
-	public boolean hasFog() {
-		return hasFog;
+	/** 
+	 * Board psuedo-object. Not making full object since this will change when new layer model is created
+	 */
+	public boolean isBoardChanged() {
+		return boardChanged;
 	}
+	
+	public void setBoardChanged(boolean set) {
+		boardChanged = set;
+	}
+
+	public void setBoard(Point position) {
+		boardPosition.x = position.x;
+		boardPosition.y = position.y;
+		setBoardChanged(true);
+		fireModelChangeEvent(new ModelChangeEvent(mapAsset, Event.BOARD_CHANGED));
+	}
+
+	public void setBoard(int newX, int newY) {
+		boardPosition.x = newX;
+		boardPosition.y = newY;
+		setBoardChanged(true);
+		fireModelChangeEvent(new ModelChangeEvent(mapAsset, Event.BOARD_CHANGED));
+	}
+
+	public void setBoard(Point position, MD5Key asset) {
+		this.setMapAsset(asset); 
+		this.setBoard(position);
+	}
+	
+	public int getBoardX() {
+		return boardPosition.x;
+	}
+
+	public int getBoardY() {
+		return boardPosition.y;
+	}
+	
+	public boolean drawBoard() {
+		return drawBoard;
+	}
+
+	public void setDrawBoard(boolean draw) {
+		drawBoard = draw;
+	}
+
+	//
+	// Misc Scale methods
+	//
 
 	public float getImageScaleX() {
 		return imageScaleX;
@@ -382,6 +458,13 @@ public class Zone extends BaseModel {
 		this.imageScaleY = imageScaleY;
 	}
 
+	//
+	// Fog
+	//
+	public boolean hasFog() {
+		return hasFog;
+	}
+
 	public void setHasFog(boolean flag) {
 		hasFog = flag;
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
@@ -397,6 +480,7 @@ public class Zone extends BaseModel {
 	}
 
 	public boolean isEmpty() {
+		// TODO: Is this a bug? Shouldn't it be (gmDrawables == null || gmDrawables.size() == 0) ... etc?
 		return
 		(drawables == null || drawables.size() == 0) &&
 		(gmDrawables == null || drawables.size() == 0) &&
@@ -945,12 +1029,21 @@ public class Zone extends BaseModel {
 		layer.addAll(list);
 		Collections.reverse(layer);
 	}
-
 	////
 	// Backward compatibility
 	@Override
 	protected Object readResolve() {
 		super.readResolve();
+
+		// 1.3b70 -> 1.3b71
+		// These two variables were added
+		if (drawBoard == false) { 
+			// this should check the file version, not the value 
+			drawBoard = true;
+		}
+		if (boardPosition == null) {
+			boardPosition = new Point(0,0);
+		}
 
 		// 1.3b47 -> 1.3b48
 		if (visionType == null) {

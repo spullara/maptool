@@ -114,6 +114,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 			case updateInitiative:					updateInitiative((InitiativeList)context.get(0), (Boolean)context.get(1));break;
 			case updateTokenInitiative:			updateTokenInitiative(context.getGUID(0), context.getGUID(1), context.getBool(2), context.getString(3), context.getInt(4));break;
 			case setVisionType:						setVisionType(context.getGUID(0), (VisionType)context.get(1));break;
+			case setBoard:                  setBoard(context.getGUID(0), (MD5Key) context.get(1), context.getInt(2), context.getInt(3)); break;                         
 			case updateCampaignMacros:		updateCampaignMacros((List<MacroButtonProperties>) context.get(0));break;
 			case setTokenLocation:					setTokenLocation(context.getGUID(0), context.getGUID(1), context.getInt(2), context.getInt(3));break;
 			case exposePCArea:					exposePCArea(context.getGUID(0));break;
@@ -526,6 +527,10 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 	public void updateCampaignMacros(List<MacroButtonProperties> properties) {
 		MapTool.getCampaign().setMacroButtonPropertiesArray(new ArrayList<MacroButtonProperties>(properties));
 
+		forwardToClients();
+	}
+
+	public void setBoard(GUID zoneGUID, MD5Key mapId, int x, int y) {
 		forwardToClients();
 	}
 

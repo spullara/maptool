@@ -305,7 +305,7 @@ public class GridTool extends DefaultTool {
             
             renderer.getZone().getGrid().setOffset(x, y);
             
-            renderer.repaint();
+            //renderer.repaint();
 	        copyGridToControlPanel();
     	} else {
     		super.mouseDragged(e);

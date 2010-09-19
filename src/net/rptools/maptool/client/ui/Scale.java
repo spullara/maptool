@@ -51,6 +51,18 @@ public class Scale implements Serializable {
 		this.height = height;
 	}
 
+	public Scale(Scale copy) {
+		this.width       = copy.width;
+		this.height      = copy.height;
+		this.offsetX     = copy.offsetX;
+		this.offsetY     = copy.offsetY;
+		this.zoomLevel   = copy.zoomLevel;
+		this.initialized = copy.initialized;
+		this.scale       = copy.scale;
+//     this.oneToOneScale = copy.oneToOneScale;
+//     this.scaleIncrement = copy.scaleIncrement;
+	}
+
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		getPropertyChangeSupport().addPropertyChangeListener(listener);
 	}

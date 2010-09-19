@@ -59,6 +59,7 @@ import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.transform.campaign.AssetNameTransform;
+import net.rptools.maptool.model.transform.campaign.ExportInfoTransform;
 import net.rptools.maptool.model.transform.campaign.PCVisionTransform;
 
 import org.apache.commons.io.IOUtils;
@@ -90,11 +91,28 @@ public class PersistenceUtil {
 		PackedFile.init(AppUtil.getAppHome("tmp"));
 
 		// Whenever a new transformation needs to be added, put the version of MT into the CAMPAIGN_VERSION
-		// variable, and use that as the key to the following register call
-		// This gives us a rough estimate how far backwards compatible the model is
+		// variable, and use that as the key to the following register call.
+		// This gives us a rough estimate how far backwards compatible the model is.
 		// If you need sub-minor version level granularity, simply add another dot value at the end (e.g. 1.3.51.1)
-		// XXX Need to change this to use XSLTC and allow the XSLT to be specified external to the code.
+
+		// To be clear: the transformation will be applied if the file version is < the version number provided.
+		// Or to put it another way, the version you register should probably be equal to
+		// the new value of CAMPAIGN_VERSION as of the time of your code changes.
+
+		// FIXME We should be using javax.xml.transform to do XSL transforms with a mechanism
+		// that allows the XSL to be stored externally, perhaps via a URL with version number(s)
+		// as parameters.  Then if some backward compatibility fix is needed it could be
+		// provided dynamically via the RPTools.net web site or somewhere else.
+
+		// Note: This only allows you to fix up out-dated XML data. If you _added_
+		//  variables to any persistent class which must be initialized, you need to make sure to
+		//  modify the object's readResolve() function, because XStream does _not_ call the
+		//  regular constructors! Using factory methods won't help here, since it won't be called by Xstream.
+
+		// Notes:          any XML earlier than this ---.       will have this--. applied to it
+		//                                               V                      V
 		campaignVersionManager.registerTransformation("1.3.51", new PCVisionTransform());
+		campaignVersionManager.registerTransformation("1.3.75", new ExportInfoTransform());
 
 		// For a short time, assets were stored separately in files ending with ".dat".  As of 1.3.64, they are
 		// stored in separate files using the correct filename extension for the image type.  This transform

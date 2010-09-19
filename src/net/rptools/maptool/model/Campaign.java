@@ -26,6 +26,7 @@ import java.util.Set;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.ExportDialog;
 import net.rptools.maptool.client.ui.token.BarTokenOverlay;
 import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
 import net.rptools.maptool.client.ui.token.ImageTokenOverlay;
@@ -53,7 +54,7 @@ public class Campaign {
 
 	private GUID id = new GUID();
 	private Map<GUID, Zone> zones = Collections.synchronizedMap(new LinkedHashMap<GUID, Zone>());
-	private ExportInfo exportInfo;
+	private transient static ExportDialog exportDialog = null; // transient so it is not serialized
 
 	private CampaignProperties campaignProperties = new CampaignProperties();
 	private transient boolean isBeingSerialized;
@@ -261,6 +262,7 @@ public class Campaign {
 		return campaignProperties.getTokenBarsMap();
 	}
 
+	/*
 	public void setExportInfo(ExportInfo exportInfo) {
 		this.exportInfo = exportInfo;
 	}
@@ -268,6 +270,7 @@ public class Campaign {
 	public ExportInfo getExportInfo() {
 		return exportInfo;
 	}
+	 */
 
 	public void setId(GUID id) {
 		this.id = id;
@@ -462,5 +465,13 @@ public class Campaign {
 	/** @return Getter for characterSheets */
 	public Map<String, String> getCharacterSheets() {
 		return getCampaignProperties().getCharacterSheets();
+	}
+
+	public ExportDialog getExportDialog() {
+		return this.exportDialog;
+	}
+
+	public void setExportDialog(ExportDialog d) {
+		exportDialog = d;
 	}
 }

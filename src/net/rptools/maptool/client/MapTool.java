@@ -349,6 +349,9 @@ public class MapTool {
 		return getFrame().isFocused();
 	}
 
+	// TODO: This method is redundant now. It should be rolled into the
+	// TODO:   ExportDialog screenshot method. But until that has proven stable
+	// TODO:   for a while, I don't want to mess with this. (version 1.3b70 is most recent)
 	public static BufferedImage takeMapScreenShot(final PlayerView view) {
 		final ZoneRenderer renderer = clientFrame.getCurrentZoneRenderer();
 		if (renderer == null) {

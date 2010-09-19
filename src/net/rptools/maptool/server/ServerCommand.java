@@ -84,8 +84,8 @@ public interface ServerCommand {
 		setTokenLocation,// NOTE: This is to support third party token placement and shouldn't be depended on for general purpose token movement
 		setLiveTypingLabel, // Experimental
 		enforceNotification, // Override toggle button to show typing notifications
-		exposePCArea
-
+		exposePCArea,
+		setBoard
 	};
 
 	public void bootPlayer(String player);
@@ -131,6 +131,7 @@ public interface ServerCommand {
 	public void updateTokenInitiative(GUID zone, GUID token, Boolean hold, String state, Integer index);
 	public void setVisionType(GUID zoneGUID, VisionType visionType);
 	public void updateCampaignMacros(List<MacroButtonProperties> properties);
+    public void setBoard(GUID zoneGUID, MD5Key mapAsset, int X, int Y);
 	public void setLiveTypingLabel(String name, boolean show);
 	public void enforceNotification(Boolean enforce);
 	public void exposePCArea(GUID zoneGUID);
