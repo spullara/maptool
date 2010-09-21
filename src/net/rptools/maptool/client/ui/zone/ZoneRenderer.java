@@ -1308,7 +1308,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			return;
 
 		String player = MapTool.getPlayer().getName();
-		boolean isOwner = tokenUnderMouse.isOwner(player);
+		boolean isOwner = AppUtil.playerOwns(tokenUnderMouse);
 		boolean tokenIsPC = tokenUnderMouse.getType() == Token.Type.PC;
 		boolean strictOwnership = MapTool.getServerPolicy() == null ? false : MapTool.getServerPolicy().useStrictTokenManagement();
 //		System.err.print("tokenUnderMouse.ownedBy(" + player + "): " + isOwner);
@@ -1760,7 +1760,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				if (!token.isVisible() && !view.isGMView()) {
 					continue;
 				}
-				if (token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token)) 
+				if ((token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token))
+						|| (!AppUtil.playerOwns(token) && MapTool.getServerPolicy().isUseIndividualViews()) )
 				{
 					 continue;
 				}

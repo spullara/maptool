@@ -454,7 +454,7 @@ public class ZoneView implements ModelChangeListener {
 
 			// Permission
 			if (MapTool.getServerPolicy().isUseIndividualViews()) {
-				if (token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token)) {
+				if (!AppUtil.playerOwns(token)){
 					continue;
 				}
 			} else {
@@ -462,6 +462,10 @@ public class ZoneView implements ModelChangeListener {
 				if (token.getType() != Token.Type.PC && !view.isGMView()) {
 					continue;
 				}
+			}
+			// player ownership permission
+			if (!AppUtil.playerOwns(token) && token.isVisibleOnlyToOwner()) {
+				continue;
 			}
 
 			Area tokenVision = getVisibleArea(token);
