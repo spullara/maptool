@@ -93,6 +93,8 @@ public class MapToolVariableResolver extends MapVariableResolver {
     	try {
 			this.setVariable("macro.args", "");
 			this.setVariable("macro.args.num", BigDecimal.ZERO);
+			this.setVariable("tokens.denyMove", 0);
+			this.setVariable("tokens.moveCount", 1);
 		} catch (ParserException e) {
 			LOGGER.error("Error: Unable to set macro.args to default value <br>" + e.getMessage());
 		}

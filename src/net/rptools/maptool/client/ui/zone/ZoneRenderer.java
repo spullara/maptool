@@ -56,6 +56,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TooManyListenersException;
@@ -88,6 +89,7 @@ import net.rptools.maptool.client.ui.token.BarTokenOverlay;
 import net.rptools.maptool.client.ui.token.NewTokenDialog;
 import net.rptools.maptool.client.ui.token.TokenTemplate;
 import net.rptools.maptool.client.walker.ZoneWalker;
+import net.rptools.maptool.model.AbstractPoint;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.CellPoint;
@@ -415,6 +417,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		repaint();
 	}
 
+	@SuppressWarnings("unchecked")  // this is for Path<?>
 	public void commitMoveSelectionSet(GUID keyTokenId) {
 
 		// TODO: Quick hack to handle updating server state
@@ -428,9 +431,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 		Token keyToken = zone.getToken(keyTokenId);
 		CellPoint originPoint = zone.getGrid().convert(new ZonePoint(keyToken.getX(), keyToken.getY()));
-		Path path = set.getWalker() != null ? set.getWalker().getPath() : set.gridlessPath;
+		Path<AbstractPoint> path = set.getWalker() != null ? set.getWalker().getPath() : set.gridlessPath;
 
-		for (GUID tokenGUID : set.getTokens()) {
+		Set<GUID> selectionSet = set.getTokens();
+		List<GUID> filteredTokens = new ArrayList<GUID>();
+		BigDecimal tmc = null;
+		for (GUID tokenGUID : selectionSet) {
 			Token token = zone.getToken(tokenGUID);
 
 			CellPoint tokenCell = zone.getGrid().convert(new ZonePoint(token.getX(), token.getY()));
@@ -446,36 +452,82 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			// No longer need this version
 			replacementImageMap.remove(token);
 			
-			BigDecimal tmc = null;
-			if(token.isToken() && token.isVisible()){
-				tmc = TokenMoveFunctions.tokenMoveCompleteFunctions(token, path);
-			}
-			if(tmc != null && tmc == BigDecimal.ZERO)
+			// Only add certain tokens to the list to process in the move 
+			// Macro function(s).  
+			if(token.isToken() && token.isVisible())
 			{
-				if(path != null)
-				{
-					ZonePoint zp = null;
-					if (path.getCellPath().get(0) instanceof CellPoint) {
-						zp = zone.getGrid().convert((CellPoint) path.getCellPath().get(0));
-					} else {
-						zp = (ZonePoint) path.getCellPath().get(0);
-					}
-	
-					// Relocate
-					token.setX(zp.x);
-					token.setY(zp.y);
-	
-					// Do it again to cancel out the last move position
-					token.setX(zp.x);
-					token.setY(zp.y);
-	
-					// No more last path
-					token.setLastPath(null);
-				}	
+				filteredTokens.add(tokenGUID);
 			}
 		}
+		
+		if(filteredTokens!= null)
+		{
+			// run onTokenMove for each token in the 
+			// filtered selection list, canceling if 
+			// 
+			for(GUID tokenGUID: filteredTokens)
+			{
+				Token token = zone.getToken(tokenGUID);
+				tmc = TokenMoveFunctions.tokenMoved(token, path,filteredTokens);
+				
+				if(tmc != null && tmc == BigDecimal.ONE)
+				{
+					denyMovement(token);
+				}
+			}
+		}
+		// Multiple tokens, the list of tokens and call
+		// onMultipleTokensMove macro function.
+		if (filteredTokens != null && filteredTokens.size() >1)
+		{
+			tmc = TokenMoveFunctions.multipleTokensMoved(filteredTokens);		
+			// now determine if the macro returned false and if so
+			// revert each token's move to the last path.
+			if(tmc != null && tmc == BigDecimal.ONE)
+			{
+				for(GUID tokenGUID: filteredTokens)
+				{
+					Token token = zone.getToken(tokenGUID);
+					denyMovement(token);
+				}
+			}
+		}
+		
+
 
 		MapTool.getFrame().updateTokenTree();
+	}
+
+	/**
+	 * @param token
+	 */
+	@SuppressWarnings("unchecked")
+	private void denyMovement(final Token token) {
+		Path<?> path = token.getLastPath();
+		if(path != null)
+		{
+			ZonePoint zp = null;
+			if (path.getCellPath().get(0) instanceof CellPoint) {
+				zp = zone.getGrid().convert((CellPoint) path.getCellPath().get(0));
+			} else {
+				zp = (ZonePoint) path.getCellPath().get(0);
+			}
+
+			// Relocate
+			token.setX(zp.x);
+			token.setY(zp.y);
+
+			// Do it again to cancel out the last move position
+			token.setX(zp.x);
+			token.setY(zp.y);
+
+			// No more last path
+			token.setLastPath(null);
+			MapTool.serverCommand().putToken(zone.getId(), token);
+
+			// Cache clearing
+			flush(token);
+		}
 	}
 
 	public boolean isTokenMoving(Token token) {

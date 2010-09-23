@@ -3,7 +3,6 @@
  */
 package net.rptools.maptool.client.functions;
 
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.math.BigDecimal;
@@ -22,10 +21,12 @@ import net.rptools.maptool.client.ui.zone.ZoneRenderer.TokenMoveCompletion;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.AbstractPoint;
 import net.rptools.maptool.model.CellPoint;
+import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.SquareGrid;
+import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.model.Zone;
@@ -50,10 +51,11 @@ public class TokenMoveFunctions extends AbstractFunction {
 	
 	private final static TokenMoveFunctions instance = new TokenMoveFunctions();
 	private static final String ON_TOKEN_MOVE_COMPLETE_CALLBACK = "onTokenMove";
+	private static final String ON_MULTIPLE_TOKENS_MOVED_COMPLETE_CALLBACK = "onMultipleTokensMove";
 	private static final Logger log = Logger.getLogger(TokenMoveFunctions.class);
 	
 	private TokenMoveFunctions() {
-		super(0,2, "getLastPath", "movedOverToken");
+		super(0,2, "getLastPath", "movedOverToken","movedOverPoint");
 		
 	}
 
@@ -73,13 +75,9 @@ public class TokenMoveFunctions extends AbstractFunction {
 		}
 		
 		boolean useDistancePerCell = true;
-		if ( log.isInfoEnabled()) {
-			log.info("DEVELOPMENT: in childEvaluate.  Getting zone");
-		}
+		
 		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
-		if ( log.isInfoEnabled()) {
-			log.info("DEVELOPMENT: in childEvaluate.  Got zone");
-		}
+
 		if (functionName.equals("getLastPath")) {	
 			BigDecimal val = null;
 			if (parameters.size() ==1) {
@@ -93,19 +91,50 @@ public class TokenMoveFunctions extends AbstractFunction {
 				useDistancePerCell = val != null && val.equals(BigDecimal.ZERO) ? false
 						: true;
 			}
-			if ( log.isInfoEnabled()) {
-				log.info("DEVELOPMENT: in childEvaluate.  Getting Last path");
-			}
 			Path<?> path = tokenInContext.getLastPath();
-			if ( log.isInfoEnabled()) {
-				log.info("DEVELOPMENT: in childEvaluate.  Got last Path");
-			}
+			
 			List<Map<String, Integer>> pathPoints = getLastPathList(path, useDistancePerCell);
-			if ( log.isInfoEnabled()) {
-				log.info("DEVELOPMENT: in childEvaluate.  Translated path to pathPoints list");
-			}
 			return pathPointsToJSONArray(pathPoints);
 			
+		}
+		if(functionName.equals("movedOverPoint"))
+		{
+			//macro.function.general.noPerm
+			if(!MapTool.getParser().isMacroTrusted())
+			{
+				throw new ParserException(I18N.getText("macro.function.general.noPerm",	functionName));
+			}
+
+			Path<?> path = tokenInContext.getLastPath();
+
+			List<Map<String, Integer>> returnPoints = new ArrayList<Map<String, Integer>>();
+			Token target;
+			
+			if((parameters.size()==1) || parameters.size()==2 )
+			{
+				String points = (String) parameters.get(0);
+				String jsonPath = (String) (parameters.size() == 2? parameters.get(1) : "");
+				
+				
+				List<Map<String, Integer>> pathPoints = null;
+				if(jsonPath != null && !jsonPath.equals(""))
+				{
+					returnPoints = crossedPoints(zone,tokenInContext, points, jsonPath	);
+				}
+				else 
+				{
+					pathPoints = getLastPathList(path, true);
+					returnPoints = crossedPoints(zone,tokenInContext, points, pathPoints);
+				}
+
+				JSONArray retVal = pathPointsToJSONArray(returnPoints);
+				returnPoints = null;
+				return retVal;
+			}
+			else
+			{
+				throw new ParserException(I18N.getText("macro.function.general.wrongNumParam",functionName, 2, parameters.size( )));
+			}
 		}
 		if(functionName.equals("movedOverToken"))
 		{
@@ -114,13 +143,8 @@ public class TokenMoveFunctions extends AbstractFunction {
 			{
 				throw new ParserException(I18N.getText("macro.function.general.noPerm",	functionName));
 			}
-			if ( log.isInfoEnabled()) {
-				log.info("DEVELOPMENT: in childEvaluate.  Getting Last path");
-			}
+			
 			Path<?> path = tokenInContext.getLastPath();
-			if ( log.isInfoEnabled()) {
-				log.info("DEVELOPMENT: in childEvaluate.  Got last Path");
-			}
 			List<Map<String, Integer>> returnPoints = new ArrayList<Map<String, Integer>>();
 			Token target;
 			
@@ -145,13 +169,7 @@ public class TokenMoveFunctions extends AbstractFunction {
 					pathPoints = getLastPathList(path, true);
 					returnPoints = crossedToken(zone,tokenInContext, target, pathPoints);
 				}
-				if ( log.isInfoEnabled()) {
-					log.info("DEVELOPMENT: in childEvaluate.  Translated path to pathPoints list");
-				}
-				
-				if ( log.isInfoEnabled()) {
-					log.info("DEVELOPMENT: in childEvaluate.  Got Return Points from moved over Token");
-				}
+
 				JSONArray retVal = pathPointsToJSONArray(returnPoints);
 				returnPoints = null;
 				return retVal;
@@ -160,7 +178,7 @@ public class TokenMoveFunctions extends AbstractFunction {
 			{
 				throw new ParserException(I18N.getText("macro.function.general.wrongNumParam",functionName, 2, parameters.size( )));
 			}
-		}		
+		}	
 		return null;
 	}
 
@@ -185,10 +203,68 @@ public class TokenMoveFunctions extends AbstractFunction {
 			return getInstance().crossedToken(zone,tokenInContext, target, pathPoints);
 		}
 		return pathPoints;
+	}
+	
+	private List<Map<String, Integer>> crossedPoints(final Zone zone, final Token tokenInContext, final String points,
+			final String pathString) {
+		Object jsonObject = JSONMacroFunctions.asJSON(pathString);
+		
+		ArrayList<Map<String, Integer>> pathPoints = new ArrayList<Map<String, Integer>>() ;
+		if(jsonObject instanceof JSONArray)
+		{
+			ArrayList<?> tempPoints = (ArrayList<?>) JSONArray.toCollection((JSONArray) jsonObject);
+			
+			for(Object o: tempPoints)
+			{
+				MorphDynaBean bean = (MorphDynaBean)o;
+				//System.out.println(bean.get("x"));
+				Map<String, Integer> point = new HashMap<String, Integer>();
+				point.put("x", (Integer) bean.get("x"));
+				point.put("y", (Integer) bean.get("y"));
+				pathPoints.add(point);
+			}
+			return getInstance().crossedPoints(zone,tokenInContext, points, pathPoints);
+		}
+		return pathPoints;
 	
 		
 	}
+	 /* @param zone
+	 * @param target
+	 * @param pathPoints
+	 * @return
+	 */
+	private List<Map<String, Integer>> crossedPoints(final Zone zone, final Token tokenInContext, final String points,
+			final List<Map<String, Integer>> pathPoints) {
+		List<Map<String, Integer>> returnPoints = new ArrayList<Map<String, Integer>>();
 
+		if(pathPoints == null)
+		{
+			return returnPoints;
+		}
+		for(Map<String, Integer> entry: pathPoints)
+		{
+			Map<String, Integer> thePoint = new HashMap<String, Integer>();
+			Grid grid = zone.getGrid();		
+			Rectangle originalArea = null;
+	
+			if (tokenInContext.isSnapToGrid()) {
+				originalArea = tokenInContext.getFootprint(grid).getBounds(grid, grid.convert(new ZonePoint(entry.get("x"), entry.get("y"))));
+			} else {
+				originalArea = tokenInContext.getBounds(zone);
+			}
+			//Area targetArea = grid.get
+			//Rectangle targetArea = target.getBounds(zone);
+			//if(targetArea.contains(originalArea) || originalArea.)
+			{
+				thePoint.put("x", entry.get("x"));
+				thePoint.put("y", entry.get("y"));
+				returnPoints.add(thePoint);
+			}
+			thePoint= null;
+		}
+		return returnPoints;
+	}	
 	/**
 	 * @param zone
 	 * @param target
@@ -198,10 +274,7 @@ public class TokenMoveFunctions extends AbstractFunction {
 	private List<Map<String, Integer>> crossedToken(final Zone zone, final Token tokenInContext, final Token target,
 			final List<Map<String, Integer>> pathPoints) {
 		List<Map<String, Integer>> returnPoints = new ArrayList<Map<String, Integer>>();
-		
-		if ( log.isInfoEnabled()) {
-			log.info("DEVELOPMENT: in crossedToken.  Looping over all of the movement points:" + pathPoints.size());
-		}
+
 		if(pathPoints == null)
 		{
 			return returnPoints;
@@ -209,28 +282,18 @@ public class TokenMoveFunctions extends AbstractFunction {
 		for(Map<String, Integer> entry: pathPoints)
 		{
 			Map<String, Integer> thePoint = new HashMap<String, Integer>();
-
-			Grid grid = zone.getGrid();
-			
+			Grid grid = zone.getGrid();		
 			Rectangle originalArea = null;
-			if ( log.isInfoEnabled()) {
-				log.info("DEVELOPMENT: in crossedToken.  Getting Footprint:" );
-			}
+	
 			if (tokenInContext.isSnapToGrid()) {
 				originalArea = tokenInContext.getFootprint(grid).getBounds(grid, grid.convert(new ZonePoint(entry.get("x"), entry.get("y"))));
 			} else {
 				originalArea = tokenInContext.getBounds(zone);
 			}
-			if ( log.isInfoEnabled()) {
-				log.info("DEVELOPMENT: in crossedToken.  Got footprint for this movement cellpoint" );
-			}
 			
 			Rectangle targetArea = target.getBounds(zone);
 			if(targetArea.intersects(originalArea) || originalArea.intersects(targetArea))
 			{
-				if ( log.isInfoEnabled()) {
-					log.info("DEVELOPMENT: in crossedToken.  Found a match!  Adding to the list" );
-				}
 				thePoint.put("x", entry.get("x"));
 				thePoint.put("y", entry.get("y"));
 				returnPoints.add(thePoint);
@@ -308,8 +371,50 @@ public class TokenMoveFunctions extends AbstractFunction {
 		}	
 		return points;
 	}
-	public static BigDecimal tokenMoveCompleteFunctions(final Token originalToken, final Path path) {
+	
+	public static BigDecimal tokenMoved(final Token originalToken, final Path<?> path, final List<GUID> filteredTokens) {
 		
+		Token token = getMoveMacroToken(ON_TOKEN_MOVE_COMPLETE_CALLBACK);
+				
+		List<Map<String, Integer>> pathPoints = getInstance().getLastPathList(path, true);
+		JSONArray pathArr = getInstance().pathPointsToJSONArray(pathPoints);
+		String pathCoordinates = pathArr.toString();
+		// If we get here it is trusted so try to execute it.
+		if (token != null) {
+			try {
+				MapToolVariableResolver newResolver =new MapToolVariableResolver(null);
+				newResolver.setVariable("tokens.denyMove", 0);
+				newResolver.setVariable("tokens.moveCount", filteredTokens.size());
+				newResolver.setTokenIncontext(originalToken);
+				String resultVal = MapTool.getParser().runMacro(
+						newResolver,
+						originalToken,
+						ON_TOKEN_MOVE_COMPLETE_CALLBACK + "@"
+						+ token.getName(), pathCoordinates, false);
+				if(resultVal != null && !resultVal.equals(""))
+				{
+					MapTool.addMessage(new TextMessage(TextMessage.Channel.SAY, null, MapTool.getPlayer().getName(), resultVal, null));
+				}
+				BigDecimal denyMove = BigDecimal.ZERO; 
+
+				if(newResolver.getVariable("tokens.denyMove") instanceof BigDecimal)	
+				{
+					denyMove = (BigDecimal) newResolver.getVariable("tokens.denyMove");
+				}
+				return (denyMove != null && denyMove.intValue() ==1 )? BigDecimal.ONE : BigDecimal.ZERO;
+
+			} catch (AbortFunctionException afe) {
+				// Do nothing
+			} catch (Exception e) {
+				MapTool.addLocalMessage("Error running "
+						+ ON_TOKEN_MOVE_COMPLETE_CALLBACK+ " on "
+						+ token.getName() + " : " + e.getMessage());
+			}
+		}
+		return BigDecimal.ZERO;
+	}
+
+	private static Token getMoveMacroToken(final String macroCallback) {
 		List<ZoneRenderer> zrenderers = MapTool.getFrame().getZoneRenderers();
 		for (ZoneRenderer zr : zrenderers) {
 			List<Token> tokenList = zr.getZone().getTokensFiltered(
@@ -341,31 +446,54 @@ public class TokenMoveFunctions extends AbstractFunction {
 						}
 					}
 				}
-				
-				List<Map<String, Integer>> pathPoints = getInstance().getLastPathList(path, true);
-				JSONArray pathArr = getInstance().pathPointsToJSONArray(pathPoints);
-				String pathCoordinates = pathArr.toString();
-				// If we get here it is trusted so try to execute it.
-				if (token.getMacro(ON_TOKEN_MOVE_COMPLETE_CALLBACK, false) != null) {
-					try {
-						String resultVal = MapTool.getParser().runMacro(
-								new MapToolVariableResolver(originalToken),
-								originalToken,
-								ON_TOKEN_MOVE_COMPLETE_CALLBACK + "@"
-										+ token.getName(), pathCoordinates);
-						//MapTool.addLocalMessage("Return Value :'" + resultVal + "'");
-						return (resultVal.equals("0") || resultVal.equalsIgnoreCase("false"))? BigDecimal.ZERO : BigDecimal.ONE;
-						
-					} catch (AbortFunctionException afe) {
-						// Do nothing
-					} catch (Exception e) {
-						MapTool.addLocalMessage("Error running "
-								+ ON_TOKEN_MOVE_COMPLETE_CALLBACK+ " on "
-								+ token.getName() + " : " + e.getMessage());
-					}
+				if (token.getMacro(macroCallback, false) != null) {
+					return token;
 				}
 			}
 		}
-		return BigDecimal.ONE;
+		return null;
+	}
+
+
+
+	public static BigDecimal multipleTokensMoved(List<GUID> filteredTokens) {
+		Token token = getMoveMacroToken(ON_MULTIPLE_TOKENS_MOVED_COMPLETE_CALLBACK);
+		if (token != null) {
+			try {
+				JSONArray json = new JSONArray();
+				for(GUID tokenGuid: filteredTokens)
+				{
+					json.add(tokenGuid.toString());
+				}
+				MapToolVariableResolver newResolver =new MapToolVariableResolver(null);
+				newResolver.setVariable("tokens.denyMove", 0);
+				newResolver.setVariable("tokens.moveCount", filteredTokens.size());
+				String resultVal = MapTool.getParser().runMacro(
+						newResolver,
+						null,
+						ON_MULTIPLE_TOKENS_MOVED_COMPLETE_CALLBACK + "@"
+						+ token.getName(), json.toString(),false);
+				if(resultVal != null && !resultVal.equals(""))
+				{
+					MapTool.addMessage(new TextMessage(TextMessage.Channel.ALL, null, MapTool.getPlayer().getName(), resultVal, null));
+				}
+				BigDecimal denyMove = BigDecimal.ZERO; 
+
+				if(newResolver.getVariable("tokens.denyMove") instanceof BigDecimal)	
+				{
+					denyMove = (BigDecimal) newResolver.getVariable("tokens.denyMove");
+				}
+				return (denyMove != null && denyMove.intValue() ==1 )? BigDecimal.ONE : BigDecimal.ZERO;
+
+			} catch (AbortFunctionException afe) {
+				// Do nothing
+			} catch (Exception e) {
+				MapTool.addLocalMessage("Error running "
+						+ ON_MULTIPLE_TOKENS_MOVED_COMPLETE_CALLBACK + " on "
+						+ token.getName() + " : " + e.getMessage());
+			}
+		}
+
+		return BigDecimal.ZERO;
 	}
 }
