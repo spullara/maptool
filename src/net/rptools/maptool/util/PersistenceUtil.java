@@ -492,6 +492,8 @@ public class PersistenceUtil {
 		String mtVersion = (String)pakFile.getProperty(PROP_VERSION);
 		List<Asset> addToServer = new ArrayList<Asset>(assetIds.size());
 
+		boolean fixRequired = "1.3.b64".equals(mtVersion);
+
 		for (MD5Key key : assetIds) {
 			if (key == null)
 				continue;
@@ -499,7 +501,7 @@ public class PersistenceUtil {
 			if (!AssetManager.hasAsset(key)) {
 				String pathname = ASSET_DIR + key;
 				Asset asset;
-				if (mtVersion.equals("1.3.b64")) {
+				if (fixRequired) {
 					InputStream is = pakFile.getFileAsInputStream(pathname);
 					asset = new Asset(key.toString(), IOUtils.toByteArray(is));	// Ugly bug fix :(
 					is.close();

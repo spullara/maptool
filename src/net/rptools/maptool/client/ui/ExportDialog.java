@@ -50,6 +50,8 @@ import net.rptools.maptool.model.drawing.DrawablePaint;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.util.ImageManager;
 
+import org.apache.log4j.Logger;
+
 import com.jeta.forms.components.panel.FormPanel;
 
 /**
@@ -66,6 +68,7 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 	//
 	// Dialog/ UI related vars
 	//
+	private static final Logger log = Logger.getLogger(ExportDialog.class);
 
 	/** the modal panel the user uses to select the screenshot options */
 	private static FormPanel interactPanel;
@@ -607,8 +610,12 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 						else {
 							image = new ZoneImageGenerator(renderer, view);
 						}
-
+						// putContent() can consume quite a bit of time; really should have a progress
+						// meter of some kind here.
 						exportLocation.putContent(pngWriter, image);
+						if (image instanceof ZoneImageGenerator) {
+							log.debug("ZoneImageGenerator() stats: " + image.toString());
+						}
 						MapTool.getFrame().setStatusMessage(I18N.getString("dialog.screenshot.msg.screenshotSaving"));
 					} catch (Exception e) {
 						MapTool.getFrame().setStatusMessage(I18N.getString("dialog.screenshot.error.failedImageGeneration"));
@@ -825,7 +832,7 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 	}
 
 	private void postScreenshot() {
-		assert waitingForPostScreenshot: "postScrenshot called withot preScreenshot";
+		assert waitingForPostScreenshot : "postScrenshot called withot preScreenshot";
 
 	renderer.setBounds(origBounds);
 	renderer.setZoneScale(origScale);
