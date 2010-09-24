@@ -951,6 +951,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		if (lastView != null && !lastView.equals(view)) {
 			invalidateCurrentViewCache();
 		} 
+		lastView=view;
 
 		// Clear internal state
 		tokenLocationMap.clear();
@@ -1551,7 +1552,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 			// Fill
 			buffG.setPaint(zone.getFogPaint().getPaint(getViewOffsetX(), getViewOffsetY(), getScale()));
-			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, alpha));
+			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, view.isGMView() ? .6f : 1f)); // JFJ this fixes the GM exposed area view.
+			//buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, alpha)); JFJ This is the current code put in by Azhrei in rev 5286.
 			buffG.fillRect(0, 0, size.width, size.height);
 
 			// Cut out the exposed area
