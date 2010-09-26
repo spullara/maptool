@@ -52,6 +52,7 @@ import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Path;
+import net.rptools.maptool.model.Player.Role;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
@@ -186,7 +187,7 @@ public class FogUtil {
 			if(token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token)){
 				continue;
 			}
-			
+
 
 			Area tokenVision = renderer.getVisibleArea(token);
 
@@ -198,14 +199,18 @@ public class FogUtil {
 	}
 
 	public static void exposePCArea(ZoneRenderer renderer) {
-
 		Set<GUID> tokenSet = new HashSet<GUID>();
-		for (Token token : renderer.getZone().getPlayerTokens()) {
+		List<Token> tokList = renderer.getZone().getPlayerTokens();
+		String playerName = MapTool.getPlayer().getName();
 
+		for (Token token : tokList) {
+			boolean owner = token.isOwner(playerName) || MapTool.getPlayer().getRole() == Role.GM;
 			if (!token.getHasSight()) {
 				continue;
 			}
-
+			if (( !MapTool.isPersonalServer() || MapTool.getServerPolicy().isUseIndividualViews()) && !owner) {
+				continue;
+			}
 			tokenSet.add(token.getId());
 		}
 		renderer.getZone().clearExposedArea();
