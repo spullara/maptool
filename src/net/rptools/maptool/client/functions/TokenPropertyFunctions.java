@@ -191,8 +191,8 @@ public class TokenPropertyFunctions extends AbstractFunction {
 		 * String empty = setNPC(String tokenId: currentToken())
 		 */
 		if (functionName.equals("setNPC")) {
-			if (parameters.size() != 1) {
-				throw new ParserException(I18N.getText("macro.function.general.wrongNumParam", functionName, 1, parameters.size()));
+			if (parameters.size() > 1) {
+				throw new ParserException(I18N.getText("macro.function.general.tooManyParam", functionName, 1, parameters.size()));
 			}
 			Token token = getTokenFromParam(resolver, "setNPC", parameters, 0);
 			token.setType(Token.Type.NPC);

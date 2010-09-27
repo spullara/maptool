@@ -29,6 +29,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolRegistry;
 import net.rptools.maptool.client.swing.AbeillePanel;
 import net.rptools.maptool.client.swing.GenericDialog;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.util.StringUtil;
 import net.rptools.maptool.util.UPnPUtil;
 import yasb.Binder;
@@ -139,6 +140,13 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 	public void initTestConnectionButton() {
 		getTestConnectionButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				// We don't have a good, server-side way of testing any more.
+				boolean ok;
+				ok = MapTool.confirm("msg.info.server.testConnection");
+				if (ok)
+					MapTool.showDocument(I18N.getString("msg.info.server.forumNFAQ_URL"));
+			}
+			public void actionPerformed_original(ActionEvent e) {
 				dialog.setVisible(false);			// FJE Added modal dialog to TestConnection button
 				final StaticMessageDialog smdSettingUp = new StaticMessageDialog("Setting Up For Connection Test...");
 				final StaticMessageDialog smdTesting = new StaticMessageDialog("Performing connection test.  Success is usually quick; failure often takes longer...");
