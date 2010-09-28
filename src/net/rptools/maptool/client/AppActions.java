@@ -21,8 +21,6 @@ import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -45,7 +43,6 @@ import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
@@ -56,10 +53,10 @@ import javax.swing.KeyStroke;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
-import net.rptools.maptool.client.tool.BoardTool;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.AppActions.ClientAction;
 import net.rptools.maptool.client.AppActions.DefaultClientAction;
+import net.rptools.maptool.client.tool.BoardTool;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.tool.drawing.DrawableUndoManager;
 import net.rptools.maptool.client.ui.AddResourceDialog;
@@ -87,7 +84,6 @@ import net.rptools.maptool.client.ui.io.LoadSaveImpl;
 import net.rptools.maptool.client.ui.io.ProgressBarList;
 import net.rptools.maptool.client.ui.io.UpdateRepoDialog;
 import net.rptools.maptool.client.ui.token.TransferProgressDialog;
-import net.rptools.maptool.client.ui.zone.PlayerView;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Asset;
@@ -216,14 +212,14 @@ public class AppActions {
 			ExportDialog d = MapTool.getCampaign().getExportDialog();
 			if (d == null) {
 				// Can't do a save.. so try "save as"
-				EXPORT_SCREENSHOT.actionPerformed(e); 
+				EXPORT_SCREENSHOT.actionPerformed(e);
 			} else {
 				try {
 					d.screenCapture();
 				} catch (Exception ex) {
 					MapTool.showError(I18N.getString("msg.error.failedExportingImage"), ex);
 				}
-				
+
 			}
 		}
 	};
@@ -1991,7 +1987,7 @@ public class AppActions {
 					AppMenuBar.getMruManager().addMRUCampaign(AppState.getCampaignFile());
 					MapTool.getFrame().setStatusMessage(I18N.getString("msg.info.campaignSaved"));
 
-					// Min display time so people can see the message
+					// Minimum display time so people can see the message
 					try {
 						Thread.sleep(Math.max(0, 500 - (System.currentTimeMillis() - start)));
 					} catch (InterruptedException e) {

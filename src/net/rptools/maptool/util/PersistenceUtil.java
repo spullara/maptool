@@ -102,15 +102,16 @@ public class PersistenceUtil {
 		// FIXME We should be using javax.xml.transform to do XSL transforms with a mechanism
 		// that allows the XSL to be stored externally, perhaps via a URL with version number(s)
 		// as parameters.  Then if some backward compatibility fix is needed it could be
-		// provided dynamically via the RPTools.net web site or somewhere else.
+		// provided dynamically via the RPTools.net web site or somewhere else.  We'll add this
+		// in 1.4 <wink, wink>
 
-		// Note: This only allows you to fix up out-dated XML data. If you _added_
+		// Note: This only allows you to fix up outdated XML data. If you _added_
 		//  variables to any persistent class which must be initialized, you need to make sure to
 		//  modify the object's readResolve() function, because XStream does _not_ call the
-		//  regular constructors! Using factory methods won't help here, since it won't be called by Xstream.
+		//  regular constructors! Using factory methods won't help here, since it won't be called by XStream.
 
-		// Notes:          any XML earlier than this ---.       will have this--. applied to it
-		//                                               V                      V
+		// Notes:							any XML earlier than this ---v		will have this --v applied to it
+		//																					V								V
 		campaignVersionManager.registerTransformation("1.3.51", new PCVisionTransform());
 		campaignVersionManager.registerTransformation("1.3.75", new ExportInfoTransform());
 
@@ -137,7 +138,6 @@ public class PersistenceUtil {
 	}
 
 	public static void saveMap(Zone z, File mapFile) throws IOException {
-		PackedFile pakFile = new PackedFile(mapFile);
 		PersistedMap pMap = new PersistedMap();
 		pMap.zone = z;
 
@@ -147,13 +147,15 @@ public class PersistenceUtil {
 			// Put in a placeholder
 			pMap.assetMap.put(key, null);
 		}
-		saveAssets(z.getAllAssetIds(), pakFile);
-
-		pakFile.setContent(pMap);
-		pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
-
-		pakFile.save();
-		pakFile.close();
+		PackedFile pakFile = new PackedFile(mapFile);
+		try {
+			saveAssets(z.getAllAssetIds(), pakFile);
+			pakFile.setContent(pMap);
+			pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
+			pakFile.save();
+		} finally {
+			pakFile.close();
+		}
 	}
 
 	public static PersistedMap loadMap(File mapFile) throws IOException {
@@ -186,12 +188,14 @@ public class PersistenceUtil {
 			}
 			n = n.replaceFirst("Import \\d+ of ", "Import " + next + " of ");
 			z.setName(n);
-			z.imported();			// Resets creation timestamp, amongst other things
+			z.imported();			// Resets creation timestamp, among other things
 			z.optimize();
 			return persistedMap;
 		} catch (IOException ioe) {
 			MapTool.showError("While reading map data from file", ioe);
 			throw ioe;
+		} finally {
+			pakfile.close();
 		}
 	}
 
@@ -204,80 +208,80 @@ public class PersistenceUtil {
 		// Strategy: save the file to a tmp location so that if there's a failure the original file
 		// won't be touched. Then once we're finished, replace the old with the new.
 		File tmpDir = AppUtil.getTmpDir();
-		File tmpFile = new File(tmpDir.getAbsolutePath() + "/" + campaignFile.getName());
+		File tmpFile = new File(tmpDir.getAbsolutePath(), campaignFile.getName());
 		if (tmpFile.exists())
 			tmpFile.delete();
 
 		PackedFile pakFile = new PackedFile(tmpFile);
-
-		// Configure the meta file (this is for legacy support)
-		PersistedCampaign persistedCampaign = new PersistedCampaign();
-
-		persistedCampaign.campaign = campaign;
-
-		// Keep track of the current view
-		ZoneRenderer currentZoneRenderer = MapTool.getFrame().getCurrentZoneRenderer();
-		if (currentZoneRenderer != null) {
-			persistedCampaign.currentZoneId = currentZoneRenderer.getZone().getId();
-			persistedCampaign.currentView = currentZoneRenderer.getZoneScale();
-		}
-
-		// Save all assets in active use (consolidate dups between maps)
-		saveTimer.start("Collect all assets");
-		Set<MD5Key> allAssetIds = campaign.getAllAssetIds();
-		for (MD5Key key : allAssetIds) {
-			// Put in a placeholder
-			persistedCampaign.assetMap.put(key, null);
-		}
-		saveTimer.stop("Collect all assets");
-
-		// And store the asset elsewhere
-		saveTimer.start("Save assets");
-		saveAssets(allAssetIds, pakFile);
-		saveTimer.stop("Save assets");
-
 		try {
-			saveTimer.start("Set content");
-			pakFile.setContent(persistedCampaign);
-			pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
-			pakFile.setProperty(PROP_CAMPAIGN_VERSION, CAMPAIGN_VERSION);
-			saveTimer.stop("Set content");
+			// Configure the meta file (this is for legacy support)
+			PersistedCampaign persistedCampaign = new PersistedCampaign();
 
-			saveTimer.start("Save");
-			pakFile.save();
-			saveTimer.stop("Save");
+			persistedCampaign.campaign = campaign;
 
-			saveTimer.start("Close");
-			pakFile.close();
-			saveTimer.stop("Close");
-		} catch (OutOfMemoryError oom) {
-			/*
-			 * This error is normally because the heap space has been exceeded while trying to
-			 * save the campaign.  Since MapTool caches the images used by the current Zone,
-			 * and since the VersionManager must keep the XML for objects in memory in
-			 * order to apply transforms to them, the memory usage can spike very high
-			 * during the save() operation.  A common solution is to switch to an empty map
-			 * and perform the save from there; this causes MapTool to unload any images
-			 * that it may have had cached and this can frequently free up enough memory
-			 * for the save() to work.  We'll tell the user all this right here and then fail the
-			 * save and they can try again.
-			 */
-			if (log.isDebugEnabled()) {
-				log.debug(saveTimer);
+			// Keep track of the current view
+			ZoneRenderer currentZoneRenderer = MapTool.getFrame().getCurrentZoneRenderer();
+			if (currentZoneRenderer != null) {
+				persistedCampaign.currentZoneId = currentZoneRenderer.getZone().getId();
+				persistedCampaign.currentView = currentZoneRenderer.getZoneScale();
 			}
+
+			// Save all assets in active use (consolidate dups between maps)
+			saveTimer.start("Collect all assets");
+			Set<MD5Key> allAssetIds = campaign.getAllAssetIds();
+			for (MD5Key key : allAssetIds) {
+				// Put in a placeholder
+				persistedCampaign.assetMap.put(key, null);
+			}
+			saveTimer.stop("Collect all assets");
+
+			// And store the asset elsewhere
+			saveTimer.start("Save assets");
+			saveAssets(allAssetIds, pakFile);
+			saveTimer.stop("Save assets");
+
+			try {
+				saveTimer.start("Set content");
+				pakFile.setContent(persistedCampaign);
+				pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
+				pakFile.setProperty(PROP_CAMPAIGN_VERSION, CAMPAIGN_VERSION);
+				saveTimer.stop("Set content");
+
+				saveTimer.start("Save");
+				pakFile.save();
+				saveTimer.stop("Save");
+			} catch (OutOfMemoryError oom) {
+				/*
+				 * This error is normally because the heap space has been exceeded while trying to
+				 * save the campaign.  Since MapTool caches the images used by the current Zone,
+				 * and since the VersionManager must keep the XML for objects in memory in
+				 * order to apply transforms to them, the memory usage can spike very high
+				 * during the save() operation.  A common solution is to switch to an empty map
+				 * and perform the save from there; this causes MapTool to unload any images
+				 * that it may have had cached and this can frequently free up enough memory
+				 * for the save() to work.  We'll tell the user all this right here and then fail the
+				 * save and they can try again.
+				 */
+				tmpFile.delete();
+				if (log.isDebugEnabled()) {
+					log.debug(saveTimer);
+				}
+				MapTool.showError("msg.error.failedSaveCampaignOOM");
+				return;
+			}
+		} finally {
+			saveTimer.start("Close");
 			try {
 				pakFile.close();
 			} catch (Exception e) { }
+			saveTimer.stop("Close");
 			pakFile = null;
-			tmpFile.delete();
-			MapTool.showError("msg.error.failedSaveCampaignOOM");
 		}
 
 		// Copy to the new location
-		// Not the fastest solution in the world, but worth the safety net it
-		// provides
+		// Not the fastest solution in the world if renameTo() fails, but worth the safety net it provides
 		saveTimer.start("backup");
-		File bakFile = new File(tmpDir.getAbsolutePath() + "/" + campaignFile.getName() + ".bak");
+		File bakFile = new File(tmpDir.getAbsolutePath(), campaignFile.getName() + ".bak");
 		bakFile.delete();
 		if (campaignFile.exists()) {
 			if (!campaignFile.renameTo(bakFile)) {
@@ -346,12 +350,13 @@ public class PersistenceUtil {
 
 	public static PersistedCampaign loadCampaign(File campaignFile) throws IOException {
 		String mtversion = ModelVersionManager.cleanVersionNumber(MapTool.getVersion());
+		PersistedCampaign persistedCampaign = null;
 
 		// Try the new way first
 		PackedFile pakfile = new PackedFile(campaignFile);
-		pakfile.setModelVersionManager(campaignVersionManager);
-		PersistedCampaign persistedCampaign = null;
 		try {
+			pakfile.setModelVersionManager(campaignVersionManager);
+
 			// Sanity check
 			String progVersion = (String)pakfile.getProperty(PROP_VERSION);
 			String campaignVersion = (String)pakfile.getProperty(PROP_CAMPAIGN_VERSION);
@@ -438,23 +443,24 @@ public class PersistenceUtil {
 
 	public static BufferedImage getTokenThumbnail(File file) throws Exception {
 		PackedFile pakFile = new PackedFile(file);
-		BufferedImage thumb = null;
-		if (pakFile.hasFile(Token.FILE_THUMBNAIL)) {
-			InputStream is = pakFile.getFileAsInputStream(Token.FILE_THUMBNAIL);
-			try {
-				thumb = ImageIO.read(is);
-			} finally {
-				IOUtils.closeQuietly(is);
+		BufferedImage thumb;
+		try {
+			thumb = null;
+			if (pakFile.hasFile(Token.FILE_THUMBNAIL)) {
+				InputStream is = pakFile.getFileAsInputStream(Token.FILE_THUMBNAIL);
+				try {
+					thumb = ImageIO.read(is);
+				} finally {
+					IOUtils.closeQuietly(is);
+				}
 			}
+		} finally {
+			pakFile.close();
 		}
-		pakFile.close();
 		return thumb;
 	}
 
 	public static void saveToken(Token token, File file) throws IOException {
-		PackedFile pakFile = new PackedFile(file);
-		saveAssets(token.getAllImageAssets(), pakFile);
-
 		// Thumbnail
 		BufferedImage image = ImageManager.getImage(token.getImageAssetId());
 		Dimension sz = new Dimension(image.getWidth(), image.getHeight());
@@ -466,14 +472,16 @@ public class PersistenceUtil {
 		g.drawImage(image, 0, 0, sz.width, sz.height, null);
 		g.dispose();
 
-		pakFile.putFile(Token.FILE_THUMBNAIL, ImageUtil.imageToBytes(thumb, "png"));
-
-		pakFile.setContent(token);
-		pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
-
-		pakFile.save();
-		pakFile.close();
-
+		PackedFile pakFile = new PackedFile(file);
+		try {
+			saveAssets(token.getAllImageAssets(), pakFile);
+			pakFile.putFile(Token.FILE_THUMBNAIL, ImageUtil.imageToBytes(thumb, "png"));
+			pakFile.setContent(token);
+			pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
+			pakFile.save();
+		} finally {
+			pakFile.close();
+		}
 	}
 
 	public static Token loadToken(File file) throws IOException {
@@ -492,6 +500,7 @@ public class PersistenceUtil {
 		String mtVersion = (String)pakFile.getProperty(PROP_VERSION);
 		List<Asset> addToServer = new ArrayList<Asset>(assetIds.size());
 
+		// FJE: Ugly fix for a bug I introduced in b64. :(
 		boolean fixRequired = "1.3.b64".equals(mtVersion);
 
 		for (MD5Key key : assetIds) {
@@ -587,9 +596,7 @@ public class PersistenceUtil {
 		try {
 			return loadCampaignProperties(in);
 		} finally {
-			if (in != null) {
-				in.close();
-			}
+			IOUtils.closeQuietly(in);
 		}
 	}
 
@@ -611,18 +618,20 @@ public class PersistenceUtil {
 	}
 
 	public static void saveCampaignProperties(Campaign campaign, File file) throws IOException {
-
 		// Put this in FileUtil
 		if (file.getName().indexOf(".") < 0) {
 			file = new File(file.getAbsolutePath() + AppConstants.CAMPAIGN_PROPERTIES_FILE_EXTENSION);
 		}
 		PackedFile pakFile = new PackedFile(file);
-		clearAssets(pakFile);
-		saveAssets(campaign.getCampaignProperties().getAllImageAssets(), pakFile);
-		pakFile.setContent(campaign.getCampaignProperties());
-		pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
-		pakFile.save();
-		pakFile.close();
+		try {
+			clearAssets(pakFile);
+			saveAssets(campaign.getCampaignProperties().getAllImageAssets(), pakFile);
+			pakFile.setContent(campaign.getCampaignProperties());
+			pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
+			pakFile.save();
+		} finally {
+			pakFile.close();
+		}
 	}
 
 	// Macro import/export support
@@ -634,9 +643,7 @@ public class PersistenceUtil {
 		try {
 			return loadMacro(in);
 		} finally {
-			try {
-				if (in != null) in.close();
-			} catch (Exception e) { }
+			IOUtils.closeQuietly(in);
 		}
 	}
 
@@ -656,31 +663,29 @@ public class PersistenceUtil {
 	}
 
 	public static void saveMacro(MacroButtonProperties macroButton, File file) throws IOException {
-
 		// Put this in FileUtil
 		if (file.getName().indexOf(".") < 0) {
 			file = new File(file.getAbsolutePath() + AppConstants.MACRO_FILE_EXTENSION);
 		}
 		PackedFile pakFile = new PackedFile(file);
-		pakFile.setContent(macroButton);
-		pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
-		pakFile.save();
-		pakFile.close();
+		try {
+			pakFile.setContent(macroButton);
+			pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
+			pakFile.save();
+		} finally {
+			pakFile.close();
+		}
 	}
 
 	public static List<MacroButtonProperties> loadLegacyMacroSet(File file) throws IOException {
-
 		if (!file.exists()) {
 			throw new FileNotFoundException();
 		}
-
 		FileInputStream in = new FileInputStream(file);
 		try {
 			return loadMacroSet(in);
 		} finally {
-			if (in != null) {
-				in.close();
-			}
+			IOUtils.closeQuietly(in);
 		}
 	}
 
@@ -693,8 +698,7 @@ public class PersistenceUtil {
 	public static List<MacroButtonProperties> loadMacroSet(File file) throws IOException {
 		try {
 			PackedFile pakFile = new PackedFile(file);
-			String version = (String) pakFile.getProperty(PROP_VERSION); // Sanity
-			// check
+			String version = (String) pakFile.getProperty(PROP_VERSION); // Sanity check
 			List<MacroButtonProperties> macroButtonSet = (List<MacroButtonProperties>) pakFile.getContent();
 			return macroButtonSet;
 		} catch (IOException e) {
@@ -703,16 +707,18 @@ public class PersistenceUtil {
 	}
 
 	public static void saveMacroSet(List<MacroButtonProperties> macroButtonSet, File file) throws IOException {
-
 		// Put this in FileUtil
 		if (file.getName().indexOf(".") < 0) {
 			file = new File(file.getAbsolutePath() + AppConstants.MACROSET_FILE_EXTENSION);
 		}
 		PackedFile pakFile = new PackedFile(file);
-		pakFile.setContent(macroButtonSet);
-		pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
-		pakFile.save();
-		pakFile.close();
+		try {
+			pakFile.setContent(macroButtonSet);
+			pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
+			pakFile.save();
+		} finally {
+			pakFile.close();
+		}
 	}
 
 	// end of Macro import/export support
@@ -726,9 +732,7 @@ public class PersistenceUtil {
 		try {
 			return loadTable(in);
 		} finally {
-			if (in != null) {
-				in.close();
-			}
+			IOUtils.closeQuietly(in);
 		}
 	}
 
@@ -754,10 +758,13 @@ public class PersistenceUtil {
 			file = new File(file.getAbsolutePath() + AppConstants.TABLE_FILE_EXTENSION);
 		}
 		PackedFile pakFile = new PackedFile(file);
-		pakFile.setContent(lookupTable);
-		saveAssets(lookupTable.getAllAssetIds(), pakFile);
-		pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
-		pakFile.save();
-		pakFile.close();
+		try {
+			pakFile.setContent(lookupTable);
+			saveAssets(lookupTable.getAllAssetIds(), pakFile);
+			pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
+			pakFile.save();
+		} finally {
+			pakFile.close();
+		}
 	}
 }

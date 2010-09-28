@@ -91,6 +91,7 @@ public class AutoSaveManager implements ActionListener {
 		AppState.setIsSaving(true);
 
 		MapTool.getFrame().setStatusMessage("Autosaving campaign ...");
+		long startCopy = System.currentTimeMillis();
 
 		// This occurs on the event dispatch thread, so it's ok to mess with the models.
 		// We need to clone the campaign so that we can save in the background, but
@@ -98,7 +99,6 @@ public class AutoSaveManager implements ActionListener {
 		//
 		// NOTE: This is a cheesy way to clone the campaign, but it makes it so that I
 		// don't have to keep all the various models' clone methods updated on each change.
-		long startCopy = System.currentTimeMillis();
 		final Campaign campaign = new Campaign(MapTool.getCampaign());
 		if (log.isInfoEnabled())
 			log.info("Time to copy Campaign object (ms): " + (System.currentTimeMillis() - startCopy));

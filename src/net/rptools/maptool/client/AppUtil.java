@@ -62,14 +62,8 @@ public class AppUtil {
 		if (!StringUtils.isEmpty(subdir)) {
 			path = new File(path.getAbsolutePath(), subdir);
 		}
-		// Now check for characters known to cause problems.
-		// On Unix systems this means only the '!' character for jar:// URLs.
-		// On Windows systems this means any APP_HOME with punctuation symbols.
-		// To check this, we first replace all valid punctuation symbols with ordinary letters.
-		// The we use a regular expression match to determine if any remaining punctuation
-		// symbols exist; it's an error if they do.
-		String s = subdir.replace('/', 'a').replace(':', 'b').replace('\\', 'c').replace('.', 'd');
-		if (s.matches(".*\\p{P}.*"))
+		// Now check for characters known to cause problems.  See getDataDir() for details.
+		if (path.getAbsolutePath().matches("!"))
 			throw new RuntimeException(I18N.getText("msg.error.unusableDir", path.getAbsolutePath()));
 
 		path.mkdirs();
@@ -106,8 +100,7 @@ public class AppUtil {
 			// the built-in "jar://" URL uses the "!" as a separator between the archive name
 			// and the archive member. :(  Right now we're only checking for that one character
 			// but the list may need to be expanded in the future.
-			String s = path.replace('!', 'a');
-			if (!s.equals(path))
+			if (path.matches("!"))
 				throw new RuntimeException(I18N.getText("msg.error.unusableDataDir", path));
 
 			dataDirPath = new File(path);
