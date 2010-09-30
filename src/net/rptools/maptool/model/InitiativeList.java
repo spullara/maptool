@@ -528,7 +528,7 @@ public class InitiativeList implements Serializable {
             return;
         
         // Save the current position, the token moves but the initiative does not.
-    	TokenInitiative newInitiative = null;
+        TokenInitiative newInitiative = null;
         TokenInitiative currentInitiative = getTokenInitiative(getCurrent()); // Save the current initiative
         if (oldIndex == current) {
         	newInitiative = getTokenInitiative(oldIndex != 0 ? oldIndex -1 : 1);
