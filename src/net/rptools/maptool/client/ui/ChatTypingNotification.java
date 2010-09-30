@@ -13,6 +13,8 @@ import java.util.Set;
 
 import javax.swing.JPanel;
 
+import org.apache.commons.collections.map.LinkedMap;
+
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppStyle;
@@ -29,7 +31,7 @@ public class ChatTypingNotification extends JPanel{
 			return;
 		}
 		
-		Set<String> chatTypers = (MapTool.getFrame().getChatTypers());
+		LinkedMap chatTypers = (MapTool.getFrame().getChatTypers());
 
 		Boolean showBackground = AppPreferences.getChatNotificationShowBackground();//true;
 		
@@ -90,7 +92,10 @@ public class ChatTypingNotification extends JPanel{
 				+ PADDING7, AppStyle.miniMapBorder.getTopMargin() + PADDING7,
 				AppStyle.chatImage.getWidth(), AppStyle.chatImage.getHeight());
 
-		for(String playerNamer: chatTypers)
+		Set<?> keySet = chatTypers.keySet();
+		@SuppressWarnings("unchecked")
+		Set<String> playerTimers = (Set<String>) keySet;
+		for(String playerNamer: playerTimers)
 		{
 			if (showBackground) {
 				statsG.setColor(new Color(249, 241, 230, 140));
