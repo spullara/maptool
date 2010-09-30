@@ -22,7 +22,6 @@ import java.util.Set;
 
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.ui.token.BarTokenOverlay;
 import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
 import net.rptools.maptool.client.ui.tokenpanel.InitiativePanel;
@@ -30,7 +29,6 @@ import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignProperties;
-import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.GridFactory;
 import net.rptools.maptool.model.LightSource;
@@ -43,7 +41,6 @@ import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
 import net.sf.json.JSONArray;
-import net.sf.json.JSONFunction;
 import net.sf.json.JSONObject;
 
 public class getInfoFunction extends AbstractFunction {
@@ -51,11 +48,9 @@ public class getInfoFunction extends AbstractFunction {
 	/** The singleton instance. */
 	private static final getInfoFunction instance = new getInfoFunction();
 
-
 	private getInfoFunction() {
 		super(1, 1, "getInfo");
 	}
-
 
 	/**
 	 * Gets the instance of getInfoFunction.
@@ -65,16 +60,11 @@ public class getInfoFunction extends AbstractFunction {
 		return instance;
 	}
 
-
-
-
 	@Override
 	public Object childEvaluate(Parser parser, String functionName, List<Object> param)
 	throws ParserException {
 		String infoType = param.get(0).toString();
-		
-		
-		
+
 		if (infoType.equalsIgnoreCase("map") || infoType.equalsIgnoreCase("zone")) {
 			return getMapInfo();
 		} else if (infoType.equalsIgnoreCase("client")) {
@@ -86,28 +76,23 @@ public class getInfoFunction extends AbstractFunction {
 		} else {
 			throw new ParserException(I18N.getText("macro.function.getInfo.invalidArg", param.get(0).toString()));
 		}
-
 	}
 
-	
 	/**
 	 * Retrieves the information about the current zone/map and returns it as a JSON Object.
 	 * @return The information about the map.
 	 * @throws ParserException when there is an error.
 	 */
 	private JSONObject getMapInfo() throws ParserException {
-		
 		Map<String, Object> minfo = new HashMap<String, Object>();
-		
 		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
-		
+
 		if (!MapTool.getParser().isMacroTrusted()) {
 			if (!zone.isVisible()) {
 				throw new ParserException(I18N.getText("macro.function.general.noPerm", "getInfo('map')"));
 			}
 		}
 
-		
 		minfo.put("name", zone.getName());
 		minfo.put("image x scale", zone.getImageScaleX());
 		minfo.put("image y scale", zone.getImageScaleY());
@@ -120,26 +105,26 @@ public class getInfoFunction extends AbstractFunction {
 			minfo.put("height", zone.getHeight());
 			minfo.put("largest Z order", zone.getLargestZOrder());
 		}
-		
+
 		String visionType = "off";
 		switch (zone.getVisionType()) {
-			case DAY:
-				visionType = "day";
-				break;
-			case NIGHT:
-				visionType = "night";
-				break;
-			case OFF:
-				visionType = "off";
-				break;
+		case DAY:
+			visionType = "day";
+			break;
+		case NIGHT:
+			visionType = "night";
+			break;
+		case OFF:
+			visionType = "off";
+			break;
 		}
 		minfo.put("vision type", visionType);
-				
+
 		Map<String, Object> ginfo = new HashMap<String, Object>();
 		minfo.put("grid", ginfo);
 
 		Grid grid = zone.getGrid();
-		
+
 		ginfo.put("type", GridFactory.getGridType(grid));
 		ginfo.put("color", String.format("%h", zone.getGridColor()));
 		ginfo.put("units per cell", zone.getUnitsPerCell());
@@ -151,11 +136,10 @@ public class getInfoFunction extends AbstractFunction {
 		ginfo.put("x offset", zone.getGrid().getOffsetX());
 		ginfo.put("y offset", zone.getGrid().getOffsetY());
 		ginfo.put("second dimension", grid.getSecondDimension());
-		
-		
+
 		return JSONObject.fromObject(minfo);
 	}
-	
+
 	/**
 	 * Retrieves the client side preferences that do not have server over rides as a
 	 * json object.
@@ -170,7 +154,7 @@ public class getInfoFunction extends AbstractFunction {
 		cinfo.put("portrait size", AppPreferences.getPortraitSize());
 		cinfo.put("show stat sheet", AppPreferences.getShowStatSheet());
 		cinfo.put("version", MapTool.getVersion());
-		
+
 		if (MapTool.getParser().isMacroTrusted()) {
 			Map<String, Object> libInfo = new HashMap<String, Object>();
 			for (ZoneRenderer zr : MapTool.getFrame().getZoneRenderers()) {
@@ -188,10 +172,8 @@ public class getInfoFunction extends AbstractFunction {
 			if (libInfo.size() > 0) {
 				cinfo.put("library tokens", libInfo);
 			}
-			
 			cinfo.put("user defined functions", JSONArray.fromObject(UserDefinedMacroFunctions.getInstance().getAliases()));
 		}
-		
 		return JSONObject.fromObject(cinfo);
 	}
 
@@ -202,7 +184,7 @@ public class getInfoFunction extends AbstractFunction {
 	private JSONObject getServerInfo() {
 		Map<String, Object> sinfo = new HashMap<String, Object>();
 		ServerPolicy sp =  MapTool.getServerPolicy();
-		
+
 		sinfo.put("tooltips for default roll format", sp.getUseToolTipsForDefaultRollFormat() ? BigDecimal.ONE : BigDecimal.ZERO);
 		sinfo.put("players can reveal", sp.getPlayersCanRevealVision() ? BigDecimal.ONE : BigDecimal.ZERO);
 		sinfo.put("movement locked", sp.isMovementLocked() ? BigDecimal.ONE : BigDecimal.ZERO);
@@ -210,15 +192,15 @@ public class getInfoFunction extends AbstractFunction {
 		sinfo.put("individual views", sp.isUseIndividualViews() ? BigDecimal.ONE : BigDecimal.ZERO);
 		sinfo.put("strict token management", sp.useStrictTokenManagement() ? BigDecimal.ONE : BigDecimal.ZERO);
 		sinfo.put("players receive campaign macros", sp.playersReceiveCampaignMacros() ? BigDecimal.ONE : BigDecimal.ZERO);
-		
+
 		InitiativePanel ip = MapTool.getFrame().getInitiativePanel();
 		if (ip != null) {
 			sinfo.put("initiative owner permissions", ip.isOwnerPermissions() ? BigDecimal.ONE : BigDecimal.ZERO);
 		}
 		return JSONObject.fromObject(sinfo);
 	}
-	
-	
+
+
 	/**
 	 * Retrieves information about the campaign as a json object.
 	 * @return the campaign information.
@@ -228,28 +210,26 @@ public class getInfoFunction extends AbstractFunction {
 		if (!MapTool.getParser().isMacroTrusted()) {
 			throw new ParserException(I18N.getText("macro.function.general.noPerm", "getInfo('campaign')"));
 		}
-
 		Map<String, Object> cinfo = new HashMap<String, Object>();
 		Campaign c = MapTool.getCampaign();
 		CampaignProperties cp = c.getCampaignProperties();
-		
+
 		cinfo.put("id", c.getId().toString());
 		cinfo.put("initiative movement locked", cp.isInitiativeMovementLock() ? BigDecimal.ONE : BigDecimal.ZERO);
 		cinfo.put("initiative owner permissions", cp.isInitiativeOwnerPermissions() ? BigDecimal.ONE : BigDecimal.ZERO);
-		
+
 		Map<String, String> zinfo  = new HashMap<String, String>();
 		for (Zone z : c.getZones()) {
 			zinfo.put(z.getName(), z.getId().toString());
 		}
 		cinfo.put("zones", zinfo);
-		
+
 		Set<String> tinfo = new HashSet<String>();
 		for (LookupTable table : c.getLookupTableMap().values()) {
 			tinfo.add(table.getName());
 		}
 		cinfo.put("tables", tinfo);
-		
-		
+
 		Map<String,Object>llinfo = new HashMap<String,Object>();
 		for (String ltype : c.getLightSourcesMap().keySet()) {
 			Set<Object> ltinfo = new HashSet<Object>();
@@ -263,7 +243,6 @@ public class getInfoFunction extends AbstractFunction {
 			}
 			llinfo.put(ltype, ltinfo);
 		}
-		
 		cinfo.put("light sources", llinfo);
 
 		Map<String, Set<String>> sinfo = new HashMap<String, Set<String>>();
@@ -281,9 +260,8 @@ public class getInfoFunction extends AbstractFunction {
 				sinfo.put(group, sgroup);
 			}
 		}
-		
 		cinfo.put("states", sinfo);
-		
+
 		cinfo.put("remote repository",c.getRemoteRepositoryList());
 
 		Map<String, Object> sightInfo = new HashMap<String, Object>();
@@ -297,7 +275,7 @@ public class getInfoFunction extends AbstractFunction {
 			sightInfo.put(sightType.getName(), si);
 		}
 		cinfo.put("sight", sightInfo);
-		
+
 		Map<String, Set<Object>> barinfo = new HashMap<String, Set<Object>>();
 		for (BarTokenOverlay tbo : c.getTokenBarsMap().values()) {
 			String group = tbo.getGroup();
@@ -313,13 +291,10 @@ public class getInfoFunction extends AbstractFunction {
 			b.put("name", tbo.getName());
 			b.put("side", tbo.getSide());
 			b.put("increment", tbo.getIncrements());
-			
 			bgroup.add(b);
 		}
-		
 		cinfo.put("bars", barinfo);
-		
-		
+
 		return JSONObject.fromObject(cinfo);
 	}
 }
