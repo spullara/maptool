@@ -46,7 +46,7 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 	private GenericDialog dialog;
 
 	public StartServerDialog() {
-		super("net/rptools/maptool/client/ui/forms/startServerDialog.jfrm");
+		super("net/rptools/maptool/client/ui/forms/startServerDialog.xml");
 
 		panelInit();
 	}
@@ -86,8 +86,8 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 		return (JComboBox) getComponent("@role");
 	}
 
-	public JButton getTestConnectionButton() {
-		return (JButton) getComponent("testConnectionButton");
+	public JButton getNetworkingHelpButton() {
+		return (JButton) getComponent("networkingHelpButton");
 	}
 
 	public JCheckBox getUseUPnPCheckbox() {
@@ -138,11 +138,11 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 	}
 
 	public void initTestConnectionButton() {
-		getTestConnectionButton().addActionListener(new ActionListener() {
+		getNetworkingHelpButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// We don't have a good, server-side way of testing any more.
 				boolean ok;
-				ok = MapTool.confirm("msg.info.server.testConnection");
+				ok = MapTool.confirm("msg.info.server.networkingHelp");
 				if (ok)
 					MapTool.showDocument(I18N.getString("msg.info.server.forumNFAQ_URL"));
 			}
