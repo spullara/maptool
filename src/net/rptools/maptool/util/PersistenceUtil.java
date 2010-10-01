@@ -447,8 +447,9 @@ public class PersistenceUtil {
 		try {
 			thumb = null;
 			if (pakFile.hasFile(Token.FILE_THUMBNAIL)) {
-				InputStream is = pakFile.getFileAsInputStream(Token.FILE_THUMBNAIL);
+				InputStream is = null;
 				try {
+					is = pakFile.getFileAsInputStream(Token.FILE_THUMBNAIL);
 					thumb = ImageIO.read(is);
 				} finally {
 					IOUtils.closeQuietly(is);
@@ -511,9 +512,13 @@ public class PersistenceUtil {
 				String pathname = ASSET_DIR + key;
 				Asset asset;
 				if (fixRequired) {
-					InputStream is = pakFile.getFileAsInputStream(pathname);
-					asset = new Asset(key.toString(), IOUtils.toByteArray(is));	// Ugly bug fix :(
-					is.close();
+					InputStream is = null;
+					try {
+						is = pakFile.getFileAsInputStream(pathname);
+						asset = new Asset(key.toString(), IOUtils.toByteArray(is));	// Ugly bug fix :(
+					} finally {
+						IOUtils.closeQuietly(is);
+					}
 				} else {
 					asset = (Asset) pakFile.getFileObject(pathname);			// XML deserialization
 				}
@@ -534,9 +539,13 @@ public class PersistenceUtil {
 					String ext = asset.getImageExtension();
 					pathname = pathname + "." + (StringUtil.isEmpty(ext) ? "dat" : ext);
 					pathname = assetnameVersionManager.transform(pathname, campVersion);
-					InputStream is = pakFile.getFileAsInputStream(pathname);
-					asset.setImage(IOUtils.toByteArray(is));
-					is.close();
+					InputStream is = null;
+					try {
+						is = pakFile.getFileAsInputStream(pathname);
+						asset.setImage(IOUtils.toByteArray(is));
+					} finally {
+						IOUtils.closeQuietly(is);
+					}
 				}
 				AssetManager.putAsset(asset);
 				addToServer.add(asset);
