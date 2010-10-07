@@ -7,10 +7,14 @@ This document contains the following sections:
  * Executing the tools
  * Troubleshooting common problems
 
-Documentation for the various tools can be found here at the link below.
+Documentation for the various tools can be found at the link below.
 However, as the tools develop and change rapidly it's likely that the
 forum users will have the scoop on the most current tweaks and features.
    http://www.rptools.net/?page=faq
+
+When reporting problems on the forum, please include the output of the
+tool called "SysInfo" which is linked to from this page:
+   http://www.rptools.net/?page=troubleshooting
 
 Also be sure to watch the screencasts that demonstrate the various
 features of MapTool.  One of our forum users put together little
@@ -39,7 +43,7 @@ portable, running on Windows, OS X, and Unix/Linux.
 
 All of the RPTools.net applications are programmed in Java and can be
 used on any platform supporting Java 5+.  (CharTool, DiceTool, and
-MapTool require Java 6+.)  Specifics of where to find Java for your
+MapTool require Java 6+.)  Specifics on where to find Java for your
 platform are provided on the main web site at http://www.rptools.net/
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -63,7 +67,7 @@ is provided here.
 			<<< ZIP Archive >>>
 
 Extract the zip archive to a folder of your choosing.  Be sure to
-extract the directories as well, since MapTool expects to find some of
+extract the directories as well, since some tools expect to find some of
 its code in the "lib" subdirectory.  In the folder where you extract
 the archive will be a system-specific start program:
 
@@ -81,6 +85,8 @@ need help).
 
 This file is a disk image that can be installed easily on OS X.  Mac
 users may download the file and double-click to begin installation.
+After the disk image opens, drag the application to your desktop (or
+wherever you want the application kept).
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

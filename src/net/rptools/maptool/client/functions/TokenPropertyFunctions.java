@@ -558,8 +558,8 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			if (parameters.size() < 1) {
 				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 1, parameters.size()));
 			} else
-				if (parameters.size() > 2) {
-					throw new ParserException(I18N.getText("macro.function.general.tooManyParam", functionName, 2, parameters.size()));
+				if (parameters.size() > 3) {
+					throw new ParserException(I18N.getText("macro.function.general.tooManyParam", functionName, 3, parameters.size()));
 				}
 			String location;
 			String pattern = parameters.get(0).toString();
