@@ -63,6 +63,7 @@ import net.rptools.maptool.client.functions.TokenLabelFunction;
 import net.rptools.maptool.client.functions.TokenLightFunctions;
 import net.rptools.maptool.client.functions.TokenLocationFunctions;
 import net.rptools.maptool.client.functions.TokenMoveFunctions;
+import net.rptools.maptool.client.functions.FogOfWarFunctions;
 import net.rptools.maptool.client.functions.TokenNameFunction;
 import net.rptools.maptool.client.functions.TokenNoteFunctions;
 import net.rptools.maptool.client.functions.TokenPropertyFunctions;
@@ -150,7 +151,8 @@ public class MapToolLineParser {
 		UserDefinedMacroFunctions.getInstance(),
 		isVisibleFunction.getInstance(),
 		getInfoFunction.getInstance(),
-		TokenMoveFunctions.getInstance()
+		TokenMoveFunctions.getInstance(),
+		FogOfWarFunctions.getInstance()
 	};
 
 	/** Name and Source or macros that come from chat. */
