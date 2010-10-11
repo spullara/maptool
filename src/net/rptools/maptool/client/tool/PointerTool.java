@@ -209,7 +209,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		dragOffsetX = 0;
 		dragOffsetY = 0;
 
-		if (renderer.getZone().hasFog() && AppPreferences.getAutoRevealVisionOnGMMovement() && (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision())) {
+		if ((renderer.getZone().hasFog() && AppPreferences.getAutoRevealVisionOnGMMovement() && MapTool.getPlayer().isGM()) || MapTool.getServerPolicy().getPlayersCanRevealVision()) {
 			Set<GUID> exposeSet = new HashSet<GUID>();
 			for (GUID tokenGUID : renderer.getOwnedTokens(renderer.getSelectedTokenSet())) {
 				Token token = renderer.getZone().getToken(tokenGUID);

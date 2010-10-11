@@ -118,7 +118,7 @@ public class FacingTool extends DefaultTool {
 			}
 
 			token.setFacing(degrees);
-			if (AppPreferences.getAutoRevealVisionOnGMMovement() && (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision())) {
+			if ((renderer.getZone().hasFog() && AppPreferences.getAutoRevealVisionOnGMMovement() && MapTool.getPlayer().isGM()) || MapTool.getServerPolicy().getPlayersCanRevealVision()) {
 				visibleArea = MapTool.getFrame().getCurrentZoneRenderer().getZoneView().getVisibleArea(token);
 				MapTool.getFrame().getCurrentZoneRenderer().getZone().exposeArea(visibleArea);
 			}
