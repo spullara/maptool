@@ -13,6 +13,9 @@
  */
 package net.rptools.maptool.server;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 import net.rptools.maptool.client.AppPreferences;
 
 public class ServerPolicy {
@@ -101,4 +104,22 @@ public class ServerPolicy {
 		return useToolTipsForDefaultRollFormat;
 	}
 
+	/**
+	 * Gets the local server time
+	 * 
+	 */
+	public long getSystemTime() {
+		return System.currentTimeMillis();
+	}
+	
+
+	private String getLocalTimeDate() {
+	    Calendar cal = Calendar.getInstance();
+	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	    return sdf.format(cal.getTime());
+	}
+
+	public String getTimeDate() {
+		return getLocalTimeDate();
+	}
 }

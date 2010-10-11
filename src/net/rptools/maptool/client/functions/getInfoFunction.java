@@ -42,6 +42,8 @@ import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import java.util.Calendar;
+import java.text.SimpleDateFormat;
 
 public class getInfoFunction extends AbstractFunction {
 
@@ -154,7 +156,8 @@ public class getInfoFunction extends AbstractFunction {
 		cinfo.put("portrait size", AppPreferences.getPortraitSize());
 		cinfo.put("show stat sheet", AppPreferences.getShowStatSheet());
 		cinfo.put("version", MapTool.getVersion());
-
+		cinfo.put("timeInMs", System.currentTimeMillis());
+		cinfo.put("timeDate", getTimeDate());
 		if (MapTool.getParser().isMacroTrusted()) {
 			Map<String, Object> libInfo = new HashMap<String, Object>();
 			for (ZoneRenderer zr : MapTool.getFrame().getZoneRenderers()) {
@@ -176,6 +179,13 @@ public class getInfoFunction extends AbstractFunction {
 		}
 		return JSONObject.fromObject(cinfo);
 	}
+	
+
+	private String getTimeDate() {
+	    Calendar cal = Calendar.getInstance();
+	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	    return sdf.format(cal.getTime());
+	}
 
 	/**
 	 * Retrieves the server side preferences as a json object.
@@ -193,6 +203,9 @@ public class getInfoFunction extends AbstractFunction {
 		sinfo.put("strict token management", sp.useStrictTokenManagement() ? BigDecimal.ONE : BigDecimal.ZERO);
 		sinfo.put("players receive campaign macros", sp.playersReceiveCampaignMacros() ? BigDecimal.ONE : BigDecimal.ZERO);
 
+		sinfo.put("timeInMs", sp.getSystemTime());
+		sinfo.put("timeDate", sp.getTimeDate());
+		
 		InitiativePanel ip = MapTool.getFrame().getInitiativePanel();
 		if (ip != null) {
 			sinfo.put("initiative owner permissions", ip.isOwnerPermissions() ? BigDecimal.ONE : BigDecimal.ZERO);
@@ -200,7 +213,8 @@ public class getInfoFunction extends AbstractFunction {
 		return JSONObject.fromObject(sinfo);
 	}
 
-
+	
+	
 	/**
 	 * Retrieves information about the campaign as a json object.
 	 * @return the campaign information.
