@@ -330,6 +330,10 @@ public class ZoneView implements ModelChangeListener {
 							{
 								continue;
 							}
+							if(token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token))
+							{
+								continue;
+							}
 							if(light.isOwnerOnly() && lightSource.getType() == LightSource.Type.AURA)
 							{
 								if (!isOwner && !MapTool.getPlayer().isGM())
@@ -353,7 +357,9 @@ public class ZoneView implements ModelChangeListener {
 		lightSourceMap.clear();
 
 		for (Token token : zone.getAllTokens()) {
-			if (token.hasLightSources() && token.isVisible()) {
+			if (token.hasLightSources() && 
+						((token.isVisible() && !token.isVisibleOnlyToOwner()) || 
+								( token.isVisible() && token.isVisibleOnlyToOwner() && AppUtil.playerOwns(token)))) {
 				for (AttachedLightSource als : token.getLightSources()) {
 
 					LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());

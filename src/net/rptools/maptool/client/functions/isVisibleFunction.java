@@ -17,6 +17,7 @@ import java.awt.geom.Area;
 import java.math.BigDecimal;
 import java.util.List;
 
+import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -82,9 +83,12 @@ public class isVisibleFunction extends AbstractFunction {
 		if (!(param.get(1) instanceof BigDecimal)) {
 			throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 2, param.get(1).toString()));
 		}
-
+		if(token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token)){
+			return BigDecimal.ZERO;
+		}
 		int x = ((BigDecimal)param.get(0)).intValue();
 		int y = ((BigDecimal)param.get(1)).intValue();
+
 
 		Area visArea = zr.getZoneView().getVisibleArea(token);
 		if (visArea == null) {
