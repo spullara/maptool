@@ -138,13 +138,16 @@ public class MapTool {
 	 */
 	public static boolean MAC_OS_X = (System.getProperty("os.name").toLowerCase().startsWith("mac os x"));
 
-	public static enum ZoneEvent {
+	/**
+	 * Returns true if currently running on a Windows based operating system.
+	 */
+	public static boolean WINDOWS = (System.getProperty("os.name").toLowerCase().startsWith("windows"));
 
+	public static enum ZoneEvent {
 		Added,
 		Removed,
 		Activated,
 		Deactivated
-
 	}
 
 	public static enum PreferencesEvent {
@@ -985,6 +988,11 @@ public class MapTool {
 				UIManager.setLookAndFeel("net.rptools.maptool.client.TinyLookAndFeelMac");
 				macOSXicon();
 			}
+//			// On running on Windows based OS, CJK font is broken when using TinyLAF.
+//			else if (WINDOWS){
+//				UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+//				menuBar = new AppMenuBar();
+//			}
 			else {
 				UIManager.setLookAndFeel("de.muntjak.tinylookandfeel.TinyLookAndFeel");
 				menuBar = new AppMenuBar();
@@ -1009,6 +1017,7 @@ public class MapTool {
 		}
 
 		// This is a tweak that makes the Chinese version work better
+		// Consider reviewing http://en.wikipedia.org/wiki/CJK_characters before making changes
 		if (Locale.CHINA.equals(Locale.getDefault())) {
 			Font f = new Font("����宋体", Font.PLAIN, 12);
 			FontUIResource fontRes = new FontUIResource(f);
@@ -1081,7 +1090,7 @@ public class MapTool {
 		/*
 			Unfortunately the next line doesn't allow Eclipse to compile the code on anything
 			but a Mac.  Too bad because there's no problem at runtime since this code wouldn't
-			be executed an any machine except on a Mac.  Sigh.
+			be executed an any machine *except* a Mac.  Sigh.
 
 		com.apple.eawt.Application appl = com.apple.eawt.Application.getApplication();
 		 */
