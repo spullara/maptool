@@ -21,6 +21,8 @@ import java.util.Map;
 
 import javax.swing.ImageIcon;
 
+import net.rptools.lib.CodeTimer;
+import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
@@ -31,10 +33,13 @@ import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Token;
 
+import com.jidesoft.docking.DockableFrame;
+
 public class SelectionPanel extends AbstractMacroPanel {
 
 	private final List<Token> tokenList = null;
 	private List<MacroButtonProperties> commonMacros = new ArrayList<MacroButtonProperties>();
+	private CodeTimer timer;
 
 	public SelectionPanel() {
 		// TODO: refactoring reminder
@@ -60,30 +65,63 @@ public class SelectionPanel extends AbstractMacroPanel {
 
 	public void init(List<Token> selectedTokenList) {
 
-		// add the selection panel controls first
-		add(new MenuButtonsPanel());
+		boolean panelVisible = true;
 
+		if (MapTool.getFrame() != null) {
+			DockableFrame selectionPanel = MapTool.getFrame()
+					.getDockingManager().getFrame("SELECTION");
+			if (selectionPanel != null)
+				panelVisible = (selectionPanel.isVisible() && !selectionPanel
+						.isAutohide())
+						|| selectionPanel.isAutohideShowing() ? true : false;
 
-		// draw common group only when there is more than one token selected
-		if (selectedTokenList.size() > 1) {
-			populateCommonButtons(selectedTokenList);
-			if(!commonMacros.isEmpty()){
-				addArea(commonMacros, I18N.getText("component.areaGroup.macro.commonMacros"));
+		}
+
+		// Set up a code timer to get some performance data
+		timer = new CodeTimer("selectionpanel");
+		timer.setEnabled(AppState.isCollectProfilingData());
+		timer.setThreshold(10);
+
+		timer.start("painting");
+
+		// paint panel only when it's visible or active
+		if (panelVisible) {
+
+			// add the selection panel controls first
+			add(new MenuButtonsPanel());
+
+			// draw common group only when there is more than one token selected
+			if (selectedTokenList.size() > 1) {
+				populateCommonButtons(selectedTokenList);
+				if (!commonMacros.isEmpty()) {
+					addArea(commonMacros, I18N
+							.getText("component.areaGroup.macro.commonMacros"));
+				}
+				// add(new ButtonGroup(selectedTokenList, commonMacros, this));
 			}
-			// add(new ButtonGroup(selectedTokenList, commonMacros, this));
-		}
-		for (Token token : selectedTokenList) {
-			if(!AppUtil.playerOwns(token)){
-				continue;
+			for (Token token : selectedTokenList) {
+				if (!AppUtil.playerOwns(token)) {
+					continue;
+				}
+				addArea(token.getId());
 			}
-			addArea(token.getId());
+
+			if (selectedTokenList.size() == 1
+					&& AppUtil.playerOwns(selectedTokenList.get(0))) {
+				// if only one token selected, show its image as tab icon
+				MapTool.getFrame().getFrame(MTFrame.SELECTION).setFrameIcon(
+						selectedTokenList.get(0).getIcon(16, 16));
+			}
+
+		}
+		timer.stop("painting");
+
+		if (AppState.isCollectProfilingData()) {
+			MapTool.getProfilingNoteFrame().addText(timer.toString());
 		}
 
-		if (selectedTokenList.size() == 1 && AppUtil.playerOwns(selectedTokenList.get(0))) {
-			// if only one token selected, show its image as tab icon
-			MapTool.getFrame().getFrame(MTFrame.SELECTION).setFrameIcon(selectedTokenList.get(0).getIcon(16, 16));
-		}
-		MapTool.getEventDispatcher().addListener(this, MapTool.ZoneEvent.Activated);
+		MapTool.getEventDispatcher().addListener(this,
+				MapTool.ZoneEvent.Activated);
 	}
 
 	private void populateCommonButtons(List<Token> tokenList) {
@@ -91,14 +129,17 @@ public class SelectionPanel extends AbstractMacroPanel {
 		Map<Integer, MacroButtonProperties> uniqueMacros = new HashMap<Integer, MacroButtonProperties>();
 		Map<Integer, MacroButtonProperties> commonMacros = new HashMap<Integer, MacroButtonProperties>();
 		for (Token nextToken : tokenList) {
-			if(!AppUtil.playerOwns(nextToken)){
+			if (!AppUtil.playerOwns(nextToken)) {
 				continue;
 			}
 			for (MacroButtonProperties nextMacro : nextToken.getMacroList(true)) {
-				MacroButtonProperties copiedMacro = new MacroButtonProperties(nextMacro.getIndex(), nextMacro);
+				MacroButtonProperties copiedMacro = new MacroButtonProperties(
+						nextMacro.getIndex(), nextMacro);
 				int macroKey = copiedMacro.hashCodeForComparison();
-				Boolean macroIsInUnique = uniqueMacros.containsKey(copiedMacro.hashCodeForComparison());
-				Boolean macroIsInCommon = commonMacros.containsKey(copiedMacro.hashCodeForComparison());
+				Boolean macroIsInUnique = uniqueMacros.containsKey(copiedMacro
+						.hashCodeForComparison());
+				Boolean macroIsInCommon = commonMacros.containsKey(copiedMacro
+						.hashCodeForComparison());
 				if (!macroIsInUnique && !macroIsInCommon) {
 					uniqueMacros.put(macroKey, copiedMacro);
 				} else if (macroIsInUnique && !macroIsInCommon) {
@@ -112,10 +153,11 @@ public class SelectionPanel extends AbstractMacroPanel {
 		for (MacroButtonProperties nextMacro : commonMacros.values()) {
 			nextMacro.setAllowPlayerEdits(true);
 			for (Token nextToken : tokenList) {
-				if(!AppUtil.playerOwns(nextToken)){
+				if (!AppUtil.playerOwns(nextToken)) {
 					continue;
 				}
-				for (MacroButtonProperties nextTokenMacro : nextToken.getMacroList(true)) {
+				for (MacroButtonProperties nextTokenMacro : nextToken
+						.getMacroList(true)) {
 					if (!nextTokenMacro.getAllowPlayerEdits()) {
 						nextMacro.setAllowPlayerEdits(false);
 					}
@@ -141,7 +183,8 @@ public class SelectionPanel extends AbstractMacroPanel {
 			}
 		}
 
-		this.commonMacros = new ArrayList<MacroButtonProperties>(commonMacros.values());
+		this.commonMacros = new ArrayList<MacroButtonProperties>(commonMacros
+				.values());
 		int indexCount = 0;
 		for (MacroButtonProperties nextMacro : this.commonMacros) {
 			nextMacro.setIndex(indexCount);
@@ -153,7 +196,8 @@ public class SelectionPanel extends AbstractMacroPanel {
 	@Override
 	protected void clear() {
 		// reset the tab icon
-		MapTool.getFrame().getFrame(MTFrame.SELECTION).setFrameIcon(new ImageIcon(AppStyle.selectionPanelImage));
+		MapTool.getFrame().getFrame(MTFrame.SELECTION).setFrameIcon(
+				new ImageIcon(AppStyle.selectionPanelImage));
 		removeAll();
 		revalidate();
 		repaint();

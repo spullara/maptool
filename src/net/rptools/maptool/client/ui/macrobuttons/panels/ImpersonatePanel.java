@@ -29,42 +29,69 @@ import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 
+import com.jidesoft.docking.DockableFrame;
+
 public class ImpersonatePanel extends AbstractMacroPanel {
 
 	private boolean currentlyImpersonating = false;
 
 	public ImpersonatePanel() {
 		setPanelClass("ImpersonatePanel");
-		MapTool.getEventDispatcher().addListener(this, MapTool.ZoneEvent.Activated);
+		MapTool.getEventDispatcher().addListener(this,
+				MapTool.ZoneEvent.Activated);
 	}
 
 	public void init() {
-		List<Token> selectedTokenList = MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList();
 
-		if (currentlyImpersonating && getToken() != null) {
-			Token token = getToken();
-			MapTool.getFrame().getFrame(MTFrame.IMPERSONATED).setFrameIcon(token.getIcon(16, 16));
-			MapTool.getFrame().getFrame(MTFrame.IMPERSONATED).setTitle(getTitle(token));
-			addArea(getTokenId());
-		} else if (selectedTokenList.size() != 1) {
-			return;
-		} else {
-			// add the "Impersonate Selected" button
-			final Token t = selectedTokenList.get(0);
+		boolean panelVisible = true;
 
-			if(AppUtil.playerOwns(t)){
-				JButton button = new JButton(I18N.getText("panel.Impersonate.button.impersonateSelected"), t.getIcon(16, 16)) {
-					public Insets getInsets() {
-						return new Insets(2, 2, 2, 2);
-					}
-				};
-				button.addMouseListener(new MouseAdapter() {
-					public void mouseClicked(MouseEvent event) {
-						MapTool.getFrame().getCommandPanel().quickCommit("/im " + t.getId(), false);
-					}
-				});
-				button.setBackground(null);
-				add(button);
+		// Get the current visibility / autohide state of the Impersonate panel
+		if (MapTool.getFrame() != null) {
+			DockableFrame impersonatePanel = MapTool.getFrame()
+					.getDockingManager().getFrame("IMPERSONATED");
+			if (impersonatePanel != null)
+				panelVisible = (impersonatePanel.isVisible() && !impersonatePanel
+						.isAutohide())
+						|| impersonatePanel.isAutohideShowing() ? true : false;
+
+		}
+
+		// Only repaint the panel if its visible
+		if (panelVisible) {
+			List<Token> selectedTokenList = MapTool.getFrame()
+					.getCurrentZoneRenderer().getSelectedTokensList();
+
+			if (currentlyImpersonating && getToken() != null) {
+				Token token = getToken();
+				MapTool.getFrame().getFrame(MTFrame.IMPERSONATED).setFrameIcon(
+						token.getIcon(16, 16));
+				MapTool.getFrame().getFrame(MTFrame.IMPERSONATED).setTitle(
+						getTitle(token));
+				addArea(getTokenId());
+			} else if (selectedTokenList.size() != 1) {
+				return;
+			} else {
+				// add the "Impersonate Selected" button
+				final Token t = selectedTokenList.get(0);
+
+				if (AppUtil.playerOwns(t)) {
+					JButton button = new JButton(
+							I18N
+									.getText("panel.Impersonate.button.impersonateSelected"),
+							t.getIcon(16, 16)) {
+						public Insets getInsets() {
+							return new Insets(2, 2, 2, 2);
+						}
+					};
+					button.addMouseListener(new MouseAdapter() {
+						public void mouseClicked(MouseEvent event) {
+							MapTool.getFrame().getCommandPanel().quickCommit(
+									"/im " + t.getId(), false);
+						}
+					});
+					button.setBackground(null);
+					add(button);
+				}
 			}
 		}
 
@@ -98,8 +125,10 @@ public class ImpersonatePanel extends AbstractMacroPanel {
 
 	public void clear() {
 		removeAll();
-		MapTool.getFrame().getFrame(MTFrame.IMPERSONATED).setFrameIcon(new ImageIcon(AppStyle.impersonatePanelImage));
-		MapTool.getFrame().getFrame(MTFrame.IMPERSONATED).setTitle(Tab.IMPERSONATED.title);
+		MapTool.getFrame().getFrame(MTFrame.IMPERSONATED).setFrameIcon(
+				new ImageIcon(AppStyle.impersonatePanelImage));
+		MapTool.getFrame().getFrame(MTFrame.IMPERSONATED).setTitle(
+				Tab.IMPERSONATED.title);
 		if (getTokenId() == null) {
 			currentlyImpersonating = false;
 		}
