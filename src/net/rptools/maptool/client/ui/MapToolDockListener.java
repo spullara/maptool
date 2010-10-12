@@ -89,7 +89,6 @@ public class MapToolDockListener implements DockableFrameListener {
 	 * @param panel
 	 *            the panel to be updated
 	 */
-
 	private void updatePanels(String panel) {
 		if (MapTool.getFrame() != null) {
 			if (panel == "SELECTION") {
