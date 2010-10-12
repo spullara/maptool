@@ -1648,6 +1648,7 @@ public class AppActions {
 					policy.setPlayersCanRevealVision(serverProps.getPlayersCanRevealVision());
 					policy.setUseIndividualViews(serverProps.getUseIndividualViews());
 					policy.setPlayersReceiveCampaignMacros(serverProps.getPlayersReceiveCampaignMacros());
+					policy.setIsMovementLocked(serverProps.getLockTokenMovement());
 
 					// Tool Tips for unformatted inline rolls.
 					policy.setUseToolTipsForDefaultRollFormat(serverProps.getUseToolTipsForUnformattedRolls());

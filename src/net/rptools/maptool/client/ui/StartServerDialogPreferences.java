@@ -40,6 +40,7 @@ public class StartServerDialogPreferences {
     private static final String KEY_USE_UPNP = "useUPnP";
     private static final String KEY_RESTRICTED_IMPERSONATION = "restrictedImpersonation";
     private static final String KEY_PLAYERS_RECEIVE_CAMPAIGN_MACROS = "playersReceiveCampaignMacros";
+    private static final String KEY_LOCK_PLAYER_MOVEMENT = "lockTokenMovement";
     
     private static Boolean useToolTipsForUnformattedRolls = null;
     
@@ -152,6 +153,14 @@ public class StartServerDialogPreferences {
     
 	public boolean getPlayersReceiveCampaignMacros() {
     	return prefs.getBoolean(KEY_PLAYERS_RECEIVE_CAMPAIGN_MACROS, false);
+	}
+	
+    public void setLockTokenMovement(boolean flag) {
+    	prefs.putBoolean(KEY_LOCK_PLAYER_MOVEMENT, flag);
+    }
+    
+	public boolean getLockTokenMovement() {
+    	return prefs.getBoolean(KEY_LOCK_PLAYER_MOVEMENT, false);
 	}
 	
 	
