@@ -458,7 +458,7 @@ public class CommandPanel extends JPanel implements Observer {
 		}
 		MacroManager.executeMacro(text, macroContext);
 		commandTextArea.setText("");
-		MapTool.serverCommand().setLiveTypingLabel("", false);
+		MapTool.serverCommand().setLiveTypingLabel(MapTool.getPlayer().getName(), false);
 	}
 
 	public void clearMessagePanel() {

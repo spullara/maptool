@@ -27,20 +27,18 @@ public class ChatTypingNotification extends JPanel{
 
 	protected void paintComponent(Graphics g) {
 		
-		if (MapTool.getFrame().getChatTypers() == null || MapTool.getFrame().getChatTypers().isEmpty() ){
+		if(AppPreferences.getTypingNotificationDuration() == 0)
+		{
+			return;
+		}
+		LinkedMap chatTypers = (MapTool.getFrame().getChatNotificationTimers().getChatTypers());
+		if (chatTypers == null|| chatTypers.isEmpty() ){
 			return;
 		}
 		
-		LinkedMap chatTypers = (MapTool.getFrame().getChatTypers());
-
-		Boolean showBackground = AppPreferences.getChatNotificationShowBackground();//true;
+		Boolean showBackground = AppPreferences.getChatNotificationShowBackground();
 		
 		Graphics2D statsG = (Graphics2D) g.create();
-		
-		super.paintComponent(g);
-		
-		Composite oldComp = statsG.getComposite();
-		//this.setVisible(false);
 		
 		Font boldFont = AppStyle.labelFont.deriveFont(Font.BOLD);
 		Font font = AppStyle.labelFont;
@@ -126,7 +124,7 @@ public class ChatTypingNotification extends JPanel{
 		} else {
 			this.setOpaque(false);
 		}
-		this.setVisible(true);
+		//this.setVisible(true);
 
 	}
 }

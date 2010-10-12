@@ -97,11 +97,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 			}
 			return;
 
-		case enforceNotification:
-			Boolean enforce = (Boolean) parameters[0];
 
-			MapTool.getFrame().getCommandPanel().disableNotifyButton(enforce);
-			return;
 
 		}
 
@@ -586,9 +582,20 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					MapTool.getFrame().getCampaignPanel().reset();
 					return;
 					// moved this down into the event queue section so that the threading works as expected
+					
 				case setLiveTypingLabel:
-					MapTool.getFrame().setNewTyper(parameters[0].toString() );
-					return;
+					if((Boolean) parameters[1])
+					{
+						// add a typer
+						MapTool.getFrame().getChatNotificationTimers().setChatTyper(parameters[0].toString() );
+						return;
+					}
+					else
+					{
+						// remove typer from list
+						MapTool.getFrame().getChatNotificationTimers().removeChatTyper(parameters[0].toString() );
+						return;
+					}					
 
 				case exposePCArea:
 					if (parameters[0] != null && parameters[0] instanceof GUID)
@@ -597,6 +604,11 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 						FogUtil.exposePCArea(currentRenderer1);
 						return;
 					}
+				case enforceNotification:
+					Boolean enforce = (Boolean) parameters[0];
+
+					MapTool.getFrame().getCommandPanel().disableNotifyButton(enforce);
+					return;
 				}
 			}
 		});

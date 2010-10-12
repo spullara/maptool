@@ -377,8 +377,8 @@ public class AppPreferences {
 		MapTool.getFrame().setChatNotifyDuration(ms);
 	}
 
-	public static int getTypingNotificationDuration() {
-		int value = prefs.getInt(KEY_TYPING_NOTIFICATION_DURATION, DEFAULT_TYPING_NOTIFICATION_DURATION);
+	public static Integer getTypingNotificationDuration() {
+		Integer value = Integer.valueOf(prefs.getInt(KEY_TYPING_NOTIFICATION_DURATION, DEFAULT_TYPING_NOTIFICATION_DURATION));
 		return value;
 	}
 

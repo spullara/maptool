@@ -29,13 +29,17 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
 import java.util.TreeSet;
@@ -195,9 +199,9 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private Color chatTypingLabelColor;
 	private ChatTypingNotification chatTypingPanel;
 	private Timer chatTimer;
-	private long chatNotifyDuration;
-	private LinkedMap chatTypingNotificationTimers;
-	//private Set<String> chatTypers;
+	private long chatNotifyDuration; 
+	private ChatNotificationTimers chatTyperTimers;
+	private ChatTyperObserver chatTyperObserver;
 	
 	private final GlassPane glassPane;
 
@@ -235,6 +239,58 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	private final DragImageGlassPane dragImageGlassPane = new DragImageGlassPane();
 
+	private class ChatTyperObserver implements Observer
+	{
+		public void update(Observable o, Object arg) 
+		{	
+				SwingUtilities.invokeLater(new Runnable() 
+			{
+				public void run() 
+				{
+					chatTypingPanel.invalidate();
+					chatTypingPanel.repaint();
+				}	
+			}); 
+		}
+	}
+	
+	public class ChatNotificationTimers extends Observable
+	{
+		private LinkedMap chatTypingNotificationTimers;
+		public synchronized void setChatTyper(final String playerName)
+		{
+   			if(AppPreferences.getTypingNotificationDuration() == 0)
+   			{
+   				MapTool.getFrame().stopTimer();
+   			}
+   			else
+   			{
+   				MapTool.getFrame().startTimer();
+   			}
+			chatTypingNotificationTimers.put(playerName, System.currentTimeMillis());
+   			
+			setChanged();
+			notifyObservers();
+		}
+		
+		public synchronized void removeChatTyper(final String playerName)
+		{
+			chatTypingNotificationTimers.remove(playerName);
+			setChanged();
+			notifyObservers();
+		}
+		@SuppressWarnings("unchecked")
+		public synchronized LinkedMap getChatTypers()
+		{
+			return new LinkedMap(chatTypingNotificationTimers);
+		}
+		
+		public ChatNotificationTimers()
+		{
+			chatTypingNotificationTimers = new LinkedMap();	
+		}
+	}
+	
 	public MapToolFrame(JMenuBar menuBar) {
 		// Set up the frame
 		super(AppConstants.APP_NAME);
@@ -349,10 +405,20 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		// This will cause the frame to be set to visible (BAD jide, BAD! No
 		// cookie for you!)
 		configureDocking();
-
+		
 		new WindowPreferences(AppConstants.APP_NAME, "mainFrame", this);
-	}
+		chatTyperObserver = new ChatTyperObserver();
+		chatTyperTimers = new ChatNotificationTimers();
+		chatTyperTimers.addObserver(chatTyperObserver);
+		chatTimer = getChatTimer();
 
+
+	}
+	
+	public ChatNotificationTimers getChatNotificationTimers()
+	{
+		return chatTyperTimers;
+	}
 	public void registerForMacOSXEvents() {
 		try {
 			OSXAdapter.setQuitHandler(this, getClass().getDeclaredMethod("macOSXExit", (Class[]) null));
@@ -488,6 +554,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		frameMap.put(MTFrame.CAMPAIGN, createDockingFrame(MTFrame.CAMPAIGN, campaign, new ImageIcon(AppStyle.campaignPanelImage)));
 		frameMap.put(MTFrame.SELECTION, createDockingFrame(MTFrame.SELECTION, selection, new ImageIcon(AppStyle.selectionPanelImage)));
 		frameMap.put(MTFrame.IMPERSONATED, createDockingFrame(MTFrame.IMPERSONATED, impersonate, new ImageIcon(AppStyle.impersonatePanelImage)));
+		
 
 	}
 
@@ -714,9 +781,11 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	public ChatTypingNotification getChatTypingPanel() {
 		if (chatTypingPanel == null) {
 			chatTypingPanel = new ChatTypingNotification();
-			chatTypingPanel.setVisible(true);
+			chatTypingPanel.setOpaque(false);
 			chatTypingPanel.setSize(220, 100);
-			chatTypingNotificationTimers = getChatTypers();
+			chatTypingPanel.setEnabled(true);
+			chatTypingPanel.setVisible(true);
+			//chatTypingPanel.validate();
 		}
 		return chatTypingPanel;
 	}
@@ -735,45 +804,13 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public LinkedMap getChatTypers() {
-		if(chatTypingNotificationTimers != null)
-		{
-			synchronized (chatTypingNotificationTimers) 
-			{
-				return new LinkedMap(chatTypingNotificationTimers);
-			}
-		}
-		else
-		{
-			chatTypingNotificationTimers = new LinkedMap();
-			return chatTypingNotificationTimers;
-		}
-	}
 	
-	public  void setNewTyper(final String playerName) {
-		if(chatTimer == null)
-		{
-			chatTimer = newChatTimer();
-		}
-  		if(!chatTimer.isRunning())
-		{
-			chatTimer.start();
-		}
-  		synchronized (chatTypingNotificationTimers)
-  		{
-  			chatTypingNotificationTimers.put(playerName, System.currentTimeMillis());
-  		}
-  		chatTypingPanel.repaint();
-	}
 	public void setChatNotifyDuration(int duration) {
 		chatNotifyDuration = duration;
-
 	}
 
 	private void initializeNotifyDuration() {
 		chatNotifyDuration = AppPreferences.getTypingNotificationDuration();
-
 	}
 
 	public JLabel getChatActionLabel() {
@@ -1456,6 +1493,14 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		}
 		return chatTimer;
 	}
+	public void stopTimer()
+	{
+		chatTimer.stop();
+	}
+	public void startTimer()
+	{
+		chatTimer.start();
+	}
 	public void setChatTimer(Timer timer)
 	{
 		chatTimer = timer;
@@ -1463,19 +1508,19 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private Timer newChatTimer()
 	{
 		// Set up the Chat timer to listen for changes
-		Timer chatTimer = new Timer(1000, new ActionListener() {
+		Timer tm =  new Timer(500, new ActionListener() {
 					public void actionPerformed(ActionEvent ae) {
 						long currentTime = System.currentTimeMillis();
 						Set<String> removeThese = new TreeSet<String>();
-						LinkedMap chatTimers = getChatTypers();
+						LinkedMap chatTimers = chatTyperTimers.getChatTypers();
 						Set<?> keySet = chatTimers.keySet();
+
 						@SuppressWarnings("unchecked")
-						Set<String> playerTimers = (Set<String>) keySet;
-						
+						Set<String> playerTimers = (Set<String>) keySet;						
 						for(String player: playerTimers)
 						{
 							long playerTime =  (Long) chatTimers.get(player);
-							if(( currentTime - playerTime >= chatNotifyDuration))
+							if(( currentTime - playerTime >= (chatNotifyDuration * 1000)))
 							{
 								// set up a temp place and remove them after the loop 
 								removeThese.add(player);
@@ -1483,21 +1528,12 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 						}
 						for (String remove: removeThese)
 						{
-							if(chatTypingNotificationTimers != null)
-							{
-								synchronized (chatTypingNotificationTimers)
-								{
-									chatTypingNotificationTimers.remove(remove);
-								}
-							}
-							
+							chatTyperTimers.removeChatTyper(remove);							
 						}
-
-						chatTypingPanel.repaint();
-						MapTool.getFrame().repaint();
 					}
 				} );
-		return chatTimer;
+		tm.start();		
+		return tm;
 	}
 
 	private void updateKeyStrokes(JComponent c) {
@@ -1642,6 +1678,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	// end of Table import/export support
 
+	
 	@SuppressWarnings("serial")
 	private static class MTButtonHotKeyAction extends AbstractAction {
 

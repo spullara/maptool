@@ -138,7 +138,7 @@ public class PreferencesDialog extends JDialog {
 	private final JETAColorWell trustedOuputBackground;
 	private final JSpinner chatAutosaveTime;
 	private final JTextField chatFilenameFormat;
-	private final JTextField typingNotificationDuration;
+	private final JSpinner typingNotificationDuration;
 
 	// Chat Notification
 	private final JETAColorWell chatNotificationColor;
@@ -245,7 +245,7 @@ public class PreferencesDialog extends JDialog {
 		hideNPCs = panel.getCheckBox("hideNPCs");
 		ownerPermissions = panel.getCheckBox("ownerPermission");
 		lockMovement = panel.getCheckBox("lockMovement");
-		typingNotificationDuration = panel.getTextField("typingNotificationDuration");
+		typingNotificationDuration = panel.getSpinner("typingNotificationDuration");
 		setInitialState();
 
 		// And keep it updated
@@ -295,12 +295,13 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 
-		typingNotificationDuration.getDocument().addDocumentListener(new DocumentListenerProxy(typingNotificationDuration) {
-			@Override
-			protected void storeNumericValue(int value) {
-				AppPreferences.setTypingNotificationDuration(value);
-			}
-		});
+		
+//		typingNotificationDuration.getDocument().addDocumentListener(new DocumentListenerProxy(typingNotificationDuration) {
+//			@Override
+//			protected void storeNumericValue(int value) {
+//				AppPreferences.setTypingNotificationDuration(value);
+//			}
+//		});
 
 		chatNotificationColor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -328,6 +329,13 @@ public class PreferencesDialog extends JDialog {
 				AppPreferences.setChatAutosaveTime(value);
 			}
 		});
+		typingNotificationDuration.addChangeListener(new ChangeListenerProxy() {
+			@Override
+			protected void storeSpinnerValue(int value) {
+				AppPreferences.setTypingNotificationDuration(value);
+			}
+		});
+		
 		chatFilenameFormat.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
@@ -687,7 +695,28 @@ public class PreferencesDialog extends JDialog {
 		hideNPCs.setSelected(AppPreferences.getInitHideNpcs());
 		ownerPermissions.setSelected(AppPreferences.getInitOwnerPermissions());
 		lockMovement.setSelected(AppPreferences.getInitLockMovement());
-		typingNotificationDuration.setText(Integer.toString(AppPreferences.getTypingNotificationDuration()));
+		Integer rawVal = AppPreferences.getTypingNotificationDuration();
+		Integer typingVal = null;
+		if(rawVal != null && rawVal > 99)
+		{
+			Double dbl = (double) (rawVal/1000);
+			if (dbl >= 1)
+			{
+				long fixedUp = Math.round(dbl);
+				typingVal = (int) fixedUp;
+				typingVal = typingVal > 99? 99: typingVal;
+			}
+			else 
+			{
+				typingVal = 1;
+			}
+		}
+		int value = Math.abs(( typingVal == null ||  typingVal > rawVal ) ? rawVal : typingVal);
+		AppPreferences.setTypingNotificationDuration(value);
+
+		SpinnerNumberModel typingDurationModel = new SpinnerNumberModel((((int)AppPreferences.getTypingNotificationDuration())), 0, 99, 1);
+		typingNotificationDuration.setModel(typingDurationModel );
+		//typingNotificationDuration.setValue(typingVal);
 
 		chatNotificationColor.setColor(AppPreferences.getChatNotificationColor());
 		chatNotificationShowBackground.setSelected(AppPreferences.getChatNotificationShowBackground());
