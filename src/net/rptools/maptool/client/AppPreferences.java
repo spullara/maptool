@@ -332,6 +332,10 @@ public class AppPreferences {
 	private static final String KEY_TOOLTIP_FOR_INLINE_ROLLS = "toolTipInlineRolls";
 	private static final boolean DEFAULT_TOOLTIP_FOR_INLINE_ROLLS = false;
 
+	private static final String KEY_SUPPRESS_TOOLTIPS_FOR_MACROLINKS = "suppressToolTipsMacroLinks";
+	private static final boolean DEFAULT_SUPPRESS_TOOLTIPS_FOR_MACROLINKS = false;
+		
+	
 	// chat notification colors
 	private static final String KEY_CHAT_NOTIFICATION_COLOR_RED = "chatNotificationColorRed";
 	private static final int DEFAULT_CHAT_NOTIFICATION_COLOR_RED = 0xFF;
@@ -382,12 +386,22 @@ public class AppPreferences {
 		return value;
 	}
 
+	
+	
 	public static final void setUseToolTipForInlineRoll(boolean tooltip) {
 		prefs.putBoolean(KEY_TOOLTIP_FOR_INLINE_ROLLS, tooltip);
 	}
 
 	public static final boolean getUseToolTipForInlineRoll() {
 		return prefs.getBoolean(KEY_TOOLTIP_FOR_INLINE_ROLLS, DEFAULT_TOOLTIP_FOR_INLINE_ROLLS);
+	}
+
+	public static final void setSuppressToolTipsForMacroLinks(boolean tooltip) {
+		prefs.putBoolean(KEY_SUPPRESS_TOOLTIPS_FOR_MACROLINKS, tooltip);
+	}
+
+	public static final boolean getSuppressToolTipsForMacroLinks() {
+		return prefs.getBoolean(KEY_SUPPRESS_TOOLTIPS_FOR_MACROLINKS, DEFAULT_SUPPRESS_TOOLTIPS_FOR_MACROLINKS);
 	}
 
 	public static void setChatNotificationColor(Color color) {

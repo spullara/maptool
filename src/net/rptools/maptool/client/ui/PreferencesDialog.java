@@ -134,6 +134,7 @@ public class PreferencesDialog extends JDialog {
 	private final JCheckBox allowPlayerMacroEditsDefault;
 
 	private final JCheckBox toolTipInlineRolls;
+	private final JCheckBox suppressToolTipsMacroLinks;
 	private final JETAColorWell trustedOuputForeground;
 	private final JETAColorWell trustedOuputBackground;
 	private final JSpinner chatAutosaveTime;
@@ -228,6 +229,7 @@ public class PreferencesDialog extends JDialog {
 		movementMetricCombo = panel.getComboBox("movementMetric");
 		allowPlayerMacroEditsDefault = panel.getCheckBox("allowPlayerMacroEditsDefault");
 		toolTipInlineRolls = panel.getCheckBox("toolTipInlineRolls");
+		suppressToolTipsMacroLinks = panel.getCheckBox("suppressToolTipsMacroLinks");
 		trustedOuputForeground = (JETAColorWell) panel.getComponentByName("trustedOuputForeground");
 		trustedOuputBackground = (JETAColorWell) panel.getComponentByName("trustedOuputBackground");
 		toolTipInitialDelay = panel.getTextField("toolTipInitialDelay");
@@ -280,6 +282,13 @@ public class PreferencesDialog extends JDialog {
 				AppPreferences.setUseToolTipForInlineRoll(toolTipInlineRolls.isSelected());
 			}
 		});
+		
+		suppressToolTipsMacroLinks.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			    AppPreferences.setSuppressToolTipsForMacroLinks(suppressToolTipsMacroLinks.isSelected());	
+			}
+		});
+		
 		toolTipInitialDelay.getDocument().addDocumentListener(new DocumentListenerProxy(toolTipInitialDelay) {
 			@Override
 			protected void storeNumericValue(int value) {
@@ -681,6 +690,7 @@ public class PreferencesDialog extends JDialog {
 		showAvatarInChat.setSelected(AppPreferences.getShowAvatarInChat());
 		allowPlayerMacroEditsDefault.setSelected(AppPreferences.getAllowPlayerMacroEditsDefault());
 		toolTipInlineRolls.setSelected(AppPreferences.getUseToolTipForInlineRoll());
+		suppressToolTipsMacroLinks.setSelected(AppPreferences.getSuppressToolTipsForMacroLinks());
 		trustedOuputForeground.setColor(AppPreferences.getTrustedPrefixFG());
 		trustedOuputBackground.setColor(AppPreferences.getTrustedPrefixBG());
 		toolTipInitialDelay.setText(Integer.toString(AppPreferences.getToolTipInitialDelay()));
