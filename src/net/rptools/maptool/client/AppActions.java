@@ -1609,6 +1609,7 @@ public class AppActions {
 			policy.setIsMovementLocked(!policy.isMovementLocked());
 
 			MapTool.updateServerPolicy(policy);
+			MapTool.getServer().updateServerPolicy(policy);
 		}
 	};
 
@@ -1648,13 +1649,14 @@ public class AppActions {
 					policy.setPlayersCanRevealVision(serverProps.getPlayersCanRevealVision());
 					policy.setUseIndividualViews(serverProps.getUseIndividualViews());
 					policy.setPlayersReceiveCampaignMacros(serverProps.getPlayersReceiveCampaignMacros());
-					policy.setIsMovementLocked(serverProps.getLockTokenMovement());
+					policy.setIsMovementLocked(MapTool.getServerPolicy().isMovementLocked());
 
 					// Tool Tips for unformatted inline rolls.
 					policy.setUseToolTipsForDefaultRollFormat(serverProps.getUseToolTipsForUnformattedRolls());
 
 					//my addition
-					policy.setRestrictedImpersonation(serverProps.getRestrictedImpersonation());
+					policy.setRestrictedImpersonation(serverProps.getRestrictedImpersonation()); 
+					policy.setMovementMetric(serverProps.getMovementMetric());
 
 					ServerConfig config = new ServerConfig(serverProps.getUsername(), serverProps.getGMPassword(), serverProps.getPlayerPassword(), serverProps
 							.getPort(), serverProps.getRPToolsName());

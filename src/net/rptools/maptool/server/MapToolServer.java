@@ -156,6 +156,10 @@ public class MapToolServer {
     	return policy;
     }
     
+    public void updateServerPolicy(ServerPolicy policy)
+    {
+    	this.policy = policy;
+    }
     public ServerMethodHandler getMethodHandler() {
     	return handler;
     }

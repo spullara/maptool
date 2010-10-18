@@ -26,6 +26,7 @@ import net.rptools.maptool.client.ui.token.BarTokenOverlay;
 import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
 import net.rptools.maptool.client.ui.tokenpanel.InitiativePanel;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.client.walker.WalkerMetric;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignProperties;
@@ -152,7 +153,6 @@ public class getInfoFunction extends AbstractFunction {
 
 		cinfo.put("face edge", AppPreferences.getFaceEdge() ? BigDecimal.ONE : BigDecimal.ZERO);
 		cinfo.put("face vertex", AppPreferences.getFaceVertex() ? BigDecimal.ONE : BigDecimal.ZERO);
-		cinfo.put("movement metric", AppPreferences.getMovementMetric().toString());
 		cinfo.put("portrait size", AppPreferences.getPortraitSize());
 		cinfo.put("show stat sheet", AppPreferences.getShowStatSheet());
 		cinfo.put("version", MapTool.getVersion());
@@ -202,6 +202,8 @@ public class getInfoFunction extends AbstractFunction {
 		sinfo.put("individual views", sp.isUseIndividualViews() ? BigDecimal.ONE : BigDecimal.ZERO);
 		sinfo.put("strict token management", sp.useStrictTokenManagement() ? BigDecimal.ONE : BigDecimal.ZERO);
 		sinfo.put("players receive campaign macros", sp.playersReceiveCampaignMacros() ? BigDecimal.ONE : BigDecimal.ZERO);
+		WalkerMetric metric = MapTool.isPersonalServer() ?  AppPreferences.getMovementMetric() : MapTool.getServerPolicy().getMovementMetric();
+		sinfo.put("movement metric", metric.toString());
 
 		sinfo.put("timeInMs", sp.getSystemTime());
 		sinfo.put("timeDate", sp.getTimeDate());

@@ -19,6 +19,7 @@ import sun.security.action.GetBooleanAction;
 
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppPreferences;
+import net.rptools.maptool.client.walker.WalkerMetric;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.server.ServerConfig;
 
@@ -40,7 +41,8 @@ public class StartServerDialogPreferences {
     private static final String KEY_USE_UPNP = "useUPnP";
     private static final String KEY_RESTRICTED_IMPERSONATION = "restrictedImpersonation";
     private static final String KEY_PLAYERS_RECEIVE_CAMPAIGN_MACROS = "playersReceiveCampaignMacros";
-    private static final String KEY_LOCK_PLAYER_MOVEMENT = "lockTokenMovement";
+    //private static final String KEY_LOCK_PLAYER_MOVEMENT = "lockTokenMovement";
+    private static final String KEY_WALKER_METRIC = "movementMetric";
     
     private static Boolean useToolTipsForUnformattedRolls = null;
     
@@ -155,15 +157,6 @@ public class StartServerDialogPreferences {
     	return prefs.getBoolean(KEY_PLAYERS_RECEIVE_CAMPAIGN_MACROS, false);
 	}
 	
-    public void setLockTokenMovement(boolean flag) {
-    	prefs.putBoolean(KEY_LOCK_PLAYER_MOVEMENT, flag);
-    }
-    
-	public boolean getLockTokenMovement() {
-    	return prefs.getBoolean(KEY_LOCK_PLAYER_MOVEMENT, false);
-	}
-	
-	
 	public boolean getUseToolTipsForUnformattedRolls() {
 		// Tool tips works slightly differently as its a setting that has to be available
 		// to the user to configure before the start server dialog. So if it has not been
@@ -177,5 +170,16 @@ public class StartServerDialogPreferences {
 	public void setUseToolTipsForUnformattedRolls(boolean flag)  {
 		useToolTipsForUnformattedRolls = flag;
 	}
+
+	public WalkerMetric getMovementMetric()
+	{
+		String metric = prefs.get(KEY_WALKER_METRIC, "ONE_ONE_ONE");
+		return WalkerMetric.valueOf(metric);
+	}
 	
-}
+	public void setMovementMetric(WalkerMetric metric)
+	{
+		prefs.put(KEY_WALKER_METRIC, metric.toString());
+	}
+
+} 

@@ -33,6 +33,7 @@ import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.client.walker.WalkerMetric;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.client.walker.astar.AStarSquareEuclideanWalker;
 
@@ -229,7 +230,8 @@ public class SquareGrid extends Grid {
 
 	@Override
 	public ZoneWalker createZoneWalker() {
-		return new AStarSquareEuclideanWalker(getZone(), AppPreferences.getMovementMetric());
+		WalkerMetric metric = MapTool.isPersonalServer() ?  AppPreferences.getMovementMetric() : MapTool.getServerPolicy().getMovementMetric();
+		return new AStarSquareEuclideanWalker(getZone(), metric);
 	}
 
 	@Override

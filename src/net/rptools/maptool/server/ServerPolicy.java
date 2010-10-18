@@ -17,6 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import net.rptools.maptool.client.AppPreferences;
+import net.rptools.maptool.client.walker.WalkerMetric;
 
 public class ServerPolicy {
 
@@ -27,10 +28,13 @@ public class ServerPolicy {
 	private boolean restrictedImpersonation;
 	private boolean playersReceiveCampaignMacros;
 	private boolean useToolTipsForDefaultRollFormat;
+	private WalkerMetric movementMetric;
 	
 	public ServerPolicy() {
 		// Default tool tip usage for inline rolls to user preferences.
 		useToolTipsForDefaultRollFormat = AppPreferences.getUseToolTipForInlineRoll();
+		// Default movement metric from preferences
+		movementMetric = AppPreferences.getMovementMetric();
 	}
 	
 	/**
@@ -121,5 +125,15 @@ public class ServerPolicy {
 
 	public String getTimeDate() {
 		return getLocalTimeDate();
+	}
+	
+	public void setMovementMetric(final WalkerMetric walkerMetric)
+	{
+		movementMetric = walkerMetric;
+	}
+	
+	public WalkerMetric getMovementMetric()
+	{
+		return movementMetric;	
 	}
 }

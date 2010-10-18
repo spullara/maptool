@@ -15,11 +15,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.functions.AbortFunction.AbortFunctionException;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer.TokenMoveCompletion;
+import net.rptools.maptool.client.walker.AbstractZoneWalker;
+import net.rptools.maptool.client.walker.NaiveWalker;
+import net.rptools.maptool.client.walker.WalkerMetric;
+import net.rptools.maptool.client.walker.ZoneWalker;
+import net.rptools.maptool.client.walker.astar.AStarCellPoint;
+import net.rptools.maptool.client.walker.astar.AStarSquareEuclideanWalker;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.AbstractPoint;
 import net.rptools.maptool.model.CellPoint;
@@ -54,10 +61,12 @@ public class TokenMoveFunctions extends AbstractFunction {
 	private final static TokenMoveFunctions instance = new TokenMoveFunctions();
 	private static final String ON_TOKEN_MOVE_COMPLETE_CALLBACK = "onTokenMove";
 	private static final String ON_MULTIPLE_TOKENS_MOVED_COMPLETE_CALLBACK = "onMultipleTokensMove";
+	private static final String NO_GRID = "NO_GRID";
+	
 	private static final Logger log = Logger.getLogger(TokenMoveFunctions.class);
 	
 	private TokenMoveFunctions() {
-		super(0,2, "getLastPath", "movedOverToken","movedOverPoints");
+		super(0,2, "getLastPath", "movedOverToken","movedOverPoints", "getMoveCount");
 		
 	}
 
@@ -137,6 +146,10 @@ public class TokenMoveFunctions extends AbstractFunction {
 			{
 				throw new ParserException(I18N.getText("macro.function.general.wrongNumParam",functionName, 2, parameters.size( )));
 			}
+		}
+		if(functionName.equals("getMoveCount"))
+		{
+			return getMovement(tokenInContext);
 		}
 		if(functionName.equals("movedOverToken"))
 		{
@@ -449,7 +462,69 @@ public class TokenMoveFunctions extends AbstractFunction {
 		return null;
 	}
 
+	private String getMovement(final Token source) throws ParserException
+	{
+		ZoneWalker walker =  null;
 
+		WalkerMetric metric = MapTool.isPersonalServer() ?  AppPreferences.getMovementMetric() : MapTool.getServerPolicy().getMovementMetric();
+		
+		ZoneRenderer zr = MapTool.getFrame().getCurrentZoneRenderer();
+		Zone zone = zr.getZone();
+		Grid grid = zone.getGrid();
+		
+
+		Path<ZonePoint> gridlessPath;
+		int x = source.getLastPath().getCellPath().get(0).x;
+		int y = source.getLastPath().getCellPath().get(0).y;
+		
+		
+		if (source.isSnapToGrid() && grid.getCapabilities().isSnapToGridSupported()) {
+			if (zone.getGrid().getCapabilities().isPathingSupported()) {
+				
+				List<CellPoint> cplist = new ArrayList<CellPoint>();
+				walker = grid.createZoneWalker();
+				walker.replaceLastWaypoint(new CellPoint(x,y ));
+				for(AbstractPoint point: source.getLastPath().getCellPath())	
+				{
+					CellPoint tokenPoint = new CellPoint(point.x, point.y);
+					//walker.setWaypoints(tokenPoint);
+					walker.replaceLastWaypoint(tokenPoint);
+					cplist.add(tokenPoint);
+				}
+				int bar = calculateGridDistance(cplist, zone.getUnitsPerCell(), metric);
+				return Integer.valueOf(bar).toString();
+				
+				//return  Integer.toString(walker.getDistance());
+			}
+		} else {
+			gridlessPath = new Path<ZonePoint>();
+			for(AbstractPoint point: source.getLastPath().getCellPath())	
+			{
+				gridlessPath.addPathCell(new ZonePoint(point.x, point.y));
+			}
+			double c = 0;
+			ZonePoint lastPoint = null;
+			for (ZonePoint zp : gridlessPath.getCellPath()) {
+
+				if (lastPoint == null) {
+					lastPoint = zp;
+					continue;
+				}
+				int a = lastPoint.x - zp.x;
+				int b = lastPoint.y - zp.y;
+
+				c += Math.hypot(a, b);
+
+				lastPoint = zp;
+			}
+
+			c /= zone.getGrid().getSize(); // Number of "cells"
+			c *= zone.getUnitsPerCell(); // "actual" distance traveled
+
+			return String.format("%.1f", c);
+		}
+		return "";
+	}
 
 	public static BigDecimal multipleTokensMoved(List<GUID> filteredTokens) {
 		Token token = getMoveMacroToken(ON_MULTIPLE_TOKENS_MOVED_COMPLETE_CALLBACK);
@@ -512,4 +587,52 @@ public class TokenMoveFunctions extends AbstractFunction {
 		}
 		return pathPoints;
 	}
+	public int calculateGridDistance(List<CellPoint> path, int feetPerCell, WalkerMetric metric) {
+		if (path == null || path.size() == 0)
+			return 0;
+
+		final int feetDistance;
+		
+		{
+			int numDiag = 0;
+			int numStrt = 0;
+
+			CellPoint previousPoint = null;
+			for (CellPoint point : path) {
+				if (previousPoint != null) {
+					int change = Math.abs(previousPoint.x - point.x) + Math.abs(previousPoint.y - point.y);
+					
+					switch (change) {
+					case 1:
+						numStrt++;
+						break;
+					case 2:
+						numDiag++;
+						break;
+					default:
+						assert false : String.format("Illegal path, cells are not contiguous change=%d", change);
+						return -1;
+					}
+				}
+				previousPoint = point;
+			}
+			
+			final int cellDistance;
+			switch (metric) {
+				case MANHATTAN:
+				case NO_DIAGONALS:
+					cellDistance = (numStrt + numDiag*2);
+					break;
+				case ONE_ONE_ONE:
+					cellDistance = (numStrt+numDiag);
+					break;
+				default:
+				case ONE_TWO_ONE:
+					cellDistance = (numStrt + numDiag + numDiag / 2);
+					break;	
+			}
+			feetDistance = cellDistance * feetPerCell;
+		}
+		return feetDistance;
+	}	
 }

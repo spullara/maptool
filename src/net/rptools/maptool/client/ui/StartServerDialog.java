@@ -15,20 +15,25 @@ package net.rptools.maptool.client.ui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.text.DecimalFormat;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
 
 import net.rptools.lib.service.EchoServer;
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolRegistry;
 import net.rptools.maptool.client.swing.AbeillePanel;
 import net.rptools.maptool.client.swing.GenericDialog;
+import net.rptools.maptool.client.walker.WalkerMetric;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.util.StringUtil;
 import net.rptools.maptool.util.UPnPUtil;
@@ -44,6 +49,7 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 
 	private StartServerDialogPreferences prefs;
 	private GenericDialog dialog;
+	private JComboBox movementMetricCombo;
 
 	public StartServerDialog() {
 		super("net/rptools/maptool/client/ui/forms/startServerDialog.xml");
@@ -61,8 +67,23 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 		prefs = new StartServerDialogPreferences();
 
 		bind(prefs);
+		
+		movementMetricCombo = (JComboBox) getComponent("movementMetric");; 
+		DefaultComboBoxModel movementMetricModel = new DefaultComboBoxModel();
+		movementMetricModel.addElement(WalkerMetric.ONE_TWO_ONE);
+		movementMetricModel.addElement(WalkerMetric.ONE_ONE_ONE);
+		movementMetricModel.addElement(WalkerMetric.MANHATTAN);
+		movementMetricModel.addElement(WalkerMetric.NO_DIAGONALS);
+		movementMetricModel.setSelectedItem(AppPreferences.getMovementMetric());
 
+		movementMetricCombo.setModel(movementMetricModel);
+		movementMetricCombo.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				prefs.setMovementMetric((WalkerMetric) movementMetricCombo.getSelectedItem());
+			}
+		});
 		getRootPane().setDefaultButton(getOKButton());
+		//dialog.p
 		dialog.showDialog();
 	}
 
@@ -98,6 +119,11 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 		return (JCheckBox) getComponent("@useToolTipsForUnformattedRolls");
 	}
 
+	public JComboBox getMovementMetric()
+	{
+		return (JComboBox) getComponent("movementMetric");
+	}
+	
 	@Override
 	protected void preModelBind() {
 		Binder.setFormat(getPortTextField(), new DecimalFormat("####"));
@@ -121,6 +147,7 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 					return;
 				}
 				if (commit()) {
+					prefs.setMovementMetric((WalkerMetric) movementMetricCombo.getSelectedItem());
 					accepted = true;
 					dialog.closeDialog();
 				}
