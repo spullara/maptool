@@ -40,8 +40,8 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -77,8 +77,8 @@ import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenProperty;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.Zone.Layer;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.util.GraphicsUtil;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.StringUtil;
@@ -1387,10 +1387,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					}
 
 					// Create the space for the image
-					int width = imgSize.width + (statSize != null ? statSize.width + AppStyle.miniMapBorder.getRightMargin() : 0) + AppStyle.miniMapBorder.getLeftMargin()
-					+ AppStyle.miniMapBorder.getRightMargin();
-					int height = Math.max(imgSize.height, (statSize != null ? statSize.height + AppStyle.miniMapBorder.getRightMargin() : 0)) + AppStyle.miniMapBorder.getTopMargin()
-					+ AppStyle.miniMapBorder.getBottomMargin();
+					int width = imgSize.width + (statSize != null ? statSize.width + AppStyle.miniMapBorder.getRightMargin() : 0) + AppStyle.miniMapBorder.getLeftMargin() + AppStyle.miniMapBorder.getRightMargin();
+					int height = Math.max(imgSize.height, (statSize != null ? statSize.height + AppStyle.miniMapBorder.getRightMargin() : 0)) + AppStyle.miniMapBorder.getTopMargin() + AppStyle.miniMapBorder.getBottomMargin();
 					statSheet = new BufferedImage(width, height, BufferedImage.BITMASK);
 					Graphics2D statsG = statSheet.createGraphics();
 					statsG.setClip(new Rectangle(0, 0, width, height));
@@ -1477,11 +1475,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			}
 
 			// Background
-			// g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP,
-			// .5f));
-			// g.setColor(Color.black);
-			// g.fillRect(location.x, location.y, size.width, size.height);
-			// g.setComposite(composite);
+//			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, .5f));
+//			g.setColor(Color.black);
+//			g.fillRect(location.x, location.y, size.width, size.height);
+//			g.setComposite(composite);
 			g.setPaint(new TexturePaint(AppStyle.panelTexture, new Rectangle(0, 0, AppStyle.panelTexture.getWidth(), AppStyle.panelTexture.getHeight())));
 			g.fillRect(location.x, location.y, size.width, size.height);
 

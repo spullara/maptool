@@ -2211,6 +2211,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		return gp.createTransformedShape(AffineTransform.getScaleInstance(getScale(), getScale()));
 	}
 
+	private final Rectangle last_one = new Rectangle();
 	protected void renderTokens(Graphics2D g, List<Token> tokenList, PlayerView view) {
 		Graphics2D clippedG = g;
 
@@ -2609,22 +2610,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				if (!AppUtil.playerOwns(token)) {
 					selectedBorder = AppStyle.selectedUnownedBorder;
 				}
-				// Border
-				// FIXME Should this block be using 'clippedG' instead of 'g'?
-				if (clippedG == g && log.isDebugEnabled()) {
-					log.debug("DEVELOPMENT: Clipping rectangle is the same as the base rectangle");
-				}
 				if (token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp())) {
-					AffineTransform oldTransform = g.getTransform();
+					AffineTransform oldTransform = clippedG.getTransform();
 
 					// Rotated
-					g.translate(sp.x, sp.y);
-					g.rotate(Math.toRadians(-token.getFacing() - 90), width / 2 - (token.getAnchor().x * scale), height / 2 - (token.getAnchor().y * scale)); // facing defaults to down, or -90 degrees
-					selectedBorder.paintAround(g, 0, 0, (int) width, (int) height);
+					clippedG.translate(sp.x, sp.y);
+					clippedG.rotate(Math.toRadians(-token.getFacing() - 90), width / 2 - (token.getAnchor().x * scale), height / 2 - (token.getAnchor().y * scale)); // facing defaults to down, or -90 degrees
+					selectedBorder.paintAround(clippedG, 0, 0, (int) width, (int) height);
 
-					g.setTransform(oldTransform);
+					clippedG.setTransform(oldTransform);
 				} else {
-					selectedBorder.paintAround(g, (int) sp.x, (int) sp.y, (int) width, (int) height);
+					selectedBorder.paintAround(clippedG, (int) sp.x, (int) sp.y, (int) width, (int) height);
 				}
 				// Remove labels from the cache if the corresponding tokens are deselected
 			} else if (!AppState.isShowTokenNames() && labelRenderingCache.containsKey(token.getId())) {
@@ -2701,7 +2697,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 		// Stacks
 		if (!tokenList.isEmpty() && !tokenList.get(0).isStamp()) { // TODO: find a cleaner way to indicate token layer
-			if (tokenStackMap != null) {				// FIXME Needed to prevent NPE but how can it be null?
+			if (tokenStackMap != null) {										// FIXME Needed to prevent NPE but how can it be null?
 				for (Token token : tokenStackMap.keySet()) {
 					Area bounds = getTokenBounds(token);
 					if (bounds == null) {
