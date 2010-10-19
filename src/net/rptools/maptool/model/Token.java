@@ -204,7 +204,8 @@ public class Token extends BaseModel {
 	private transient List<Vision> visionList; // 1.3b18
 
 	public enum ChangeEvent {
-		name
+		name,
+		MACRO_CHANGED
 	}
 
 	public Token(Token token) {
@@ -1066,6 +1067,9 @@ public class Token extends BaseModel {
 				continue;
 			}
 			macroPropertiesMap.put(macro.getIndex(), macro);
+			
+			//Lets the token macro panels update only if a macro changes
+			fireModelChangeEvent(new ModelChangeEvent(this, ChangeEvent.MACRO_CHANGED, id));
 		}
 	}
 
@@ -1090,12 +1094,20 @@ public class Token extends BaseModel {
 		getMacroPropertiesMap(false).put(prop.getIndex(),prop);
 		MapTool.getFrame().resetTokenPanels();
 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), this);
+		
+		// Lets the token macro panels update only if a macro changes
+		fireModelChangeEvent(new ModelChangeEvent(this, ChangeEvent.MACRO_CHANGED, id));
+		
 	}
 
 	public void deleteMacroButtonProperty(MacroButtonProperties prop){
 		getMacroPropertiesMap(false).remove(prop.getIndex());
 		MapTool.getFrame().resetTokenPanels();
 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), this);
+		
+		// Lets the token macro panels update only if a macro changes
+		fireModelChangeEvent(new ModelChangeEvent(this, ChangeEvent.MACRO_CHANGED, id));
+		
 	}
 
 	public void setSpeechMap(Map<String, String> map) {

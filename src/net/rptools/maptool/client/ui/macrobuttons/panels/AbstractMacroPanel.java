@@ -39,6 +39,7 @@ import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.Token.ChangeEvent;
 import net.rptools.maptool.model.Zone.Event;
 
 @SuppressWarnings("serial")
@@ -172,9 +173,9 @@ public abstract class AbstractMacroPanel extends JPanel implements Scrollable, M
 	public void mouseExited(MouseEvent event) {
 	}
 
-	// currently only used for Impersonate/Selection panels to refresh when the token changes
+	// currently only used for Impersonate/Selection panels to refresh when the token is removed or a macro changes
 	public void modelChanged(ModelChangeEvent event) {
-		if (event.eventType == Event.TOKEN_CHANGED || 
+		if (event.eventType == Token.ChangeEvent.MACRO_CHANGED || 
                 event.eventType == Event.TOKEN_REMOVED) {
 			reset();
 		}
