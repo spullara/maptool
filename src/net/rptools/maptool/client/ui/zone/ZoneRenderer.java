@@ -3263,10 +3263,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		 *            The point where the waypoint is toggled.
 		 */
 		public void toggleWaypoint(ZonePoint location) {
-			// CellPoint cp = renderer.getZone().getGrid().convert(new
-			// ZonePoint(dragStartX, dragStartY));
+//			CellPoint cp = renderer.getZone().getGrid().convert(new ZonePoint(dragStartX, dragStartY));
 
-			if (token.isSnapToGrid()) {
+			if (walker != null && token.isSnapToGrid() && getZone().getGrid() != null) {
 				walker.toggleWaypoint(getZone().getGrid().convert(location));
 			} else {
 				gridlessPath.addWayPoint(location);
