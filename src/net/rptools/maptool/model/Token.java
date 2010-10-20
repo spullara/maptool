@@ -323,12 +323,11 @@ public class Token extends BaseModel {
 	}
 
 	/**
-	 * This token object has just been imported and needs to have most of its internal data
-	 * wiped clean.  This prevents a token from being imported that makes use of the wrong
-	 * property types, vision types, ownership, macros, and so on.  The only data retained is
-	 * Notes, GM Notes, token type (TOP_DOWN|CIRCLE|SQUARE), Visible To Players, Snap-
-	 * to-grid, x/y coordinates, token size, layer, facing, and halo.  Basically anything related
-	 * to the presentation of the token on-screen + the two notes fields.
+	 * This token object has just been imported on a map and needs to have most of its internal data wiped clean. This
+	 * prevents a token from being imported that makes use of the wrong property types, vision types, ownership, macros,
+	 * and so on. The only data retained is Notes, GM Notes, token type (PC|NPC), token shape {@link TokenShape},
+	 * Visible To Players, Snap- to-grid, HasSight, x/y coordinates, token size, layer, facing, and halo. Basically
+	 * anything related to the presentation of the token on-screen + the two notes fields.
 	 */
 	public void imported() {
 		// anchorX, anchorY?
@@ -783,7 +782,7 @@ public class Token extends BaseModel {
 	public boolean isVisible() {
 		return isVisible;
 	}
-	
+
 	/**
 	 * @return the visibleOnlyToOwner
 	 */
@@ -1067,7 +1066,7 @@ public class Token extends BaseModel {
 				continue;
 			}
 			macroPropertiesMap.put(macro.getIndex(), macro);
-			
+
 			//Lets the token macro panels update only if a macro changes
 			fireModelChangeEvent(new ModelChangeEvent(this, ChangeEvent.MACRO_CHANGED, id));
 		}
@@ -1094,20 +1093,20 @@ public class Token extends BaseModel {
 		getMacroPropertiesMap(false).put(prop.getIndex(),prop);
 		MapTool.getFrame().resetTokenPanels();
 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), this);
-		
+
 		// Lets the token macro panels update only if a macro changes
 		fireModelChangeEvent(new ModelChangeEvent(this, ChangeEvent.MACRO_CHANGED, id));
-		
+
 	}
 
 	public void deleteMacroButtonProperty(MacroButtonProperties prop){
 		getMacroPropertiesMap(false).remove(prop.getIndex());
 		MapTool.getFrame().resetTokenPanels();
 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), this);
-		
+
 		// Lets the token macro panels update only if a macro changes
 		fireModelChangeEvent(new ModelChangeEvent(this, ChangeEvent.MACRO_CHANGED, id));
-		
+
 	}
 
 	public void setSpeechMap(Map<String, String> map) {

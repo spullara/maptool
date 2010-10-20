@@ -166,10 +166,12 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					{
 						return;
 					}
-					else if(tok != null && MapTool.getServerPolicy().isUseIndividualViews() && !AppUtil.playerOwns(tok))
+					
+/*					Turn this off for now.  We will pick this back up later if we possibly can.
+ * 					else if(tok != null && MapTool.getServerPolicy().isUseIndividualViews() && !AppUtil.playerOwns(tok))
 					{
 						return;
-					}
+					}*/
 					else
 					{
 						zone = MapTool.getCampaign().getZone(zoneGUID);
