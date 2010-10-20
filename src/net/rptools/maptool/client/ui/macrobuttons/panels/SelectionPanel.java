@@ -60,23 +60,19 @@ public class SelectionPanel extends AbstractMacroPanel {
 	public void init() {
 		MapToolFrame f = MapTool.getFrame();
 		ZoneRenderer zr = f.getCurrentZoneRenderer();
-		init(zr.getSelectedTokensList());
+		if (zr != null)
+			init(zr.getSelectedTokensList());
 	}
 
 	public void init(List<Token> selectedTokenList) {
-
 		boolean panelVisible = true;
 
 		if (MapTool.getFrame() != null) {
-			DockableFrame selectionPanel = MapTool.getFrame()
-					.getDockingManager().getFrame("SELECTION");
+			DockableFrame selectionPanel = MapTool.getFrame().getDockingManager().getFrame("SELECTION");
 			if (selectionPanel != null)
-				panelVisible = (selectionPanel.isVisible() && !selectionPanel
-						.isAutohide())
-						|| selectionPanel.isAutohideShowing() ? true : false;
-
+				panelVisible = (selectionPanel.isVisible() && !selectionPanel.isAutohide()) || selectionPanel.isAutohideShowing()
+				? true : false;
 		}
-
 		// Set up a code timer to get some performance data
 		timer = new CodeTimer("selectionpanel");
 		timer.setEnabled(AppState.isCollectProfilingData());
@@ -86,7 +82,6 @@ public class SelectionPanel extends AbstractMacroPanel {
 
 		// paint panel only when it's visible or active
 		if (panelVisible) {
-
 			// add the selection panel controls first
 			add(new MenuButtonsPanel());
 
@@ -94,8 +89,7 @@ public class SelectionPanel extends AbstractMacroPanel {
 			if (selectedTokenList.size() > 1) {
 				populateCommonButtons(selectedTokenList);
 				if (!commonMacros.isEmpty()) {
-					addArea(commonMacros, I18N
-							.getText("component.areaGroup.macro.commonMacros"));
+					addArea(commonMacros, I18N.getText("component.areaGroup.macro.commonMacros"));
 				}
 				// add(new ButtonGroup(selectedTokenList, commonMacros, this));
 			}
@@ -105,23 +99,17 @@ public class SelectionPanel extends AbstractMacroPanel {
 				}
 				addArea(token.getId());
 			}
-
-			if (selectedTokenList.size() == 1
-					&& AppUtil.playerOwns(selectedTokenList.get(0))) {
+			if (selectedTokenList.size() == 1 && AppUtil.playerOwns(selectedTokenList.get(0))) {
 				// if only one token selected, show its image as tab icon
-				MapTool.getFrame().getFrame(MTFrame.SELECTION).setFrameIcon(
-						selectedTokenList.get(0).getIcon(16, 16));
+				MapTool.getFrame().getFrame(MTFrame.SELECTION).setFrameIcon(selectedTokenList.get(0).getIcon(16, 16));
 			}
-
 		}
 		timer.stop("painting");
 
 		if (AppState.isCollectProfilingData()) {
 			MapTool.getProfilingNoteFrame().addText(timer.toString());
 		}
-
-		MapTool.getEventDispatcher().addListener(this,
-				MapTool.ZoneEvent.Activated);
+		MapTool.getEventDispatcher().addListener(this, MapTool.ZoneEvent.Activated);
 	}
 
 	private void populateCommonButtons(List<Token> tokenList) {
