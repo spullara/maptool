@@ -407,7 +407,10 @@ public class BoardTool extends DefaultTool {
 			setSnap(gridSize,gridSize);
 		} else if (snapTileButton.isSelected()) {
 			final Dimension tileSize = getTileSize();
-			setSnap(tileSize.width, tileSize.height);
+			if (tileSize != null)
+				setSnap(tileSize.width, tileSize.height);
+			else
+				setSnap(1,1);
 		} else {
 			setSnap(1, 1);
 		}

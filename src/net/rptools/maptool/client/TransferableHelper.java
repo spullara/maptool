@@ -72,13 +72,14 @@ public class TransferableHelper extends TransferHandler {
 			} else if (transferable.isDataFlavorSupported(TransferableAssetReference.dataFlavor)) {
 				assets.add(handleTransferableAssetReference(transferable));
 
+				// LOCAL FILESYSTEM
+				// Used by OSX when files are dragged form the desktop...
+			} else if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+				assets = handleFileList(transferable);
+
 				// DIRECT/BROWSER
 			} else if (transferable.isDataFlavorSupported(URL_FLAVOR)) {
 				assets.add(handleImage(transferable));
-
-				// LOCAL FILESYSTEM
-			} else if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-				assets = handleFileList(transferable);
 			}
 
 		} catch (Exception e) {
@@ -106,11 +107,13 @@ public class TransferableHelper extends TransferHandler {
 	private static Asset handleImage (Transferable transferable) throws IOException, UnsupportedFlavorException {
 		String name = null;
 		BufferedImage image = null;
-		log.debug("Transferable " + transferable.getTransferData(URL_FLAVOR));
+		DataFlavor[] list = transferable.getTransferDataFlavors();
 		if (transferable.isDataFlavorSupported(URL_FLAVOR)) {
-			String fname = (String) transferable.getTransferData(URL_FLAVOR);
-			name = FileUtil.getNameWithoutExtension(fname);
 			try {
+				String fname = (String) transferable.getTransferData(URL_FLAVOR);
+				log.debug("Transferable " + fname);
+				name = FileUtil.getNameWithoutExtension(fname);
+
 				File file;
 				URL url = new URL(fname);
 				try {
@@ -127,7 +130,7 @@ public class TransferableHelper extends TransferHandler {
 					image = ImageIO.read(url);
 				}
 			} catch (Exception e) {
-				MapTool.showError("Cannot read URL_FLAVOR:  " + fname, e);
+				MapTool.showError("Cannot read URL_FLAVOR", e);
 			}
 		}
 		if (image == null) {
