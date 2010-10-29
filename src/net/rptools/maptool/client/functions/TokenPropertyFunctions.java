@@ -208,8 +208,8 @@ public class TokenPropertyFunctions extends AbstractFunction {
 		 * String layer = getLayer(String tokenId: currentToken())
 		 */
 		if (functionName.equals("getLayer")) {
-			if (parameters.size() != 1) {
-				throw new ParserException(I18N.getText("macro.function.general.wrongNumParam", functionName, 1, parameters.size()));
+			if (parameters.size() > 1) {
+				throw new ParserException(I18N.getText("macro.function.general.tooManyParam", functionName, 1, parameters.size()));
 			}
 			Token token = getTokenFromParam(resolver, "getLayer", parameters, 0);
 			return token.getLayer().name();
