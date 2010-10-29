@@ -24,6 +24,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -62,6 +63,7 @@ import net.rptools.maptool.model.transform.campaign.AssetNameTransform;
 import net.rptools.maptool.model.transform.campaign.ExportInfoTransform;
 import net.rptools.maptool.model.transform.campaign.PCVisionTransform;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
@@ -492,6 +494,21 @@ public class PersistenceUtil {
 //		String mtVersion = (String)pakFile.getProperty(PROP_VERSION);
 		Token token = (Token) pakFile.getContent();
 		loadAssets(token.getAllImageAssets(), pakFile);
+		return token;
+	}
+
+	public static Token loadToken(URL url) throws IOException {
+		// Create a temporary file from the downloaded URL
+		File newFile = new File(PackedFile.getTmpDir(), new GUID() + ".url");
+		FileUtils.copyURLToFile(url, newFile);
+
+		PackedFile pakFile = new PackedFile(newFile);
+
+		// TODO: Check version
+//		String mtVersion = (String)pakFile.getProperty(PROP_VERSION);
+		Token token = (Token) pakFile.getContent();
+		loadAssets(token.getAllImageAssets(), pakFile);
+		newFile.delete();
 		return token;
 	}
 

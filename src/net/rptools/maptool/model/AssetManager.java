@@ -21,6 +21,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -373,6 +374,26 @@ public class AssetManager {
 	 */
 	public static Asset createAsset(File file) throws IOException {
 		return  new Asset(FileUtil.getNameWithoutExtension(file), FileUtils.readFileToByteArray(file));
+	}
+
+	/**
+	 * Create an asset from a file.
+	 * @param file File to use for asset
+	 * @return Asset associated with the file
+	 * @throws IOException
+	 */
+	public static Asset createAsset(URL url) throws IOException {
+		// Create a temporary file from the downloaded URL
+		File newFile = File.createTempFile("remote", null, null);
+		try {
+			FileUtils.copyURLToFile(url, newFile);
+			if (newFile.exists() && newFile.length() < 20)
+				return null;
+			Asset temp = new Asset(FileUtil.getNameWithoutExtension(url), FileUtils.readFileToByteArray(newFile));
+			return temp;
+		} finally {
+			newFile.delete();
+		}
 	}
 
 	/**

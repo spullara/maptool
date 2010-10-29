@@ -19,6 +19,7 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -104,14 +105,14 @@ public class TransferableHelper extends TransferHandler {
 				// converting the event into "text/x-java-file-list", but until it does...
 			} else if (transferable.isDataFlavorSupported(URI_LIST_FLAVOR)) {
 				String data = (String) transferable.getTransferData(URI_LIST_FLAVOR);
-				List<File> list = textURIListToFileList(data);
-				assets = handleFileList(list);
+				List<URL> list = textURIListToFileList(data);
+				assets = handleURLList(list);
 
 				// LOCAL FILESYSTEM
 				// Used by OSX (and Windows?) when files are dragged from the desktop.
 			} else if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-				List<File> list = new FileTransferableHandler().getTransferObject(transferable);
-				assets = handleFileList(list);
+				List<URL> list = new FileTransferableHandler().getTransferObject(transferable);
+				assets = handleURLList(list);
 
 				// DIRECT/BROWSER
 			} else if (transferable.isDataFlavorSupported(URL_FLAVOR)) {
@@ -137,8 +138,8 @@ public class TransferableHelper extends TransferHandler {
 		return assets;
 	}
 
-	private static List<File> textURIListToFileList(String data) {
-		List<File> list = new ArrayList<File>(4);
+	private static List<URL> textURIListToFileList(String data) {
+		List<URL> list = new ArrayList<URL>(4);
 		for (StringTokenizer st = new StringTokenizer(data, "\r\n"); st.hasMoreTokens();) {
 			String s = st.nextToken();
 			if (s.startsWith("#")) {
@@ -146,16 +147,14 @@ public class TransferableHelper extends TransferHandler {
 				continue;
 			}
 			try {
-				// The replaceFirst() is necessary as some File implementations do not allow
-				// the 'authority' field (i.e. "localhost") to be present at all, even if it matches
-				// the local machine.
-				s = s.replaceFirst("file://localhost/", "file:///");
 				URI uri = new URI(s);
-				File file = new File(uri);
-				list.add(file);
+				URL url = uri.toURL();
+				list.add(url);
 			} catch (URISyntaxException e) {
 				e.printStackTrace();
 			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (MalformedURLException e) {
 				e.printStackTrace();
 			}
 		}
@@ -202,19 +201,21 @@ public class TransferableHelper extends TransferHandler {
 		return asset;
 	}
 
-	private static List<Object> handleFileList(List<File> list) throws Exception {
+	private static List<Object> handleURLList(List<URL> list) throws Exception {
 		List<Object> assets = new ArrayList<Object>();
-		for (File file : list) {
+		for (URL url : list) {
 			// A JFileChooser (at least under Linux) sends a couple empty filenames that need to be ignored.
-			if (!file.getPath().equals("")) {
-				if (Token.isTokenFile(file.getName())) {
+			if (!url.getPath().equals("")) {
+				if (Token.isTokenFile(url.getPath())) {
 					// Loading the token causes the assets to be added to the AssetManager
 					// so it doesn't need to be added to our List here.  In fact, getAsset()
 					// will strip out anything in the List that isn't an Asset anyway...
-					Token token = PersistenceUtil.loadToken(file);
+					Token token = PersistenceUtil.loadToken(url);
 					assets.add(token);
 				} else {
-					assets.add(AssetManager.createAsset(file));
+					Asset temp = AssetManager.createAsset(url);
+					if (temp != null)			// `null' means some no image available
+						assets.add(temp);
 				}
 			}
 		}
@@ -367,13 +368,17 @@ public class TransferableHelper extends TransferHandler {
 				} catch (IOException ioe) {
 					ioe.printStackTrace();
 				}
-			} else {
+			} else if (t.isDataFlavorSupported(GroupTokenTransferData.GROUP_TOKEN_LIST_FLAVOR)) {
 				tokens = getTokens(t);
 				// Tokens from Init Tool all need to be configured.
 				configureTokens = new ArrayList<Boolean>(tokens.size());
 				for (int i = 0; i < tokens.size(); i++) {
 					configureTokens.add(true);
 				}
+			} else {
+				MapTool.showWarning("<p><b>Unable to obtain data from dropped object.</b></p>" +
+						"<br><p>Likely causes are an empty object due to network error (such as proxy settings or missing authentication)<br/>" +
+				"or possibly an incompatible object was dropped (such as invalid file type).</p>");
 			}
 		}
 		return tokens != null;
