@@ -411,6 +411,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		chatTyperTimers = new ChatNotificationTimers();
 		chatTyperTimers.addObserver(chatTyperObserver);
 		chatTimer = getChatTimer();
+		setChatTypingLabelColor(AppPreferences.getChatNotificationColor());
 
 
 	}
@@ -809,7 +810,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	public void setChatNotifyDuration(int duration) {
 		chatNotifyDuration = duration;
 	}
-
+	
 	private void initializeNotifyDuration() {
 		chatNotifyDuration = AppPreferences.getTypingNotificationDuration();
 	}
