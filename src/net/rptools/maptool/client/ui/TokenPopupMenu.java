@@ -50,7 +50,6 @@ import net.rptools.maptool.client.functions.AbstractTokenAccessorFunction;
 import net.rptools.maptool.client.functions.TokenBarFunction;
 import net.rptools.maptool.client.ui.token.BarTokenOverlay;
 import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
-import net.rptools.maptool.client.ui.token.LightDialog;
 import net.rptools.maptool.client.ui.zone.FogUtil;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
@@ -659,8 +658,6 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 				if (aE.getActionCommand().equals("clear")) {
 					for (String state : MapTool.getCampaign().getTokenStatesMap().keySet())
 						token.setState(state, null);
-				} else if (aE.getActionCommand().equals("light")) {
-					LightDialog.show(token, "light");
 				} else {
 					token.setState(aE.getActionCommand(), ((JCheckBoxMenuItem) aE.getSource()).isSelected() ? Boolean.TRUE : null);
 				} // endif

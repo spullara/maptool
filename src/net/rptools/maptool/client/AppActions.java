@@ -1067,27 +1067,6 @@ public class AppActions {
 
 	};
 
-	public static final Action TOGGLE_SHOW_LIGHT_RADIUS = new DefaultClientAction() {
-		{
-			init("action.showLightRadius");
-		}
-
-		@Override
-		public boolean isSelected() {
-			return AppState.isShowLightRadius();
-		}
-
-		@Override
-		public void execute(ActionEvent e) {
-
-			AppState.setShowLightRadius(!AppState.isShowLightRadius());
-			if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
-				MapTool.getFrame().getCurrentZoneRenderer().repaint();
-			}
-		}
-
-	};
-
 	public static final Action COPY_ZONE = new ZoneAdminClientAction() {
 		{
 			init("action.copyZone");

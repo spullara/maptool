@@ -86,7 +86,6 @@ import net.rptools.maptool.client.ui.htmlframe.HTMLFrameFactory;
 import net.rptools.maptool.client.ui.token.AbstractTokenOverlay;
 import net.rptools.maptool.client.ui.token.BarTokenOverlay;
 import net.rptools.maptool.client.ui.token.NewTokenDialog;
-import net.rptools.maptool.client.ui.token.TokenTemplate;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.model.AbstractPoint;
 import net.rptools.maptool.model.Asset;
@@ -1002,12 +1001,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			timer.stop("drawableObjects");
 		}
 
-		if (Zone.Layer.TOKEN.isEnabled()) {
-			timer.start("templates");
-			renderTokenTemplates(g2d, view);
-			timer.stop("templates");
-		}
-
 		timer.start("grid");
 		renderGrid(g2d, view);
 		timer.stop("grid");
@@ -1392,58 +1385,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				g.fill(area);
 			}
 		}
-	}
-
-	/**
-	 * Paint all of the token templates for selected tokens.
-	 * 
-	 * @param g
-	 *            Paint on this graphic object.
-	 */
-	private void renderTokenTemplates(Graphics2D g, PlayerView view) {
-		double scale = zoneScale.getScale();
-		int scaledGridSize = (int) getScaledGridSize();
-
-		// Find tokens with template state
-		// TODO: I really don't like this, it should be optimized
-		AffineTransform old = g.getTransform();
-		AffineTransform t = new AffineTransform();
-		g.setTransform(t);
-		for (Token token : zone.getAllTokens()) {
-			for (String state : token.getStatePropertyNames()) {
-				Object value = token.getState(state);
-				if (value instanceof TokenTemplate) {
-
-					// Only show if selected
-					if (!AppState.isShowLightRadius()) {
-						continue;
-					}
-
-					// Calculate the token bounds
-					Rectangle size = token.getBounds(zone);
-					int width = (int) (size.width * scale) - 1;
-					int height = (int) (size.height * scale) - 1;
-					ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePointRnd(this, token.getX(), token.getY());
-					int x = (int) (tokenScreenLocation.x + 1);
-					int y = (int) (tokenScreenLocation.y);
-					if (width < scaledGridSize) {
-						x += (scaledGridSize - width) / 2;
-					}
-					if (height < scaledGridSize) {
-						y += (scaledGridSize - height) / 2;
-					}
-					Rectangle bounds = new Rectangle(x, y, width, height);
-
-					// Set up the graphics, paint the template, restore the graphics
-					t.setTransform(old);
-					t.translate(bounds.x, bounds.y);
-					t.scale(getScale(), getScale());
-					g.setTransform(t);
-					((TokenTemplate) value).paintTemplate(g, token, bounds, this);
-				}
-			}
-		}
-		g.setTransform(old);
 	}
 
 	private void renderLabels(Graphics2D g, PlayerView view) {

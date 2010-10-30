@@ -191,10 +191,6 @@ public class AppMenuBar extends JMenuBar {
 		item.setSelected(AppState.getShowMovementMeasurements());
 		menu.add(item);
 
-		item = new RPCheckBoxMenuItem(AppActions.TOGGLE_SHOW_LIGHT_RADIUS, menu);
-		item.setSelected(AppState.isShowLightRadius());
-		menu.add(item);
-
 		item = new RPCheckBoxMenuItem(AppActions.TOGGLE_SHOW_LIGHT_SOURCES, menu);
 		item.setSelected(AppState.isShowLightSources());
 		menu.add(item);

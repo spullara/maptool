@@ -17,8 +17,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -38,7 +38,6 @@ import net.rptools.maptool.client.tool.FacingTool;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.tool.StampTool;
 import net.rptools.maptool.client.ui.token.EditTokenDialog;
-import net.rptools.maptool.client.ui.token.LightDialog;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Direction;
@@ -674,8 +673,6 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 					// Removing items from the map was messing up the iteration.
 					// Here, clear all states, unfortunately, including light.
 					token.getStatePropertyNames().clear();
-				} else if (aE.getActionCommand().equals("light")) {
-					LightDialog.show(token, "light");
 				} else {
 					token.setState(aE.getActionCommand(), ((JCheckBoxMenuItem) aE.getSource()).isSelected() ? Boolean.TRUE : null);
 				}

@@ -21,7 +21,6 @@ import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
-import net.rptools.maptool.client.ui.token.LightDialog;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
@@ -56,7 +55,7 @@ public class SetTokenStateMacro implements Macro {
 	public static final int VALUE = 2;
 
 	/**
-	 * @see net.rptools.maptool.client.macro.Macro#execute(java.lang.String)
+	 * @see net.rptools.maptool.client.macro.Macro#execute(net.rptools.maptool.client.macro.MacroContext, java.lang.String, net.rptools.maptool.client.MapToolMacroContext)
 	 */
 	public void execute(MacroContext context, String aMacro, MapToolMacroContext executionContext) {
 		Set<GUID> selectedTokenSet; // The tokens to set the state of
@@ -126,11 +125,6 @@ public class SetTokenStateMacro implements Macro {
 				Token tok = MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenId);
 				handleBooleanValue(tok, state, value);
 			}
-		} else if (state.equals("light")) {
-			for (GUID tokenId : selectedTokenSet) {
-				Token tok = MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenId);
-				LightDialog.show(tok, state);
-			}
 		}
 
 	}
@@ -182,7 +176,7 @@ public class SetTokenStateMacro implements Macro {
 	 * no state with the passed name could be found.
 	 */
 	public String getState(String state) {
-		if (MapTool.getCampaign().getTokenStatesMap().get(state) != null || "light".equals(state))
+		if (MapTool.getCampaign().getTokenStatesMap().get(state) != null)
 			return state;
 		String newState = null;
 		for (String name : MapTool.getCampaign().getTokenStatesMap().keySet()) {

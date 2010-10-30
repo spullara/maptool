@@ -28,7 +28,6 @@ public class AppState {
     private static boolean useDoubleWideLine = true;
     private static boolean showMovementMeasurements = true;
     private static boolean enforceNotification = false;
-    private static boolean showLightRadius = true;
     private static File campaignFile;
     private static int gridSize = 1;
     private static boolean showAsPlayer = false;
@@ -54,14 +53,6 @@ public class AppState {
     
     public static void setCollectProfilingData(boolean flag) {
     	collectProfilingData = flag;
-    }
-    
-    public static boolean isShowLightRadius() {
-    	return showLightRadius;
-    }
-    
-    public static void setShowLightRadius(boolean show) {
-    	showLightRadius = show;
     }
     
 	public static int getGridSize() {
