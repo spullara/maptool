@@ -491,7 +491,7 @@ public class MacroFunctions extends AbstractFunction {
 		}
 
 		if (!(param.get(0) instanceof BigDecimal)) {
-			throw new ParserException("getMacroCommad(): First argument must be a number.");
+			throw new ParserException("getMacroCommand(): First argument must be a number.");
 		}
 
 		int index = ((BigDecimal)param.get(0)).intValue();
