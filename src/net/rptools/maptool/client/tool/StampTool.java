@@ -1126,19 +1126,15 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 	}
 
 	private void cycleSelectedToken(int direction) {
-
 		List<Token> visibleTokens = renderer.getTokensOnScreen();
-		Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
-		Integer newSelection = null;
-
 		if (visibleTokens.size() == 0) {
 			return;
 		}
 
-		if (selectedTokenSet.size() == 0) {
-			newSelection = 0;
-		} else {
+		Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
+		Integer newSelection = 0;
 
+		if (selectedTokenSet.size() != 0) {
 			// Find the first selected token on the screen
 			for (int i = 0; i < visibleTokens.size(); i++) {
 				Token token = visibleTokens.get(i);
@@ -1150,7 +1146,6 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 					break;
 				}
 			}
-
 			// Pick the next
 			newSelection += direction;
 		}
@@ -1161,17 +1156,13 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 		if (newSelection >= visibleTokens.size()) {
 			newSelection = 0;
 		}
-
 		// Make the selection
 		renderer.clearSelectedTokens();
 		renderer.selectToken(visibleTokens.get(newSelection).getId());
-
 	}
 
 	private void handleKeyMove(int dx, int dy, boolean micro) {
-
 		if (!isDraggingToken) {
-
 			// Start
 			Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
 			if (selectedTokenSet.size() != 1) {
@@ -1179,8 +1170,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				return;
 			}
 
-			Token token = renderer.getZone().getToken(
-					selectedTokenSet.iterator().next());
+			Token token = renderer.getZone().getToken(selectedTokenSet.iterator().next());
 			if (token == null) {
 				return;
 			}
@@ -1189,7 +1179,6 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 			if (renderer.isTokenMoving(token)) {
 				return;
 			}
-
 			dragStartX = token.getX();
 			dragStartY = token.getY();
 			startTokenDrag(token);
@@ -1198,27 +1187,22 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 			dragOffsetX = 0;
 			dragOffsetY = 0;
 		}
-
 		ZonePoint zp = null;
 		if (tokenBeingDragged.isSnapToGrid()) {
-
-			CellPoint cp = renderer.getZone().getGrid().convert(
-					new ZonePoint(dragStartX, dragStartY));
+			CellPoint cp = renderer.getZone().getGrid().convert(new ZonePoint(dragStartX, dragStartY));
 
 			cp.x += dx;
 			cp.y += dy;
 
 			zp = renderer.getZone().getGrid().convert(cp);
 		} else {
-			Rectangle tokenSize = tokenBeingDragged.getBounds(renderer
-					.getZone());
+			Rectangle tokenSize = tokenBeingDragged.getBounds(renderer	.getZone());
 
 			int x = dragStartX + (micro ? dx : (tokenSize.width * dx));
 			int y = dragStartY + (micro ? dy : (tokenSize.height * dy));
 
 			zp = new ZonePoint(x, y);
 		}
-
 		isMovingWithKeys = true;
 		handleDragToken(zp);
 		if (tokenBeingDragged.isBackgroundStamp()) {
@@ -1236,34 +1220,26 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 	 * .client.ZoneRenderer, java.awt.Graphics2D)
 	 */
 	public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
-
 		if (selectionBoundBox != null) {
-
 			Stroke stroke = g.getStroke();
 			g.setStroke(new BasicStroke(2));
 
 			Composite composite = g.getComposite();
-			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP,
-					.25f));
+			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, .25f));
 			g.setPaint(AppStyle.selectionBoxFill);
-			g.fillRoundRect(selectionBoundBox.x, selectionBoundBox.y,
-					selectionBoundBox.width, selectionBoundBox.height, 10, 10);
+			g.fillRoundRect(selectionBoundBox.x, selectionBoundBox.y, selectionBoundBox.width, selectionBoundBox.height, 10, 10);
 			g.setComposite(composite);
 
 			g.setColor(AppStyle.selectionBoxOutline);
-			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-					RenderingHints.VALUE_ANTIALIAS_ON);
-			g.drawRoundRect(selectionBoundBox.x, selectionBoundBox.y,
-					selectionBoundBox.width, selectionBoundBox.height, 10, 10);
+			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			g.drawRoundRect(selectionBoundBox.x, selectionBoundBox.y, selectionBoundBox.width, selectionBoundBox.height, 10, 10);
 
 			g.setStroke(stroke);
 		}
 
 		if (isShowingTokenStackPopup) {
-
 			tokenStackPanel.paint(g);
 		} else {
-
 			resizeBoundsMap.clear();
 			//rotateBoundsMap.clear();
 			for (GUID tokenGUID : renderer.getSelectedTokenSet()) {
@@ -1271,20 +1247,16 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				if (token == null) {
 					continue;
 				}
-
 				if (!token.isStamp()) {
 					return;
 				}
-
 				// Show sizing controls
 				Area bounds = renderer.getTokenBounds(token);
 				if (bounds == null || renderer.isTokenMoving(token)) {
 					continue;
 				}
-
 				// Resize
 				if (!token.isSnapToScale()) {
-
 					Double scale = renderer.getScale();
 					Rectangle footprintBounds = token.getBounds(renderer.getZone());
 
@@ -1312,7 +1284,6 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 						double anchorY = -scaledHeight/2 + resizeImage.getHeight() - (token.getAnchor().y * scale);
 						at.rotate(theta, anchorX, anchorY);
 					}
-
 					//place the map over the image.
 					resizeBoundsArea.transform(at);
 					resizeBoundsMap.put(resizeBoundsArea, token);
@@ -1320,33 +1291,28 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 					g.drawImage(resizeImage, at, renderer);
 				}
 
-				// g.setColor(Color.red);
-				// g.fillRect((int)(p.x-2), (int)(p.y-2), 4, 4);
-
-				// Rotate
-				// int length = 35;
-				// int cx = bounds.x + bounds.width/2;
-				// int cy = bounds.y + bounds.height/2;
-				// int facing = token.getFacing() != null ? token.getFacing() :
-				// 0;
-				//
-				// int x = (int)(cx + Math.cos(Math.toRadians(facing)) *
-				// length);
-				// int y = (int)(cy - Math.sin(Math.toRadians(facing)) *
-				// length);
-				//
-				// Ellipse2D rotateBounds = new Ellipse2D.Float(x-5, y-5, 10,
-				// 10);
-				// rotateBoundsMap.put(rotateBounds, token);
-				//
-				// g.setColor(Color.black);
-				// g.drawLine(cx, cy, x, y);
-				// g.fill(rotateBounds);
-				//
-				// g.setColor(Color.gray);
-				// g.draw(rotateBounds);
+//				g.setColor(Color.red);
+//				g.fillRect((int)(p.x-2), (int)(p.y-2), 4, 4);
+//
+//				// Rotate
+//				int length = 35;
+//				int cx = bounds.x + bounds.width/2;
+//				int cy = bounds.y + bounds.height/2;
+//				int facing = token.getFacing() != null ? token.getFacing() : 0;
+//
+//				int x = (int)(cx + Math.cos(Math.toRadians(facing)) * length);
+//				int y = (int)(cy - Math.sin(Math.toRadians(facing)) * length);
+//
+//				Ellipse2D rotateBounds = new Ellipse2D.Float(x-5, y-5, 10, 10);
+//				rotateBoundsMap.put(rotateBounds, token);
+//
+//				g.setColor(Color.black);
+//				g.drawLine(cx, cy, x, y);
+//				g.fill(rotateBounds);
+//
+//				g.setColor(Color.gray);
+//				g.draw(rotateBounds);
 			}
 		}
 	}
-
 }

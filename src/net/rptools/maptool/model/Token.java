@@ -326,8 +326,8 @@ public class Token extends BaseModel {
 	 * This token object has just been imported on a map and needs to have most of its internal data wiped clean. This
 	 * prevents a token from being imported that makes use of the wrong property types, vision types, ownership, macros,
 	 * and so on. The only data retained is Notes, GM Notes, token type (PC|NPC), token shape {@link TokenShape},
-	 * Visible To Players, Snap- to-grid, HasSight, x/y coordinates, token size, layer, facing, and halo. Basically
-	 * anything related to the presentation of the token on-screen + the two notes fields.
+	 * Visible To Players, Visible to Owner Only, Snap-to-grid, HasSight, x/y coordinates, size, states, layer, facing,
+	 * and halo. Basically anything related to the presentation of the token on-screen + the two notes fields.
 	 */
 	public void imported() {
 		// anchorX, anchorY?
