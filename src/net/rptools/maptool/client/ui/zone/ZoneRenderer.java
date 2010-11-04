@@ -14,6 +14,7 @@ import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Composite;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -26,6 +27,7 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.Stroke;
+import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
@@ -34,6 +36,8 @@ import java.awt.dnd.DropTargetListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.font.FontRenderContext;
+import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
@@ -60,6 +64,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TooManyListenersException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
@@ -3522,4 +3527,58 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			return true;
 		}
 	};
+
+	/* (non-Javadoc)
+	 * @see java.awt.Component#setCursor(java.awt.Cursor)
+	 */
+	@Override
+	public void setCursor(Cursor cursor) {
+		System.out.println("Setting cursor on ZoneRenderer: " + cursor.toString());
+		if (cursor == Cursor.getDefaultCursor()) {
+//			if (custom == null)
+			custom = createCustomCursor("image/cursor.png", "Group");
+			cursor = custom;
+		}
+		super.setCursor(cursor);
+	}
+	private Cursor custom = null;
+
+	public static Cursor createCustomCursor(String resource, String tokenName) {
+		Cursor c = null;
+		try {
+//			Dimension d = Toolkit.getDefaultToolkit().getBestCursorSize(16, 16);	// On OSX returns any size up to 1/2 of (screen width, screen height)
+//			System.out.println("Best cursor size: " + d);
+
+			BufferedImage img = ImageIO.read(MapTool.class.getResourceAsStream(resource));
+
+			// Now create a larger BufferedImage that will hold both the existing cursor and a token name
+			Graphics2D g2d = img.createGraphics();
+			Font font = new Font(Font.DIALOG, Font.PLAIN, 14);
+			FontRenderContext frc = g2d.getFontRenderContext();
+			TextLayout tl = new TextLayout(tokenName, font, frc);
+//			Shape s = tl.getBlackBoxBounds(0, tokenName.length());
+			float descent = tl.getDescent();
+			Rectangle textbox = tl.getPixelBounds(null, 0, 0);
+			g2d.dispose();
+
+			// Use the larger of the image width or string width, and the height of the image + the height of the string
+			// to represent the bounding box of the 'arrow+tokenName'
+			Rectangle bounds = new Rectangle(Math.max(img.getWidth(), textbox.width), img.getHeight() + textbox.height);
+			BufferedImage cursor = new BufferedImage(bounds.width, bounds.height, Transparency.BITMASK);
+			g2d = cursor.createGraphics();
+			g2d.setPaintMode();
+			g2d.drawImage(img, new AffineTransform(1f, 0f, 0f, 1f, 0,0), null);
+			g2d.setColor(Color.BLACK);
+			g2d.fillRect(0, bounds.height-textbox.height, textbox.width, textbox.height);
+			g2d.setColor(Color.WHITE);
+			g2d.drawString(tokenName, 0, bounds.height - (int) (descent + 0.5));
+			g2d.dispose();
+			c = Toolkit.getDefaultToolkit().createCustomCursor(cursor, new Point(0,0), tokenName);
+
+			img.flush();		// Try to be friendly about memory usage. ;-)
+			cursor.flush();
+		} catch(Exception e) {
+		}
+		return c;
+	}
 }

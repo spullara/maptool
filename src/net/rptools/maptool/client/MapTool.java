@@ -972,7 +972,9 @@ public class MapTool {
 		factory.registerProtocol("asset", new AssetURLStreamHandler());
 		URL.setURLStreamHandlerFactory(factory);
 
-		Toolkit.getDefaultToolkit().getSystemEventQueue().push(new MapToolEventQueue());
+		final Toolkit tk = Toolkit.getDefaultToolkit();
+		tk.getSystemEventQueue().push(new MapToolEventQueue());
+
 
 		// LAF
 		try {
@@ -1030,7 +1032,7 @@ public class MapTool {
 		}
 
 		// Draw frame contents on resize
-		Toolkit.getDefaultToolkit().setDynamicLayout(true);
+		tk.setDynamicLayout(true);
 
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -1038,9 +1040,7 @@ public class MapTool {
 				EventQueue.invokeLater(new Runnable() {
 					public void run() {
 						clientFrame.setVisible(true);
-
 						splash.hideSplashScreen();
-
 						EventQueue.invokeLater(new Runnable() {
 							public void run() {
 								postInitialize();
@@ -1048,10 +1048,8 @@ public class MapTool {
 						});
 					}
 				});
-
 			}
 		});
-
 		// new Thread(new HeapSpy()).start();
 	}
 
