@@ -17,6 +17,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Area;
 import java.io.IOException;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -114,12 +115,13 @@ public class FreehandExposeTool extends FreehandTool implements MouseMotionListe
         if (drawable instanceof ShapeDrawable) {
         	area = new Area(((ShapeDrawable) drawable).getShape());
         }
+        Set<GUID> selectedToks = getSelectedTokens();
         if (pen.isEraser()) {
-            zone.hideArea(area);
-            MapTool.serverCommand().hideFoW(zone.getId(), area);
+            zone.hideArea(area, selectedToks);
+            MapTool.serverCommand().hideFoW(zone.getId(), area, selectedToks);
         } else {
-            zone.exposeArea(area);
-            MapTool.serverCommand().exposeFoW(zone.getId(), area, null);
+            zone.exposeArea(area,selectedToks);
+            MapTool.serverCommand().exposeFoW(zone.getId(), area, selectedToks);
         }
         
         

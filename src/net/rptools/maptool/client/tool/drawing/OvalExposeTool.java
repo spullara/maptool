@@ -18,6 +18,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.io.IOException;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -92,12 +93,13 @@ public class OvalExposeTool extends OvalTool {
 
 		Rectangle bounds = drawable.getBounds();
 		Area area = new Area(new Ellipse2D.Double(bounds.x, bounds.y, bounds.width, bounds.height));
+		Set<GUID> selectedToks = getSelectedTokens();
 		if (pen.isEraser()) {
-			zone.hideArea(area);
-			MapTool.serverCommand().hideFoW(zone.getId(), area);
+			zone.hideArea(area, selectedToks);
+			MapTool.serverCommand().hideFoW(zone.getId(), area, selectedToks);
 		} else {
-			zone.exposeArea(area);
-			MapTool.serverCommand().exposeFoW(zone.getId(), area, null);
+			zone.exposeArea(area, selectedToks);
+			MapTool.serverCommand().exposeFoW(zone.getId(), area, selectedToks);
 		}
 		
 		

@@ -18,6 +18,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Area;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -111,6 +112,7 @@ public class FacingTool extends DefaultTool {
 			degrees = facingAngles[TokenUtil.getIndexNearestTo(facingAngles, degrees)];
 		}
 		Area visibleArea =new Area();
+		
 		for (GUID tokenGUID : selectedTokenSet) {
 			Token token = renderer.getZone().getToken(tokenGUID);
 			if (token == null) {
@@ -120,7 +122,9 @@ public class FacingTool extends DefaultTool {
 			token.setFacing(degrees);
 			if ((renderer.getZone().hasFog() && AppPreferences.getAutoRevealVisionOnGMMovement() && MapTool.getPlayer().isGM()) || MapTool.getServerPolicy().getPlayersCanRevealVision()) {
 				visibleArea = MapTool.getFrame().getCurrentZoneRenderer().getZoneView().getVisibleArea(token);
-				MapTool.getFrame().getCurrentZoneRenderer().getZone().exposeArea(visibleArea);
+				Set<GUID> selected = new HashSet<GUID>();
+				selected.add(token.getId());
+				MapTool.getFrame().getCurrentZoneRenderer().getZone().exposeArea(visibleArea, selected);
 			}
 			renderer.flush(token);
 		}

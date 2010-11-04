@@ -202,16 +202,16 @@ public class ServerCommandClientImpl implements ServerCommand {
 		makeServerCall(COMMAND.exposePCArea, zoneGUID);
 	}
 
-	public void exposeFoW(GUID zoneGUID, Area area, Token token) {
-		makeServerCall(COMMAND.exposeFoW, zoneGUID, area, token);
+	public void exposeFoW(GUID zoneGUID, Area area, Set<GUID> selectedToks) {
+		makeServerCall(COMMAND.exposeFoW, zoneGUID, area,  selectedToks);
 	}
 
-	public void setFoW(GUID zoneGUID, Area area) {
-		makeServerCall(COMMAND.setFoW, zoneGUID, area);
+	public void setFoW(GUID zoneGUID, Area area,  Set<GUID> selectedToks) {
+		makeServerCall(COMMAND.setFoW, zoneGUID, area, selectedToks);
 	}
 
-	public void hideFoW(GUID zoneGUID, Area area) {
-		makeServerCall(COMMAND.hideFoW, zoneGUID, area);
+	public void hideFoW(GUID zoneGUID, Area area,  Set<GUID> selectedToks) {
+		makeServerCall(COMMAND.hideFoW, zoneGUID, area, selectedToks);
 	}
 
 	public void setZoneHasFoW(GUID zoneGUID, boolean hasFog) {

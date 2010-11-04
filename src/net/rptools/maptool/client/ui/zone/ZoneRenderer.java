@@ -26,6 +26,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.TexturePaint;
 import java.awt.Stroke;
 import java.awt.Toolkit;
 import java.awt.Transparency;
@@ -106,6 +107,7 @@ import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.Token.ExposedAreaMetaData;
 import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
@@ -1329,10 +1331,33 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	private void renderPlayerVisionOverlay(Graphics2D g, PlayerView view) {
 		if (!view.isGMView()) {
 			Graphics2D g2 = (Graphics2D) g.create();
+			Area viewArea = new Area();
+			if(MapTool.getServerPolicy().isUseIndividualFOW())
+			{
+				if(view.getTokens() != null)
+				{
+					for(Token tok: view.getTokens())
+					{
+						ExposedAreaMetaData exposedMeta = tok.getExposedAreaMetaData();
+						viewArea.add(new Area(exposedMeta.getExposedAreaHistory()));
+					}
+				}
+			}
 			if (zone.hasFog() && (exposedFogArea != null)) {
 				Area clip = new Area(new Rectangle(getSize().width, getSize().height));
-				clip.intersect(exposedFogArea);
-				g2.setClip(clip);
+				if(MapTool.getServerPolicy().isUseIndividualFOW())
+				{
+					clip.intersect(viewArea);
+				}
+				else
+				{
+					clip.intersect(exposedFogArea);
+				}
+				AffineTransform af = new AffineTransform();
+				//af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
+				af.scale(+1, +1);
+				Area newClip = clip.createTransformedArea(af);
+				g2.setClip(newClip);
 			}
 			renderVisionOverlay(g2, view);
 			g2.dispose();
@@ -1355,6 +1380,13 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		if (currentTokenVisionArea == null)
 			return;
 
+		ExposedAreaMetaData meta = tokenUnderMouse.getExposedAreaMetaData();
+		if(MapTool.getServerPolicy().isUseIndividualFOW())
+		{
+			meta.getExposedAreaHistory();
+			currentTokenVisionArea.intersect(meta.getExposedAreaHistory());
+		}
+		
 		String player = MapTool.getPlayer().getName();
 		boolean isOwner = AppUtil.playerOwns(tokenUnderMouse);
 		boolean tokenIsPC = tokenUnderMouse.getType() == Token.Type.PC;
@@ -1378,9 +1410,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			af.scale(getScale(), getScale());
 
 			Area area = currentTokenVisionArea.createTransformedArea(af);
-
+			g.setClip(this.getBounds());
 			SwingUtil.useAntiAliasing(g);
-			g.setColor(new Color(200, 200, 200)); // outline around visible area
+			//g.setStroke(new BasicStroke(2));
+			g.setColor(new Color(255, 255, 255)); // outline around visible area
 			g.draw(area);
 
 			boolean useHaloColor = tokenUnderMouse.getHaloColor() != null && AppPreferences.getUseHaloColorOnVisionOverlay();
@@ -1398,7 +1431,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		for (Label label : zone.getLabels()) {
 
 			ZonePoint zp = new ZonePoint(label.getX(), label.getY());
-			if (!zone.isPointVisible(zp, view.getRole())) {
+			if (!zone.isPointVisible(zp, view)) {
 				continue;
 			}
 
@@ -1472,8 +1505,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		if (flushFog || fogBuffer == null || fogBuffer.getWidth() != size.width || fogBuffer.getHeight() != size.height) {
 			fogX = getViewOffsetX();
 			fogY = getViewOffsetY();
-			float alpha = view.isGMView() ? AppPreferences.getFogOverlayOpacity() / 255.0f : 1f;
-
+			
 			boolean newImage = false;
 			if (fogBuffer == null || fogBuffer.getWidth() != size.width || fogBuffer.getHeight() != size.height) {
 				newImage = true;
@@ -1503,67 +1535,143 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			AffineTransform af = new AffineTransform();
 			af.translate(getViewOffsetX(), getViewOffsetY());
 			af.scale(getScale(), getScale());
-
+			
+			//buffG.setPaint(new TexturePaint(AppStyle.panelTexture, new Rectangle(0,0, size.width, size.height)));
 			buffG.setTransform(af);
+			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, view.isGMView() ? .6f : 1f));
+			
+			
 			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
-			buffG.fill(zone.getExposedArea());
+			
+			Area visibleArea = zoneView.getVisibleArea(view);
+			//visibleArea.getBounds().getCenterX();
+			Area combined = zone.getExposedArea();
+			Area exposedArea = null;
+			Area tempArea = new Area();
+			boolean combinedView = MapTool.isPersonalServer() || (MapTool.getServerPolicy().isUseIndividualFOW() && view.isGMView()) || !MapTool.getServerPolicy().isUseIndividualFOW();
+			
+			System.out.println("Combined: " + combinedView);
+			System.out.println("Visible Area: " + visibleArea.getBounds());
+			if(view.getTokens() != null)
+			{
+				for(Token tok: view.getTokens())
+				{
+					ExposedAreaMetaData meta = tok.getExposedAreaMetaData();
+					exposedArea = meta.getExposedAreaHistory();
+					tempArea.add(new Area(exposedArea));
+				}
+				if(combinedView)
+				{
+					buffG.fill(combined);
+					renderFogArea(buffG, view,combined , visibleArea);
+					renderFogOutline(buffG,view,  combined);
+				}
+				else 
+				{
+					buffG.fill(tempArea);
+					renderFogArea(buffG, view, tempArea, visibleArea);
+					renderFogOutline(buffG,view,  tempArea);
+				}
+			} 
+			else
+			{
+				if(combinedView)
+				{
+					if(combined.isEmpty())
+					{
+						combined = zone.getExposedArea();
+					}
+					buffG.fill(combined);
+					System.out.println("1");
+					renderFogArea(buffG, view, combined, visibleArea);
+					renderFogOutline(buffG,view,  combined);
+					}
+				else 
+				{
+					Area myCombined = new Area();
+					List<Token> myToks = zone.getTokens();
+					for(Token tok: myToks)
+					{
+						if(!AppUtil.playerOwns(tok))
+						{
+							continue;
+						}
+						ExposedAreaMetaData meta = tok.getExposedAreaMetaData();
+						exposedArea = meta.getExposedAreaHistory();
+						myCombined.add(new Area(exposedArea));
+					}
+					
+					buffG.fill(myCombined);
+					renderFogArea(buffG, view, myCombined, visibleArea);
+					renderFogOutline(buffG,view,  myCombined);
+				}
+			}
+			
 
 			// Soft fog
-			if (zoneView.isUsingVision()) {
-				buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC));
-				Area visibleArea = zoneView.getVisibleArea(view);
-				if (visibleArea != null) {
-					buffG.setColor(new Color(0, 0, 0, AppPreferences.getFogOverlayOpacity()));
-
-					if (zone.hasFog()) {
-						// Fill in the exposed area
-						buffG.fill(zone.getExposedArea());
-
-						buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
-						Shape oldClip = buffG.getClip();
-						buffG.setClip(zone.getExposedArea());
-
-						buffG.fill(visibleArea);
-
-						buffG.setClip(oldClip);
-					} else {
-						buffG.setColor(new Color(255, 255, 255, 40)); // was 255,255,255,40
-						buffG.fill(visibleArea);
-					}
-				} else {
-					if (zone.hasFog()) {
-
-						buffG.setColor(new Color(0, 0, 0, 80));
-						buffG.fill(zone.getExposedArea());
-					}
-				}
-			}
-
-			// Outline
-			if (false && AppPreferences.getUseSoftFogEdges()) {
-				GraphicsUtil.renderSoftClipping(buffG, zone.getExposedArea(), (int) (zone.getGrid().getSize() * getScale() * .25), alpha);
-			} else {
-
-				if (visibleScreenArea != null) {
-					Shape oldClip = buffG.getClip();
-					buffG.setClip(zone.getExposedArea());
-
-					buffG.setTransform(new AffineTransform());
-					buffG.setComposite(AlphaComposite.Src);
-					buffG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-					buffG.setStroke(new BasicStroke(1));
-					buffG.setColor(Color.black);
-					buffG.draw(visibleScreenArea);
-
-					buffG.setClip(oldClip);
-				}
-			}
-
 			buffG.dispose();
 			flushFog = false;
 		}
 
 		g.drawImage(fogBuffer, 0, 0, this);
+	}
+	private void renderFogArea(final Graphics2D buffG, final PlayerView view, Area softFog, Area visibleArea)
+	{
+		
+		if (zoneView.isUsingVision()) {
+			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC));
+			if (visibleArea != null) {
+				buffG.setColor(new Color(0, 0, 0, AppPreferences.getFogOverlayOpacity()));
+
+				if (zone.hasFog()) {
+					// Fill in the exposed area
+					buffG.fill(softFog);
+
+					buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
+					Shape oldClip = buffG.getClip();
+					buffG.setClip(softFog);
+
+					buffG.fill(visibleArea);
+
+					buffG.setClip(oldClip);
+				} else {
+					buffG.setColor(new Color(255, 255, 255, 40)); // was 255,255,255,40
+					buffG.fill(visibleArea);
+				}
+			} else {
+				if (zone.hasFog()) {
+
+					buffG.setColor(new Color(0, 0, 0, 80));
+					buffG.fill(softFog);
+				}
+			}
+		}
+
+		// Outline
+		
+	}
+
+	private void renderFogOutline(final Graphics2D buffG, PlayerView view, Area softFog) {
+		float alpha = view.isGMView() ? AppPreferences.getFogOverlayOpacity() / 255.0f : 1f;
+
+		if (false && AppPreferences.getUseSoftFogEdges()) {
+			GraphicsUtil.renderSoftClipping(buffG, softFog, (int) (zone.getGrid().getSize() * getScale() * .25), alpha);
+		} else {
+
+			if (visibleScreenArea != null) {
+				Shape oldClip = buffG.getClip();
+				buffG.setClip(softFog);
+
+				buffG.setTransform(new AffineTransform());
+				buffG.setComposite(AlphaComposite.Src);
+				buffG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+				buffG.setStroke(new BasicStroke(1));
+				buffG.setColor(Color.BLACK);
+				buffG.draw(visibleScreenArea);
+
+				buffG.setClip(oldClip);
+			}
+		}
 	}
 
 	public Area getVisibleArea(Token token) {

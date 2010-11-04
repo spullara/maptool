@@ -28,6 +28,7 @@ public class ServerPolicy {
 	private boolean restrictedImpersonation;
 	private boolean playersReceiveCampaignMacros;
 	private boolean useToolTipsForDefaultRollFormat;
+	private boolean useIndividualFOW;
 	private WalkerMetric movementMetric;
 	
 	public ServerPolicy() {
@@ -136,4 +137,15 @@ public class ServerPolicy {
 	{
 		return movementMetric;	
 	}
+	
+	public boolean isUseIndividualFOW()
+	{
+		return useIndividualFOW;
+	}
+	
+	public void setUseIndividualFOW(boolean flag)
+	{
+		useIndividualFOW = flag;
+	}
+	
 }

@@ -1636,7 +1636,8 @@ public class AppActions {
 					//my addition
 					policy.setRestrictedImpersonation(serverProps.getRestrictedImpersonation()); 
 					policy.setMovementMetric(serverProps.getMovementMetric());
-
+					policy.setUseIndividualFOW(serverProps.getUseIndividualViews() &&  serverProps.getUseIndividualFOW());
+					
 					ServerConfig config = new ServerConfig(serverProps.getUsername(), serverProps.getGMPassword(), serverProps.getPlayerPassword(), serverProps
 							.getPort(), serverProps.getRPToolsName());
 
@@ -1655,6 +1656,22 @@ public class AppActions {
 
 						// Make a copy of the campaign since we don't coordinate
 						// local changes well ... yet
+						
+						/*
+						 * JFJ 2010-10-27
+						 * The below creates a NEW campaign with a copy 
+						 * of the existing campaign.  However, this is NOT 
+						 * a full copy.  In the constructor called below, each 
+						 * zone from the previous campaign(ie, the one passed in)
+						 * is recreated.   This means that only some items for that 
+						 * campaign, zone(s), and token's are copied over when you 
+						 * start a new server instance.  
+						 * 
+						 * You need to modify either Campaign(Campaign) or Zone(Zone) 
+						 * to get any data you need to persist from the pre server 
+						 * campaign to the post server start up campaign.   
+						 */
+						
 						MapTool.startServer(dialog.getUsernameTextField().getText(), config, policy, new Campaign(campaign));
 
 						// Connect to server
@@ -1685,6 +1702,7 @@ public class AppActions {
 							MapTool.showError("msg.error.failedStartPersonalServer", ioe);
 						}
 					}
+					
 				}
 			});
 		}

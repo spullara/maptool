@@ -43,6 +43,8 @@ public class StartServerDialogPreferences {
     private static final String KEY_PLAYERS_RECEIVE_CAMPAIGN_MACROS = "playersReceiveCampaignMacros";
     //private static final String KEY_LOCK_PLAYER_MOVEMENT = "lockTokenMovement";
     private static final String KEY_WALKER_METRIC = "movementMetric";
+    private static final String KEY_USE_INDIVIDUAL_FOW = "useIndividualFOW";
+    
     
     private static Boolean useToolTipsForUnformattedRolls = null;
     
@@ -181,5 +183,14 @@ public class StartServerDialogPreferences {
 	{
 		prefs.put(KEY_WALKER_METRIC, metric.toString());
 	}
-
+	public boolean getUseIndividualFOW()
+	{
+		return prefs.getBoolean(KEY_USE_INDIVIDUAL_FOW, false);
+	}
+	
+	public void setUseIndividualFOW(boolean flag)
+	{
+		prefs.putBoolean(KEY_USE_INDIVIDUAL_FOW, flag);
+	}
+	
 } 

@@ -19,6 +19,7 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Transparency;
+import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.Serializable;
@@ -75,6 +76,7 @@ public class Token extends BaseModel {
 	public static final String NUM_ON_BOTH = "Both";
 
 	private boolean beingImpersonated = false;
+	private Area exposedAreaHistory;
 
 	public enum TokenShape {
 		TOP_DOWN("Top down"),
@@ -103,7 +105,8 @@ public class Token extends BaseModel {
 			return o1.getName().compareToIgnoreCase(o2.getName());
 		}
 	};
-
+	
+	private ExposedAreaMetaData exposedAreaMetaData;
 	private final Map<String, MD5Key> imageAssetMap;
 	private String currentImageAsset;
 
@@ -515,11 +518,98 @@ public class Token extends BaseModel {
 		lightSourceList.add(new AttachedLightSource(source, direction));
 	}
 
+	public void removeLightSorceType(LightSource.Type lightType)
+	{
+		for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
+			AttachedLightSource als = i.next();
+			LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
+			if(lightSource.getType() == lightType)
+			{
+				i.remove();
+			}
+		}
+	}
+	
+	public void removeGMAuras()
+	{
+		for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
+			AttachedLightSource als = i.next();
+			LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
+			List<Light> lights = lightSource.getLightList();
+			for(Light light: lights)
+			{
+				if(light.isGM())
+				{
+					i.remove();
+				}
+			}
+		}
+	}
+	public void removeOwnerOnlyAuras()
+	{
+		for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
+			AttachedLightSource als = i.next();
+			LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
+			List<Light> lights = lightSource.getLightList();
+			for(Light light: lights)
+			{
+				if(light.isOwnerOnly())
+				{
+					i.remove();
+				}
+			}
+		}
+	}
+	public boolean hasOwnerOnlyAuras()
+	{
+		for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
+			AttachedLightSource als = i.next();
+			LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
+			List<Light> lights = lightSource.getLightList();
+			for(Light light: lights)
+			{
+				if(light.isOwnerOnly())
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	public boolean hasGMAuras()
+	{
+		for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
+			AttachedLightSource als = i.next();
+			LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
+			List<Light> lights = lightSource.getLightList();
+			for(Light light: lights)
+			{
+				if(light.isGM())
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	public boolean hasLightSorceType(LightSource.Type lightType)
+	{
+		for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
+			AttachedLightSource als = i.next();
+			LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
+			if(lightSource.getType() == lightType)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public void removeLightSource(LightSource source) {
 		if (lightSourceList == null) {
 			return;
 		}
-
+		List<AttachedLightSource> lightList = new ArrayList<AttachedLightSource>();
 		for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
 			AttachedLightSource als = i.next();
 			if (als.getLightSourceId().equals(source.getId())) {
@@ -1444,6 +1534,61 @@ public class Token extends BaseModel {
 			propertyMap.putAll(oldMap);
 		}
 		return this;
+	}
+
+	public ExposedAreaMetaData getExposedAreaMetaData()
+	{
+		if(exposedAreaMetaData == null)
+		{
+			exposedAreaMetaData = new ExposedAreaMetaData();
+		}
+		return exposedAreaMetaData; 
+	}
+	public class ExposedAreaMetaData
+	{
+		private Area exposedAreaHistory;
+		
+		public ExposedAreaMetaData()
+		{
+			exposedAreaHistory = new Area();
+		}
+		public ExposedAreaMetaData(Area area)
+		{
+			exposedAreaHistory = area;
+		}
+		public Area getExposedAreaHistory() 
+		{
+			if(exposedAreaHistory == null)
+			{
+				exposedAreaHistory = new Area();
+			}
+			return new Area(exposedAreaHistory);
+		}
+		public void addToExposedAreaHistory(Area newArea) {
+			if(newArea== null)
+			{
+				newArea = new Area();
+			}
+			if(this.exposedAreaHistory == null)
+			{
+				this.exposedAreaHistory = new Area();
+			}
+			this.exposedAreaHistory.add(newArea) ;
+		}
+		public void removeExposedAreaHistory(Area newArea) {
+			if(newArea== null)
+			{
+				newArea = new Area();
+			}
+			if(this.exposedAreaHistory == null)
+			{
+				this.exposedAreaHistory = new Area();
+			}
+			this.exposedAreaHistory.subtract(newArea) ;
+		}
+		public void clearExposedAreaHistory() {
+			this.exposedAreaHistory = new Area();
+		}
 	}
 }
 

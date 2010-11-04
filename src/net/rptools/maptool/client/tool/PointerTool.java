@@ -77,6 +77,7 @@ import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenProperty;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.Token.ExposedAreaMetaData;
 import net.rptools.maptool.model.Zone.Layer;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.util.GraphicsUtil;
@@ -834,9 +835,20 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 						bounds.x = bx;
 						bounds.y = by;
 
-						if (fow.contains(bounds)) {
-							isVisible = true;
-							break;
+						if(!MapTool.getServerPolicy().isUseIndividualFOW())
+						{
+							if (fow.contains(bounds)) {
+								isVisible = true;
+								break;
+							}
+						}
+						else
+						{
+							ExposedAreaMetaData meta = token.getExposedAreaMetaData();
+							if (meta.getExposedAreaHistory().contains(bounds)) {
+								isVisible = true;
+								break;
+							}
 						}
 					}
 				}

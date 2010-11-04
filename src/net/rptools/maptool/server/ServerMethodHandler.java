@@ -74,11 +74,11 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 			case bringTokensToFront:			bringTokensToFront(context.getGUID(0), (Set<GUID>) context.get(1)); break;
 			case draw:									draw(context.getGUID(0), (Pen) context.get(1), (Drawable) context.get(2)); break;
 			case enforceZoneView:					enforceZoneView(context.getGUID(0), context.getInt(1), context.getInt(2), context.getDouble(3), context.getInt(4), context.getInt(5)); break;
-			case exposeFoW:							exposeFoW(context.getGUID(0), (Area) context.get(1), (Token) context.get(2)); break;
+			case exposeFoW:							exposeFoW(context.getGUID(0), (Area) context.get(1), (Set<GUID>) context.get(2)); break;
 			case getAsset:								getAsset((MD5Key) context.get(0)); break;
 			case getZone:								getZone(context.getGUID(0)); break;
-			case hideFoW:								hideFoW(context.getGUID(0), (Area) context.get(1)); break;
-			case setFoW:									setFoW(context.getGUID(0), (Area) context.get(1)); break;
+			case hideFoW:								hideFoW(context.getGUID(0), (Area) context.get(1), (Set<GUID>) context.get(2)); break;
+			case setFoW:									setFoW(context.getGUID(0), (Area) context.get(1), (Set<GUID>) context.get(2)); break;
 			case hidePointer:							hidePointer(context.getString(0)); break;
 			case setLiveTypingLabel:				setLiveTypingLabel(context.getString(0), context.getBool(1)); break;
 			case enforceNotification:				enforceNotification(context.getBool(0)); break;
@@ -222,10 +222,10 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 		forwardToClients();
 	}
 
-	public void exposeFoW(GUID zoneGUID, Area area, Token token) {
+	public void exposeFoW(GUID zoneGUID, Area area, Set<GUID> selectedToks) {
 
 		Zone zone = server.getCampaign().getZone(zoneGUID);
-		zone.exposeArea(area);
+		zone.exposeArea(area,selectedToks);
 
 		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.exposeFoW.name(), RPCContext.getCurrent().parameters);
 	}
@@ -266,18 +266,18 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 		server.getConnection().callMethod(RPCContext.getCurrent().id, ClientCommand.COMMAND.putZone.name(), server.getCampaign().getZone(zoneGUID));
 	}
 
-	public void hideFoW(GUID zoneGUID, Area area) {
+	public void hideFoW(GUID zoneGUID, Area area, Set<GUID> selectedToks) {
 
 		Zone zone = server.getCampaign().getZone(zoneGUID);
-		zone.hideArea(area);
+		zone.hideArea(area, selectedToks);
 
 		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.hideFoW.name(), RPCContext.getCurrent().parameters);
 	}
 
-	public void setFoW(GUID zoneGUID, Area area) {
+	public void setFoW(GUID zoneGUID, Area area, Set<GUID> selectedToks) {
 
 		Zone zone = server.getCampaign().getZone(zoneGUID);
-		zone.setFogArea(area);
+		zone.setFogArea(area,selectedToks);
 
 		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.setFoW.name(), RPCContext.getCurrent().parameters);
 	}

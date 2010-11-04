@@ -20,6 +20,9 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import net.rptools.lib.swing.ColorPicker;
 import net.rptools.lib.swing.SwingUtil;
@@ -49,6 +52,7 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
     private boolean isSnapToGridSelected;
     private boolean isEraseSelected;
     private static LayerSelectionDialog layerSelectionDialog;
+    private Set<GUID> selectedTokens;
 
     private static Zone.Layer selectedLayer = Zone.Layer.TOKEN;
 
@@ -59,6 +63,19 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
 			}
 		});
     	
+    }
+    
+    protected Set<GUID> getSelectedTokens()
+    {
+    	if(selectedTokens == null)
+    	{
+    		selectedTokens = new HashSet<GUID>();
+    	}
+    	return Collections.unmodifiableSet(selectedTokens);
+    }
+    protected void setSelectedTokens(Set<GUID> selectedToks)
+    {
+    	selectedTokens = selectedToks;
     }
     
     protected Rectangle createRect(ZonePoint originPoint, ZonePoint newPoint) {

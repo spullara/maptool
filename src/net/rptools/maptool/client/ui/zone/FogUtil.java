@@ -53,6 +53,7 @@ import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Player.Role;
+import net.rptools.maptool.model.Token.ExposedAreaMetaData;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
@@ -175,6 +176,7 @@ public class FogUtil {
 	public static void exposeVisibleArea(ZoneRenderer renderer, Set<GUID> tokenSet) {
 
 		Zone zone = renderer.getZone();
+	
 		for (GUID tokenGUID : tokenSet) {
 			Token token = zone.getToken(tokenGUID);
 			if (token == null) {
@@ -189,13 +191,17 @@ public class FogUtil {
 			}
 
 
+			renderer.flush(token);
 			Area tokenVision = renderer.getVisibleArea(token);
 
 			if (tokenVision != null) {
-				zone.exposeArea(tokenVision);
-				MapTool.serverCommand().exposeFoW(zone.getId(), tokenVision, token);
+				Set<GUID> filteredToks = new HashSet<GUID>();
+				filteredToks.add(token.getId());
+				zone.exposeArea(tokenVision, filteredToks);
+				MapTool.serverCommand().exposeFoW(zone.getId(), tokenVision, filteredToks);
 			}
 		}
+		
 	}
 
 	public static void exposePCArea(ZoneRenderer renderer) {
@@ -248,6 +254,7 @@ public class FogUtil {
 			Area visionArea = new Area();
 
 			Token tokenClone = new Token(token);
+			ExposedAreaMetaData meta = token.getExposedAreaMetaData();
 			for (CellPoint cell : lastPath.getCellPath()) {
 
 				ZonePoint zp = grid.convert(cell);
@@ -258,12 +265,17 @@ public class FogUtil {
 				Area currVisionArea = renderer.getZoneView().getVisibleArea(tokenClone);
 				if (currVisionArea != null) {
 					visionArea.add(currVisionArea);
+					meta.addToExposedAreaHistory(new Area(currVisionArea));
 				}
 				renderer.getZoneView().flush(tokenClone);
 			}
 
-			zone.exposeArea(visionArea);
-			MapTool.serverCommand().exposeFoW(zone.getId(), visionArea,token);
+			renderer.flush(token);
+			Set<GUID> filteredToks = new HashSet<GUID>();
+			filteredToks.add(token.getId());
+			zone.exposeArea(visionArea, filteredToks);
+			zone.putToken(token);
+			MapTool.serverCommand().exposeFoW(zone.getId(), visionArea,filteredToks);
 		}
 
 	}

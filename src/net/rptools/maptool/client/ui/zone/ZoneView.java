@@ -39,6 +39,8 @@ import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.SightType;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.Player.Role;
+import net.rptools.maptool.model.Token.ExposedAreaMetaData;
 
 public class ZoneView implements ModelChangeListener {
 
@@ -66,7 +68,7 @@ public class ZoneView implements ModelChangeListener {
 
 	public Area getVisibleArea(PlayerView view) {
 		calculateVisibleArea(view);
-		return visibleAreaMap.get(view).visibleArea;
+		return visibleAreaMap.get(view) != null ? visibleAreaMap.get(view).visibleArea: new Area();
 	}
 
 	public boolean isUsingVision() {
@@ -435,10 +437,11 @@ public class ZoneView implements ModelChangeListener {
 
 	private void calculateVisibleArea(PlayerView view) {
 
-		if (visibleAreaMap.get(view) != null) {
+		if (visibleAreaMap.get(view) != null && visibleAreaMap.get(view).visibleArea.getBounds().getCenterX() != 0.0d) {
 			return;
 		}
 
+		System.out.println("calculateVisibleArea(view)");
 		// Cache it
 		VisibleAreaMeta meta = new VisibleAreaMeta();
 		meta.visibleArea = new Area();
@@ -459,13 +462,13 @@ public class ZoneView implements ModelChangeListener {
 			}
 
 			// Permission
-			if (MapTool.getServerPolicy().isUseIndividualViews()) {
+			if (MapTool.getServerPolicy().isUseIndividualViews() || MapTool.isPersonalServer()) {
 				if (!AppUtil.playerOwns(token)){
 					continue;
 				}
 			} else {
 				// Party members only, unless you are the GM
-				if (token.getType() != Token.Type.PC && !view.isGMView()) {
+				if ((token.getType() != Token.Type.PC && !view.isGMView() || (!view.isGMView() && MapTool.getPlayer().getRole() == Role.GM))) {
 					continue;
 				}
 			}
@@ -476,7 +479,6 @@ public class ZoneView implements ModelChangeListener {
 
 			Area tokenVision = getVisibleArea(token);
 			if (tokenVision != null) {
-
 				meta.visibleArea.add(tokenVision);
 			}
 		}

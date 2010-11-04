@@ -17,6 +17,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Area;
 import java.io.IOException;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -86,12 +87,13 @@ public class RectangleExposeTool extends RectangleTool {
 
 		Rectangle bounds = drawable.getBounds();
 		Area area = new Area(bounds);
+		Set<GUID> selectedToks = getSelectedTokens();
 		if (pen.isEraser()) {
-			zone.hideArea(area);
-			MapTool.serverCommand().hideFoW(zone.getId(), area);
+			zone.hideArea(area, selectedToks);
+			MapTool.serverCommand().hideFoW(zone.getId(), area, selectedToks);
 		} else {
-			zone.exposeArea(area);
-			MapTool.serverCommand().exposeFoW(zone.getId(), area, null);
+			zone.exposeArea(area, selectedToks);
+			MapTool.serverCommand().exposeFoW(zone.getId(), area,  selectedToks);
 		}
 		
 		

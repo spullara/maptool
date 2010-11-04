@@ -65,6 +65,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 
 	public void handleMethod(final String id, final String method, final Object ... parameters) {
 		final ClientCommand.COMMAND cmd = Enum.valueOf(ClientCommand.COMMAND.class, method);
+
 		// System.out.println("ClientMethodHandler#handleMethod: " +
 		// cmd.name());
 
@@ -107,6 +108,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 			public void run() {
 				GUID zoneGUID;
 				Zone zone;
+				Set<GUID> selectedToks = null;
 
 				switch (cmd) {
 				case bootPlayer:
@@ -152,31 +154,17 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 
 					zoneGUID = (GUID) parameters[0];
 					Area area = (Area) parameters[1];
-					Token tok = null;
+
 					if (parameters.length > 2)
 					{
 						if (parameters[2] != null)
 						{
-							tok = (Token) parameters[2];
+							selectedToks = (Set<GUID>) parameters[2];
 						}
 					}
 
-
-					if (tok != null && MapTool.getServerPolicy().isUseIndividualViews() && tok.isVisibleOnlyToOwner() && !AppUtil.playerOwns(tok))
-					{
-						return;
-					}
-					
-/*					Turn this off for now.  We will pick this back up later if we possibly can.
- * 					else if(tok != null && MapTool.getServerPolicy().isUseIndividualViews() && !AppUtil.playerOwns(tok))
-					{
-						return;
-					}*/
-					else
-					{
-						zone = MapTool.getCampaign().getZone(zoneGUID);
-						zone.exposeArea(area);
-					}
+					zone = MapTool.getCampaign().getZone(zoneGUID);
+					zone.exposeArea(area, selectedToks);
 					MapTool.getFrame().refresh();
 					return;
 
@@ -184,9 +172,17 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 
 					zoneGUID = (GUID) parameters[0];
 					area = (Area) parameters[1];
+					
+					if (parameters.length > 2)
+					{
+						if (parameters[2] != null)
+						{
+							selectedToks = (Set<GUID>) parameters[2];
+						}
+					}
 
 					zone = MapTool.getCampaign().getZone(zoneGUID);
-					zone.setFogArea(area);
+					zone.setFogArea(area, selectedToks);
 
 					MapTool.getFrame().refresh();
 					return;
@@ -195,9 +191,15 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 
 					zoneGUID = (GUID) parameters[0];
 					area = (Area) parameters[1];
-
+					if (parameters.length > 2)
+					{
+						if (parameters[2] != null)
+						{
+							selectedToks = (Set<GUID>) parameters[2];
+						}
+					}
 					zone = MapTool.getCampaign().getZone(zoneGUID);
-					zone.hideArea(area);
+					zone.hideArea(area, selectedToks);
 
 					MapTool.getFrame().refresh();
 					return;
