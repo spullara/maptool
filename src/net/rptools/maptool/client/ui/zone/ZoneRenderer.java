@@ -3533,8 +3533,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	 */
 	@Override
 	public void setCursor(Cursor cursor) {
-		System.out.println("Setting cursor on ZoneRenderer: " + cursor.toString());
-		if (cursor == Cursor.getDefaultCursor()) {
+//		System.out.println("Setting cursor on ZoneRenderer: " + cursor.toString());
+		if (false && cursor == Cursor.getDefaultCursor()) {
 //			if (custom == null)
 			custom = createCustomCursor("image/cursor.png", "Group");
 			cursor = custom;
