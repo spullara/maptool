@@ -26,7 +26,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
-import java.awt.TexturePaint;
 import java.awt.Stroke;
 import java.awt.Toolkit;
 import java.awt.Transparency;
@@ -1386,7 +1385,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			meta.getExposedAreaHistory();
 			currentTokenVisionArea.intersect(meta.getExposedAreaHistory());
 		}
-		
+
 		String player = MapTool.getPlayer().getName();
 		boolean isOwner = AppUtil.playerOwns(tokenUnderMouse);
 		boolean tokenIsPC = tokenUnderMouse.getType() == Token.Type.PC;
@@ -1505,7 +1504,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		if (flushFog || fogBuffer == null || fogBuffer.getWidth() != size.width || fogBuffer.getHeight() != size.height) {
 			fogX = getViewOffsetX();
 			fogY = getViewOffsetY();
-			
+
 			boolean newImage = false;
 			if (fogBuffer == null || fogBuffer.getWidth() != size.width || fogBuffer.getHeight() != size.height) {
 				newImage = true;
@@ -1535,23 +1534,21 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			AffineTransform af = new AffineTransform();
 			af.translate(getViewOffsetX(), getViewOffsetY());
 			af.scale(getScale(), getScale());
-			
+
 			//buffG.setPaint(new TexturePaint(AppStyle.panelTexture, new Rectangle(0,0, size.width, size.height)));
 			buffG.setTransform(af);
 			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, view.isGMView() ? .6f : 1f));
-			
-			
+
+
 			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
-			
+
 			Area visibleArea = zoneView.getVisibleArea(view);
 			//visibleArea.getBounds().getCenterX();
-			Area combined = zone.getExposedArea();
+			Area combined = zone.getExposedArea(view);
 			Area exposedArea = null;
 			Area tempArea = new Area();
 			boolean combinedView = MapTool.isPersonalServer() || (MapTool.getServerPolicy().isUseIndividualFOW() && view.isGMView()) || !MapTool.getServerPolicy().isUseIndividualFOW();
-			
-			System.out.println("Combined: " + combinedView);
-			System.out.println("Visible Area: " + visibleArea.getBounds());
+
 			if(view.getTokens() != null)
 			{
 				for(Token tok: view.getTokens())
@@ -1562,17 +1559,18 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				}
 				if(combinedView)
 				{
+					//combined = zone.getExposedArea(view);
 					buffG.fill(combined);
 					renderFogArea(buffG, view,combined , visibleArea);
 					renderFogOutline(buffG,view,  combined);
 				}
-				else 
+				else
 				{
 					buffG.fill(tempArea);
 					renderFogArea(buffG, view, tempArea, visibleArea);
 					renderFogOutline(buffG,view,  tempArea);
 				}
-			} 
+			}
 			else
 			{
 				if(combinedView)
@@ -1585,8 +1583,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 					System.out.println("1");
 					renderFogArea(buffG, view, combined, visibleArea);
 					renderFogOutline(buffG,view,  combined);
-					}
-				else 
+				}
+				else
 				{
 					Area myCombined = new Area();
 					List<Token> myToks = zone.getTokens();
@@ -1600,13 +1598,13 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 						exposedArea = meta.getExposedAreaHistory();
 						myCombined.add(new Area(exposedArea));
 					}
-					
+
 					buffG.fill(myCombined);
 					renderFogArea(buffG, view, myCombined, visibleArea);
 					renderFogOutline(buffG,view,  myCombined);
 				}
 			}
-			
+
 
 			// Soft fog
 			buffG.dispose();
@@ -1615,9 +1613,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 		g.drawImage(fogBuffer, 0, 0, this);
 	}
+
 	private void renderFogArea(final Graphics2D buffG, final PlayerView view, Area softFog, Area visibleArea)
 	{
-		
+
 		if (zoneView.isUsingVision()) {
 			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC));
 			if (visibleArea != null) {
@@ -1648,7 +1647,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		}
 
 		// Outline
-		
+
 	}
 
 	private void renderFogOutline(final Graphics2D buffG, PlayerView view, Area softFog) {
@@ -1660,7 +1659,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 			if (visibleScreenArea != null) {
 				Shape oldClip = buffG.getClip();
-				buffG.setClip(softFog);
+				//buffG.setClip(softFog);
 
 				buffG.setTransform(new AffineTransform());
 				buffG.setComposite(AlphaComposite.Src);
@@ -1669,7 +1668,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				buffG.setColor(Color.BLACK);
 				buffG.draw(visibleScreenArea);
 
-				buffG.setClip(oldClip);
+				//buffG.setClip(oldClip);
 			}
 		}
 	}
@@ -3665,7 +3664,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			FontRenderContext frc = g2d.getFontRenderContext();
 			TextLayout tl = new TextLayout(tokenName, font, frc);
 //			Shape s = tl.getBlackBoxBounds(0, tokenName.length());
-			float descent = tl.getDescent();
+			float descent = tl.getVisibleAdvance();
+			descent = tl.getDescent();
 			Rectangle textbox = tl.getPixelBounds(null, 0, 0);
 			g2d.dispose();
 
@@ -3679,7 +3679,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			g2d.setColor(Color.BLACK);
 			g2d.fillRect(0, bounds.height-textbox.height, textbox.width, textbox.height);
 			g2d.setColor(Color.WHITE);
-			g2d.drawString(tokenName, 0, bounds.height - (int) (descent + 0.5));
+			g2d.drawString(tokenName, 0F, bounds.height - descent);
 			g2d.dispose();
 			c = Toolkit.getDefaultToolkit().createCustomCursor(cursor, new Point(0,0), tokenName);
 

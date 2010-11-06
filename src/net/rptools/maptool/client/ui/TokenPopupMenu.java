@@ -16,6 +16,7 @@ package net.rptools.maptool.client.ui;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Area;
 import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -62,6 +63,8 @@ import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.Player.Role;
+import net.rptools.maptool.model.Token.ExposedAreaMetaData;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -107,6 +110,11 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		addGMItem(createChangeToMenu(Zone.Layer.GM, Zone.Layer.OBJECT, Zone.Layer.BACKGROUND));
 
 		add(new JSeparator());
+		
+		if(MapTool.getPlayer().isGM())
+		{
+			add(createExposedFOWMenu());
+		}
 
 		if (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision()) {
 
@@ -117,6 +125,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 			// }
 			// add(new JSeparator());
 		}
+		
 
 		addOwnedItem(createLightSourceMenu());
 
@@ -194,6 +203,114 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		return menu;
 	}
 
+	private JMenu createExposedFOWMenu() {
+
+		JMenu menu = new JMenu("FOW Views");
+		menu.add(new AddPartyExposedAreaAction());
+
+		JMenu subMenu = new JMenu("Token FOW");
+		int subItemCount=0;
+		for(Token tok: getRenderer().getZone().getTokens())
+		{
+			if(tok.getHasSight() && tok.isVisible())
+			{
+				subMenu.add(new AddTokensExposedAreaAction(tok.getId()));
+				subItemCount++;
+			}
+		}
+		if(subItemCount!= 0)
+		{
+			menu.add(subMenu);
+		}
+		
+		menu.addSeparator();
+		menu.add(new ClearSelectedExposedAreaAction());
+		
+		return menu;
+	}
+	private class AddTokensExposedAreaAction extends AbstractAction
+	{
+		private GUID tokID;
+		public AddTokensExposedAreaAction(GUID theTokId)
+		{
+			tokID = theTokId;
+			Token sourceToken = getRenderer().getZone().getToken(tokID);
+			I18N.setAction(sourceToken.getName(), this, true);
+		}
+		public void actionPerformed(ActionEvent e) {	
+			Token sourceToken = getRenderer().getZone().getToken(tokID);
+			for(GUID tok: selectedTokenSet)
+			{
+				ExposedAreaMetaData sourceMeta = sourceToken.getExposedAreaMetaData();
+				Token targetToken = getRenderer().getZone().getToken(tok);
+				ExposedAreaMetaData targetMeta =  targetToken.getExposedAreaMetaData();
+				targetMeta.addToExposedAreaHistory((Area) sourceMeta.getExposedAreaHistory().clone());
+				
+				getRenderer().flush(targetToken);
+				getRenderer().getZone().putToken(targetToken);
+			
+			}	
+			getRenderer().repaint();
+		}	
+	}
+
+	private class AddPartyExposedAreaAction extends AbstractAction {
+		public AddPartyExposedAreaAction() {
+			I18N.setAction("token.popup.menu.fow.party", this, true);
+		}
+		public void actionPerformed(ActionEvent e) {	
+			if(!MapTool.getServerPolicy().isUseIndividualFOW())
+			{
+				Area area = getRenderer().getZone().getExposedArea();
+				for(GUID tok: selectedTokenSet)
+				{
+					Token token = getRenderer().getZone().getToken(tok);
+					ExposedAreaMetaData meta = token.getExposedAreaMetaData();
+					meta.addToExposedAreaHistory((Area) area.clone());
+					getRenderer().getZone().putToken(token);
+				}
+			}
+			else
+			{
+				List<Token> allToks = getRenderer().getZone().getTokens();
+				for(Token tokenSource: allToks)
+				{
+					ExposedAreaMetaData sourceMeta = tokenSource.getExposedAreaMetaData();
+					for(GUID tok: selectedTokenSet)
+					{
+						Token token = getRenderer().getZone().getToken(tok);
+						ExposedAreaMetaData meta = token.getExposedAreaMetaData();
+						meta.addToExposedAreaHistory((Area) sourceMeta.getExposedAreaHistory().clone());
+						getRenderer().getZone().putToken(token);
+					}	
+				}
+			}
+			getRenderer().repaint();
+		}
+
+	}
+	
+	private class ClearSelectedExposedAreaAction extends AbstractAction {
+		public ClearSelectedExposedAreaAction() {
+			I18N.setAction("token.popup.menu.fow.clearselected", this, true);
+		}
+
+		public void actionPerformed(ActionEvent e) {	
+			if(!MapTool.getServerPolicy().isUseIndividualFOW())
+			{
+				for(GUID tok: selectedTokenSet)
+				{
+					Token token = getRenderer().getZone().getToken(tok);
+					ExposedAreaMetaData meta = token.getExposedAreaMetaData();
+					meta.clearExposedAreaHistory();
+					getRenderer().flush(token);
+					getRenderer().getZone().putToken(token);
+				}
+			}
+			getRenderer().repaint();
+		}
+	}
+	
 	private class ExposeVisibleAreaAction extends AbstractAction {
 		public ExposeVisibleAreaAction() {
 //			putValue(Action.NAME, "Visible area (Ctrl - I)");

@@ -115,7 +115,7 @@ public class FreehandExposeTool extends FreehandTool implements MouseMotionListe
         if (drawable instanceof ShapeDrawable) {
         	area = new Area(((ShapeDrawable) drawable).getShape());
         }
-        Set<GUID> selectedToks = getSelectedTokens();
+        Set<GUID> selectedToks = MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokenSet();
         if (pen.isEraser()) {
             zone.hideArea(area, selectedToks);
             MapTool.serverCommand().hideFoW(zone.getId(), area, selectedToks);

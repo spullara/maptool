@@ -87,7 +87,7 @@ public class RectangleExposeTool extends RectangleTool {
 
 		Rectangle bounds = drawable.getBounds();
 		Area area = new Area(bounds);
-		Set<GUID> selectedToks = getSelectedTokens();
+		Set<GUID> selectedToks = MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokenSet();
 		if (pen.isEraser()) {
 			zone.hideArea(area, selectedToks);
 			MapTool.serverCommand().hideFoW(zone.getId(), area, selectedToks);

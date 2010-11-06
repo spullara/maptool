@@ -731,6 +731,10 @@ public class Zone extends BaseModel {
 		}
 		for(Token tok: toks)
 		{
+			if(!tok.getHasSight())
+			{
+				continue;
+			}
 			ExposedAreaMetaData meta = tok.getExposedAreaMetaData();
 			meta.getExposedAreaHistory();
 			area.add(new Area(meta.getExposedAreaHistory()));

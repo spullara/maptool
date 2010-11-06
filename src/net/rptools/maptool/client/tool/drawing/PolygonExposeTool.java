@@ -110,7 +110,7 @@ public class PolygonExposeTool extends PolygonTool implements MouseMotionListene
 
         Polygon polygon = getPolygon((LineSegment) drawable);
         Area area = new Area(polygon);
-        Set<GUID> selectedToks = getSelectedTokens();
+        Set<GUID> selectedToks = MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokenSet();
         if (pen.isEraser()) {
             zone.hideArea(area, selectedToks);
             MapTool.serverCommand().hideFoW(zone.getId(), area, selectedToks);

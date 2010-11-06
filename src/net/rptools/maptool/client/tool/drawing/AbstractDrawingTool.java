@@ -52,7 +52,6 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
     private boolean isSnapToGridSelected;
     private boolean isEraseSelected;
     private static LayerSelectionDialog layerSelectionDialog;
-    private Set<GUID> selectedTokens;
 
     private static Zone.Layer selectedLayer = Zone.Layer.TOKEN;
 
@@ -65,19 +64,7 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
     	
     }
     
-    protected Set<GUID> getSelectedTokens()
-    {
-    	if(selectedTokens == null)
-    	{
-    		selectedTokens = new HashSet<GUID>();
-    	}
-    	return Collections.unmodifiableSet(selectedTokens);
-    }
-    protected void setSelectedTokens(Set<GUID> selectedToks)
-    {
-    	selectedTokens = selectedToks;
-    }
-    
+  
     protected Rectangle createRect(ZonePoint originPoint, ZonePoint newPoint) {
     	
     	int x = Math.min(originPoint.x, newPoint.x);
