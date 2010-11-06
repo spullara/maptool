@@ -186,11 +186,12 @@ public class PersistenceUtil {
 			Integer next = 1;
 			try {
 				next = StringUtil.parseInteger(count) + 1;
+				n = n.replaceFirst("Import \\d+ of", "Import " + next + " of");
 			} catch (ParseException e) {
+				n = "Import " + next + " of " + n;
 			}
-			n = n.replaceFirst("Import \\d+ of ", "Import " + next + " of ");
 			z.setName(n);
-			z.imported();			// Resets creation timestamp, among other things
+			z.imported();			// Resets creation timestamp and init panel, among other things
 			z.optimize();
 			return persistedMap;
 		} catch (IOException ioe) {

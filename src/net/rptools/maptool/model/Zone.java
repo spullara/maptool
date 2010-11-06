@@ -46,7 +46,7 @@ import net.rptools.maptool.util.StringUtil;
 import org.apache.log4j.Logger;
 
 /**
- * This object represents the maps that will appear for placement of {@link Token}s.  
+ * This object represents the maps that will appear for placement of {@link Token}s.
  */
 public class Zone extends BaseModel {
 
@@ -81,7 +81,7 @@ public class Zone extends BaseModel {
 		BACKGROUND("Background");
 
 		private String displayName;
-		
+
 		private Layer(String displayName) {
 			this.displayName = displayName;
 		}
@@ -97,10 +97,10 @@ public class Zone extends BaseModel {
 		public boolean isEnabled() {
 			return drawEnabled;
 		}
-		
+
 		public void setEnabled(boolean enabled) {
 			drawEnabled = enabled;
-		}		
+		}
 	}
 
 	public static final int DEFAULT_TOKEN_VISION_DISTANCE = 250; // In units
@@ -108,7 +108,7 @@ public class Zone extends BaseModel {
 	public static final int DEFAULT_UNITS_PER_CELL = 5;
 
 	public static final DrawablePaint DEFAULT_FOG = new DrawableColorPaint(Color.black);
-	
+
 	// The zones should be ordered.  We could have the server assign each zone
 	// an incrementing number as new zones are created, but that would take a lot
 	// more elegance than we really need.  Instead, let's just keep track of the
@@ -146,9 +146,9 @@ public class Zone extends BaseModel {
 	private Area topology = new Area();
 
 	// The 'board' layer, at the very bottom of the layer stack.
-	// Itself has two sub-layers: 
-	//   The top one is an optional texture, typically a pre-drawn map. 
-	//   The bottom one is either an infinitely tiling texture or a color. 
+	// Itself has two sub-layers:
+	//   The top one is an optional texture, typically a pre-drawn map.
+	//   The bottom one is either an infinitely tiling texture or a color.
 	private DrawablePaint backgroundPaint;
 	private MD5Key  mapAsset;
 	private Point   boardPosition = new Point(0,0);
@@ -167,7 +167,7 @@ public class Zone extends BaseModel {
 	private transient HashMap<String, Integer> tokenNumberCache;
 
 	/**
-	 * Note: When adding new fields to this Object, make sure to 
+	 * Note: When adding new fields to this Object, make sure to
 	 * add functionality to <code>readResolved()</code> to ensure they are properly initialized
 	 * (in addition to the normal constructor) for backward compatibility of saved files.
 	 */
@@ -242,16 +242,16 @@ public class Zone extends BaseModel {
 	}
 
 	/**
-	 * Note: When adding new fields to this Object, make sure to 
+	 * Note: When adding new fields to this Object, make sure to
 	 * add functionality to <code>readResolved()</code> to ensure they are properly initialized
 	 * (in addition to the normal constructor) for backward compatibility of saved files.
 	 */
 	public Zone(Zone zone) {
-		
-		
+
+
 		/* JFJ 2010-10-27
 		 * Don't forget that since these are new zones AND
-		 * new tokens created here from the old one being passed 
+		 * new tokens created here from the old one being passed
 		 * in, if you have any data that needs to transfer
 		 * over, you will need to manually copy it as
 		 * is done below for various items.
@@ -315,7 +315,7 @@ public class Zone extends BaseModel {
 				Token token = new Token(old);
 				ExposedAreaMetaData meta = token.getExposedAreaMetaData();
 				meta.addToExposedAreaHistory(new Area(old.getExposedAreaMetaData().getExposedAreaHistory()));
-				
+
 				this.putToken(token);
 				List<Integer> list = zone.initiativeList.indexOf(old);
 				for (Integer integer : list) {
@@ -356,11 +356,12 @@ public class Zone extends BaseModel {
 	 * Should be invoked only when a Zone has been imported from an external source
 	 * and needs to be cleaned up before being used.  Currently this cleanup
 	 * consists of allocating a new GUID, setting the creation time to `now', and
-	 * clearing the initiative list of all tokens.
+	 * resetting the initiative list (setting the related zone and clearing the model).
 	 */
 	public void imported() {
 		id = new GUID();
 		creationTime = System.currentTimeMillis();
+		initiativeList.setZone(this);
 		initiativeList.clearModel();
 	}
 
@@ -407,13 +408,13 @@ public class Zone extends BaseModel {
 		gridColor = color;
 	}
 
-	/** 
+	/**
 	 * Board psuedo-object. Not making full object since this will change when new layer model is created
 	 */
 	public boolean isBoardChanged() {
 		return boardChanged;
 	}
-	
+
 	public void setBoardChanged(boolean set) {
 		boardChanged = set;
 	}
@@ -433,10 +434,10 @@ public class Zone extends BaseModel {
 	}
 
 	public void setBoard(Point position, MD5Key asset) {
-		this.setMapAsset(asset); 
+		this.setMapAsset(asset);
 		this.setBoard(position);
 	}
-	
+
 	public int getBoardX() {
 		return boardPosition.x;
 	}
@@ -444,7 +445,7 @@ public class Zone extends BaseModel {
 	public int getBoardY() {
 		return boardPosition.y;
 	}
-	
+
 	public boolean drawBoard() {
 		return drawBoard;
 	}
@@ -569,7 +570,7 @@ public class Zone extends BaseModel {
 
 	public void clearExposedArea() {
 		exposedArea = new Area();
-		List<Token> allToks = getTokens(); 
+		List<Token> allToks = getTokens();
 		for(Token tok: getTokens())
 		{
 			ExposedAreaMetaData meta = tok.getExposedAreaMetaData();
@@ -593,13 +594,13 @@ public class Zone extends BaseModel {
 				meta.addToExposedAreaHistory(MapTool.getFrame().getZoneRenderer(getId()).getZoneView().getVisibleArea(token));
 				putToken(token);
 			}
-			
+
 		}
 		exposedArea.add(area);
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
-		
+
 	}
-	
+
 	public void exposeArea(Area area, Set<GUID> selectedToks) {
 		if (area == null) {
 			return;
@@ -627,7 +628,7 @@ public class Zone extends BaseModel {
 			MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush();
 			putToken(tok);
 		}
-		
+
 		exposedArea.add(area);
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
@@ -681,7 +682,7 @@ public class Zone extends BaseModel {
 		{
 			allToks = getTokens();
 		}
-		
+
 		for(Token tok: allToks)
 		{
 			if(!tok.getHasSight())
@@ -723,7 +724,7 @@ public class Zone extends BaseModel {
 		{
 			toks = view.getTokens();
 		}
-		
+
 		if(toks == null)
 		{
 			return new Area();
@@ -1197,8 +1198,8 @@ public class Zone extends BaseModel {
 
 		// 1.3b70 -> 1.3b71
 		// These two variables were added
-		if (drawBoard == false) { 
-			// this should check the file version, not the value 
+		if (drawBoard == false) {
+			// this should check the file version, not the value
 			drawBoard = true;
 		}
 		if (boardPosition == null) {
