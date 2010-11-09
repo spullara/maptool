@@ -138,6 +138,10 @@ public class AppPreferences {
 
 	private static final String KEY_FILL_SELECTION_BOX = "fillSelectionBox";
 	private static final boolean DEFAULT_FILL_SELECTION_BOX = true;
+	
+	private static final String KEY_SHOW_INIT_GAIN_MESSAGE = "showInitGainMessage";
+	private static final boolean DEFAULT_SHOW_INIT_GAIN_MESSAGE = true;
+	
 
 	public static void setFillSelectionBox(boolean fill) {
 		prefs.putBoolean(KEY_FILL_SELECTION_BOX, fill);
@@ -908,8 +912,15 @@ public class AppPreferences {
 	
 	public static void setChatNotificationShowBackground(boolean flag)
 	{
-		System.out.println("Setting Value:" + flag);
 		prefs.putBoolean(KEY_CHAT_NOTIFICATION_SHOW_BACKGROUND, flag);
 	}
 
+	public static boolean isShowInitGainMessage() {
+	    //KEY_SHOW_INIT_GAIN_MESSAGE
+	    return prefs.getBoolean(KEY_SHOW_INIT_GAIN_MESSAGE, DEFAULT_SHOW_INIT_GAIN_MESSAGE);
+	}
+	
+	public static void setShowInitGainMessage(boolean flag) {
+	    prefs.putBoolean(KEY_SHOW_INIT_GAIN_MESSAGE, flag);
+	}
 }
