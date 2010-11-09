@@ -1554,7 +1554,7 @@ public class Token extends BaseModel {
 		}
 		public ExposedAreaMetaData(Area area)
 		{
-			exposedAreaHistory = area;
+			exposedAreaHistory = (Area) area.clone();
 		}
 		public Area getExposedAreaHistory() 
 		{
@@ -1562,7 +1562,7 @@ public class Token extends BaseModel {
 			{
 				exposedAreaHistory = new Area();
 			}
-			return new Area(exposedAreaHistory);
+			return ((Area) exposedAreaHistory.clone());
 		}
 		public void addToExposedAreaHistory(Area newArea) {
 			if(newArea== null)
@@ -1573,7 +1573,7 @@ public class Token extends BaseModel {
 			{
 				this.exposedAreaHistory = new Area();
 			}
-			this.exposedAreaHistory.add(newArea) ;
+			this.exposedAreaHistory.add((Area) newArea.clone()) ;
 		}
 		public void removeExposedAreaHistory(Area newArea) {
 			if(newArea== null)
@@ -1584,7 +1584,7 @@ public class Token extends BaseModel {
 			{
 				this.exposedAreaHistory = new Area();
 			}
-			this.exposedAreaHistory.subtract(newArea) ;
+			this.exposedAreaHistory.subtract((Area) newArea.clone()) ;
 		}
 		public void clearExposedAreaHistory() {
 			this.exposedAreaHistory = new Area();

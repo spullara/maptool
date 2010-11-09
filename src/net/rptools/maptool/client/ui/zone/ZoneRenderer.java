@@ -3650,7 +3650,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	}
 	private Cursor custom = null;
 
-	public static Cursor createCustomCursor(String resource, String tokenName) {
+	public Cursor createCustomCursor(String resource, String tokenName) {
 		Cursor c = null;
 		try {
 //			Dimension d = Toolkit.getDefaultToolkit().getBestCursorSize(16, 16);	// On OSX returns any size up to 1/2 of (screen width, screen height)
@@ -3660,12 +3660,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 			// Now create a larger BufferedImage that will hold both the existing cursor and a token name
 			Graphics2D g2d = img.createGraphics();
-			Font font = new Font(Font.DIALOG, Font.PLAIN, 14);
+			Font font = AppStyle.labelFont;
 			FontRenderContext frc = g2d.getFontRenderContext();
 			TextLayout tl = new TextLayout(tokenName, font, frc);
-//			Shape s = tl.getBlackBoxBounds(0, tokenName.length());
-			float descent = tl.getVisibleAdvance();
-			descent = tl.getDescent();
 			Rectangle textbox = tl.getPixelBounds(null, 0, 0);
 			g2d.dispose();
 
@@ -3674,14 +3671,23 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			Rectangle bounds = new Rectangle(Math.max(img.getWidth(), textbox.width), img.getHeight() + textbox.height);
 			BufferedImage cursor = new BufferedImage(bounds.width, bounds.height, Transparency.BITMASK);
 			g2d = cursor.createGraphics();
-			g2d.setPaintMode();
-			g2d.drawImage(img, new AffineTransform(1f, 0f, 0f, 1f, 0,0), null);
+			g2d.setFont( font );
+//			Object oldAA = SwingUtil.useAntiAliasing(g2d);
+//			g2d.setPaintMode();
+//			g2d.setTransform( ((Graphics2D)this.getGraphics()).getTransform() );
+//			g2d.drawImage(img, null, 0, 0);
+			g2d.drawImage(img, new AffineTransform(1f, 0f, 0f, 1f, 0,0), null);	// Draw the arrow at 1:1 resolution
+			g2d.translate(0, img.getHeight() + textbox.height/2);
+			g2d.transform(new AffineTransform(0.5f, 0f, 0f, 0.5f, 0, 0));				// Why do I need this to scale down the text??
 			g2d.setColor(Color.BLACK);
-			g2d.fillRect(0, bounds.height-textbox.height, textbox.width, textbox.height);
-			g2d.setColor(Color.WHITE);
-			g2d.drawString(tokenName, 0F, bounds.height - descent);
+			GraphicsUtil.drawBoxedString(g2d, tokenName, 0, 0, SwingUtilities.LEFT);		// The text draw here is not nearly as nice looking as normal
+//			g2d.setBackground(Color.BLACK);
+//			g2d.setColor(Color.WHITE);
+//			g2d.fillRect(0, bounds.height-textbox.height, textbox.width, textbox.height);
+//			g2d.drawString(tokenName, 0F, bounds.height - descent);
 			g2d.dispose();
 			c = Toolkit.getDefaultToolkit().createCustomCursor(cursor, new Point(0,0), tokenName);
+//			SwingUtil.restoreAntiAliasing(g2d, oldAA);
 
 			img.flush();		// Try to be friendly about memory usage. ;-)
 			cursor.flush();

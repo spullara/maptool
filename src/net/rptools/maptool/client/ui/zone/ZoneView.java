@@ -441,7 +441,6 @@ public class ZoneView implements ModelChangeListener {
 			return;
 		}
 
-		System.out.println("calculateVisibleArea(view)");
 		// Cache it
 		VisibleAreaMeta meta = new VisibleAreaMeta();
 		meta.visibleArea = new Area();
