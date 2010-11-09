@@ -3657,28 +3657,32 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 //			System.out.println("Best cursor size: " + d);
 
 			BufferedImage img = ImageIO.read(MapTool.class.getResourceAsStream(resource));
-
-			// Now create a larger BufferedImage that will hold both the existing cursor and a token name
-			Graphics2D g2d = img.createGraphics();
 			Font font = AppStyle.labelFont;
-			FontRenderContext frc = g2d.getFontRenderContext();
+			Graphics2D z = (Graphics2D) this.getGraphics();
+			z.setFont(font);
+			FontRenderContext frc = z.getFontRenderContext();
 			TextLayout tl = new TextLayout(tokenName, font, frc);
 			Rectangle textbox = tl.getPixelBounds(null, 0, 0);
-			g2d.dispose();
+
+			// Now create a larger BufferedImage that will hold both the existing cursor and a token name
 
 			// Use the larger of the image width or string width, and the height of the image + the height of the string
 			// to represent the bounding box of the 'arrow+tokenName'
 			Rectangle bounds = new Rectangle(Math.max(img.getWidth(), textbox.width), img.getHeight() + textbox.height);
-			BufferedImage cursor = new BufferedImage(bounds.width, bounds.height, Transparency.BITMASK);
-			g2d = cursor.createGraphics();
+			BufferedImage cursor = new BufferedImage(bounds.width, bounds.height, Transparency.TRANSLUCENT);
+			Graphics2D g2d = cursor.createGraphics();
 			g2d.setFont( font );
-//			Object oldAA = SwingUtil.useAntiAliasing(g2d);
-//			g2d.setPaintMode();
+			g2d.setComposite( z.getComposite() );
+			g2d.setStroke( z.getStroke() );
+			g2d.setPaintMode();
+			z.dispose();
+
+			Object oldAA = SwingUtil.useAntiAliasing(g2d);
 //			g2d.setTransform( ((Graphics2D)this.getGraphics()).getTransform() );
 //			g2d.drawImage(img, null, 0, 0);
 			g2d.drawImage(img, new AffineTransform(1f, 0f, 0f, 1f, 0,0), null);	// Draw the arrow at 1:1 resolution
 			g2d.translate(0, img.getHeight() + textbox.height/2);
-			g2d.transform(new AffineTransform(0.5f, 0f, 0f, 0.5f, 0, 0));				// Why do I need this to scale down the text??
+//			g2d.transform(new AffineTransform(0.5f, 0f, 0f, 0.5f, 0, 0));				// Why do I need this to scale down the text??
 			g2d.setColor(Color.BLACK);
 			GraphicsUtil.drawBoxedString(g2d, tokenName, 0, 0, SwingUtilities.LEFT);		// The text draw here is not nearly as nice looking as normal
 //			g2d.setBackground(Color.BLACK);
@@ -3687,7 +3691,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 //			g2d.drawString(tokenName, 0F, bounds.height - descent);
 			g2d.dispose();
 			c = Toolkit.getDefaultToolkit().createCustomCursor(cursor, new Point(0,0), tokenName);
-//			SwingUtil.restoreAntiAliasing(g2d, oldAA);
+			SwingUtil.restoreAntiAliasing(g2d, oldAA);
 
 			img.flush();		// Try to be friendly about memory usage. ;-)
 			cursor.flush();

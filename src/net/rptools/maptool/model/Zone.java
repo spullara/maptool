@@ -693,7 +693,6 @@ public class Zone extends BaseModel {
 			meta.removeExposedAreaHistory(new Area(area));
 			MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush(tok);
 			putToken(tok);
-			System.out.println("Updated token");
 		}
 		exposedArea.subtract(area);
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
@@ -718,7 +717,7 @@ public class Zone extends BaseModel {
 		List<Token> toks = null;
 		if(MapTool.isPersonalServer() || (MapTool.getServerPolicy().isUseIndividualFOW() && view.isGMView()) || !MapTool.getServerPolicy().isUseIndividualFOW())
 		{
-			toks = getTokens();
+			return getExposedArea();
 		}
 		else
 		{
