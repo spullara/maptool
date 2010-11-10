@@ -169,6 +169,7 @@ public class PreferencesDialog extends JDialog {
 	private final JCheckBox hideNPCs;
 	private final JCheckBox ownerPermissions;
 	private final JCheckBox lockMovement;
+	private final JCheckBox showInitGainMessage;
 
 	public PreferencesDialog() {
 		super(MapTool.getFrame(), "Preferences", true);
@@ -247,6 +248,7 @@ public class PreferencesDialog extends JDialog {
 		hideNPCs = panel.getCheckBox("hideNPCs");
 		ownerPermissions = panel.getCheckBox("ownerPermission");
 		lockMovement = panel.getCheckBox("lockMovement");
+		showInitGainMessage = panel.getCheckBox("showInitGainMessage");
 		typingNotificationDuration = panel.getSpinner("typingNotificationDuration");
 		setInitialState();
 
@@ -562,6 +564,11 @@ public class PreferencesDialog extends JDialog {
 				AppPreferences.setInitLockMovement(lockMovement.isSelected());
 			}
 		});
+		showInitGainMessage.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setShowInitGainMessage(showInitGainMessage.isSelected());
+			}
+		});
 		chatNotificationShowBackground.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setChatNotificationShowBackground(chatNotificationShowBackground.isSelected());
@@ -626,6 +633,8 @@ public class PreferencesDialog extends JDialog {
 				AppPreferences.setMovementMetric((WalkerMetric) movementMetricCombo.getSelectedItem());
 			}
 		});
+		//showInitGainMessage
+		
 		add(panel);
 		pack();
 	}
@@ -705,6 +714,7 @@ public class PreferencesDialog extends JDialog {
 		hideNPCs.setSelected(AppPreferences.getInitHideNpcs());
 		ownerPermissions.setSelected(AppPreferences.getInitOwnerPermissions());
 		lockMovement.setSelected(AppPreferences.getInitLockMovement());
+		showInitGainMessage.setSelected(AppPreferences.isShowInitGainMessage());
 		Integer rawVal = AppPreferences.getTypingNotificationDuration();
 		Integer typingVal = null;
 		if(rawVal != null && rawVal > 99)
