@@ -5,7 +5,6 @@ package net.rptools.maptool.client.functions;
 
 import java.awt.Polygon;
 import java.awt.Rectangle;
-import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -20,13 +19,8 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.functions.AbortFunction.AbortFunctionException;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
-import net.rptools.maptool.client.ui.zone.ZoneRenderer.TokenMoveCompletion;
-import net.rptools.maptool.client.walker.AbstractZoneWalker;
-import net.rptools.maptool.client.walker.NaiveWalker;
 import net.rptools.maptool.client.walker.WalkerMetric;
 import net.rptools.maptool.client.walker.ZoneWalker;
-import net.rptools.maptool.client.walker.astar.AStarCellPoint;
-import net.rptools.maptool.client.walker.astar.AStarSquareEuclideanWalker;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.AbstractPoint;
 import net.rptools.maptool.model.CellPoint;
@@ -34,13 +28,10 @@ import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Player;
-import net.rptools.maptool.model.SquareGrid;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
-import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
-import net.rptools.maptool.tool.TokenFootprintCreator;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
@@ -48,7 +39,6 @@ import net.sf.ezmorph.bean.MorphDynaBean;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 /**
@@ -57,39 +47,37 @@ import org.apache.log4j.Logger;
  */
 public class TokenMoveFunctions extends AbstractFunction {
 
-	
+
 	private final static TokenMoveFunctions instance = new TokenMoveFunctions();
 	private static final String ON_TOKEN_MOVE_COMPLETE_CALLBACK = "onTokenMove";
 	private static final String ON_MULTIPLE_TOKENS_MOVED_COMPLETE_CALLBACK = "onMultipleTokensMove";
 	private static final String NO_GRID = "NO_GRID";
-	
+
 	private static final Logger log = Logger.getLogger(TokenMoveFunctions.class);
-	
+
 	private TokenMoveFunctions() {
 		super(0,2, "getLastPath", "movedOverToken","movedOverPoints", "getMoveCount");
-		
 	}
-
 
 	public static TokenMoveFunctions getInstance() {
-		log.setLevel(Level.INFO);
+//		log.setLevel(Level.INFO);
 		return instance;
 	}
-	
+
 	@Override
 	public Object childEvaluate(Parser parser, String functionName,
 			List<Object> parameters) throws ParserException {
-		
+
 		final Token tokenInContext = ((MapToolVariableResolver)parser.getVariableResolver()).getTokenInContext();
 		if (tokenInContext == null) {
 			throw new ParserException(I18N.getText("macro.function.general.noImpersonated", functionName));
 		}
-		
+
 		boolean useDistancePerCell = true;
-		
+
 		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 
-		if (functionName.equals("getLastPath")) {	
+		if (functionName.equals("getLastPath")) {
 			BigDecimal val = null;
 			if (parameters.size() ==1) {
 
@@ -103,10 +91,10 @@ public class TokenMoveFunctions extends AbstractFunction {
 						: true;
 			}
 			Path<?> path = tokenInContext.getLastPath();
-			
+
 			List<Map<String, Integer>> pathPoints = getLastPathList(path, useDistancePerCell);
 			return pathPointsToJSONArray(pathPoints);
-			
+
 		}
 		if(functionName.equals("movedOverPoints"))
 		{
@@ -120,19 +108,19 @@ public class TokenMoveFunctions extends AbstractFunction {
 
 			List<Map<String, Integer>> returnPoints = new ArrayList<Map<String, Integer>>();
 			Token target;
-			
+
 			if((parameters.size()==1) || parameters.size()==2 )
 			{
 				String points = (String) parameters.get(0);
 				String jsonPath = (String) (parameters.size() == 2? parameters.get(1) : "");
-				
-				
+
+
 				List<Map<String, Integer>> pathPoints = null;
 				if(jsonPath != null && !jsonPath.equals(""))
 				{
 					returnPoints = crossedPoints(zone,tokenInContext, points, jsonPath	);
 				}
-				else 
+				else
 				{
 					pathPoints = getLastPathList(path, true);
 					returnPoints = crossedPoints(zone,tokenInContext, points, pathPoints);
@@ -158,11 +146,11 @@ public class TokenMoveFunctions extends AbstractFunction {
 			{
 				throw new ParserException(I18N.getText("macro.function.general.noPerm",	functionName));
 			}
-			
+
 			Path<?> path = tokenInContext.getLastPath();
 			List<Map<String, Integer>> returnPoints = new ArrayList<Map<String, Integer>>();
 			Token target;
-			
+
 			if((parameters.size()==1) || parameters.size()==2 )
 			{
 				String targetToken = (String) parameters.get(0);
@@ -172,14 +160,14 @@ public class TokenMoveFunctions extends AbstractFunction {
 				{
 					throw new ParserException(I18N.getText("macro.function.general.unknownToken",functionName, targetToken));
 				}
-				
+
 				List<Map<String, Integer>> pathPoints = null;
 				if(jsonPath != null && !jsonPath.equals(""))
 				{
-						
+
 					returnPoints = crossedToken(zone,tokenInContext, target, jsonPath	);
 				}
-				else 
+				else
 				{
 					pathPoints = getLastPathList(path, true);
 					returnPoints = crossedToken(zone,tokenInContext, target, pathPoints);
@@ -193,19 +181,19 @@ public class TokenMoveFunctions extends AbstractFunction {
 			{
 				throw new ParserException(I18N.getText("macro.function.general.wrongNumParam",functionName, 2, parameters.size( )));
 			}
-		}	
+		}
 		return null;
 	}
 
 	private List<Map<String, Integer>> crossedToken(final Zone zone, final Token tokenInContext, final Token target,
 			final String pathString) {
 		Object jsonObject = JSONMacroFunctions.asJSON(pathString);
-		
+
 		ArrayList<Map<String, Integer>> pathPoints = new ArrayList<Map<String, Integer>>() ;
 		if(jsonObject instanceof JSONArray)
 		{
 			ArrayList<?> tempPoints = (ArrayList<?>) JSONArray.toCollection((JSONArray) jsonObject);
-			
+
 			for(Object o: tempPoints)
 			{
 				MorphDynaBean bean = (MorphDynaBean)o;
@@ -219,18 +207,18 @@ public class TokenMoveFunctions extends AbstractFunction {
 		}
 		return pathPoints;
 	}
-	
+
 	private List<Map<String, Integer>> crossedPoints(final Zone zone, final Token tokenInContext, final String pointsString,
 			final String pathString) {
 
 		List<Map<String, Integer>> pathPoints = convertJSONStringToList(pathString);
-		
-		pathPoints = (ArrayList<Map<String, Integer>>) getInstance().crossedPoints(zone,tokenInContext, pointsString, pathPoints);
+
+		pathPoints = getInstance().crossedPoints(zone,tokenInContext, pointsString, pathPoints);
 		return pathPoints;
-	
-		
+
+
 	}
-	 /* @param zone
+	/* @param zone
 	 * @param target
 	 * @param pathPoints
 	 * @return
@@ -247,14 +235,14 @@ public class TokenMoveFunctions extends AbstractFunction {
 		for(Map<String, Integer> entry: pathPoints)
 		{
 			Map<String, Integer> thePoint = new HashMap<String, Integer>();
-			Grid grid = zone.getGrid();		
+			Grid grid = zone.getGrid();
 			Rectangle originalArea = null;
 			Polygon targetArea = new Polygon();
 			for(Map<String, Integer> points: targetPoints )
 			{
-				int x = (Integer) points.get("x");
-				int y = (Integer) points.get("y");
-				targetArea.addPoint(x, y);				
+				int x = points.get("x");
+				int y = points.get("y");
+				targetArea.addPoint(x, y);
 			}
 
 			if (tokenInContext.isSnapToGrid()) {
@@ -272,7 +260,7 @@ public class TokenMoveFunctions extends AbstractFunction {
 			thePoint= null;
 		}
 		return returnPoints;
-	}	
+	}
 	/**
 	 * @param zone
 	 * @param target
@@ -290,15 +278,15 @@ public class TokenMoveFunctions extends AbstractFunction {
 		for(Map<String, Integer> entry: pathPoints)
 		{
 			Map<String, Integer> thePoint = new HashMap<String, Integer>();
-			Grid grid = zone.getGrid();		
+			Grid grid = zone.getGrid();
 			Rectangle originalArea = null;
-	
+
 			if (tokenInContext.isSnapToGrid()) {
 				originalArea = tokenInContext.getFootprint(grid).getBounds(grid, grid.convert(new ZonePoint(entry.get("x"), entry.get("y"))));
 			} else {
 				originalArea = tokenInContext.getBounds(zone);
 			}
-			
+
 			Rectangle targetArea = target.getBounds(zone);
 			if(targetArea.intersects(originalArea) || originalArea.intersects(targetArea))
 			{
@@ -309,7 +297,7 @@ public class TokenMoveFunctions extends AbstractFunction {
 			thePoint= null;
 		}
 		return returnPoints;
-	}	
+	}
 
 	private JSONArray pathPointsToJSONArray( final List<Map<String, Integer>> pathPoints)
 	{
@@ -326,7 +314,7 @@ public class TokenMoveFunctions extends AbstractFunction {
 		{
 			pointObj.element("x", entry.get("x"));
 			pointObj.element("y", entry.get("y"));
-			jsonArr.add(pointObj); 
+			jsonArr.add(pointObj);
 		}
 		if ( log.isInfoEnabled()) {
 			log.info("DEVELOPMENT: in pathPointsToJSONArrayt.  return JSONArray");
@@ -340,7 +328,7 @@ public class TokenMoveFunctions extends AbstractFunction {
 		{
 			Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 			AbstractPoint zp = null;
-			
+
 			if ( log.isInfoEnabled()) {
 				log.info("DEVELOPMENT: in getLastPathList.  Loop over each path elements");
 			}
@@ -376,14 +364,14 @@ public class TokenMoveFunctions extends AbstractFunction {
 					points.add(tokenLocationPoint);
 				}
 			}
-		}	
+		}
 		return points;
 	}
-	
+
 	public static BigDecimal tokenMoved(final Token originalToken, final Path<?> path, final List<GUID> filteredTokens) {
-		
+
 		Token token = getMoveMacroToken(ON_TOKEN_MOVE_COMPLETE_CALLBACK);
-				
+
 		List<Map<String, Integer>> pathPoints = getInstance().getLastPathList(path, true);
 		JSONArray pathArr = getInstance().pathPointsToJSONArray(pathPoints);
 		String pathCoordinates = pathArr.toString();
@@ -403,9 +391,9 @@ public class TokenMoveFunctions extends AbstractFunction {
 				{
 					MapTool.addMessage(new TextMessage(TextMessage.Channel.SAY, null, MapTool.getPlayer().getName(), resultVal, null));
 				}
-				BigDecimal denyMove = BigDecimal.ZERO; 
+				BigDecimal denyMove = BigDecimal.ZERO;
 
-				if(newResolver.getVariable("tokens.denyMove") instanceof BigDecimal)	
+				if(newResolver.getVariable("tokens.denyMove") instanceof BigDecimal)
 				{
 					denyMove = (BigDecimal) newResolver.getVariable("tokens.denyMove");
 				}
@@ -467,24 +455,24 @@ public class TokenMoveFunctions extends AbstractFunction {
 		ZoneWalker walker =  null;
 
 		WalkerMetric metric = MapTool.isPersonalServer() ?  AppPreferences.getMovementMetric() : MapTool.getServerPolicy().getMovementMetric();
-		
+
 		ZoneRenderer zr = MapTool.getFrame().getCurrentZoneRenderer();
 		Zone zone = zr.getZone();
 		Grid grid = zone.getGrid();
-		
+
 
 		Path<ZonePoint> gridlessPath;
 		int x = source.getLastPath().getCellPath().get(0).x;
 		int y = source.getLastPath().getCellPath().get(0).y;
-		
-		
+
+
 		if (source.isSnapToGrid() && grid.getCapabilities().isSnapToGridSupported()) {
 			if (zone.getGrid().getCapabilities().isPathingSupported()) {
-				
+
 				List<CellPoint> cplist = new ArrayList<CellPoint>();
 				walker = grid.createZoneWalker();
 				walker.replaceLastWaypoint(new CellPoint(x,y ));
-				for(AbstractPoint point: source.getLastPath().getCellPath())	
+				for(AbstractPoint point: source.getLastPath().getCellPath())
 				{
 					CellPoint tokenPoint = new CellPoint(point.x, point.y);
 					//walker.setWaypoints(tokenPoint);
@@ -493,12 +481,12 @@ public class TokenMoveFunctions extends AbstractFunction {
 				}
 				int bar = calculateGridDistance(cplist, zone.getUnitsPerCell(), metric);
 				return Integer.valueOf(bar).toString();
-				
+
 				//return  Integer.toString(walker.getDistance());
 			}
 		} else {
 			gridlessPath = new Path<ZonePoint>();
-			for(AbstractPoint point: source.getLastPath().getCellPath())	
+			for(AbstractPoint point: source.getLastPath().getCellPath())
 			{
 				gridlessPath.addPathCell(new ZonePoint(point.x, point.y));
 			}
@@ -547,9 +535,9 @@ public class TokenMoveFunctions extends AbstractFunction {
 				{
 					MapTool.addMessage(new TextMessage(TextMessage.Channel.ALL, null, MapTool.getPlayer().getName(), resultVal, null));
 				}
-				BigDecimal denyMove = BigDecimal.ZERO; 
+				BigDecimal denyMove = BigDecimal.ZERO;
 
-				if(newResolver.getVariable("tokens.denyMove") instanceof BigDecimal)	
+				if(newResolver.getVariable("tokens.denyMove") instanceof BigDecimal)
 				{
 					denyMove = (BigDecimal) newResolver.getVariable("tokens.denyMove");
 				}
@@ -568,14 +556,14 @@ public class TokenMoveFunctions extends AbstractFunction {
 	}
 	private List<Map<String,Integer>> convertJSONStringToList(final String pointsString)
 	{
-		
+
 		Object jsonObject = JSONMacroFunctions.asJSON(pointsString);
-		
+
 		ArrayList<Map<String, Integer>> pathPoints = new ArrayList<Map<String, Integer>>() ;
 		if(jsonObject instanceof JSONArray)
 		{
 			ArrayList<?> tempPoints = (ArrayList<?>) JSONArray.toCollection((JSONArray) jsonObject);
-			
+
 			for(Object o: tempPoints)
 			{
 				MorphDynaBean bean = (MorphDynaBean)o;
@@ -592,7 +580,7 @@ public class TokenMoveFunctions extends AbstractFunction {
 			return 0;
 
 		final int feetDistance;
-		
+
 		{
 			int numDiag = 0;
 			int numStrt = 0;
@@ -601,7 +589,7 @@ public class TokenMoveFunctions extends AbstractFunction {
 			for (CellPoint point : path) {
 				if (previousPoint != null) {
 					int change = Math.abs(previousPoint.x - point.x) + Math.abs(previousPoint.y - point.y);
-					
+
 					switch (change) {
 					case 1:
 						numStrt++;
@@ -611,28 +599,28 @@ public class TokenMoveFunctions extends AbstractFunction {
 						break;
 					default:
 						assert false : String.format("Illegal path, cells are not contiguous change=%d", change);
-						return -1;
+					return -1;
 					}
 				}
 				previousPoint = point;
 			}
-			
+
 			final int cellDistance;
 			switch (metric) {
-				case MANHATTAN:
-				case NO_DIAGONALS:
-					cellDistance = (numStrt + numDiag*2);
-					break;
-				case ONE_ONE_ONE:
-					cellDistance = (numStrt+numDiag);
-					break;
-				default:
-				case ONE_TWO_ONE:
-					cellDistance = (numStrt + numDiag + numDiag / 2);
-					break;	
+			case MANHATTAN:
+			case NO_DIAGONALS:
+				cellDistance = (numStrt + numDiag*2);
+				break;
+			case ONE_ONE_ONE:
+				cellDistance = (numStrt+numDiag);
+				break;
+			default:
+			case ONE_TWO_ONE:
+				cellDistance = (numStrt + numDiag + numDiag / 2);
+				break;
 			}
 			feetDistance = cellDistance * feetPerCell;
 		}
 		return feetDistance;
-	}	
+	}
 }

@@ -175,8 +175,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	private Set<GUID> visibleTokenSet;
 	private CodeTimer timer;
 
-
-
 	public static enum TokenMoveCompletion
 	{
 		TRUE,
@@ -188,7 +186,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		if (zone == null) {
 			throw new IllegalArgumentException("Zone cannot be null");
 		}
-
 		this.zone = zone;
 		zone.addModelChangeListener(new ZoneModelChangeListener());
 
