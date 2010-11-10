@@ -6,11 +6,13 @@ package net.rptools.maptool.client;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import net.rptools.maptool.client.ui.commandpanel.CommandPanel;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -23,6 +25,7 @@ public class ChatAutoSave {
 	private final Timer countdown;
 	private TimerTask task;
 	private long delay;
+	private static String chatlog = null;
 
 	private ChatAutoSave() {
 		log.debug("Creating chat log autosave timer");
@@ -36,21 +39,25 @@ public class ChatAutoSave {
 			@Override
 			public void run() {
 				log.debug("Chat log autosave countdown complete from " + timeout);
-				String filename = AppPreferences.getChatFilenameFormat();
-				File chatlog;
-				if (filename.indexOf(File.separator) == -1) {
-					// If there is no separator, treat it as relative to the "autosave" directory
-					chatlog = new File(AppUtil.getAppHome("autosave").toString() + "/" + filename);
-				} else {
-					// It's an absolute pathname due to the existence of the separator.
-					chatlog = new File(filename);
+				if (chatlog == null) {
+					String filename = AppPreferences.getChatFilenameFormat();
+					// FJE Ugly kludge to replace older default entry with newer default
+					// TODO This is going into 1.3.b77 so remove it in 3-4 builds
+					if ("chatlog.html".equals(filename)) {
+						AppPreferences.clearChatFilenameFormat();
+						filename = AppPreferences.getChatFilenameFormat();
+					}
+					chatlog = String.format(filename, new Date()).replace(':', '-');
 				}
-				log.info("Saving log to '" + chatlog.toString() + "'...");
-				CommandPanel chat = MapTool.getFrame().getCommandPanel();
-				MapTool.getFrame().setStatusMessage("Autosaving chat log...");
+				File chatFile = new File(AppUtil.getAppHome("autosave").toString(), chatlog);
+				log.info("Saving log to '" + chatFile + "'");
+
 				FileWriter writer = null;
+				CommandPanel chat = MapTool.getFrame().getCommandPanel();
+				String old = MapTool.getFrame().getStatusMessage();
 				try {
-					writer = new FileWriter(chatlog);		// FIXME Literal filename right now
+					MapTool.getFrame().setStatusMessage("Autosaving chat log...");
+					writer = new FileWriter(chatFile);
 					writer.write(chat.getMessageHistory());
 					log.info("Log saved");
 				} catch (IOException e) {
@@ -61,14 +68,8 @@ public class ChatAutoSave {
 					// message box that pops up...
 					MapTool.showWarning("msg.warn.failedAutoSavingMessageHistory", e);
 				} finally {
-					if (writer != null) {
-						try {
-							writer.close();
-						} catch (IOException e) {
-							log.warn("Couldn't close chat log autosave?!");
-						}
-					}
-					MapTool.getFrame().setStatusMessage("");
+					IOUtils.closeQuietly(writer);
+					MapTool.getFrame().setStatusMessage(old);
 				}
 			}
 		};

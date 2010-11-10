@@ -50,7 +50,7 @@ public class AppPreferences {
 	private static final int DEFAULT_CHAT_AUTOSAVE_TIME = 0; // Minutes; zero=disabled
 
 	private static final String KEY_CHAT_FILENAME_FORMAT = "chatFilenameFormat";
-	private static final String DEFAULT_CHAT_FILENAME_FORMAT = "chatlog.html"; // see strformat() for details
+	private static final String DEFAULT_CHAT_FILENAME_FORMAT = "chatlog-%1$tF-%1$tR.html"; // http://download.oracle.com/javase/1.5.0/docs/api/java/util/Formatter.html
 
 	private static final String KEY_DUPLICATE_TOKEN_NUMBER = "duplicateTokenNumber";
 	private static final String DEFAULT_DUPLICATE_TOKEN_NUMBER = Token.NUM_INCREMENT;
@@ -138,10 +138,10 @@ public class AppPreferences {
 
 	private static final String KEY_FILL_SELECTION_BOX = "fillSelectionBox";
 	private static final boolean DEFAULT_FILL_SELECTION_BOX = true;
-	
+
 	private static final String KEY_SHOW_INIT_GAIN_MESSAGE = "showInitGainMessage";
 	private static final boolean DEFAULT_SHOW_INIT_GAIN_MESSAGE = true;
-	
+
 
 	public static void setFillSelectionBox(boolean fill) {
 		prefs.putBoolean(KEY_FILL_SELECTION_BOX, fill);
@@ -197,6 +197,10 @@ public class AppPreferences {
 
 	public static String getChatFilenameFormat() {
 		return prefs.get(KEY_CHAT_FILENAME_FORMAT, DEFAULT_CHAT_FILENAME_FORMAT);
+	}
+
+	public static void clearChatFilenameFormat() {
+		prefs.remove(KEY_CHAT_FILENAME_FORMAT);
 	}
 
 	public static void setTokenNumberDisplay(String display) {
@@ -338,8 +342,8 @@ public class AppPreferences {
 
 	private static final String KEY_SUPPRESS_TOOLTIPS_FOR_MACROLINKS = "suppressToolTipsMacroLinks";
 	private static final boolean DEFAULT_SUPPRESS_TOOLTIPS_FOR_MACROLINKS = false;
-		
-	
+
+
 	// chat notification colors
 	private static final String KEY_CHAT_NOTIFICATION_COLOR_RED = "chatNotificationColorRed";
 	private static final int DEFAULT_CHAT_NOTIFICATION_COLOR_RED = 0xFF;
@@ -349,12 +353,12 @@ public class AppPreferences {
 
 	private static final String KEY_CHAT_NOTIFICATION_COLOR_BLUE = "chatNotificationColorBlue";
 	private static final int DEFAULT_CHAT_NOTIFICATION_COLOR_BLUE = 0xFF;
-	
+
 	// end chat notification colors
-	
+
 	private static final String KEY_CHAT_NOTIFICATION_SHOW_BACKGROUND = "chatNotificationShowBackground";
 	private static final boolean DEFAULT_CHAT_NOTIFICATION_SHOW_BACKGROUND = true;
-	
+
 
 	private static final String KEY_TRUSTED_PREFIX_BG_RED = "trustedPrefixBGRed";
 	private static final int DEFAULT_TRUSTED_PREFIX_BG_RED = 0xD8;
@@ -390,8 +394,8 @@ public class AppPreferences {
 		return value;
 	}
 
-	
-	
+
+
 	public static final void setUseToolTipForInlineRoll(boolean tooltip) {
 		prefs.putBoolean(KEY_TOOLTIP_FOR_INLINE_ROLLS, tooltip);
 	}
@@ -638,8 +642,8 @@ public class AppPreferences {
 	public static boolean getTokensWarnWhenDeleted() {
 		return prefs.getBoolean(KEY_TOKENS_WARN_WHEN_DELETED, DEFAULT_TOKENS_WARN_WHEN_DELETED);
 	}
-	
-	
+
+
 
 	public static void setTokensStartSnapToGrid(boolean flag) {
 		prefs.putBoolean(KEY_TOKENS_START_SNAP_TO_GRID, flag);
@@ -909,18 +913,18 @@ public class AppPreferences {
 		//System.out.println("Getting Value:" + prefs.getBoolean(KEY_CHAT_NOTIFICATION_SHOW_BACKGROUND, DEFAULT_CHAT_NOTIFICATION_SHOW_BACKGROUND));
 		return prefs.getBoolean(KEY_CHAT_NOTIFICATION_SHOW_BACKGROUND, DEFAULT_CHAT_NOTIFICATION_SHOW_BACKGROUND);
 	}
-	
+
 	public static void setChatNotificationShowBackground(boolean flag)
 	{
 		prefs.putBoolean(KEY_CHAT_NOTIFICATION_SHOW_BACKGROUND, flag);
 	}
 
 	public static boolean isShowInitGainMessage() {
-	    //KEY_SHOW_INIT_GAIN_MESSAGE
-	    return prefs.getBoolean(KEY_SHOW_INIT_GAIN_MESSAGE, DEFAULT_SHOW_INIT_GAIN_MESSAGE);
+		//KEY_SHOW_INIT_GAIN_MESSAGE
+		return prefs.getBoolean(KEY_SHOW_INIT_GAIN_MESSAGE, DEFAULT_SHOW_INIT_GAIN_MESSAGE);
 	}
-	
+
 	public static void setShowInitGainMessage(boolean flag) {
-	    prefs.putBoolean(KEY_SHOW_INIT_GAIN_MESSAGE, flag);
+		prefs.putBoolean(KEY_SHOW_INIT_GAIN_MESSAGE, flag);
 	}
 }
