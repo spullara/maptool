@@ -38,7 +38,8 @@ public class ChatAutoSave {
 		TimerTask t = new TimerTask() {
 			@Override
 			public void run() {
-				log.debug("Chat log autosave countdown complete from " + timeout);
+				if (log.isDebugEnabled())
+					log.debug("Chat log autosave countdown complete from " + timeout);
 				if (chatlog == null) {
 					String filename = AppPreferences.getChatFilenameFormat();
 					// FJE Ugly kludge to replace older default entry with newer default
@@ -50,7 +51,8 @@ public class ChatAutoSave {
 					chatlog = String.format(filename, new Date()).replace(':', '-');
 				}
 				File chatFile = new File(AppUtil.getAppHome("autosave").toString(), chatlog);
-				log.info("Saving log to '" + chatFile + "'");
+				if (log.isInfoEnabled())
+					log.info("Saving log to '" + chatFile + "'");
 
 				FileWriter writer = null;
 				CommandPanel chat = MapTool.getFrame().getCommandPanel();
@@ -59,7 +61,8 @@ public class ChatAutoSave {
 					MapTool.getFrame().setStatusMessage("Autosaving chat log...");
 					writer = new FileWriter(chatFile);
 					writer.write(chat.getMessageHistory());
-					log.info("Log saved");
+					if (log.isInfoEnabled())
+						log.info("Log saved");
 				} catch (IOException e) {
 					// If this happens should we track it and turn off the autosave?  Perhaps
 					// after a certain number of consecutive failures?  Or maybe just lengthen
