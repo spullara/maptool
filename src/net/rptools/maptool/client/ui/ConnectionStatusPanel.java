@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.ui;
 
@@ -24,45 +24,45 @@ import javax.swing.JPanel;
 import net.rptools.lib.image.ImageUtil;
 
 public class ConnectionStatusPanel extends JPanel {
+	public enum Status {
+		connected,
+		disconnected,
+		server
+	}
+	public static Icon disconnectedIcon;
+	public static Icon connectedIcon;
+	public static Icon serverIcon;
 
-    public enum Status {
-        connected,
-        disconnected,
-        server
-    }
-    
-    public static Icon disconnectedIcon;
-    public static Icon connectedIcon;
-    public static Icon serverIcon;
+	private final JLabel iconLabel = new JLabel();
 
-    private JLabel iconLabel = new JLabel();
-    
-    static {
-        try {
-            disconnectedIcon = new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/computer_off.png"));
-            connectedIcon = new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/computer_on.png"));
-            serverIcon = new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/computer_server.png"));
-        }catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-    }
-    
-    public ConnectionStatusPanel() {
-        setLayout(new GridLayout(1, 1));
-        setStatus(Status.disconnected);
-        add(iconLabel);
-    }
-    
-    public void setStatus(Status status) {
-        Icon icon = null;
-        String tip = null;
-        switch(status) {
-        case connected : icon = connectedIcon; tip = "Connected to Server"; break;
-        case server : icon = serverIcon; tip = "Running a Server"; break;
-        default: icon = disconnectedIcon; tip = "Not connected";
-        }
-        
-        iconLabel.setIcon(icon);
-        setToolTipText(tip);
-    }
+	static {
+		try {
+			disconnectedIcon = new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/computer_off.png"));
+			connectedIcon = new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/computer_on.png"));
+			serverIcon = new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/computer_server.png"));
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
+
+	public ConnectionStatusPanel() {
+		setLayout(new GridLayout(1, 1));
+		setStatus(Status.disconnected);
+		add(iconLabel);
+	}
+
+	public void setStatus(Status status) {
+		Icon icon = null;
+		String tip = null;
+		switch(status) {
+		case connected :
+			icon = connectedIcon; tip = "Connected to Server"; break;
+		case server :
+			icon = serverIcon; tip = "Running a Server"; break;
+		default:
+			icon = disconnectedIcon; tip = "Not connected";
+		}
+		iconLabel.setIcon(icon);
+		setToolTipText(tip);
+	}
 }

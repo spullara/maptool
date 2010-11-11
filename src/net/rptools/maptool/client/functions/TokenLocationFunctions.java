@@ -494,8 +494,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 	 * @param token The token to move.
 	 * @param x the x co-ordinate of the destination.
 	 * @param y the y co-ordinate of the destination.
-	 * @param z the z order of the destination.
-	 * @param units use map units or not.
+	 * @param units whether or not to use map units.
 	 */
 	public void moveToken(Token token, int x, int y, boolean units) {
 

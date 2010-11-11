@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.model;
 
@@ -36,38 +36,37 @@ import com.thoughtworks.xstream.XStream;
  */
 public abstract class Grid implements Cloneable{
 
-    public static final int MIN_GRID_SIZE = 5;
-    public static final int MAX_GRID_SIZE = 350;
+	public static final int MIN_GRID_SIZE = 5;
+	public static final int MAX_GRID_SIZE = 350;
 
-    private static final Dimension NO_DIM = new Dimension();
-    // private static final Point NO_POINT = new Point();
-    
+	private static final Dimension NO_DIM = new Dimension();
+	// private static final Point NO_POINT = new Point();
+
 	private int offsetX = 0;
 	private int offsetY = 0;
 	private int size;
-	
-	private Zone zone;
 
+	private Zone zone;
 	private Area cellShape;
-	
+
 	public Grid() {
 		setSize(AppPreferences.getDefaultGridSize());
 	}
-	
+
 	public Grid(Grid grid) {
 		setSize(grid.getSize());
 		setOffset(grid.offsetX, grid.offsetY);
 	}
-	
+
 	public void drawCoordinatesOverlay(Graphics2D g, ZoneRenderer renderer) {
 		// Do nothing my default
 	}
-	
+
 	/**
-	 * Set the facing options for tokens/objects on a grid. Each grid type 
+	 * Set the facing options for tokens/objects on a grid. Each grid type
 	 * can providing facings to the edges, the vertices, both or neither.
 	 * 
-	 * If both are false, tokens on that grid will not be able to rotate 
+	 * If both are false, tokens on that grid will not be able to rotate
 	 * with the mouse and keyboard controls for setting facing.
 	 * 
 	 * @param faceEdges - Tokens can face edges.
@@ -76,35 +75,31 @@ public abstract class Grid implements Cloneable{
 	public void setFacings(boolean faceEdges, boolean faceVertices) {
 		// Handle it in the individual grid types
 	}
-	
-	protected List<TokenFootprint> loadFootprints(String path, OffsetTranslator... translators) throws IOException {
 
+	protected List<TokenFootprint> loadFootprints(String path, OffsetTranslator... translators) throws IOException {
 		List<TokenFootprint> footprintList = (List<TokenFootprint>) new XStream().fromXML(new String(FileUtil.loadResource(path)));
 		for (TokenFootprint footprint : footprintList) {
 			for (OffsetTranslator ot : translators) {
 				footprint.addOffsetTranslator(ot);
 			}
 		}
-		
 		return footprintList;
 	}
-	
+
 	public TokenFootprint getDefaultFootprint() {
 		for (TokenFootprint footprint : getFootprints()) {
 			if (footprint.isDefault()) {
 				return footprint;
 			}
 		}
-		
 		// None specified, use the first
 		return getFootprints().get(0);
 	}
-	
+
 	public TokenFootprint getFootprint(GUID guid) {
 		if (guid == null) {
 			return getDefaultFootprint();
 		}
-		
 		for (TokenFootprint footprint : getFootprints()) {
 			if (footprint.getId().equals(guid)) {
 				return footprint;
@@ -112,24 +107,23 @@ public abstract class Grid implements Cloneable{
 		}
 		return getDefaultFootprint();
 	}
-	
-	public abstract List<TokenFootprint> getFootprints();
-	
-	public Object clone () 
-    	throws CloneNotSupportedException
-    {
-		return super.clone();
 
+	public abstract List<TokenFootprint> getFootprints();
+
+	@Override
+	public Object clone ()
+	throws CloneNotSupportedException
+	{
+		return super.clone();
 		/*Grid newGrid = (Grid)super.clone();
-		
 		return newGrid;*/
-    }
-	
+	}
+
 	/**
 	 * @return Coordinates in Cell-space of the ZonePoint
 	 */
 	public abstract CellPoint convert(ZonePoint zp);
-	
+
 	/**
 	 * @return A ZonePoint whose position within the cell depends on the grid type:<br>
 	 * <i>SquareGrid</i> - top right of cell (x_min, y_min)<br>
@@ -137,13 +131,13 @@ public abstract class Grid implements Cloneable{
 	 * For HexGrids Use getCellOffset() to move ZonePoint from center to top right
 	 */
 	public abstract ZonePoint convert(CellPoint cp);
-	
+
 	public int[] getFacingAngles() {
 		return null;
 	}
 
 	public abstract GridCapabilities getCapabilities();
-	
+
 	public int getTokenSpace() {
 		return getSize();
 	}
@@ -153,7 +147,7 @@ public abstract class Grid implements Cloneable{
 	public double getCellHeight() {
 		return 0;
 	}
-	
+
 	/**
 	 * @return The offset required to translate from the center of a cell
 	 * to the top right (x_min, y_min) of the cell's bounding rectangle.
@@ -162,55 +156,53 @@ public abstract class Grid implements Cloneable{
 	 * Why?  Because mySquareGrid.convert(CellPoint cp) returns a ZonePoint
 	 * in the top right corner(x_min, y_min) of the square-cell, whereas
 	 * myHexGrid.convert(CellPoint cp) returns a ZonePoint in the center of
-	 * the hex-cell.  Thus adding the CellOffset allows us to position the 
+	 * the hex-cell.  Thus adding the CellOffset allows us to position the
 	 * ZonePoint returned by myHexGrid.convert(CellPoint cp) in an equivalent
 	 * position to that returned by myHexGrid.convert(CellPoint cp)....I think ;)
 	 */
 	public Dimension getCellOffset() {
 		return NO_DIM;
 	}
-	
+
 	public Zone getZone() {
 		return zone;
 	}
-	
+
 	public void setZone(Zone zone) {
 		this.zone = zone;
 	}
-	
+
 	public Area getCellShape() {
 		return cellShape;
 	}
-	
+
 	public BufferedImage getCellHighlight(){
 		return null;
 	}
-	
+
 	protected abstract Area createCellShape(int size);
 
 	protected void setCellShape(Area cellShape) {
 		this.cellShape = cellShape;
 	}
 
-
-	
 	/**
 	 * @param Both The grid's x and y offset components
 	 */
 	public void setOffset(int offsetX, int offsetY) {
 		this.offsetX = offsetX;
 		this.offsetY = offsetY;
-		
-        fireGridChanged();
+
+		fireGridChanged();
 	}
-	
+
 	/**
 	 * @return The x component of the grid's offset.
 	 */
 	public int getOffsetX() {
 		return offsetX;
 	}
-	
+
 	/**
 	 * @return The y component of the grid's offset
 	 */
@@ -221,8 +213,7 @@ public abstract class Grid implements Cloneable{
 	public ZoneWalker createZoneWalker(){
 		return null;
 	}
-	
-	
+
 	/**
 	 * Sets the grid size and creates the grid cell shape
 	 * @param size The size of the grid<br>
@@ -230,25 +221,23 @@ public abstract class Grid implements Cloneable{
 	 *  <i>HexGrid</i> - edge to edge diameter
 	 */
 	public void setSize(int size) {
-		
-    	this.size = constrainSize(size);
-    	cellShape = createCellShape(size);
+		this.size = constrainSize(size);
+		cellShape = createCellShape(size);
 		fireGridChanged();
 	}
-	
+
 	/**
-	 * Constrains size to MIN_GRID_SIZE <= size <= MIN_GRID_SIZE
+	 * Constrains size to MIN_GRID_SIZE <= size <= MAX_GRID_SIZE
 	 * @return The size after it has been constrained
 	 */
 	protected final int constrainSize (int size) {
-				
-    	if (size < MIN_GRID_SIZE) {
-    		size = MIN_GRID_SIZE;
-    	}
-    	else if (size > MAX_GRID_SIZE) {
-    		size = MAX_GRID_SIZE;
-    	}
-    	return size;
+		if (size < MIN_GRID_SIZE) {
+			size = MIN_GRID_SIZE;
+		}
+		else if (size > MAX_GRID_SIZE) {
+			size = MAX_GRID_SIZE;
+		}
+		return size;
 	}
 
 	/**
@@ -259,24 +248,22 @@ public abstract class Grid implements Cloneable{
 	public int getSize() {
 		return size;
 	}
-	
 
-	
 	private void fireGridChanged() {
 		if (zone != null) {
 			zone.fireModelChangeEvent(new ModelChangeEvent(this, Event.GRID_CHANGED));
 		}
 	}
-	
+
 	/**
 	 * Draws the grid scaled to the renderer's scale and within the renderer's boundaries
 	 */
 	public void draw(ZoneRenderer renderer, Graphics2D g, Rectangle bounds) {
 		// Do nothing
 	}
-	
+
 	public abstract Rectangle getBounds(CellPoint cp);
-	
+
 	/**
 	 * Override if getCapabilities.isSecondDimensionAdjustmentSupported() returns true
 	 * @param length the second settable dimension
@@ -284,7 +271,7 @@ public abstract class Grid implements Cloneable{
 	 */
 	public void setSecondDimension(double length) {
 	}
-	
+
 	/**
 	 * Override if getCapabilities.isSecondDimensionAdjustmentSupported() returns true
 	 *  @return length the curent value of the second settable dimension
@@ -292,5 +279,4 @@ public abstract class Grid implements Cloneable{
 	public double getSecondDimension() {
 		return 0;
 	}
-	
 }

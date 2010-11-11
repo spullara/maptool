@@ -9,7 +9,6 @@ import java.util.List;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.MapToolVariableResolver;
-import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Token;
@@ -25,8 +24,11 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 
 	private static final TokenCopyDeleteFunctions instance = new TokenCopyDeleteFunctions();
 
+	private static final String COPY_FUNC = "copyToken";
+	private static final String REMOVE_FUNC = "removeToken";
+
 	private TokenCopyDeleteFunctions() {
-		super(1, 4, "copyToken", "removeToken");
+		super(1, 4, COPY_FUNC, REMOVE_FUNC);
 	}
 
 
@@ -43,11 +45,11 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 		}
 
 		MapToolVariableResolver res = (MapToolVariableResolver) parser.getVariableResolver();
-		if (functionName.equals("copyToken")) {
+		if (functionName.equals(COPY_FUNC)) {
 			return copyTokens(res, parameters);
 		}
 
-		if (functionName.equals("removeToken")) {
+		if (functionName.equals(REMOVE_FUNC)) {
 			return deleteToken(res, parameters);
 		}
 
@@ -68,71 +70,70 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 	}
 
 
+	/*
+	 * Token		copyToken(String tokenId, Number numCopies: 1, String fromMap: (""|currentMap()), JSONObject updates: null)
+	 * JSONArray	copyToken(String tokenId, Number numCopies,     String fromMap: (""|currentMap()), JSONObject updates: null)
+	 */
 	private Object copyTokens(MapToolVariableResolver res, List<Object> param) throws ParserException {
-		if (param.size() < 1) {
-			throw new ParserException(I18N.getText("macro.function.general.argumentTypeT", "copyToken", 1, ""));	// should be notEnoughParams
-		}
-
-		String zoneName = null;
-		if (param.size() > 2) {
-			zoneName = param.get(2).toString();
-		}
-
-		Token token = FindTokenFunctions.findToken(param.get(0).toString(), zoneName);
-
-
-		if (token == null) {
-			throw new ParserException(I18N.getText("macro.function.general.unknownToken", "copyToken", param.get(0)));
-		}
+		Token token = null;
 		int numberCopies = 1;
-		if (param.size() > 1) {
-			if (!(param.get(1) instanceof BigDecimal)) {
-				throw new ParserException(I18N.getText("macro.function.general.argumentTypeI", "copyToken", 2, param.get(1).toString()));
-			}
-			numberCopies = ((BigDecimal)param.get(1)).intValue();
-
-		}
-
+		String zoneName = null;
 		JSONObject newVals = null;
-		if (param.size() > 3) {
+
+		int size = param.size();
+		switch (size) {
+		default :	// Come here with four or more parameters
+			throw new ParserException(I18N.getText("macro.function.general.tooManyParam", COPY_FUNC, 4, size));
+		case 4 :
 			Object o = JSONMacroFunctions.asJSON(param.get(3));
 			if (!(o instanceof JSONObject)) {
-				throw new ParserException(I18N.getText("macro.function.general.argumentTypeO", "copyToken", 4, param.get(3).toString()));
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeO", COPY_FUNC, 4));
 			}
 			newVals = (JSONObject) o;
-		}
-		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
+		case 3 :
+			zoneName = param.get(2).toString();
+		case 2 :
+			if (!(param.get(1) instanceof BigDecimal)) {
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeI", COPY_FUNC, 2, param.get(1).toString()));
+			}
+			numberCopies = ((BigDecimal)param.get(1)).intValue();
+		case 1 :
+			token = FindTokenFunctions.findToken(param.get(0).toString(), zoneName);
+			if (token == null) {
+				throw new ParserException(I18N.getText("macro.function.general.unknownTokenOnMap", COPY_FUNC, param.get(0), zoneName));
+			}
+			Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
+			List<String> newTokens = new ArrayList<String>(numberCopies);
+			for (int i = 0; i < numberCopies; i++) {
+				Token t = new Token(token);
+				setTokenValues(t, newVals, zone, res);
+				zone.putToken(t);
 
-		List<String> newTokens = new ArrayList<String>(numberCopies);
-
-
-		for (int i = 0; i < numberCopies; i++) {
-			Token t = new Token(token);
-			zone.putToken(t);
-			setTokenValues(t, newVals, zone, res);
-
-			MapTool.serverCommand().putToken(zone.getId(), t);
-			newTokens.add(t.getId().toString());
-		}
-		MapTool.getFrame().getCurrentZoneRenderer().flushLight();
-		if (numberCopies == 1) {
-			return newTokens.get(0).toString();
-		} else {
-			return JSONArray.fromObject(newTokens);
+				MapTool.serverCommand().putToken(zone.getId(), t);
+				newTokens.add(t.getId().toString());
+			}
+			MapTool.getFrame().getCurrentZoneRenderer().flushLight();
+			if (numberCopies == 1) {
+				return newTokens.get(0);
+			} else {
+				return JSONArray.fromObject(newTokens);
+			}
+		case 0 :
+			throw new ParserException(I18N.getText("macro.function.general.argumentTypeT", COPY_FUNC, 1));	// should be notEnoughParams
 		}
 	}
 
-
 	private void setTokenValues(Token token, JSONObject vals, Zone zone, MapToolVariableResolver res) throws ParserException {
-
 		JSONObject newVals = JSONObject.fromObject(vals);
-		newVals = (JSONObject)JSONMacroFunctions.getInstance().JSONEvaluate(res, newVals);
+		newVals = (JSONObject) JSONMacroFunctions.getInstance().JSONEvaluate(res, newVals);
 
+		// FJE Should we remove the keys as we process them?  We could then warn the user
+		// if there are still keys in the hash at the end...
 
 		// Update the Token Name.
 		if (newVals.containsKey("name")) {
 			if(newVals.getString("name").equals("")){
-				throw new ParserException(I18N.getText("macro.function.tokenName.emptyTokenNameForbidden", "copyToken"));
+				throw new ParserException(I18N.getText("macro.function.tokenName.emptyTokenNameForbidden", COPY_FUNC));
 			}
 			token.setName(newVals.getString("name"));
 		} else {
@@ -152,64 +153,61 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 			token.setGMName(newVals.getString("gmName"));
 		}
 
-
 		// Layer
 		if (newVals.containsKey("layer")) {
-			TokenPropertyFunctions.getInstance().setLayer(token,
-					newVals.getString("layer"));
+			TokenPropertyFunctions.getInstance().setLayer(token, newVals.getString("layer"));
 		}
 
 		// Location...
-		int x = token.getX();
-		int y = token.getY();
-		boolean tokenMoved = false;
 		boolean useDistance = true;
-
-		// X
-		if (newVals.containsKey("x")) {
-			x= newVals.getInt("x");
-			tokenMoved = true;
-		}
-
-		// Y
-		if (newVals.containsKey("y")) {
-			y = newVals.getInt("y");
-			tokenMoved = true;
-		}
-
 		if (newVals.containsKey("useDistance")) {
 			if (newVals.getInt("useDistance") == 0) {
 				useDistance = false;
 			}
 		}
+		Grid grid = zone.getGrid();
+		int x = token.getX(), y = token.getY();
+		boolean tokenMoved = false;
+		boolean delta = false;
+
+		if (newVals.containsKey("delta")) {
+			if (newVals.getInt("delta") != 0) {
+				delta = true;
+			}
+		}
+
+		// X
+		if (newVals.containsKey("x")) {
+			x = newVals.getInt("x") * (useDistance ? grid.getSize() : 1) + (delta ? x : 0);
+			tokenMoved = true;
+		}
+
+		// Y
+		if (newVals.containsKey("y")) {
+			y = newVals.getInt("y") * (useDistance ? grid.getSize() : 1) + (delta ? y : 0);
+			tokenMoved = true;
+		}
 
 		if (tokenMoved) {
-			TokenLocationFunctions.getInstance().moveToken(token, x, y, useDistance);
+			TokenLocationFunctions.getInstance().moveToken(token, x, y, true);		// Always using ZonePoint coords
 		}
 
 		// Facing
 		if (newVals.containsKey("facing")) {
 			token.setFacing(newVals.getInt("facing"));
-			MapTool.getFrame().getCurrentZoneRenderer().flushLight();
+//			MapTool.getFrame().getCurrentZoneRenderer().flushLight();	// FJE Already part of copyToken()
 		}
-
 
 		// Size
-		if (newVals.containsKey("size")) {
+		if (newVals.containsKey("size")) {				// FJE ... && token.isSnapToScale()) {
 			String size = newVals.getString("size");
-			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-			Grid grid = renderer.getZone().getGrid();
 			for (TokenFootprint footprint : grid.getFootprints()) {
-				if (token.isSnapToScale() && footprint.getName().equalsIgnoreCase(size)) {
+				if (footprint.getName().equalsIgnoreCase(size)) {
 					token.setFootprint(grid, footprint);
 					token.setSnapToScale(true);
+					break;
 				}
-
 			}
 		}
-
 	}
-
-
 }
-
