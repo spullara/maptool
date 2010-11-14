@@ -5,10 +5,7 @@ package net.rptools.maptool.client.functions;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.MapToolVariableResolver;
@@ -212,11 +209,11 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 				}
 			}
 		}
-		
+
 		// tokenImage
 		if( newVals.containsKey("tokenImage")) {
 			String assetName = newVals.getString("tokenImage");
-				TokenImage.setImage(token, assetName);
+			TokenImage.setImage(token, assetName);
 		}
 		// handoutImage
 		if( newVals.containsKey("handoutImage")) {
