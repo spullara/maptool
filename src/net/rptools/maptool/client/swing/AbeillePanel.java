@@ -61,9 +61,7 @@ import com.jeta.forms.components.panel.FormPanel;
  */
 @SuppressWarnings("serial")
 public class AbeillePanel <T> extends JPanel {
-
 	private final FormPanel panel;
-
 	private T model;
 
 	static {
@@ -76,12 +74,10 @@ public class AbeillePanel <T> extends JPanel {
 				}
 
 //				System.out.println("Name:" + name);
-				name = name.substring(1); // cut the "@"
+				name = name.substring(1).trim();			// cut the "@"
 				int point = name.indexOf(".");
-				if (point >= 0) {
-					name = name.substring(0, point);
-				}
-
+				if (point >= 0)
+					name = name.substring(0, point).trim();
 				return new BindingInfo(name);
 			}
 			public void storeBindingInfo(Component view, BindingInfo info) {
@@ -91,11 +87,8 @@ public class AbeillePanel <T> extends JPanel {
 
 	public AbeillePanel(String panelForm) {
 		setLayout(new GridLayout());
-
 		panel = new FormPanel(panelForm);
-
 		add(panel);
-
 	}
 
 	public T getModel() {
@@ -106,9 +99,7 @@ public class AbeillePanel <T> extends JPanel {
 	 * Call any method on the class that matches "init*" that has zero arguments
 	 */
 	protected void panelInit() {
-
 		for (Method method : getClass().getMethods()) {
-
 			if (method.getName().startsWith("init")) {
 				try {
 					method.invoke(this, new Object[]{});
@@ -151,9 +142,7 @@ public class AbeillePanel <T> extends JPanel {
 		if (this.model != null) {
 			throw new IllegalStateException ("Already bound exception");
 		}
-
 		this.model = model;
-
 		Binder.bindContainer(model.getClass(), panel, UpdateTime.NEVER);
 		preModelBind();
 		Binder.modelToView(model, panel);
@@ -170,7 +159,6 @@ public class AbeillePanel <T> extends JPanel {
 	 */
 	public boolean commit() {
 		if (model != null) {
-
 			try {
 				Binder.viewToModel(model, panel);
 			} catch (AdapterException e) {
@@ -178,7 +166,6 @@ public class AbeillePanel <T> extends JPanel {
 				return false;
 			}
 		}
-
 		return true;
 	}
 
@@ -186,16 +173,13 @@ public class AbeillePanel <T> extends JPanel {
 	 * Breaks the binding between the model and the view.
 	 */
 	public void unbind() {
-
 		model = null;
 	}
 
 	public static class RadioButtonAdapter extends AbstractComponentAdapter implements ItemListener {
-
 		private JRadioButton button;
 		private Enum selected;
 
-		////
 		// COMPONENT ADAPTER
 		@Override
 		protected Object getActualContent() {
@@ -219,7 +203,6 @@ public class AbeillePanel <T> extends JPanel {
 
 		@Override
 		protected void showValue(Object value) {
-
 			if (value == selected) {
 				button.setSelected(true);
 			}
@@ -245,10 +228,8 @@ public class AbeillePanel <T> extends JPanel {
 
 				selected = Enum.valueOf(property.getType(), bindVal);
 			}
-
 		}
 
-		////
 		// ITEM LISTENER
 		public void itemStateChanged(ItemEvent e) {
 			fireViewChanged();

@@ -52,7 +52,7 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 	private JComboBox movementMetricCombo;
 	private JCheckBox useIndividualFOW;
 	private JCheckBox useIndividualViews;
-	
+
 
 	public StartServerDialog() {
 		super("net/rptools/maptool/client/ui/forms/startServerDialog.xml");
@@ -66,30 +66,24 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 
 	public void showDialog() {
 		dialog = new GenericDialog("Start Server", MapTool.getFrame(), this);
-
 		prefs = new StartServerDialogPreferences();
 
 		bind(prefs);
-		useIndividualFOW = (JCheckBox) getComponent("@useIndividualFOW"); 
-		useIndividualViews = (JCheckBox) getComponent("@useIndividualViews"); 
-		
-		
+		useIndividualFOW = (JCheckBox) getComponent("@useIndividualFOW");
+		useIndividualViews = (JCheckBox) getComponent("@useIndividualViews");
+
 		useIndividualFOW.setEnabled(prefs.getUseIndividualViews());
 		useIndividualViews.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
-				if(!useIndividualViews.isSelected())
-				{
+				if (!useIndividualViews.isSelected()) {
 					useIndividualFOW.setSelected(false);
 					useIndividualFOW.setEnabled(false);
-				}
-				else
-				{
+				} else {
 					useIndividualFOW.setEnabled(true);
-					
 				}
 			}
 		});
-		movementMetricCombo = (JComboBox) getComponent("movementMetric"); 
+		movementMetricCombo = (JComboBox) getComponent("movementMetric");
 		DefaultComboBoxModel movementMetricModel = new DefaultComboBoxModel();
 		movementMetricModel.addElement(WalkerMetric.ONE_TWO_ONE);
 		movementMetricModel.addElement(WalkerMetric.ONE_ONE_ONE);
@@ -144,7 +138,7 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 	{
 		return (JComboBox) getComponent("movementMetric");
 	}
-	
+
 	@Override
 	protected void preModelBind() {
 		Binder.setFormat(getPortTextField(), new DecimalFormat("####"));

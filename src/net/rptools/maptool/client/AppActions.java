@@ -54,8 +54,6 @@ import javax.swing.KeyStroke;
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
-import net.rptools.maptool.client.AppActions.ClientAction;
-import net.rptools.maptool.client.AppActions.DefaultClientAction;
 import net.rptools.maptool.client.tool.BoardTool;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.tool.drawing.DrawableUndoManager;
@@ -1604,10 +1602,8 @@ public class AppActions {
 
 		@Override
 		public void execute(ActionEvent e) {
-
 			runBackground(new Runnable() {
 				public void run() {
-
 					if (!MapTool.isPersonalServer()) {
 						MapTool.showError("msg.error.alreadyRunningServer");
 						return;
@@ -1617,11 +1613,10 @@ public class AppActions {
 					StartServerDialog dialog = new StartServerDialog();
 					dialog.showDialog();
 
-					if (!dialog.accepted()) {
+					if (!dialog.accepted())	// Results stored in Preferences.userRoot()
 						return;
-					}
 
-					StartServerDialogPreferences serverProps = new StartServerDialogPreferences();
+					StartServerDialogPreferences serverProps = new StartServerDialogPreferences();	// data retrieved from Preferences.userRoot()
 
 					ServerPolicy policy = new ServerPolicy();
 					policy.setUseStrictTokenManagement(serverProps.getUseStrictTokenOwnership());
@@ -1634,12 +1629,12 @@ public class AppActions {
 					policy.setUseToolTipsForDefaultRollFormat(serverProps.getUseToolTipsForUnformattedRolls());
 
 					//my addition
-					policy.setRestrictedImpersonation(serverProps.getRestrictedImpersonation()); 
+					policy.setRestrictedImpersonation(serverProps.getRestrictedImpersonation());
 					policy.setMovementMetric(serverProps.getMovementMetric());
 					policy.setUseIndividualFOW(serverProps.getUseIndividualViews() &&  serverProps.getUseIndividualFOW());
-					
-					ServerConfig config = new ServerConfig(serverProps.getUsername(), serverProps.getGMPassword(), serverProps.getPlayerPassword(), serverProps
-							.getPort(), serverProps.getRPToolsName());
+
+					ServerConfig config = new ServerConfig(serverProps.getUsername(), serverProps.getGMPassword(),
+							serverProps.getPlayerPassword(), serverProps.getPort(), serverProps.getRPToolsName());
 
 					// Use the existing campaign
 					Campaign campaign = MapTool.getCampaign();
@@ -1656,22 +1651,22 @@ public class AppActions {
 
 						// Make a copy of the campaign since we don't coordinate
 						// local changes well ... yet
-						
+
 						/*
 						 * JFJ 2010-10-27
-						 * The below creates a NEW campaign with a copy 
-						 * of the existing campaign.  However, this is NOT 
-						 * a full copy.  In the constructor called below, each 
+						 * The below creates a NEW campaign with a copy
+						 * of the existing campaign.  However, this is NOT
+						 * a full copy.  In the constructor called below, each
 						 * zone from the previous campaign(ie, the one passed in)
-						 * is recreated.   This means that only some items for that 
-						 * campaign, zone(s), and token's are copied over when you 
-						 * start a new server instance.  
+						 * is recreated.   This means that only some items for that
+						 * campaign, zone(s), and token's are copied over when you
+						 * start a new server instance.
 						 * 
-						 * You need to modify either Campaign(Campaign) or Zone(Zone) 
-						 * to get any data you need to persist from the pre server 
-						 * campaign to the post server start up campaign.   
+						 * You need to modify either Campaign(Campaign) or Zone(Zone)
+						 * to get any data you need to persist from the pre server
+						 * campaign to the post server start up campaign.
 						 */
-						
+
 						MapTool.startServer(dialog.getUsernameTextField().getText(), config, policy, new Campaign(campaign));
 
 						// Connect to server
@@ -1702,7 +1697,7 @@ public class AppActions {
 							MapTool.showError("msg.error.failedStartPersonalServer", ioe);
 						}
 					}
-					
+
 				}
 			});
 		}
@@ -1720,18 +1715,13 @@ public class AppActions {
 
 		@Override
 		public void execute(ActionEvent e) {
-
-			if (MapTool.isCampaignDirty() && !MapTool.confirm("msg.confirm.loseChanges")) {
+			if (MapTool.isCampaignDirty() && !MapTool.confirm("msg.confirm.loseChanges"))
 				return;
-			}
 
 			final ConnectToServerDialog dialog = new ConnectToServerDialog();
-
 			dialog.showDialog();
-
-			if (!dialog.accepted()) {
+			if (!dialog.accepted())
 				return;
-			}
 
 			ServerDisconnectHandler.disconnectExpected = true;
 			MapTool.stopServer();
@@ -1751,7 +1741,6 @@ public class AppActions {
 			MapTool.getFrame().showFilledGlassPane(progressDialog);
 
 			runBackground(new Runnable() {
-
 				public void run() {
 					boolean failed = false;
 					try {
@@ -1760,7 +1749,6 @@ public class AppActions {
 
 						MapTool.getFrame().hideGlassPane();
 						MapTool.getFrame().showFilledGlassPane(new StaticMessageDialog(I18N.getText("msg.info.campaignLoading")));
-
 					} catch (UnknownHostException e1) {
 						MapTool.showError("msg.error.unknownHost", e1);
 						failed = true;
@@ -1768,7 +1756,6 @@ public class AppActions {
 						MapTool.showError("msg.error.failedLoadCampaign", e1);
 						failed = true;
 					}
-
 					if (failed || MapTool.getConnection() == null) {
 						MapTool.getFrame().hideGlassPane();
 						try {
@@ -1780,13 +1767,10 @@ public class AppActions {
 
 				}
 			});
-
 		}
-
 	};
 
 	public static final Action DISCONNECT_FROM_SERVER = new ClientAction() {
-
 		{
 			init("action.clientDisconnect");
 		}
@@ -1798,14 +1782,10 @@ public class AppActions {
 
 		@Override
 		public void execute(ActionEvent e) {
-
-			if (MapTool.isHostingServer() && !MapTool.confirm("msg.confirm.hostingDisconnect")) {
+			if (MapTool.isHostingServer() && !MapTool.confirm("msg.confirm.hostingDisconnect"))
 				return;
-			}
-
 			disconnectFromServer();
 		}
-
 	};
 
 	public static void disconnectFromServer() {
@@ -1813,7 +1793,6 @@ public class AppActions {
 		ServerDisconnectHandler.disconnectExpected = true;
 		MapTool.stopServer();
 		MapTool.disconnect();
-
 		try {
 			MapTool.startPersonalServer(campaign);
 		} catch (IOException ioe) {
@@ -1833,11 +1812,8 @@ public class AppActions {
 
 		@Override
 		public void execute(ActionEvent ae) {
-
-			if (MapTool.isCampaignDirty() && !MapTool.confirm("msg.confirm.loseChanges")) {
+			if (MapTool.isCampaignDirty() && !MapTool.confirm("msg.confirm.loseChanges"))
 				return;
-			}
-
 			JFileChooser chooser = new CampaignPreviewFileChooser();
 			chooser.setDialogTitle(I18N.getText("msg.title.loadCampaign"));
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -1850,7 +1826,6 @@ public class AppActions {
 	};
 
 	private static class CampaignPreviewFileChooser extends PreviewPanelFileChooser {
-
 		CampaignPreviewFileChooser() {
 			super();
 			addChoosableFileFilter(MapTool.getFrame().getCmpgnFileFilter());

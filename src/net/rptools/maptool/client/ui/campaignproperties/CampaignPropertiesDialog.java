@@ -100,12 +100,10 @@ public class CampaignPropertiesDialog extends JDialog  {
 		} else {
 			MapTool.getFrame().repaint();
 		}
-
 		super.setVisible(b);
 	}
 
 	private void initialize() {
-
 		setLayout(new GridLayout());
 		formPanel = new FormPanel("net/rptools/maptool/client/ui/forms/campaignPropertiesDialog.xml");
 
@@ -126,20 +124,16 @@ public class CampaignPropertiesDialog extends JDialog  {
 		add(formPanel);
 
 		// Escape key
-		formPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-				KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "cancel");
+		formPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "cancel");
 		formPanel.getActionMap().put("cancel", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				cancel();
 			}
 		});
-
 		getRootPane().setDefaultButton(getOKButton());
-
 	}
 
 	private void initTokenPropertiesDialog(FormPanel panel) {
-
 		tokenPropertiesPanel = new TokenPropertiesManagementPanel();
 
 		panel.getFormAccessor("propertiesPanel").replaceBean("tokenPropertiesPanel", tokenPropertiesPanel);
@@ -154,12 +148,10 @@ public class CampaignPropertiesDialog extends JDialog  {
 		JButton button = (JButton) formPanel.getButton("addRepoButton");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
 				String newRepo = getNewServerTextField().getText();
 				if (newRepo == null || newRepo.length() == 0) {
 					return;
 				}
-
 				// TODO: Check for uniqueness
 				((DefaultListModel)getRepositoryList().getModel()).addElement(newRepo);
 			}
@@ -170,7 +162,6 @@ public class CampaignPropertiesDialog extends JDialog  {
 		JButton button = (JButton) formPanel.getButton("addGalleryIndexButton");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
 				// TODO: Check for uniqueness
 				((DefaultListModel)getRepositoryList().getModel()).addElement("http://www.rptools.net/image-indexes/gallery.rpax.gz");
 			}
@@ -182,7 +173,6 @@ public class CampaignPropertiesDialog extends JDialog  {
 		JButton button = (JButton) formPanel.getButton("deleteRepoButton");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
 				int[] selectedRows = getRepositoryList().getSelectedIndices();
 				Arrays.sort(selectedRows);
 				for (int i = selectedRows.length-1; i >= 0; i--) {
@@ -198,12 +188,9 @@ public class CampaignPropertiesDialog extends JDialog  {
 	}
 
 	private void accept() {
-
 		try {
 			copyUIToCampaign();
-
 			AssetManager.updateRepositoryList();
-
 			status = Status.OK;
 			setVisible(false);
 		} catch (IllegalArgumentException iae) {
@@ -213,12 +200,10 @@ public class CampaignPropertiesDialog extends JDialog  {
 
 	public void setCampaign(Campaign campaign) {
 		this.campaign = campaign;
-
 		copyCampaignToUI(campaign.getCampaignProperties());
 	}
 
 	private void copyCampaignToUI(CampaignProperties campaignProperties) {
-
 		tokenPropertiesPanel.copyCampaignToUI(campaignProperties);
 		updateRepositoryList(campaignProperties);
 		updateSightPanel(campaignProperties);
@@ -231,72 +216,50 @@ public class CampaignPropertiesDialog extends JDialog  {
 	}
 
 	private void updateSightPanel(CampaignProperties properties) {
-
 		StringBuilder builder = new StringBuilder();
 		for (SightType sight : properties.getSightTypeMap().values()) {
-
 			builder.append(sight.getName()).append(": ");
 
-			if (sight.getShape() == ShapeType.SQUARE)
-			{
+			switch (sight.getShape()) {
+			case SQUARE :
 				builder.append("square ");
-				if(sight.getDistance() != 0)
-				{
-					builder.append("distance=").append(StringUtil.formatDecimal(sight.getDistance())).append(" ");
-				}
-			}
-			else if (sight.getShape() == ShapeType.CIRCLE)
-			{
+				if (sight.getDistance() != 0)
+					builder.append("distance=").append(StringUtil.formatDecimal(sight.getDistance())).append(' ');
+				break;
+			case CIRCLE :
 				builder.append("circle ");
-				if(sight.getDistance() != 0)
-				{
-					builder.append("distance=").append(StringUtil.formatDecimal(sight.getDistance())).append(" ");
-				}
-			}
-			else if (sight.getShape() == ShapeType.CONE)
-			{
+				if (sight.getDistance() != 0)
+					builder.append("distance=").append(StringUtil.formatDecimal(sight.getDistance())).append(' ');
+				break;
+			case CONE :
 				builder.append("cone ");
-				if(sight.getArc()!= 0)
-				{
-					builder.append("arc=").append(StringUtil.formatDecimal(sight.getArc()));
-					builder.append(" ");
-				}
-				if(sight.getOffset() != 0)
-				{
-					builder.append("offset=").append(StringUtil.formatDecimal(sight.getOffset())).append(" ");
-				}
-				if(sight.getDistance() != 0)
-				{
-					builder.append("distance=").append(StringUtil.formatDecimal(sight.getDistance())).append(" ");
-				}
+				if (sight.getArc()!= 0)
+					builder.append("arc=").append(StringUtil.formatDecimal(sight.getArc())).append(' ');
+				if (sight.getOffset() != 0)
+					builder.append("offset=").append(StringUtil.formatDecimal(sight.getOffset())).append(' ');
+				if (sight.getDistance() != 0)
+					builder.append("distance=").append(StringUtil.formatDecimal(sight.getDistance())).append(' ');
+				break;
+			default :
+				throw new IllegalArgumentException("Invalid shape?!");
 			}
-
-
-
 			// Multiplier
-
-			if (sight.getMultiplier() != 1 && sight.getMultiplier() != 0)
-			{
-				builder.append("x").append(StringUtil.formatDecimal(sight.getMultiplier()));
-				builder.append(" ");
+			if (sight.getMultiplier() != 1 && sight.getMultiplier() != 0) {
+				builder.append("x").append(StringUtil.formatDecimal(sight.getMultiplier())).append(' ');
 			}
-
 			// Personal light
 			if (sight.getPersonalLightSource() != null) {
 				LightSource source = sight.getPersonalLightSource();
 
 				double range = source.getMaxRange();
-				builder.append("r").append(StringUtil.formatDecimal(range));
-				builder.append(" ");
+				builder.append("r").append(StringUtil.formatDecimal(range)).append(' ');
 			}
-			builder.append("\n");
+			builder.append('\n');
 		}
-
 		getSightPanel().setText(builder.toString());
 	}
 
 	private void updateLightPanel(CampaignProperties properties) {
-
 		StringBuilder builder = new StringBuilder();
 		for (Entry<String, Map<GUID, LightSource>> entry : properties.getLightSourcesMap().entrySet()) {
 			builder.append(entry.getKey());
@@ -306,27 +269,27 @@ public class CampaignPropertiesDialog extends JDialog  {
 				builder.append(lightSource.getName()).append(" : ");
 
 				if (lightSource.getType() != LightSource.Type.NORMAL) {
-					builder.append(lightSource.getType().name().toLowerCase()).append(" ");
+					builder.append(lightSource.getType().name().toLowerCase()).append(' ');
 				}
-
 				for (Light light : lightSource.getLightList()) {
-
-					if (light.getShape() != null && light.getShape() != ShapeType.CIRCLE) {
-						// TODO: Make this a preference
-						builder.append(light.getShape().toString().toLowerCase()).append(" ");
+					if (light.getShape() != null) {
+						switch (light.getShape()) {
+						case CIRCLE :
+							// TODO: Make this a preference
+							builder.append(light.getShape().toString().toLowerCase()).append(' ');
+							break;
+						case CONE :
+							// TODO: This HAS to change, the lights need to be auto describing, this hard wiring sucks
+							if (light.getArcAngle() != 0 && light.getArcAngle() != 90)
+								builder.append("arc=").append(StringUtil.formatDecimal(light.getArcAngle())).append(' ');
+							break;
+						}
 					}
-
-					if (light.getShape() != null && light.getShape() == ShapeType.CONE && light.getArcAngle() != 0 && light.getArcAngle() != 90) {
-						// TODO: This HAS to change, the lights need to be auto describing, this hard wiring sucks
-						builder.append("arc=").append(StringUtil.formatDecimal(light.getArcAngle())).append(" ");
-					}
-					if (light.isGM() && lightSource.getType() == LightSource.Type.AURA)
-					{
-						builder.append("GM").append(" ");
-					}
-					if (light.isOwnerOnly() && lightSource.getType() == LightSource.Type.AURA)
-					{
-						builder.append("OWNER").append(" ");
+					if (lightSource.getType() == LightSource.Type.AURA) {
+						if (light.isGM())
+							builder.append("GM ");
+						if (light.isOwnerOnly())
+							builder.append("OWNER ");
 					}
 					builder.append(StringUtil.formatDecimal(light.getRadius()));
 
@@ -334,16 +297,12 @@ public class CampaignPropertiesDialog extends JDialog  {
 						Color color = (Color)light.getPaint().getPaint();
 						builder.append(toHex(color));
 					}
-
-					builder.append(" ");
+					builder.append(' ');
 				}
-
-				builder.append("\n");
+				builder.append('\n');
 			}
-
-			builder.append("\n");
+			builder.append('\n');
 		}
-
 		getLightPanel().setText(builder.toString());
 	}
 
@@ -365,7 +324,6 @@ public class CampaignPropertiesDialog extends JDialog  {
 	}
 
 	private void updateRepositoryList(CampaignProperties properties) {
-
 		DefaultListModel model = new DefaultListModel();
 		for (String repo : properties.getRemoteRepositoryList()) {
 			model.addElement(repo);
@@ -378,7 +336,6 @@ public class CampaignPropertiesDialog extends JDialog  {
 	}
 
 	private void copyUIToCampaign() {
-
 		tokenPropertiesPanel.copyUIToCampaign(campaign);
 
 		campaign.getRemoteRepositoryList().clear();
@@ -386,7 +343,6 @@ public class CampaignPropertiesDialog extends JDialog  {
 			String repo = (String) getRepositoryList().getModel().getElementAt(i);
 			campaign.getRemoteRepositoryList().add(repo);
 		}
-
 		commitLightMap();
 		commitSightMap();
 		tokenStatesController.copyUIToCampaign(campaign);
@@ -401,7 +357,6 @@ public class CampaignPropertiesDialog extends JDialog  {
 	}
 
 	private void commitSightMap() {
-
 		List<SightType> sightList = new LinkedList<SightType>();
 		LineNumberReader reader = new LineNumberReader(new BufferedReader(new StringReader(getSightPanel().getText())));
 		String line = null;
@@ -409,14 +364,12 @@ public class CampaignPropertiesDialog extends JDialog  {
 		List<String> errlog = new LinkedList<String>();
 		try {
 			while ((line = reader.readLine()) != null) {
-
 				line = line.trim();
 
 				// Blanks
 				if (line.length() == 0 || line.indexOf(":") < 1) {
 					continue;
 				}
-
 				// Parse line
 				int split = line.indexOf(":");
 				String label = line.substring(0, split).trim();
@@ -425,7 +378,6 @@ public class CampaignPropertiesDialog extends JDialog  {
 				if (label.length() == 0) {
 					continue;
 				}
-
 				// Parse Details
 				double magnifier = 1;
 				LightSource personalLight = null;
@@ -437,17 +389,12 @@ public class CampaignPropertiesDialog extends JDialog  {
 				int offset = 0;
 				double pLightRange = 0;
 
-
-				for (String arg : args)
-				{
+				for (String arg : args) {
 					assert arg.length() > 0;		// The split() uses "one or more spaces", removing empty strings
-					try
-					{
+					try {
 						shape = ShapeType.valueOf(arg.toUpperCase());
 						continue;
-					}
-					catch (IllegalArgumentException iae)
-					{
+					} catch (IllegalArgumentException iae) {
 						// Expected when not defining a shape
 					}
 					try {
@@ -455,33 +402,23 @@ public class CampaignPropertiesDialog extends JDialog  {
 							toBeParsed = arg.substring(1);			// Used in the catch block, below
 							errmsg = "msg.error.mtprops.sight.multiplier";	// (ditto)
 							magnifier = StringUtil.parseDecimal(toBeParsed);
-						}
-						else if (arg.startsWith("r")) 			// XXX Why not "r=#" instead of "r#"??
-						{
+						} else if (arg.startsWith("r")) { 			// XXX Why not "r=#" instead of "r#"??
 							toBeParsed = arg.substring(1);
 							errmsg = "msg.error.mtprops.sight.range";
 							pLightRange = StringUtil.parseDecimal(toBeParsed);
-						}
-						else if (arg.startsWith("arc=") && arg.length() > 4)
-						{
+						} else if (arg.startsWith("arc=") && arg.length() > 4) {
 							toBeParsed = arg.substring(4);
 							errmsg = "msg.error.mtprops.sight.arc";
 							arc = StringUtil.parseInteger(toBeParsed);
-						}
-						else if (arg.startsWith("distance=") && arg.length() > 9)
-						{
+						} else if (arg.startsWith("distance=") && arg.length() > 9) {
 							toBeParsed = arg.substring(9);
 							errmsg = "msg.error.mtprops.sight.distance";
 							range = StringUtil.parseDecimal(toBeParsed).floatValue();
-						}
-						else if (arg.startsWith("offset=") && arg.length() > 7)
-						{
+						} else if (arg.startsWith("offset=") && arg.length() > 7) {
 							toBeParsed = arg.substring(7);
 							errmsg = "msg.error.mtprops.sight.offset";
 							offset = StringUtil.parseInteger(toBeParsed);
-						}
-						else
-						{
+						} else {
 							toBeParsed = arg;
 							errmsg = I18N.getText("msg.error.mtprops.sight.unknownField", reader.getLineNumber(), toBeParsed);
 							errlog.add(errmsg);
@@ -491,8 +428,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 						errlog.add(I18N.getText(errmsg, reader.getLineNumber(), toBeParsed));
 					}
 				}
-				if(pLightRange > 0)
-				{
+				if (pLightRange > 0) 	{
 					personalLight = new LightSource();
 					personalLight.add(new Light(shape,0,pLightRange, arc,null));
 				}
@@ -507,6 +443,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 			MapTool.showError("msg.error.mtprops.sight.ioexception", ioe);
 		}
 		if (!errlog.isEmpty()) {
+			// Show the user a list of errors so they can (attempt to) correct all of them at once
 			MapTool.showFeedback(errlog.toArray());
 			errlog.clear();
 			throw new IllegalArgumentException();	// Don't save sights...
@@ -515,24 +452,22 @@ public class CampaignPropertiesDialog extends JDialog  {
 	}
 
 	private void commitLightMap() {
-
 		Map<String, Map<GUID, LightSource>> lightMap = new HashMap<String, Map<GUID, LightSource>>();
 		LineNumberReader reader = new LineNumberReader(new BufferedReader(new StringReader(getLightPanel().getText())));
 		String line = null;
 		List<String> errlog = new LinkedList<String>();
+
 		try {
 			String currentGroupName = null;
 			Map<GUID, LightSource> lightSourceMap = null;
 
 			while ((line = reader.readLine()) != null) {
-
 				line = line.trim();
 
 				// Comments
 				if (line.length() > 0 && line.charAt(0) == '-') {
 					continue;
 				}
-
 				// Blanks
 				if (line.length() == 0) {
 					if (currentGroupName != null) {
@@ -541,14 +476,12 @@ public class CampaignPropertiesDialog extends JDialog  {
 					currentGroupName = null;
 					continue;
 				}
-
 				// New group
 				if (currentGroupName == null) {
 					currentGroupName = line;
 					lightSourceMap = new HashMap<GUID, LightSource>();
 					continue;
 				}
-
 				// Item
 				int split = line.indexOf(":");
 				if (split < 1) {
@@ -562,23 +495,17 @@ public class CampaignPropertiesDialog extends JDialog  {
 				boolean gmOnly = false;
 				boolean owner = false;
 				for (String arg : line.substring(split+1).split("\\s+")) {
-
 					arg = arg.trim();
 					if (arg.length() == 0) {
 						continue;
 					}
-
-					if (arg.equalsIgnoreCase("GM"))
-					{
+					if (arg.equalsIgnoreCase("GM")) {
 						gmOnly = true;
 						continue;
 					}
-					if (arg.equalsIgnoreCase("OWNER"))
-					{
-						if(!gmOnly)
-						{
+					if (arg.equalsIgnoreCase("OWNER")) {
+						if (!gmOnly)
 							owner = true;
-						}
 						continue;
 					}
 					// Shape designation ?
@@ -599,7 +526,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 					}
 
 					// Parameters
-					split = arg.indexOf("=");
+					split = arg.indexOf('=');
 					if (split > 0) {
 						String key = arg.substring(0, split);
 						String value = arg.substring(split+1);
@@ -614,7 +541,6 @@ public class CampaignPropertiesDialog extends JDialog  {
 						}
 						continue;
 					}
-
 					String distance = arg;
 					Color color = null;
 					split = arg.indexOf("#");
@@ -627,10 +553,11 @@ public class CampaignPropertiesDialog extends JDialog  {
 					//
 					owner = gmOnly == true? false: owner;
 					try {
-						lightSource.add(new Light(shape, 0, StringUtil.parseDecimal(distance), arc
-								, color != null ? new DrawableColorPaint(color): null
-										, lightSource.getType() != LightSource.Type.AURA? false: gmOnly
-												, lightSource.getType() != LightSource.Type.AURA? false: owner)
+						lightSource.add(
+								new Light(shape, 0, StringUtil.parseDecimal(distance), arc
+										, color != null ? new DrawableColorPaint(color): null
+												, lightSource.getType() != LightSource.Type.AURA? false: gmOnly
+														, lightSource.getType() != LightSource.Type.AURA? false: owner)
 						);
 					} catch (ParseException pe) {
 						errlog.add( I18N.getText("msg.error.mtprops.light.distance", reader.getLineNumber(), distance) );
@@ -646,15 +573,12 @@ public class CampaignPropertiesDialog extends JDialog  {
 						}
 					}
 				}
-
 				lightSourceMap.put(lightSource.getId(), lightSource);
 			}
-
 			// Last group
 			if (currentGroupName != null) {
 				lightMap.put(currentGroupName, lightSourceMap);
 			}
-
 		} catch (IOException ioe) {
 			MapTool.showError("msg.error.mtprops.light.ioexception", ioe);
 		}
@@ -684,7 +608,6 @@ public class CampaignPropertiesDialog extends JDialog  {
 	}
 
 	private void initOKButton() {
-
 		getOKButton().addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				accept();
@@ -705,7 +628,6 @@ public class CampaignPropertiesDialog extends JDialog  {
 	}
 
 	private void initCancelButton() {
-
 		getCancelButton().addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				status = Status.CANCEL;
@@ -715,30 +637,22 @@ public class CampaignPropertiesDialog extends JDialog  {
 	}
 
 	private void initImportButton() {
-
 		getImportButton().addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
-
 				JFileChooser chooser = MapTool.getFrame().getLoadPropsFileChooser();
 
-				if (chooser.showOpenDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
+				if (chooser.showOpenDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION)
 					return;
-				}
 
 				final File selectedFile = chooser.getSelectedFile();
 				EventQueue.invokeLater(new Runnable() {
 					public void run() {
 						try {
 							CampaignProperties properties = PersistenceUtil.loadCampaignProperties(selectedFile);
-
 							// TODO: Allow specifying whether it is a replace or merge
 							MapTool.getCampaign().mergeCampaignProperties(properties);
-
-
 							copyCampaignToUI(properties);
-
 						} catch (IOException ioe) {
-							ioe.printStackTrace();
 							MapTool.showError("Could not load properties: " + ioe);
 						}
 					}
@@ -748,20 +662,16 @@ public class CampaignPropertiesDialog extends JDialog  {
 	}
 
 	private void initExportButton() {
-
 		getExportButton().addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
-
 				// TODO: Remove this hack.  Specifically, make the export use a properties object
 				// composed of the current dialog entries instead of directly from the campaign
 				copyUIToCampaign();
 				// END HACK
 
 				JFileChooser chooser = MapTool.getFrame().getSavePropsFileChooser();
-
-				if (chooser.showSaveDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
+				if (chooser.showSaveDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION)
 					return;
-				}
 
 				File selectedFile = chooser.getSelectedFile();
 				if (selectedFile.exists()) {
@@ -773,17 +683,13 @@ public class CampaignPropertiesDialog extends JDialog  {
 						return;
 					}
 				}
-
 				try {
 					PersistenceUtil.saveCampaignProperties(campaign, chooser.getSelectedFile());
-
 					MapTool.showInformation("Properties Saved.");
 				} catch (IOException ioe) {
-					ioe.printStackTrace();
 					MapTool.showError("Could not save properties: ", ioe);
 				}
 			}
 		});
 	}
-
 }

@@ -9,13 +9,11 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.ui;
 
 import java.util.prefs.Preferences;
-
-import sun.security.action.GetBooleanAction;
 
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppPreferences;
@@ -24,173 +22,166 @@ import net.rptools.maptool.model.Player;
 import net.rptools.maptool.server.ServerConfig;
 
 public class StartServerDialogPreferences {
+	private static Preferences prefs = Preferences.userRoot().node(AppConstants.APP_NAME + "/prefs/server");
 
-    private static Preferences prefs = Preferences.userRoot().node(AppConstants.APP_NAME + "/prefs/server");        
+	private static final String KEY_USERNAME = "name";
+	private static final String KEY_ROLE = "playerRole";
+	private static final String KEY_PORT = "port";
+	private static final String KEY_GM_PASSWORD = "gmPassword";
+	private static final String KEY_PLAYER_PASSWORD = "playerPassword";
+	private static final String KEY_STRICT_TOKEN_OWNERSHIP = "strictTokenOwnership";
+	private static final String KEY_REGISTER_SERVER = "registerServer";
+	private static final String KEY_RPTOOLS_NAME = "rptoolsName";
+	private static final String KEY_RPTOOLS_PRIVATE = "rptoolsPrivate";
+	private static final String KEY_PLAYERS_CAN_REVEAL_VISION = "playersCanRevealVisionCheckbox";
+	private static final String KEY_USE_INDIVIDUAL_VIEWS = "useIndividualViews";
+	private static final String KEY_USE_UPNP = "useUPnP";
+	private static final String KEY_RESTRICTED_IMPERSONATION = "restrictedImpersonation";
+	private static final String KEY_PLAYERS_RECEIVE_CAMPAIGN_MACROS = "playersReceiveCampaignMacros";
+	private static final String KEY_WALKER_METRIC = "movementMetric";
+	private static final String KEY_USE_INDIVIDUAL_FOW = "useIndividualFOW";
 
-    private static final String KEY_USERNAME = "name";
-    private static final String KEY_ROLE = "playerRole";
-    private static final String KEY_PORT = "port";
-    private static final String KEY_GM_PASSWORD = "gmPassword";
-    private static final String KEY_PLAYER_PASSWORD = "playerPassword";
-    private static final String KEY_STRICT_TOKEN_OWNERSHIP = "strictTokenOwnership";
-    private static final String KEY_REGISTER_SERVER = "registerServer";
-    private static final String KEY_RPTOOLS_NAME = "rptoolsName";
-    private static final String KEY_RPTOOLS_PRIVATE = "rptoolsPrivate";
-    private static final String KEY_PLAYERS_CAN_REVEAL_VISION = "playersCanRevealVisionCheckbox";
-    private static final String KEY_USE_INDIVIDUAL_VIEWS = "useIndividualViews";
-    private static final String KEY_USE_UPNP = "useUPnP";
-    private static final String KEY_RESTRICTED_IMPERSONATION = "restrictedImpersonation";
-    private static final String KEY_PLAYERS_RECEIVE_CAMPAIGN_MACROS = "playersReceiveCampaignMacros";
-    //private static final String KEY_LOCK_PLAYER_MOVEMENT = "lockTokenMovement";
-    private static final String KEY_WALKER_METRIC = "movementMetric";
-    private static final String KEY_USE_INDIVIDUAL_FOW = "useIndividualFOW";
-    
-    
-    private static Boolean useToolTipsForUnformattedRolls = null;
-    
-    public Player.Role getRole () {
-    	return Player.Role.valueOf(prefs.get(KEY_ROLE, Player.Role.GM.name()));
-    }
-    
-    public void setRole(Player.Role role) {
-    	prefs.put(KEY_ROLE, role.name());
-    }
+	private static Boolean useToolTipsForUnformattedRolls = null;
 
-    public String getUsername() {
-    	return prefs.get(KEY_USERNAME, "");
-    }
-    
-    public void setUsername(String name) {
-    	prefs.put(KEY_USERNAME, name);
-    }
-    
-    public void setGMPassword(String password) {
-    	prefs.put(KEY_GM_PASSWORD, password);
-    }
-    
-    public String getGMPassword() {
-    	return prefs.get(KEY_GM_PASSWORD, "");
-    }
-    
-    public void setPlayerPassword(String password) {
-    	prefs.put(KEY_PLAYER_PASSWORD, password);
-    }
-    
-    public String getPlayerPassword() {
-    	return prefs.get(KEY_PLAYER_PASSWORD, "");
-    }
-    
-    public int getPort() {
-    	return prefs.getInt(KEY_PORT, ServerConfig.DEFAULT_PORT);
-    }
-    
-    public void setPort(int port) {
-    	prefs.putInt(KEY_PORT, port);
-    }
-    
-    public boolean getUseStrictTokenOwnership() {
-    	return prefs.getBoolean(KEY_STRICT_TOKEN_OWNERSHIP, false);
-    }
-    
-    public void setUseStrictTokenOwnership(boolean use) {
-    	prefs.putBoolean(KEY_STRICT_TOKEN_OWNERSHIP, use);
-    }
-    // my addition
-    public boolean getRestrictedImpersonation() {
-    	return prefs.getBoolean(KEY_RESTRICTED_IMPERSONATION, true);
-    }
-    
-    public void setRestrictedImpersonation (boolean impersonation) {
-    	prefs.putBoolean(KEY_RESTRICTED_IMPERSONATION, impersonation);
-    }
-    public boolean registerServer() {
-    	return prefs.getBoolean(KEY_REGISTER_SERVER, false);
-    }
-    
-    public void setRegisterServer(boolean register) {
-    	prefs.putBoolean(KEY_REGISTER_SERVER, register);
-    }
-    
-    public void setRPToolsName(String name) {
-    	prefs.put(KEY_RPTOOLS_NAME, name);
-    }
-    
-    public String getRPToolsName() {
-    	return prefs.get(KEY_RPTOOLS_NAME, "");
-    }
-    
-    public void setRPToolsPrivate(boolean flag) {
-    	prefs.putBoolean(KEY_RPTOOLS_PRIVATE, flag);
-    }
-    
-    public boolean getRPToolsPrivate() {
-    	return prefs.getBoolean(KEY_RPTOOLS_PRIVATE, false);
-    }
-    
-    public void setPlayersCanRevealVision(boolean flag) {
-    	prefs.putBoolean(KEY_PLAYERS_CAN_REVEAL_VISION, flag);
-    }
-    
-    public boolean getPlayersCanRevealVision() {
-    	return prefs.getBoolean(KEY_PLAYERS_CAN_REVEAL_VISION, false);
-    }
-    
-    public void setUseIndividualViews(boolean flag) {
-    	prefs.putBoolean(KEY_USE_INDIVIDUAL_VIEWS, flag);
-    }
-    
-    public boolean getUseIndividualViews() {
-    	return prefs.getBoolean(KEY_USE_INDIVIDUAL_VIEWS, false);
-    }
-    
-    public void setUseUPnP(boolean op) {
-    	prefs.putBoolean(KEY_USE_UPNP, op);
-    }
-    
-    public boolean getUseUPnP() {
-    	return prefs.getBoolean(KEY_USE_UPNP, false);
-    }
-
-    public void setPlayersReceiveCampaignMacros(boolean flag) {
-    	prefs.putBoolean(KEY_PLAYERS_RECEIVE_CAMPAIGN_MACROS, flag);
-    }
-    
-	public boolean getPlayersReceiveCampaignMacros() {
-    	return prefs.getBoolean(KEY_PLAYERS_RECEIVE_CAMPAIGN_MACROS, false);
+	public Player.Role getRole () {
+		return Player.Role.valueOf(prefs.get(KEY_ROLE, Player.Role.GM.name()));
 	}
-	
+
+	public void setRole(Player.Role role) {
+		prefs.put(KEY_ROLE, role.name());
+	}
+
+	public String getUsername() {
+		return prefs.get(KEY_USERNAME, "");
+	}
+
+	public void setUsername(String name) {
+		prefs.put(KEY_USERNAME, name.trim());
+	}
+
+	public void setGMPassword(String password) {
+		prefs.put(KEY_GM_PASSWORD, password.trim());
+	}
+
+	public String getGMPassword() {
+		return prefs.get(KEY_GM_PASSWORD, "");
+	}
+
+	public void setPlayerPassword(String password) {
+		prefs.put(KEY_PLAYER_PASSWORD, password.trim());
+	}
+
+	public String getPlayerPassword() {
+		return prefs.get(KEY_PLAYER_PASSWORD, "");
+	}
+
+	public int getPort() {
+		return prefs.getInt(KEY_PORT, ServerConfig.DEFAULT_PORT);
+	}
+
+	public void setPort(int port) {
+		prefs.putInt(KEY_PORT, port);
+	}
+
+	public boolean getUseStrictTokenOwnership() {
+		return prefs.getBoolean(KEY_STRICT_TOKEN_OWNERSHIP, false);
+	}
+
+	public void setUseStrictTokenOwnership(boolean use) {
+		prefs.putBoolean(KEY_STRICT_TOKEN_OWNERSHIP, use);
+	}
+	// my addition
+	public boolean getRestrictedImpersonation() {
+		return prefs.getBoolean(KEY_RESTRICTED_IMPERSONATION, true);
+	}
+
+	public void setRestrictedImpersonation (boolean impersonation) {
+		prefs.putBoolean(KEY_RESTRICTED_IMPERSONATION, impersonation);
+	}
+	public boolean registerServer() {
+		return prefs.getBoolean(KEY_REGISTER_SERVER, false);
+	}
+
+	public void setRegisterServer(boolean register) {
+		prefs.putBoolean(KEY_REGISTER_SERVER, register);
+	}
+
+	public void setRPToolsName(String name) {
+		prefs.put(KEY_RPTOOLS_NAME, name.trim());
+	}
+
+	public String getRPToolsName() {
+		return prefs.get(KEY_RPTOOLS_NAME, "");
+	}
+
+	public void setRPToolsPrivate(boolean flag) {
+		prefs.putBoolean(KEY_RPTOOLS_PRIVATE, flag);
+	}
+
+	public boolean getRPToolsPrivate() {
+		return prefs.getBoolean(KEY_RPTOOLS_PRIVATE, false);
+	}
+
+	public void setPlayersCanRevealVision(boolean flag) {
+		prefs.putBoolean(KEY_PLAYERS_CAN_REVEAL_VISION, flag);
+	}
+
+	public boolean getPlayersCanRevealVision() {
+		return prefs.getBoolean(KEY_PLAYERS_CAN_REVEAL_VISION, false);
+	}
+
+	public void setUseIndividualViews(boolean flag) {
+		prefs.putBoolean(KEY_USE_INDIVIDUAL_VIEWS, flag);
+	}
+
+	public boolean getUseIndividualViews() {
+		return prefs.getBoolean(KEY_USE_INDIVIDUAL_VIEWS, false);
+	}
+
+	public void setUseUPnP(boolean op) {
+		prefs.putBoolean(KEY_USE_UPNP, op);
+	}
+
+	public boolean getUseUPnP() {
+		return prefs.getBoolean(KEY_USE_UPNP, false);
+	}
+
+	public void setPlayersReceiveCampaignMacros(boolean flag) {
+		prefs.putBoolean(KEY_PLAYERS_RECEIVE_CAMPAIGN_MACROS, flag);
+	}
+
+	public boolean getPlayersReceiveCampaignMacros() {
+		return prefs.getBoolean(KEY_PLAYERS_RECEIVE_CAMPAIGN_MACROS, false);
+	}
+
 	public boolean getUseToolTipsForUnformattedRolls() {
 		// Tool tips works slightly differently as its a setting that has to be available
 		// to the user to configure before the start server dialog. So if it has not been
 		// specified we default to the users preferences.
 		if (useToolTipsForUnformattedRolls == null) {
 			return AppPreferences.getUseToolTipForInlineRoll();
-		} 
+		}
 		return useToolTipsForUnformattedRolls;
 	}
-	
+
 	public void setUseToolTipsForUnformattedRolls(boolean flag)  {
 		useToolTipsForUnformattedRolls = flag;
 	}
 
-	public WalkerMetric getMovementMetric()
-	{
+	public WalkerMetric getMovementMetric() {
 		String metric = prefs.get(KEY_WALKER_METRIC, "ONE_ONE_ONE");
 		return WalkerMetric.valueOf(metric);
 	}
-	
-	public void setMovementMetric(WalkerMetric metric)
-	{
+
+	public void setMovementMetric(WalkerMetric metric) {
 		prefs.put(KEY_WALKER_METRIC, metric.toString());
 	}
-	public boolean getUseIndividualFOW()
-	{
+
+	public boolean getUseIndividualFOW() {
 		return prefs.getBoolean(KEY_USE_INDIVIDUAL_FOW, false);
 	}
-	
-	public void setUseIndividualFOW(boolean flag)
-	{
+
+	public void setUseIndividualFOW(boolean flag) {
 		prefs.putBoolean(KEY_USE_INDIVIDUAL_FOW, flag);
 	}
-	
-} 
+}
