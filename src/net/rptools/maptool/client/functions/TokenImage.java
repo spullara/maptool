@@ -33,7 +33,9 @@ public class TokenImage extends AbstractFunction {
 	private final static TokenImage instance = new TokenImage();
 
 	private TokenImage() {
-		super(0, 2, "getTokenImage", "getTokenPortrait", "getTokenHandout", "setTokenImage", "getImage");
+		super(0, 2, "getTokenImage", "getTokenPortrait", "getTokenHandout",
+				"setTokenImage", "setTokenPortrait", "setTokenHandout",
+				"getImage");
 	}
 
 	/**
@@ -61,6 +63,42 @@ public class TokenImage extends AbstractFunction {
 				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "setTokenImage"));
 			}
 			setImage(token, args.get(0).toString());
+			return "";
+		}
+
+		if (functionName.equals("setTokenPortrait")) {
+			if (args.size() != 1) {
+				throw new ParserException(I18N.getText(
+						"macro.function.general.wrongNumParam",
+						"setTokenPortrait", 1, args.size()));
+			}
+			MapToolVariableResolver res = (MapToolVariableResolver) parser
+					.getVariableResolver();
+			token = res.getTokenInContext();
+			if (token == null) {
+				throw new ParserException(I18N.getText(
+						"macro.function.general.noImpersonated",
+						"setTokenPortrait"));
+			}
+			setPortrait(token, args.get(0).toString());
+			return "";
+		}
+
+		if (functionName.equals("setTokenHandout")) {
+			if (args.size() != 1) {
+				throw new ParserException(I18N.getText(
+						"macro.function.general.wrongNumParam",
+						"setTokenHandout", 1, args.size()));
+			}
+			MapToolVariableResolver res = (MapToolVariableResolver) parser
+					.getVariableResolver();
+			token = res.getTokenInContext();
+			if (token == null) {
+				throw new ParserException(I18N.getText(
+						"macro.function.general.noImpersonated",
+						"setTokenHandout"));
+			}
+			setHandout(token, args.get(0).toString());
 			return "";
 		}
 
@@ -125,7 +163,7 @@ public class TokenImage extends AbstractFunction {
 		return assetId.toString();
 	}
 
-	private void setImage(Token token, String assetName) throws ParserException {
+	public static void setImage(Token token, String assetName) throws ParserException {
 		Matcher m = Pattern.compile("asset://([^-]+)").matcher(assetName);
 
 		String assetId;
@@ -142,7 +180,43 @@ public class TokenImage extends AbstractFunction {
 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
 	}
 
-	private Token findImageToken(final String name, String functionName) throws ParserException {
+	/* 
+	 * 
+	 */
+	public static void setPortrait(Token token, String assetName) throws ParserException {
+		Matcher m = Pattern.compile("asset://([^-]+)").matcher(assetName);
+
+		String assetId;
+
+		if (m.matches()) {
+			assetId = m.group(1);
+		} else if (assetName.toLowerCase().startsWith("image:")) {
+			assetId = findImageToken(assetName, "setImage").getImageAssetId().toString();
+		} else {
+			throw new ParserException(I18N.getText("macro.function.general.argumentTypeInvalid", "setImage", 1, assetName));
+		}
+		token.setPortraitImage(new MD5Key(assetId));
+		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
+	}
+	
+	public static void setHandout(Token token, String assetName) throws ParserException {
+		Matcher m = Pattern.compile("asset://([^-]+)").matcher(assetName);
+
+		String assetId;
+
+		if (m.matches()) {
+			assetId = m.group(1);
+		} else if (assetName.toLowerCase().startsWith("image:")) {
+			assetId = findImageToken(assetName, "setImage").getImageAssetId().toString();
+		} else {
+			throw new ParserException(I18N.getText("macro.function.general.argumentTypeInvalid", "setImage", 1, assetName));
+		}
+		token.setCharsheetImage(new MD5Key(assetId));
+		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
+	}
+
+	
+	public static Token findImageToken(final String name, String functionName) throws ParserException {
 		Token imageToken = null;
 		if (name != null && name.length() > 0) {
 			List<ZoneRenderer> zrenderers = MapTool.getFrame().getZoneRenderers();
