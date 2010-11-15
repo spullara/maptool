@@ -1619,6 +1619,7 @@ public class AppActions {
 					StartServerDialogPreferences serverProps = new StartServerDialogPreferences();	// data retrieved from Preferences.userRoot()
 
 					ServerPolicy policy = new ServerPolicy();
+					policy.setAutoRevealOnMovement(serverProps.isAutoRevealOnMovement());
 					policy.setUseStrictTokenManagement(serverProps.getUseStrictTokenOwnership());
 					policy.setPlayersCanRevealVision(serverProps.getPlayersCanRevealVision());
 					policy.setUseIndividualViews(serverProps.getUseIndividualViews());

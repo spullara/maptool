@@ -120,8 +120,11 @@ public class FacingTool extends DefaultTool {
 			}
 
 			token.setFacing(degrees);
-			if ((renderer.getZone().hasFog() && AppPreferences.getAutoRevealVisionOnGMMovement() && MapTool.getPlayer().isGM()) || MapTool.getServerPolicy().getPlayersCanRevealVision()) {
-				visibleArea = MapTool.getFrame().getCurrentZoneRenderer().getZoneView().getVisibleArea(token);
+			// if has fog(required) 
+			// and ((isGM with pref set) OR serverPolicy allows auto reveal by players)
+			if ((renderer.getZone().hasFog() && ((AppPreferences.getAutoRevealVisionOnGMMovement() && MapTool.getPlayer().isGM())) || MapTool.getServerPolicy().isAutoRevealOnMovement())) {
+			    	renderer.flush(token);
+			    	visibleArea = MapTool.getFrame().getCurrentZoneRenderer().getZoneView().getVisibleArea(token);
 				Set<GUID> selected = new HashSet<GUID>();
 				selected.add(token.getId());
 				MapTool.getFrame().getCurrentZoneRenderer().getZone().exposeArea(visibleArea, selected);

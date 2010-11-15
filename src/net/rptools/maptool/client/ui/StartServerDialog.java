@@ -52,11 +52,11 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 	private JComboBox movementMetricCombo;
 	private JCheckBox useIndividualFOW;
 	private JCheckBox useIndividualViews;
-
+	private JCheckBox autoRevealOnMovement;
+	private JCheckBox playersCanRevealVision;
 
 	public StartServerDialog() {
 		super("net/rptools/maptool/client/ui/forms/startServerDialog.xml");
-
 		panelInit();
 	}
 
@@ -71,6 +71,8 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 		bind(prefs);
 		useIndividualFOW = (JCheckBox) getComponent("@useIndividualFOW");
 		useIndividualViews = (JCheckBox) getComponent("@useIndividualViews");
+		autoRevealOnMovement = (JCheckBox) getComponent("@autoRevealOnMovement");
+		playersCanRevealVision = (JCheckBox) getComponent("@playersCanRevealVision");
 
 		useIndividualFOW.setEnabled(prefs.getUseIndividualViews());
 		useIndividualViews.addItemListener(new ItemListener() {
@@ -83,6 +85,19 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 				}
 			}
 		});
+
+		autoRevealOnMovement.setEnabled(prefs.isAutoRevealOnMovement());
+		playersCanRevealVision.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if (!playersCanRevealVision.isSelected()) {
+					autoRevealOnMovement.setSelected(false);
+					autoRevealOnMovement.setEnabled(false);
+				} else {
+					autoRevealOnMovement.setEnabled(true);
+				}
+			}
+		});
+
 		movementMetricCombo = (JComboBox) getComponent("movementMetric");
 		DefaultComboBoxModel movementMetricModel = new DefaultComboBoxModel();
 		movementMetricModel.addElement(WalkerMetric.ONE_TWO_ONE);
@@ -98,7 +113,6 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 			}
 		});
 		getRootPane().setDefaultButton(getOKButton());
-		//dialog.p
 		dialog.showDialog();
 	}
 
@@ -134,8 +148,7 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 		return (JCheckBox) getComponent("@useToolTipsForUnformattedRolls");
 	}
 
-	public JComboBox getMovementMetric()
-	{
+	public JComboBox getMovementMetric() {
 		return (JComboBox) getComponent("movementMetric");
 	}
 
@@ -163,6 +176,7 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 				}
 				if (commit()) {
 					prefs.setMovementMetric((WalkerMetric) movementMetricCombo.getSelectedItem());
+					prefs.setAutoRevealOnMovement(autoRevealOnMovement.isSelected());
 					accepted = true;
 					dialog.closeDialog();
 				}

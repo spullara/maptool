@@ -40,6 +40,7 @@ public class StartServerDialogPreferences {
 	private static final String KEY_PLAYERS_RECEIVE_CAMPAIGN_MACROS = "playersReceiveCampaignMacros";
 	private static final String KEY_WALKER_METRIC = "movementMetric";
 	private static final String KEY_USE_INDIVIDUAL_FOW = "useIndividualFOW";
+	private static final String KEY_AUTO_REVEAL_ON_MOVE = "autoRevealOnMovement";
 
 	private static Boolean useToolTipsForUnformattedRolls = null;
 
@@ -183,5 +184,13 @@ public class StartServerDialogPreferences {
 
 	public void setUseIndividualFOW(boolean flag) {
 		prefs.putBoolean(KEY_USE_INDIVIDUAL_FOW, flag);
+	}
+	
+	public boolean isAutoRevealOnMovement() {
+		return prefs.getBoolean(KEY_AUTO_REVEAL_ON_MOVE, false);
+	}
+
+	public void setAutoRevealOnMovement(boolean flag) {
+		prefs.putBoolean(KEY_AUTO_REVEAL_ON_MOVE, flag);
 	}
 }
