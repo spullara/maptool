@@ -105,7 +105,7 @@ public class Token extends BaseModel {
 			return o1.getName().compareToIgnoreCase(o2.getName());
 		}
 	};
-	
+
 	private ExposedAreaMetaData exposedAreaMetaData;
 	private final Map<String, MD5Key> imageAssetMap;
 	private String currentImageAsset;
@@ -514,102 +514,95 @@ public class Token extends BaseModel {
 		if (lightSourceList == null) {
 			lightSourceList = new ArrayList<AttachedLightSource>();
 		}
-		if (!lightSourceList.contains(source));
-		lightSourceList.add(new AttachedLightSource(source, direction));
+		if (!lightSourceList.contains(source))
+			lightSourceList.add(new AttachedLightSource(source, direction));
 	}
 
-	public void removeLightSorceType(LightSource.Type lightType)
-	{
-		for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
-			AttachedLightSource als = i.next();
-			LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
-			if(lightSource.getType() == lightType)
-			{
-				i.remove();
-			}
-		}
-	}
-	
-	public void removeGMAuras()
-	{
-		for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
-			AttachedLightSource als = i.next();
-			LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
-			List<Light> lights = lightSource.getLightList();
-			for(Light light: lights)
-			{
-				if(light.isGM())
-				{
+	public void removeLightSourceType(LightSource.Type lightType) {
+		if (lightSourceList != null) {
+			for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
+				AttachedLightSource als = i.next();
+				LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
+				if (lightSource.getType() == lightType)
 					i.remove();
+			}
+		}
+	}
+
+	public void removeGMAuras() {
+		if (lightSourceList != null) {
+			for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
+				AttachedLightSource als = i.next();
+				LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
+				List<Light> lights = lightSource.getLightList();
+				for (Light light: lights) {
+					if (light.isGM())
+						i.remove();
 				}
 			}
 		}
 	}
-	public void removeOwnerOnlyAuras()
-	{
-		for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
-			AttachedLightSource als = i.next();
-			LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
-			List<Light> lights = lightSource.getLightList();
-			for(Light light: lights)
-			{
-				if(light.isOwnerOnly())
-				{
-					i.remove();
+
+	public void removeOwnerOnlyAuras() {
+		if (lightSourceList != null) {
+			for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
+				AttachedLightSource als = i.next();
+				LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
+				List<Light> lights = lightSource.getLightList();
+				for (Light light: lights) {
+					if (light.isOwnerOnly())
+						i.remove();
 				}
 			}
 		}
 	}
-	public boolean hasOwnerOnlyAuras()
-	{
-		for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
-			AttachedLightSource als = i.next();
-			LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
-			List<Light> lights = lightSource.getLightList();
-			for(Light light: lights)
-			{
-				if(light.isOwnerOnly())
-				{
+
+	public boolean hasOwnerOnlyAuras() {
+		if (lightSourceList != null) {
+			for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
+				AttachedLightSource als = i.next();
+				LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
+				List<Light> lights = lightSource.getLightList();
+				for (Light light: lights) {
+					if (light.isOwnerOnly())
+						return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public boolean hasGMAuras() {
+		if (lightSourceList != null) {
+			for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
+				AttachedLightSource als = i.next();
+				LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
+				List<Light> lights = lightSource.getLightList();
+				for(Light light: lights) {
+					if (light.isGM())
+						return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public boolean hasLightSourceType(LightSource.Type lightType) {
+		if (lightSourceList != null) {
+			for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
+				AttachedLightSource als = i.next();
+				LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
+				if (lightSource.getType() == lightType)
 					return true;
-				}
 			}
 		}
 		return false;
 	}
-	public boolean hasGMAuras()
-	{
-		for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
-			AttachedLightSource als = i.next();
-			LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
-			List<Light> lights = lightSource.getLightList();
-			for(Light light: lights)
-			{
-				if(light.isGM())
-				{
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	public boolean hasLightSorceType(LightSource.Type lightType)
-	{
-		for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
-			AttachedLightSource als = i.next();
-			LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
-			if(lightSource.getType() == lightType)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-	
+
 	public void removeLightSource(LightSource source) {
 		if (lightSourceList == null) {
 			return;
 		}
-		List<AttachedLightSource> lightList = new ArrayList<AttachedLightSource>();
 		for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
 			AttachedLightSource als = i.next();
 			if (als.getLightSourceId().equals(source.getId())) {
@@ -623,7 +616,6 @@ public class Token extends BaseModel {
 		if (lightSourceList == null) {
 			return;
 		}
-
 		lightSourceList = null;
 	}
 	//End My Addtion
@@ -632,7 +624,6 @@ public class Token extends BaseModel {
 		if (lightSourceList == null) {
 			return false;
 		}
-
 		for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
 			AttachedLightSource als = i.next();
 			if (als.getLightSourceId().equals(source.getId())) {
@@ -1542,12 +1533,12 @@ public class Token extends BaseModel {
 		{
 			exposedAreaMetaData = new ExposedAreaMetaData();
 		}
-		return exposedAreaMetaData; 
+		return exposedAreaMetaData;
 	}
 	public class ExposedAreaMetaData
 	{
 		private Area exposedAreaHistory;
-		
+
 		public ExposedAreaMetaData()
 		{
 			exposedAreaHistory = new Area();
@@ -1556,7 +1547,7 @@ public class Token extends BaseModel {
 		{
 			exposedAreaHistory = (Area) area.clone();
 		}
-		public Area getExposedAreaHistory() 
+		public Area getExposedAreaHistory()
 		{
 			if(exposedAreaHistory == null)
 			{

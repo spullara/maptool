@@ -120,11 +120,11 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 			for (GUID tokenGUID : selectedTokenSet) {
 
 				Token token = renderer.getZone().getToken(tokenGUID);
-				if(token.hasLightSorceType(LightSource.Type.NORMAL))
+				if(token.hasLightSourceType(LightSource.Type.NORMAL))
 				{
 					menu.add(new ClearLightsOnlyAction());
 				}
-				if(token.hasLightSorceType(LightSource.Type.AURA))
+				if(token.hasLightSourceType(LightSource.Type.AURA))
 				{
 					menu.add(new ClearAurasOnlyAction());
 				}
@@ -603,9 +603,9 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 			for (GUID tokenGUID : selectedTokenSet) {
 
 				Token token = renderer.getZone().getToken(tokenGUID);
-				if(token.hasLightSorceType(LightSource.Type.NORMAL))
+				if(token.hasLightSourceType(LightSource.Type.NORMAL))
 				{
-					token.removeLightSorceType(LightSource.Type.NORMAL);
+					token.removeLightSourceType(LightSource.Type.NORMAL);
 				}
 
 				
@@ -629,9 +629,9 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 			for (GUID tokenGUID : selectedTokenSet) {
 
 				Token token = renderer.getZone().getToken(tokenGUID);
-				if(token.hasLightSorceType(LightSource.Type.AURA))
+				if(token.hasLightSourceType(LightSource.Type.AURA))
 				{
-					token.removeLightSorceType(LightSource.Type.AURA);
+					token.removeLightSourceType(LightSource.Type.AURA);
 				}
 
 				
