@@ -180,7 +180,9 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 			}
 			@Override
 			protected void done() {
-				getRemoteServerTable().setModel(model);
+				if (model != null) {
+					getRemoteServerTable().setModel(model);
+				}
 				TableColumn column = getRemoteServerTable().getColumnModel().getColumn(1);
 				column.setPreferredWidth(70);
 				column.setMaxWidth(70);

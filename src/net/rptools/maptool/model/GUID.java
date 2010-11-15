@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.model;
 
@@ -25,173 +25,170 @@ import com.withay.util.HexCode;
  * Global unique identificator object.
  */
 public class GUID extends Object implements Serializable, Comparable {
+	/** Serial version unique identifier. */
+	private static final long serialVersionUID = 6361057925697403643L;
 
-    /** Serial version unique identifier. */
-    private static final long serialVersionUID = 6361057925697403643L;
+	/** GUIDs always have 16 bytes. */
+	public static final int GUID_LENGTH = 16;
 
-    /** GUIDs always have 16 bytes. */ 
-    public static final int GUID_LENGTH = 16;
+	// NOTE: THIS CAN NEVER BE CHANGED, OR IT WILL AFFECT ALL THINGS THAT PREVIOUSLY USED IT
+	public static final int GUID_BUCKETS = 100;
+	// NOTE: THIS CAN NEVER BE CHANGED, OR IT WILL AFFECT ALL THINGS THAT PREVIOUSLY USED IT
 
-    // NOTE: THIS CAN NEVER BE CHANGED, OR IT WILL AFFECT ALL THINGS THAT PREVIOUSLY USED IT
-    public static final int GUID_BUCKETS = 100; 
-    // NOTE: THIS CAN NEVER BE CHANGED, OR IT WILL AFFECT ALL THINGS THAT PREVIOUSLY USED IT
+	private static byte[] ip;
+	private final byte[] baGUID;
 
-    private static byte[] ip;
-    
-    private byte[] baGUID;
-    
-    // Cache of the hashCode for a GUID
-    private transient int hash;
-    
-    
-    static {
-        try {
-			InetAddress rptools = InetAddress.getByName("www.rptools.net");
+	// Cache of the hashCode for a GUID
+	private transient int hash;
+
+	static {
+		try {
+			InetAddress rptools = null; // InetAddress.getByName("www.rptools.net");
 			InetAddress localAddy = ResolveLocalHostname.getLocalHost(rptools);
 			ip = localAddy.getAddress();
-        } catch (IOException e) {		// Could be UnknownHostException or SocketException
-            e.printStackTrace();
-            ip = new byte[4];
-        }
-    }
-    
-    
-    public GUID() {
-        this.baGUID = generateGUID();
-        validateGUID();
-    }
-  
-    /** Creates a new GUID based on the specified GUID value. */ 
-    public GUID(byte[] baGUID) throws InvalidGUIDException {
-        this.baGUID = baGUID;
-        validateGUID();
-    }
+		} catch (IOException e) {		// Could be UnknownHostException or SocketException
+			ip = new byte[4];
+		}
+	}
 
-    /** Creates a new GUID based on the specified hexadecimal-code string. */ 
-    public GUID(String strGUID) {
-        if (strGUID == null) throw new InvalidGUIDException("GUID is null");
+	public GUID() {
+		this.baGUID = generateGUID();
+		validateGUID();
+	}
 
-        this.baGUID = HexCode.decode(strGUID);
-        validateGUID();
-    }
+	/** Creates a new GUID based on the specified GUID value. */
+	public GUID(byte[] baGUID) throws InvalidGUIDException {
+		this.baGUID = baGUID;
+		validateGUID();
+	}
 
-    /** Ensures the GUID is legal. */
-    private void validateGUID() throws InvalidGUIDException {
-        if (baGUID == null) throw new InvalidGUIDException("GUID is null");
-        if (baGUID.length != GUID_LENGTH) throw new InvalidGUIDException("GUID length is invalid");
-    }
+	/** Creates a new GUID based on the specified hexadecimal-code string. */
+	public GUID(String strGUID) {
+		if (strGUID == null) throw new InvalidGUIDException("GUID is null");
 
-    /** Returns the GUID representation of the {@link byte} array argument. */
-    public static GUID valueOf(byte[] bits) {
-        if (bits == null) return null;
-        return new GUID(bits);
-    }
+		this.baGUID = HexCode.decode(strGUID);
+		validateGUID();
+	}
 
-    /** Returns the GUID representation of the {@link String} argument. */
-    public static GUID valueOf(String s) {
-        if (s == null) return null;
-        return new GUID(s);
-    }
+	/** Ensures the GUID is legal. */
+	private void validateGUID() throws InvalidGUIDException {
+		if (baGUID == null) throw new InvalidGUIDException("GUID is null");
+		if (baGUID.length != GUID_LENGTH) throw new InvalidGUIDException("GUID length is invalid");
+	}
 
-    /** Determines whether two GUIDs are equal. */
-    public boolean equals(Object object) {
-        if (object == null) {
-            return this == null;
-        }
+	/** Returns the GUID representation of the {@link byte} array argument. */
+	public static GUID valueOf(byte[] bits) {
+		if (bits == null) return null;
+		return new GUID(bits);
+	}
 
-        Class objClass = object.getClass();
+	/** Returns the GUID representation of the {@link String} argument. */
+	public static GUID valueOf(String s) {
+		if (s == null) return null;
+		return new GUID(s);
+	}
 
-        GUID guid;
-        try {
-            if (objClass == String.class) {   // string
-                guid = new GUID((String)object);
-            } else {                          // try to cast to a GUID
-                guid = (GUID)object;
-            }
-        } catch (ClassCastException e) {    // not a GUID
-            return false;
-        }
+	/** Determines whether two GUIDs are equal. */
+	@Override
+	public boolean equals(Object object) {
+		if (object == null) {
+			return this == null;
+		}
+		Class<? extends Object> objClass = object.getClass();
 
-        // Compare bytes.
-        for (int i = 0; i < GUID_LENGTH; i++) {
-            if (this.baGUID[i] != guid.baGUID[i])
-            return false; 
-        }
+		GUID guid;
+		try {
+			if (objClass == String.class) {   // string
+				guid = new GUID((String)object);
+			} else {                          // try to cast to a GUID
+				guid = (GUID)object;
+			}
+		} catch (ClassCastException e) {    // not a GUID
+			return false;
+		}
 
-        // All tests pass.
-        return true;
-    }
+		// Compare bytes.
+		for (int i = 0; i < GUID_LENGTH; i++) {
+			if (this.baGUID[i] != guid.baGUID[i])
+				return false;
+		}
 
-    public byte[] getBytes() { return baGUID; }
+		// All tests pass.
+		return true;
+	}
 
-    /** Returns a string for the GUID. */
-    public String toString() {
-        return HexCode.encode(baGUID, false); // false means uppercase
-    }
+	public byte[] getBytes() { return baGUID; }
 
-    /**
-    * Returns a hashcode for this GUID. This function is based on the algorithm that JDK 1.3 uses for a String.
-    * @return  a hash code value for this object.
-    */
-    public int hashCode() {
-        int h = hash;
-        if (h == 0) {
-            byte val[] = baGUID;
-            int len = GUID_LENGTH;
+	/** Returns a string for the GUID. */
+	@Override
+	public String toString() {
+		return HexCode.encode(baGUID, false); // false means uppercase
+	}
 
-            for (int i = 0; i < len; i++)
-            h = 31*h + val[i];
-            hash = h;
-        }
-        return h;
-    }
-    
-    private static long guidGenerationCounter = 0;
-    
-    public static byte[] generateGUID() throws InvalidGUIDException{
-        byte[] guid = new byte[16];
-        
-        System.currentTimeMillis();
-        
-        long time = System.currentTimeMillis();
-        
-        guidGenerationCounter++;
+	/**
+	 * Returns a hashcode for this GUID. This function is based on the algorithm that JDK 1.3 uses for a String.
+	 * @return  a hash code value for this object.
+	 */
+	@Override
+	public int hashCode() {
+		int h = hash;
+		if (h == 0) {
+			byte val[] = baGUID;
+			int len = GUID_LENGTH;
 
-        int n = 0;
-        guid[n++] = ip[0];
-        guid[n++] = ip[1];
-        guid[n++] = ip[2];
-        guid[n++] = ip[3];
-        guid[n++] = (byte) (time       & 0xFF);
-        guid[n++] = (byte) (time >> 8  & 0xFF);
-        guid[n++] = (byte) (time >> 16 & 0xFF);
-        guid[n++] = (byte) (time >> 24 & 0xFF);
-        guid[n++] = (byte) (guidGenerationCounter       & 0xFF);
-        guid[n++] = (byte) (guidGenerationCounter >> 8  & 0xFF);
-        guid[n++] = (byte) (guidGenerationCounter >> 16 & 0xFF);
-        guid[n++] = (byte) (guidGenerationCounter >> 24 & 0xFF);
-        guid[n++] = (byte) ((time >> 24  & 0xFF) & ip[0]);
-        guid[n++] = (byte) ((time >> 16  & 0xFF) & ip[1]);
-        guid[n++] = (byte) ((time >>  8  & 0xFF) & ip[2]);
-        guid[n++] = (byte) ((time >>  0  & 0xFF) & ip[3]);
-        
-        return guid;
-    }
-    
-    public static void main(String[] args) throws Exception {
-        for (int i = 0; i < 10; i++) {
-            GUID guid = new GUID();
-            //System.out.println("insert into sys_guids values ('" + guid.toString() + "');");
-            System.out.println(guid.toString());
-        }
-    }
+			for (int i = 0; i < len; i++)
+				h = 31*h + val[i];
+			hash = h;
+		}
+		return h;
+	}
+
+	private static long guidGenerationCounter = 0;
+
+	public static byte[] generateGUID() throws InvalidGUIDException{
+		byte[] guid = new byte[16];
+
+		System.currentTimeMillis();
+
+		long time = System.currentTimeMillis();
+
+		guidGenerationCounter++;
+
+		int n = 0;
+		guid[n++] = ip[0];
+		guid[n++] = ip[1];
+		guid[n++] = ip[2];
+		guid[n++] = ip[3];
+		guid[n++] = (byte) (time       & 0xFF);
+		guid[n++] = (byte) (time >> 8  & 0xFF);
+		guid[n++] = (byte) (time >> 16 & 0xFF);
+		guid[n++] = (byte) (time >> 24 & 0xFF);
+		guid[n++] = (byte) (guidGenerationCounter       & 0xFF);
+		guid[n++] = (byte) (guidGenerationCounter >> 8  & 0xFF);
+		guid[n++] = (byte) (guidGenerationCounter >> 16 & 0xFF);
+		guid[n++] = (byte) (guidGenerationCounter >> 24 & 0xFF);
+		guid[n++] = (byte) ((time >> 24  & 0xFF) & ip[0]);
+		guid[n++] = (byte) ((time >> 16  & 0xFF) & ip[1]);
+		guid[n++] = (byte) ((time >>  8  & 0xFF) & ip[2]);
+		guid[n++] = (byte) ((time >>  0  & 0xFF) & ip[3]);
+
+		return guid;
+	}
+
+	public static void main(String[] args) throws Exception {
+		for (int i = 0; i < 10; i++) {
+			GUID guid = new GUID();
+			//System.out.println("insert into sys_guids values ('" + guid.toString() + "');");
+			System.out.println(guid.toString());
+		}
+	}
 
 	public int compareTo(Object o) {
 		GUID og = (GUID)o;
 		for (int i = 0; i < GUID_LENGTH; i++) {
-            if (this.baGUID[i] != og.baGUID[i])
-            	return this.baGUID[i] - og.baGUID[i];
-        }
+			if (this.baGUID[i] != og.baGUID[i])
+				return this.baGUID[i] - og.baGUID[i];
+		}
 		return 0;
 	}
 }
