@@ -41,7 +41,6 @@ import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
-import java.awt.geom.Point2D;
 import java.awt.geom.QuadCurve2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -76,6 +75,7 @@ import net.rptools.lib.swing.ImageBorder;
 import net.rptools.lib.swing.ImageLabel;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppActions;
+import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.AppStyle;
@@ -87,7 +87,12 @@ import net.rptools.maptool.client.TransferableHelper;
 import net.rptools.maptool.client.functions.TokenMoveFunctions;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.tool.StampTool;
+import net.rptools.maptool.client.tool.drawing.FreehandExposeTool;
+import net.rptools.maptool.client.tool.drawing.OvalExposeTool;
+import net.rptools.maptool.client.tool.drawing.PolygonExposeTool;
+import net.rptools.maptool.client.tool.drawing.RectangleExposeTool;
 import net.rptools.maptool.client.ui.Scale;
+import net.rptools.maptool.client.ui.Tool;
 import net.rptools.maptool.client.ui.htmlframe.HTMLFrameFactory;
 import net.rptools.maptool.client.ui.token.AbstractTokenOverlay;
 import net.rptools.maptool.client.ui.token.BarTokenOverlay;
@@ -915,6 +920,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		g2d.setFont(AppStyle.labelFont);
 		Object oldAA = SwingUtil.useAntiAliasing(g2d);
 
+
 		// much of the raster code assumes the user clip is set
 		boolean resetClip= false;
 		if (g2d.getClipBounds() == null) {
@@ -1549,10 +1555,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 			if(view.getTokens() != null)
 			{
-			    // if there are tokens selected combine the areas, 
-			    // then, if individual FOW is enabled
-			    // we pass the combined exposed area to bulid the 
-			    // soft FOW and visible area.
+				// if there are tokens selected combine the areas,
+				// then, if individual FOW is enabled
+				// we pass the combined exposed area to bulid the
+				// soft FOW and visible area.
 				for(Token tok: view.getTokens())
 				{
 					ExposedAreaMetaData meta = tok.getExposedAreaMetaData();
@@ -1575,9 +1581,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			}
 			else
 			{
-			    // No tokens selected, so if we are using 
-			    // Individual FOW, we build up all the owned tokens
-			    // exposed area's to build the soft FOW. 
+				// No tokens selected, so if we are using
+				// Individual FOW, we build up all the owned tokens
+				// exposed area's to build the soft FOW.
 				if(combinedView)
 				{
 					if(combined.isEmpty())
@@ -1966,24 +1972,24 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 						Path<AbstractPoint> path = set.getWalker() != null ? set.getWalker().getPath() : set.gridlessPath;
 						List<AbstractPoint> thePoints =  path.getCellPath();
-						// now that we have the last point, we can  
-						// check to see if if's gridless or not. 
+						// now that we have the last point, we can
+						// check to see if if's gridless or not.
 						// if not gridless, get the lastpoint the token
 						// was at and see if the token's footprint is inside
 						// the visible area to show the label.
 						if(thePoints.size() >0){
 							AbstractPoint lastPoint = thePoints.get(thePoints.size()-1);
 
-							Rectangle tokenRectangle = null; 
+							Rectangle tokenRectangle = null;
 							if (lastPoint instanceof CellPoint)
 							{
-							    tokenRectangle= token.getFootprint(grid).getBounds(grid, (CellPoint) lastPoint);
+								tokenRectangle= token.getFootprint(grid).getBounds(grid, (CellPoint) lastPoint);
 							}
 							else
 							{
-							    Rectangle tokBounds = token.getBounds(zone);
-							    tokenRectangle = new Rectangle();
-							    tokenRectangle.setBounds(lastPoint.x, lastPoint.y, (int)tokBounds.getWidth(), (int)tokBounds.getHeight());
+								Rectangle tokBounds = token.getBounds(zone);
+								tokenRectangle = new Rectangle();
+								tokenRectangle.setBounds(lastPoint.x, lastPoint.y, (int)tokBounds.getWidth(), (int)tokBounds.getHeight());
 							}
 
 							/*if(MapTool.getPlayer().getName().equals("Jim")){
@@ -1991,65 +1997,65 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 								System.out.println( "  Jim's Visible Area: " + theVisibleArea.getBounds());
 								System.out.println( "  Token Rectangle: " + tokenRectangle);
 								System.out.println( "  Points: " + thePoints.size());
-								
+
 							}*/
 							showLabels = showLabels ||  (theVisibleArea.contains(tokenRectangle) || theVisibleArea.intersects(tokenRectangle));
 						}
 						else {
-						    showLabels = false;
+							showLabels = false;
 						}
 					}
 					else {
-					    showLabels = showLabels || (!zone.hasFog() && visibleScreenArea == null); // no fog, no vision
-					    showLabels = showLabels || (visibleScreenArea != null && visibleScreenArea.intersects(bounds) && ((exposedFogArea.intersects(bounds) ||  exposedFogArea.contains(bounds)))); // vision
-					    showLabels = showLabels || (visibleScreenArea == null && zone.hasFog() && (exposedFogArea.intersects(bounds) || exposedFogArea.contains(bounds))); // fog
+						showLabels = showLabels || (!zone.hasFog() && visibleScreenArea == null); // no fog, no vision
+						showLabels = showLabels || (visibleScreenArea != null && visibleScreenArea.intersects(bounds) && ((exposedFogArea.intersects(bounds) ||  exposedFogArea.contains(bounds)))); // vision
+						showLabels = showLabels || (visibleScreenArea == null && zone.hasFog() && (exposedFogArea.intersects(bounds) || exposedFogArea.contains(bounds))); // fog
 					}
 
 					if (showLabels) {
-					    // if the token is visible on the screen it will be in the location cache
-					    if (tokenLocationCache.containsKey(token)) {
-						y += 10 + scaledHeight;
-						x += scaledWidth / 2;
+						// if the token is visible on the screen it will be in the location cache
+						if (tokenLocationCache.containsKey(token)) {
+							y += 10 + scaledHeight;
+							x += scaledWidth / 2;
 
-						if (!token.isStamp()) {
-						    if (AppState.getShowMovementMeasurements()) {
-							String distance = "";
-							if (zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
-							    if (walker.getDistance() >= 1) {
-								distance = Integer.toString(walker.getDistance());
-							    }
-							} else {
-							    double c = 0;
-							    ZonePoint lastPoint = null;
-							    for (ZonePoint zp : set.gridlessPath.getCellPath()) {
+							if (!token.isStamp()) {
+								if (AppState.getShowMovementMeasurements()) {
+									String distance = "";
+									if (zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
+										if (walker.getDistance() >= 1) {
+											distance = Integer.toString(walker.getDistance());
+										}
+									} else {
+										double c = 0;
+										ZonePoint lastPoint = null;
+										for (ZonePoint zp : set.gridlessPath.getCellPath()) {
 
-								if (lastPoint == null) {
-								    lastPoint = zp;
-								    continue;
+											if (lastPoint == null) {
+												lastPoint = zp;
+												continue;
+											}
+											int a = lastPoint.x - zp.x;
+											int b = lastPoint.y - zp.y;
+
+											c += Math.hypot(a, b);
+
+											lastPoint = zp;
+										}
+
+										c /= zone.getGrid().getSize(); // Number of "cells"
+										c *= zone.getUnitsPerCell(); // "actual" distance traveled
+
+										distance = String.format("%.1f", c);
+									}
+									if (distance.length() > 0) {
+										delayRendering(new LabelRenderer(distance, x, y));
+										y += 20;
+									}
 								}
-								int a = lastPoint.x - zp.x;
-								int b = lastPoint.y - zp.y;
-
-								c += Math.hypot(a, b);
-
-								lastPoint = zp;
-							    }
-
-							    c /= zone.getGrid().getSize(); // Number of "cells"
-							    c *= zone.getUnitsPerCell(); // "actual" distance traveled
-
-							    distance = String.format("%.1f", c);
 							}
-							if (distance.length() > 0) {
-							    delayRendering(new LabelRenderer(distance, x, y));
-							    y += 20;
+							if (set.getPlayerId() != null && set.getPlayerId().length() >= 1) {
+								delayRendering(new LabelRenderer(set.getPlayerId(), x, y));
 							}
-						    }
 						}
-						if (set.getPlayerId() != null && set.getPlayerId().length() >= 1) {
-						    delayRendering(new LabelRenderer(set.getPlayerId(), x, y));
-						}
-					    }
 					}
 				}
 			}
@@ -2696,10 +2702,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			}
 			Token token = location.token;
 			Rectangle footprintBounds = token.getBounds(zone);
-			
+
 			boolean isSelected = selectedTokenSet.contains(token.getId());
 			if (isSelected) {
-				
 				ScreenPoint sp = ScreenPoint.fromZonePoint(this, footprintBounds.x, footprintBounds.y);
 				double width = footprintBounds.width * getScale();
 				double height = footprintBounds.height * getScale();
@@ -2710,6 +2715,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				}
 				if (!AppUtil.playerOwns(token)) {
 					selectedBorder = AppStyle.selectedUnownedBorder;
+				}
+				if (MapTool.getServerPolicy().isUseIndividualFOW() && !token.isStamp()) {
+					Tool tool = MapTool.getFrame().getToolbox().getSelectedTool();
+					if (		tool instanceof RectangleExposeTool		// XXX Change to use marker interface such as ExposeTool?
+							|| 	tool instanceof OvalExposeTool
+							|| 	tool instanceof FreehandExposeTool
+							|| 	tool instanceof PolygonExposeTool
+					)
+						selectedBorder = AppConstants.FOW_TOOLS_BORDER;
 				}
 				if (token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp())) {
 					AffineTransform oldTransform = clippedG.getTransform();
@@ -2729,12 +2743,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			}
 
 			boolean showIVFOWLabel = MapTool.getServerPolicy().isUseIndividualFOW() && (zoneView.getVisibleArea(view).contains(footprintBounds) || zoneView.getVisibleArea(view).intersects(footprintBounds));
-			
+
 			// Token names and labels
 			if ((AppState.isShowTokenNames() || token == tokenUnderMouse)
-					&& (view.isGMView() || (AppUtil.tokenIsVisible(zone, token, view) 
-					&& ((!MapTool.getServerPolicy().isUseIndividualFOW() && (visibleScreenArea == null || GraphicsUtil.intersects(visibleScreenArea, bounds)))
-						|| showIVFOWLabel)
+					&& (view.isGMView() || (AppUtil.tokenIsVisible(zone, token, view)
+							&& ((!MapTool.getServerPolicy().isUseIndividualFOW() && (visibleScreenArea == null || GraphicsUtil.intersects(visibleScreenArea, bounds)))
+									|| showIVFOWLabel)
 					))) {
 				GUID tokId = token.getId();
 				int offset = 3; // Keep it from tramping on the token border.

@@ -31,6 +31,7 @@ public class AppConstants {
 	public static final ImageBorder GREEN_BORDER = new ImageBorder("net/rptools/maptool/client/image/border/green");
 	public static final ImageBorder YELLOW_BORDER = new ImageBorder("net/rptools/maptool/client/image/border/yellow");
 	public static final ImageBorder PURPLE_BORDER = new ImageBorder("net/rptools/maptool/client/image/border/purple");
+	public static final ImageBorder FOW_TOOLS_BORDER = new ImageBorder("net/rptools/maptool/client/image/border/fowtools");
 	public static final int NOTE_PORTRAIT_SIZE = 200;
 
 	public static final FilenameFilter IMAGE_FILE_FILTER = new FilenameFilter() {
