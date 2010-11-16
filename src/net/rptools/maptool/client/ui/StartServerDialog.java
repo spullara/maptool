@@ -86,7 +86,7 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 			}
 		});
 
-		autoRevealOnMovement.setEnabled(prefs.isAutoRevealOnMovement());
+		autoRevealOnMovement.setEnabled(prefs.getPlayersCanRevealVision());
 		playersCanRevealVision.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				if (!playersCanRevealVision.isSelected()) {
