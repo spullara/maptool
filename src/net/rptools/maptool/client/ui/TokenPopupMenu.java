@@ -215,7 +215,9 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	JMenu menu = new JMenu("Expose");
 	menu.add(new ExposeVisibleAreaAction());
 	menu.add(new ExposeLastPathAction());
-	menu.add(new ExposeVisibleAreaOnlyAction());
+	if(MapTool.getPlayer().getRole() == Role.GM){
+		menu.add(new ExposeVisibleAreaOnlyAction());
+	}
 
 	menu.setEnabled(getTokenUnderMouse().getHasSight());
 
