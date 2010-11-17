@@ -992,24 +992,20 @@ public class Zone extends BaseModel {
 
 
 	public List<Token> getTokensFiltered(Filter filter) {
-
 		ArrayList<Token> copy = new ArrayList<Token>(getTokenCount());
 
 		for (Token token : tokenOrderedList) {
-
 			if (filter.matchToken(token)) {
 				copy.add(token);
 			}
 		}
 		return Collections.unmodifiableList(copy);
-
 	}
 
 	/**
 	 * This is the list of non-stamp tokens, both pc and npc
 	 */
 	public List<Token> getTokens() {
-
 		return getTokensFiltered(new Filter() {
 			public boolean matchToken(Token t) {
 				return !t.isStamp();
