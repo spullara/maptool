@@ -3,6 +3,7 @@
  */
 package net.rptools.maptool.client.functions;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -14,6 +15,7 @@ import net.rptools.maptool.model.TextMessage;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
+import net.sf.json.JSONArray;
 
 /**
  * Chat related functions like broadcast()
@@ -44,10 +46,8 @@ public class ChatFunction extends AbstractFunction {
 	}
 
 	@Override
-	public Object childEvaluate(Parser parser, String functionName,
-			List<Object> parameters) throws ParserException {
-		MapToolVariableResolver resolver = ((MapToolVariableResolver) parser
-				.getVariableResolver());
+	public Object childEvaluate(Parser parser, String functionName, List<Object> parameters) throws ParserException {
+		MapToolVariableResolver resolver = ((MapToolVariableResolver) parser.getVariableResolver());
 
 		if (functionName.equals("broadcast")) {
 			return broadcast(resolver, parameters);
@@ -68,26 +68,38 @@ public class ChatFunction extends AbstractFunction {
 			throw new ParserException(I18N.getText("macro.function.general.noPerm", "broadcast"));
 		}
 
-		if (param.size() >= 1 && param.size() <= 3) {
-			String message = param.get(0).toString();
-			// have to check the message for cheating
-			// or constructed cheats wouldnt be found
-			message = checkForCheating(message);
-
-			String targets = param.size() > 1 ? param.get(1).toString() : "";
-			String delim = param.size() > 2 ? param.get(2).toString() : ",";
-
-			if (message != "") {
-				if (param.size() == 1) {
+		String message = null;
+		String delim = ",";
+		JSONArray jarray = null;
+		switch (param.size()) {
+		default :
+			throw new ParserException(I18N.getText("macro.function.general.tooManyParam", "broadcast", 3, param.size()));
+		case 0 :
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "broadcast", 1, 0));
+		case 3 :
+			delim = param.get(2).toString();
+			// FALLTHRU
+		case 2 :
+			if ("json".equals(delim))
+				jarray = JSONArray.fromObject(param.get(1).toString());
+			else {
+				jarray = new JSONArray();
+				for (String t : param.get(1).toString().split(delim))
+					jarray.add(t.trim());
+			}
+			// FALLTHRU
+		case 1 :
+			message = checkForCheating(param.get(0).toString());
+			if (message != null) {
+				if (jarray == null || jarray.isEmpty()) {
 					MapTool.addGlobalMessage(message);
 				} else {
-					// specified separator
-					MapTool.addGlobalMessage(message, targets, delim);
+					@SuppressWarnings("unchecked")
+					Collection<String> targets = JSONArray.toCollection(jarray, List.class);		// Returns an ArrayList<String>
+					MapTool.addGlobalMessage(message, (List<String>) targets);
 				}
 			}
 			return "";
-		} else {
-			throw new ParserException("broadcast(message [, targets]): wrong number of arguments");
 		}
 	}
 
@@ -103,9 +115,9 @@ public class ChatFunction extends AbstractFunction {
 		Pattern cheater_pattern = CommandPanel.CHEATER_PATTERN;
 
 		if (cheater_pattern.matcher(message).find()) {
-			MapTool.addServerMessage(TextMessage.me(null, "Cheater. You have been reported."));
+			MapTool.addServerMessage(TextMessage.me(null, "Cheater.  You have been reported."));
 			MapTool.serverCommand().message(TextMessage.gm(null, MapTool.getPlayer().getName() + " was caught <i>cheating</i>: " + message));
-			message = "";
+			message = null;
 		}
 		return message;
 	}

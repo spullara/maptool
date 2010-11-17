@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 
 import javax.imageio.ImageIO;
@@ -615,10 +617,9 @@ public class MapTool {
 	public static void addLocalMessage(String message) {
 		addMessage(TextMessage.me(null, message));
 	}
-	
+
 	/**
-	 * Add a message all clients can see. This is a shortcut for addMessage(SAY,
-	 * ...)
+	 * Add a message all clients can see. This is a shortcut for addMessage(SAY, ...)
 	 * 
 	 * @param message
 	 */
@@ -627,31 +628,34 @@ public class MapTool {
 	}
 
 	/**
-	 * Add a message all clients can see. This is a shortcut for addMessage(WHISPER,
-	 * ...) or addMessage(GM, ...)
+	 * Add a message all specified clients will see. This is a shortcut for addMessage(WHISPER, ...)
+	 * and addMessage(GM, ...). The <code>targets</code> is expected do be in a string list built
+	 * with <code>separator</code>.
 	 * 
-	 * @param message
-	 * @param targets
-	 */
-	public static void addGlobalMessage(String message, String targets) {
-		addGlobalMessage(message, targets, ",");
-	}
-	/**
-	 * Add a message all clients can see. This is a shortcut for addMessage(WHISPER,
-	 * ...) or addMessage(GM, ...). Targets is expected do be in a string list build
-	 * with separator.
-	 * 
-	 * @param message
-	 * @param targets
-	 * @param separator
+	 * @param message message to be sent
+	 * @param targets string specifying clients to send the message to (spaces are trimmed)
+	 * @param separator the separator between entries in <code>targets</code>
 	 */
 	public static void addGlobalMessage(String message, String targets, String separator) {
-		for (String target : targets.split(separator) ) {
-			String thisTarget = target.trim();
-			if( thisTarget.compareToIgnoreCase("gm")==0 ) {
+		List<String> list = new LinkedList<String>();
+		for (String target : targets.split(separator))
+			list.add(target.trim());
+		addGlobalMessage(message, list);
+	}
+
+	/**
+	 * Add a message all specified clients will see. This is a shortcut for addMessage(WHISPER, ...)
+	 * and addMessage(GM, ...).
+	 * 
+	 * @param message message to be sent
+	 * @param targets list of <code>String</code>s specifying clients to send the message to
+	 */
+	public static void addGlobalMessage(String message, List<String> targets) {
+		for (String target : targets) {
+			if ("gm".equalsIgnoreCase(target)) {
 				addMessage(TextMessage.gm(null, message));
 			} else {
-						addMessage(TextMessage.whisper(null, thisTarget, message));
+				addMessage(TextMessage.whisper(null, target, message));
 			}
 		}
 	}
@@ -672,7 +676,6 @@ public class MapTool {
 	}
 
 	public static void setCampaign(Campaign campaign, GUID defaultRendererId) {
-
 		// Load up the new
 		MapTool.campaign = campaign;
 		ZoneRenderer currRenderer = null;
