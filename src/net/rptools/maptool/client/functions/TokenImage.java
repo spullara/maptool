@@ -50,7 +50,8 @@ public class TokenImage extends AbstractFunction {
 	private TokenImage() {
 		super(0, 2, "getTokenImage", "getTokenPortrait", "getTokenHandout",
 				"setTokenImage", "setTokenPortrait", "setTokenHandout",
-		"getImage");
+				"getImage"
+		);
 	}
 
 	/**
@@ -64,9 +65,9 @@ public class TokenImage extends AbstractFunction {
 
 	@Override
 	public Object childEvaluate(Parser parser, String functionName, List<Object> args) throws ParserException {
-
 		Token token;
 		BigDecimal size = null;
+		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 
 		if (functionName.equals("setTokenImage")) {
 			if (args.size() != 1) {
@@ -78,6 +79,8 @@ public class TokenImage extends AbstractFunction {
 				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "setTokenImage"));
 			}
 			setImage(token, args.get(0).toString());
+			zone.putToken(token);
+			MapTool.serverCommand().putToken(zone.getId(), token);
 			return "";
 		}
 
@@ -91,6 +94,8 @@ public class TokenImage extends AbstractFunction {
 				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "setTokenPortrait"));
 			}
 			setPortrait(token, args.get(0).toString());
+			zone.putToken(token);
+			MapTool.serverCommand().putToken(zone.getId(), token);
 			return "";
 		}
 
@@ -104,6 +109,8 @@ public class TokenImage extends AbstractFunction {
 				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "setTokenHandout"));
 			}
 			setHandout(token, args.get(0).toString());
+			zone.putToken(token);
+			MapTool.serverCommand().putToken(zone.getId(), token);
 			return "";
 		}
 

@@ -615,6 +615,46 @@ public class MapTool {
 	public static void addLocalMessage(String message) {
 		addMessage(TextMessage.me(null, message));
 	}
+	
+	/**
+	 * Add a message all clients can see. This is a shortcut for addMessage(SAY,
+	 * ...)
+	 * 
+	 * @param message
+	 */
+	public static void addGlobalMessage(String message) {
+		addMessage(TextMessage.say(null, message));
+	}
+
+	/**
+	 * Add a message all clients can see. This is a shortcut for addMessage(WHISPER,
+	 * ...) or addMessage(GM, ...)
+	 * 
+	 * @param message
+	 * @param targets
+	 */
+	public static void addGlobalMessage(String message, String targets) {
+		addGlobalMessage(message, targets, ",");
+	}
+	/**
+	 * Add a message all clients can see. This is a shortcut for addMessage(WHISPER,
+	 * ...) or addMessage(GM, ...). Targets is expected do be in a string list build
+	 * with separator.
+	 * 
+	 * @param message
+	 * @param targets
+	 * @param separator
+	 */
+	public static void addGlobalMessage(String message, String targets, String separator) {
+		for (String target : targets.split(separator) ) {
+			String thisTarget = target.trim();
+			if( thisTarget.compareToIgnoreCase("gm")==0 ) {
+				addMessage(TextMessage.gm(null, message));
+			} else {
+						addMessage(TextMessage.whisper(null, thisTarget, message));
+			}
+		}
+	}
 
 	public static Campaign getCampaign() {
 		if (campaign == null) {

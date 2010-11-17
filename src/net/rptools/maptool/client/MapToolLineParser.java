@@ -28,6 +28,7 @@ import net.rptools.common.expression.Result;
 import net.rptools.maptool.client.functions.AbortFunction;
 import net.rptools.maptool.client.functions.AddAllToInitiativeFunction;
 import net.rptools.maptool.client.functions.AssertFunction;
+import net.rptools.maptool.client.functions.ChatFunction;
 import net.rptools.maptool.client.functions.CurrentInitiativeFunction;
 import net.rptools.maptool.client.functions.DefineMacroFunction;
 import net.rptools.maptool.client.functions.EvalMacroFunctions;
@@ -105,6 +106,7 @@ public class MapToolLineParser {
 		AbortFunction.getInstance(),
 		AssertFunction.getInstance(),
 		AddAllToInitiativeFunction.getInstance(),
+		ChatFunction.getInstance(),
 		CurrentInitiativeFunction.getInstance(),
 		DefineMacroFunction.getInstance(),
 		EvalMacroFunctions.getInstance(),

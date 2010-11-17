@@ -53,7 +53,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
-import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
 import javax.swing.plaf.basic.BasicToggleButtonUI;
 
@@ -77,7 +76,6 @@ import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.StringUtil;
 
 public class CommandPanel extends JPanel implements Observer {
-
 	private JLabel characterLabel;
 	private JTextPane commandTextArea;
 	private MessagePanel messagePanel;
@@ -92,8 +90,8 @@ public class CommandPanel extends JPanel implements Observer {
 	private String typedCommandBuffer;
 
 	// Chat timers
-	private long chatNotifyDuration; // Initialize it on first loadup
-	private Timer chatTimer;
+//	private long chatNotifyDuration; // Initialize it on first loadup
+//	private Timer chatTimer;
 
 	private ChatProcessor chatProcessor;
 
@@ -114,13 +112,11 @@ public class CommandPanel extends JPanel implements Observer {
 	}
 
 	private void initializeSmilies() {
-
 		SmileyChatTranslationRuleGroup smileyRuleGroup = new SmileyChatTranslationRuleGroup();
 		emotePopup = smileyRuleGroup.getEmotePopup();
 
 		chatProcessor = new ChatProcessor();
 		chatProcessor.install(smileyRuleGroup);
-
 	}
 
 	/**
@@ -159,7 +155,6 @@ public class CommandPanel extends JPanel implements Observer {
 
 	public JButton getEmotePopupButton() {
 		if (emotePopupButton == null) {
-
 			try {
 				emotePopupButton = new JButton(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/smiley/emsmile.png")));
 				emotePopupButton.setMargin(new Insets(0, 0, 0, 0));
@@ -190,7 +185,6 @@ public class CommandPanel extends JPanel implements Observer {
 			scrollLockButton.setFocusPainted(false);
 			scrollLockButton.setPreferredSize(new Dimension(16, 16));
 		}
-
 		return scrollLockButton;
 	}
 
@@ -201,7 +195,6 @@ public class CommandPanel extends JPanel implements Observer {
 	 */
 
 	public JToggleButton getNotifyButton() {
-
 		if (chatNotifyButton == null) {
 			chatNotifyButton = new JToggleButton();
 			chatNotifyButton.setIcon(new ImageIcon(AppStyle.showTypingNotification));
@@ -219,17 +212,13 @@ public class CommandPanel extends JPanel implements Observer {
 						commandTextArea.addKeyListener(new ChatTypingListener());
 					}
 				}
-
 			});
 		}
-
 		return chatNotifyButton;
 	}
 
 	private JComponent createSouthPanel() {
-
 		JPanel panel = new JPanel(new BorderLayout());
-
 		JPanel subPanel = new JPanel(new BorderLayout());
 
 		subPanel.add(BorderLayout.EAST, createTextPropertiesPanel());
@@ -243,14 +232,11 @@ public class CommandPanel extends JPanel implements Observer {
 	}
 
 	private JComponent createAvatarPanel() {
-
 		avatarPanel = new AvatarPanel(new Dimension(60, 60));
-
 		return avatarPanel;
 	}
 
 	private JComponent createCommandPanel() {
-
 		JScrollPane pane = new JScrollPane(getCommandTextArea(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		return pane;
 	}
@@ -302,7 +288,6 @@ public class CommandPanel extends JPanel implements Observer {
 	}
 
 	public JLabel createCharacterLabel() {
-
 		characterLabel = new JLabel("", JLabel.LEFT);
 		characterLabel.setText("");
 		characterLabel.setBorder(BorderFactory.createEmptyBorder(1, 5, 1, 5));
@@ -384,14 +369,13 @@ public class CommandPanel extends JPanel implements Observer {
 	/*
 	 * FIXME: this is insufficient for stopping faked rolls; the user can still do something like &{"laquo;"}.
 	 */
-	private static final Pattern CHEATER_PATTERN = Pattern.compile("«|»|&#171;|&#187;|&laquo;|&raquo;|\036|\037");
+	public static final Pattern CHEATER_PATTERN = Pattern.compile("«|»|&#171;|&#187;|&laquo;|&raquo;|\036|\037");
 
 	/**
 	 * Execute the command in the command field.
 	 */
 	public void commitCommand() {
 		commitCommand(null);
-
 	}
 
 	/**
@@ -407,7 +391,6 @@ public class CommandPanel extends JPanel implements Observer {
 			chatNotifyButton.setEnabled(!disable);
 			maybeAddTypingListener();
 		}
-
 	}
 
 	/**
