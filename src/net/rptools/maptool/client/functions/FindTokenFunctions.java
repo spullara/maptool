@@ -150,17 +150,21 @@ public class FindTokenFunctions extends AbstractFunction {
 	 * Filter by the layer the token is on (allows selecting tokens on the Object and Background layers).
 	 */
 	private class LayerFilter implements Zone.Filter {
-		private final Zone.Layer layer;
+		private final JSONArray layers;
 
-		public LayerFilter(Zone.Layer layer) {
-			this.layer = layer;
+		public LayerFilter(JSONArray layers) {
+			this.layers = new JSONArray();
+			for (Object s : layers) {
+				String name = s.toString().toUpperCase();
+				this.layers.add(Zone.Layer.valueOf("HIDDEN".equals(name) ? "GM" : name));
+			}
 		}
 		public boolean matchToken(Token t) {
 			// Filter out the utility lib: and image: tokens
 			if (t.getName().toLowerCase().startsWith("image:") || t.getName().toLowerCase().startsWith("lib:")) {
 				return false;
 			}
-			return t.getLayer() == layer;
+			return layers.contains(t.getLayer());
 		}
 	}
 
@@ -267,8 +271,23 @@ public class FindTokenFunctions extends AbstractFunction {
 	private Object getTokenList(Parser parser, boolean nameOnly, String delim, String jsonString) throws ParserException {
 		JSONObject jobj = JSONObject.fromObject(jsonString);
 
-		// First get a list of all our tokens.
-		List<Token> allTokens = getTokenList(parser, FindType.ALL, "");
+		// First get a list of all our tokens.  By default this is limited to the TOKEN and GM layers.
+		List<Token> allTokens = null;
+		JSONArray layers = null;
+		if (!jobj.containsKey("layer")) {
+			layers = new JSONArray();
+			layers.add(Zone.Layer.TOKEN.toString());
+			layers.add(Zone.Layer.GM.toString());
+		} else {
+			Object o = jobj.get("layer");
+			if (o instanceof JSONArray) {
+				layers = (JSONArray) o;
+			} else {
+				layers = new JSONArray();
+				layers.add(o.toString());
+			}
+		}
+		allTokens = MapTool.getFrame().getCurrentZoneRenderer().getZone().getTokensFiltered(new LayerFilter(layers));
 		List<Token> tokenList = new ArrayList<Token>();
 		tokenList.addAll(allTokens);
 		JSONObject range = null;
@@ -277,7 +296,7 @@ public class FindTokenFunctions extends AbstractFunction {
 		// Now loop through conditions that are true and only retain tokens returned.
 		for (Object key : jobj.keySet()) {
 			String searchType = key.toString();
-			if ("setStates".equalsIgnoreCase(searchType) || "layer".equalsIgnoreCase(searchType)) {
+			if ("setStates".equalsIgnoreCase(searchType)) {
 				// setStates and layers work the same until you get to the filtering part...
 				JSONArray ary;
 				Object o = jobj.get(searchType);
@@ -287,20 +306,10 @@ public class FindTokenFunctions extends AbstractFunction {
 					ary = new JSONArray();
 					ary.add(o.toString());
 				}
-				if (searchType.length() == 5) {
-					// Looking for tokens on any of the specified layers
-					List<Token> all = new LinkedList<Token>();
-					for (Object item : ary) {
-						List<Token> lst = getTokenList(parser, FindType.LAYER, item.toString());
-						all.addAll(lst);
-					}
-					tokenList.retainAll(all);
-				} else {
-					// Looking for tokens with all of these states set
-					for (Object item : ary) {
-						List<Token> lst = getTokenList(parser, FindType.STATE, item.toString());
-						tokenList.retainAll(lst);
-					}
+				// Looking for tokens with all of these states set
+				for (Object item : ary) {
+					List<Token> lst = getTokenList(parser, FindType.STATE, item.toString());
+					tokenList.retainAll(lst);
 				}
 			} else if ("range".equalsIgnoreCase(searchType)) {
 				// We will do this as one of the last steps as it's one of the most expensive so we want to do it on as few tokens as possible
@@ -543,10 +552,6 @@ public class FindTokenFunctions extends AbstractFunction {
 			break;
 		case OWNED:
 			tokenList = zone.getTokensFiltered(new OwnedFilter(findArgs));
-			break;
-		case LAYER:
-			Zone.Layer layer = Zone.Layer.valueOf(findArgs);
-			tokenList = zone.getTokensFiltered(new LayerFilter(layer));
 			break;
 		case VISIBLE:
 			for (GUID id : zoneRenderer.getVisibleTokenSet())  {
