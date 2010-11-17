@@ -80,11 +80,12 @@ public class ChatFunction extends AbstractFunction {
 			delim = param.get(2).toString();
 			// FALLTHRU
 		case 2 :
-			if ("json".equals(delim))
-				jarray = JSONArray.fromObject(param.get(1).toString());
+			String temp = param.get(1).toString().trim();
+			if ("json".equals(delim) || temp.charAt(0) == '[')
+				jarray = JSONArray.fromObject(temp);
 			else {
 				jarray = new JSONArray();
-				for (String t : param.get(1).toString().split(delim))
+				for (String t : temp.split(delim))
 					jarray.add(t.trim());
 			}
 			// FALLTHRU
