@@ -287,10 +287,20 @@ public class FindTokenFunctions extends AbstractFunction {
 					ary = new JSONArray();
 					ary.add(o.toString());
 				}
-				FindType type = searchType.length() == 5 ? FindType.LAYER : FindType.STATE;	// Faster than a string compare
-				for (Object item : ary) {
-					List<Token> lst = getTokenList(parser, type, item.toString());
-					tokenList.retainAll(lst);
+				if (searchType.length() == 5) {
+					// Looking for tokens on any of the specified layers
+					List<Token> all = new LinkedList<Token>();
+					for (Object item : ary) {
+						List<Token> lst = getTokenList(parser, FindType.LAYER, item.toString());
+						all.addAll(lst);
+					}
+					tokenList.retainAll(all);
+				} else {
+					// Looking for tokens with all of these states set
+					for (Object item : ary) {
+						List<Token> lst = getTokenList(parser, FindType.STATE, item.toString());
+						tokenList.retainAll(lst);
+					}
 				}
 			} else if ("range".equalsIgnoreCase(searchType)) {
 				// We will do this as one of the last steps as it's one of the most expensive so we want to do it on as few tokens as possible
@@ -610,5 +620,4 @@ public class FindTokenFunctions extends AbstractFunction {
 		}
 		return null;
 	}
-
 }
