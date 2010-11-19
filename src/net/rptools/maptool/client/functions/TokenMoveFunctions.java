@@ -155,7 +155,7 @@ public class TokenMoveFunctions extends AbstractFunction {
 			{
 				String targetToken = (String) parameters.get(0);
 				String jsonPath = (String) (parameters.size() == 2? parameters.get(1) : "");
-				target = zone.getTokenByName(targetToken);
+				target = zone.resolveToken(targetToken);
 				if(target == null)
 				{
 					throw new ParserException(I18N.getText("macro.function.general.unknownToken",functionName, targetToken));

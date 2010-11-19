@@ -710,7 +710,6 @@ public class AppActions {
 		public void execute(ActionEvent e) {
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			Set<GUID> selectedSet = renderer.getSelectedTokenSet();
-
 			cutTokens(renderer.getZone(), selectedSet);
 		}
 	};
@@ -730,7 +729,6 @@ public class AppActions {
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			copyTokens(renderer.getSelectedTokenSet());
 		}
-
 	};
 
 	public static final void cutTokens(Zone zone, Set<GUID> tokenSet) {
