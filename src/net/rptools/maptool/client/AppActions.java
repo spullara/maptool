@@ -737,21 +737,16 @@ public class AppActions {
 		// Only cut if some tokens are selected.  Don't want to accidentally
 		// lose what might already be in the clipboard.
 		if (tokenSet.size() > 0) {
-
-
 			copyTokens(tokenSet);
 
 			// delete tokens
 			for (GUID tokenGUID : tokenSet) {
-
 				Token token = zone.getToken(tokenGUID);
-
 				if (AppUtil.playerOwns(token)) {
 					zone.removeToken(tokenGUID);
 					MapTool.serverCommand().removeToken(zone.getId(), tokenGUID);
 				}
 			}
-
 			MapTool.getFrame().getCurrentZoneRenderer().clearSelectedTokens();
 		}
 	}
@@ -761,10 +756,8 @@ public class AppActions {
 		// lose what might already be in the clipboard.
 		if (tokenSet.size() > 0) {
 			List<Token> tokenList = new ArrayList<Token>();
-
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			Zone zone = renderer.getZone();
-
 			tokenCopySet = new HashSet<Token>();
 
 			for (GUID guid : tokenSet) {
@@ -776,7 +769,6 @@ public class AppActions {
 					tokenList.add(token);
 				}
 			}
-
 			copyTokens(tokenList);
 		}
 	}
@@ -789,17 +781,14 @@ public class AppActions {
 			Integer left = null;
 			tokenCopySet = new HashSet<Token>();
 			for (Token token : tokenList) {
-
 				if (top == null || token.getY() < top) {
 					top = token.getY();
 				}
 				if (left == null || token.getX() < left) {
 					left = token.getX();
 				}
-
 				tokenCopySet.add(new Token(token));
 			}
-
 			// Normalize
 			for (Token token : tokenCopySet) {
 				token.setX(token.getX() - left);
@@ -820,39 +809,31 @@ public class AppActions {
 
 		@Override
 		public void execute(ActionEvent e) {
-
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			if (renderer == null) {
 				return;
 			}
-
 			Zone zone = renderer.getZone();
 
 			ScreenPoint screenPoint = renderer.getPointUnderMouse();
 			if (screenPoint == null) {
-
 				// Pick the middle of the map
 				screenPoint = ScreenPoint.fromZonePoint(renderer, renderer.getCenterPoint());
 			}
-
 			boolean snapToGrid = false;
 			for (Token origToken : tokenCopySet) {
 				if (origToken.isSnapToGrid()) {
 					snapToGrid = true;
 				}
 			}
-
 			ZonePoint zonePoint = screenPoint.convertToZone(renderer);
 			if (snapToGrid) {
-
 				CellPoint cellPoint = zone.getGrid().convert(zonePoint);
 				zonePoint = renderer.getZone().getGrid().convert(cellPoint);
 			}
-
 			List<Token> tokenList = new ArrayList<Token>(tokenCopySet);
 			Collections.sort(tokenList, Token.COMPARE_BY_ZORDER);
 			for (Token origToken : tokenList) {
-
 				Token token = new Token(origToken);
 
 				token.setX(token.getX() + zonePoint.x);
@@ -865,11 +846,9 @@ public class AppActions {
 				if (origToken.getType() != Token.Type.PC) {
 					token.setName(MapToolUtil.nextTokenId(zone, token));
 				}
-
 				zone.putToken(token);
 				MapTool.serverCommand().putToken(zone.getId(), token);
 			}
-
 			renderer.repaint();
 		}
 	};
@@ -881,7 +860,6 @@ public class AppActions {
 
 		@Override
 		public void execute(ActionEvent e) {
-
 			AssetPanel assetPanel = MapTool.getFrame().getAssetPanel();
 			Directory dir = assetPanel.getSelectedAssetRoot();
 
@@ -889,16 +867,13 @@ public class AppActions {
 				MapTool.showError("msg.error.mustSelectAssetGroupFirst");
 				return;
 			}
-
 			if (!assetPanel.isAssetRoot(dir)) {
 				MapTool.showError("msg.error.mustSelectRootGroup");
 				return;
 			}
-
 			AppPreferences.removeAssetRoot(dir.getPath());
 			assetPanel.removeAssetRoot(dir);
 		}
-
 	};
 
 	public static final Action BOOT_CONNECTED_PLAYER = new DefaultClientAction() {
@@ -2178,28 +2153,22 @@ public class AppActions {
 
 		@Override
 		public void execute(ActionEvent ae) {
-
 			Campaign campaign = MapTool.getCampaign();
 
 			// TODO: There should probably be only one of these
 			CampaignPropertiesDialog dialog = new CampaignPropertiesDialog(MapTool.getFrame());
 			dialog.setCampaign(campaign);
-
 			dialog.setVisible(true);
-
 			if (dialog.getStatus() == CampaignPropertiesDialog.Status.CANCEL) {
 				return;
 			}
-
 			// TODO: Make this pass all properties, but we don't have that
-			// framework yet, so send what we
-			// know the old fashioned way
+			// framework yet, so send what we know the old fashioned way
 			MapTool.serverCommand().updateCampaign(campaign.getCampaignProperties());
 		}
 	};
 
 	public static class GridSizeAction extends DefaultClientAction {
-
 		private final int size;
 
 		public GridSizeAction(int size) {

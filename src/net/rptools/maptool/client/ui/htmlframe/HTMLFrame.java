@@ -20,12 +20,12 @@ import com.jidesoft.docking.DockableFrame;
 
 @SuppressWarnings("serial")
 public class HTMLFrame extends DockableFrame implements HTMLPanelContainer {
-	
+
 
 	private static final Map<String, HTMLFrame> frames = new HashMap<String, HTMLFrame>();
 	private final Map<String, String> macroCallbacks = new HashMap<String, String>();
 
-	private HTMLPanel panel;
+	private final HTMLPanel panel;
 
 	/**
 	 * Returns if the frame is visible or not.
@@ -38,7 +38,7 @@ public class HTMLFrame extends DockableFrame implements HTMLPanelContainer {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Requests that the frame close.
 	 * @param name The name of the frame.
@@ -48,7 +48,7 @@ public class HTMLFrame extends DockableFrame implements HTMLPanelContainer {
 			frames.get(name).closeRequest();
 		}
 	}
-	
+
 	/**
 	 * Creates a new HTMLFrame and displays it or displays an existing frame.
 	 * The width and height are ignored for existing frames so that they will not
@@ -80,9 +80,9 @@ public class HTMLFrame extends DockableFrame implements HTMLPanelContainer {
 	}
 
 
-	/** 
+	/**
 	 * Creates a new HTMLFrame.
-	 * @param parent The parent of this frame. 
+	 * @param parent The parent of this frame.
 	 * @param name the name of the frame.
 	 * @param title The title of the frame.
 	 * @param width
@@ -105,22 +105,17 @@ public class HTMLFrame extends DockableFrame implements HTMLPanelContainer {
 
 
 	static public void center(String name) {
-		
 		if (!frames.containsKey(name)) {
 			return ;
 		}
-		
 		HTMLFrame frame = frames.get(name);
-		
-    	Dimension outterSize = MapTool.getFrame().getSize();
-    	
-    	int x = MapTool.getFrame().getLocation().x + (outterSize.width - 400) / 2;
-    	int y = MapTool.getFrame().getLocation().y + (outterSize.height - 400) / 2;
-    	
-    	Rectangle rect = new Rectangle(x, y, 400, 400);
+		Dimension outterSize = MapTool.getFrame().getSize();
 
-    	MapTool.getFrame().getDockingManager().floatFrame(frame.getKey(), rect, true);
- 
+		int x = MapTool.getFrame().getLocation().x + (outterSize.width - 400) / 2;
+		int y = MapTool.getFrame().getLocation().y + (outterSize.height - 400) / 2;
+
+		Rectangle rect = new Rectangle(x, y, 400, 400);
+		MapTool.getFrame().getDockingManager().floatFrame(frame.getKey(), rect, true);
 	}
 
 	/**
@@ -129,10 +124,9 @@ public class HTMLFrame extends DockableFrame implements HTMLPanelContainer {
 	 */
 	public void updateContents(String html) {
 		macroCallbacks.clear();
-		panel.updateContents(html, false); 
+		panel.updateContents(html, false);
 	}
 
-	
 	/**
 	 * The selected token list has changed.
 	 */
@@ -171,7 +165,7 @@ public class HTMLFrame extends DockableFrame implements HTMLPanelContainer {
 			});
 		}
 	}
-	
+
 	/**
 	 * The selected token list has changed.
 	 */
@@ -205,12 +199,10 @@ public class HTMLFrame extends DockableFrame implements HTMLPanelContainer {
 				}
 			}
 		}
-	}	
-	
-	
-	
+	}
+
 	public void closeRequest() {
-    	MapTool.getFrame().getDockingManager().hideFrame(getKey());
+		MapTool.getFrame().getDockingManager().hideFrame(getKey());
 		setVisible(false);
 		panel.flush();
 	}
@@ -219,29 +211,24 @@ public class HTMLFrame extends DockableFrame implements HTMLPanelContainer {
 		if (e instanceof HTMLPane.FormActionEvent) {
 			HTMLPane.FormActionEvent fae = (HTMLPane.FormActionEvent) e;
 			MacroLinkFunction.getInstance().runMacroLink(fae.getAction() + fae.getData());
-		} 
-
+		}
 		if (e instanceof HTMLPane.RegisterMacroActionEvent) {
 			HTMLPane.RegisterMacroActionEvent rmae = (HTMLPane.RegisterMacroActionEvent)e;
 			macroCallbacks.put(rmae.getType(), rmae.getMacro());
 		}
-		
 		if (e instanceof HTMLPane.ChangeTitleActionEvent) {
 			this.setTitle(((HTMLPane.ChangeTitleActionEvent)e).getNewTitle());
 		}
 		if (e instanceof HTMLPane.MetaTagActionEvent) {
 			HTMLPane.MetaTagActionEvent mtae = (HTMLPane.MetaTagActionEvent) e;
 			if (mtae.getName().equalsIgnoreCase("onChangeToken")  ||
-					   mtae.getName().equalsIgnoreCase("onChangeSelection") ||
-					   mtae.getName().equalsIgnoreCase("onChangeImpersonated")) {
+					mtae.getName().equalsIgnoreCase("onChangeSelection") ||
+					mtae.getName().equalsIgnoreCase("onChangeImpersonated")) {
 				macroCallbacks.put(mtae.getName(), mtae.getContent());
 			}
 		}
-
-		
 		if (e.getActionCommand().equals("Close")) {
 			closeRequest();
 		}
 	}
-
 }

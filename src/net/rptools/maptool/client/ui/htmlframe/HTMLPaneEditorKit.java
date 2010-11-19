@@ -8,7 +8,7 @@ import net.rptools.maptool.client.swing.MessagePanelEditorKit;
 @SuppressWarnings("serial")
 class HTMLPaneEditorKit extends MessagePanelEditorKit {
 	private final HTMLPaneViewFactory viewFactory;
-	
+
 	HTMLPaneEditorKit(HTMLPane htmlPane) {
 		setUseMacroLinkToolTips(false);
 		viewFactory = new HTMLPaneViewFactory(super.getViewFactory(), htmlPane);
@@ -18,10 +18,9 @@ class HTMLPaneEditorKit extends MessagePanelEditorKit {
 	public ViewFactory getViewFactory() {
 		return viewFactory;
 	}
-	
+
+	@Override
 	public HTMLEditorKit.Parser getParser() {
-	    return super.getParser();
+		return super.getParser();
 	}
-
-
-}	
+}

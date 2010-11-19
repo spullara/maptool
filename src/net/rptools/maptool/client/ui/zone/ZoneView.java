@@ -36,11 +36,10 @@ import net.rptools.maptool.model.Light;
 import net.rptools.maptool.model.LightSource;
 import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
+import net.rptools.maptool.model.Player.Role;
 import net.rptools.maptool.model.SightType;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.Player.Role;
-import net.rptools.maptool.model.Token.ExposedAreaMetaData;
 
 public class ZoneView implements ModelChangeListener {
 
@@ -93,41 +92,41 @@ public class ZoneView implements ModelChangeListener {
 	public Area getLightSourceArea(Token token, Token lightSourceToken) {
 
 		// Cached ?
-				Map<String, Area> areaBySightMap = lightSourceCache.get(lightSourceToken.getId());
-				if (areaBySightMap != null) {
+		Map<String, Area> areaBySightMap = lightSourceCache.get(lightSourceToken.getId());
+		if (areaBySightMap != null) {
 
-					Area lightSourceArea = areaBySightMap.get(token.getSightType());
-					if (lightSourceArea != null) {
-						return lightSourceArea;
-					}
-				} else {
-					areaBySightMap = new HashMap<String, Area>();
-					lightSourceCache.put(lightSourceToken.getId(), areaBySightMap);
-				}
+			Area lightSourceArea = areaBySightMap.get(token.getSightType());
+			if (lightSourceArea != null) {
+				return lightSourceArea;
+			}
+		} else {
+			areaBySightMap = new HashMap<String, Area>();
+			lightSourceCache.put(lightSourceToken.getId(), areaBySightMap);
+		}
 
-				// Calculate
-				Area area = new Area();
-				for (AttachedLightSource attachedLightSource : lightSourceToken.getLightSources()) {
+		// Calculate
+		Area area = new Area();
+		for (AttachedLightSource attachedLightSource : lightSourceToken.getLightSources()) {
 
-					LightSource lightSource = MapTool.getCampaign().getLightSource(attachedLightSource.getLightSourceId());
-					if (lightSource == null) {
-						continue;
-					}
+			LightSource lightSource = MapTool.getCampaign().getLightSource(attachedLightSource.getLightSourceId());
+			if (lightSource == null) {
+				continue;
+			}
 
-					SightType sight = MapTool.getCampaign().getSightType(token.getSightType());
-					Area visibleArea = calculateLightSourceArea(lightSource, lightSourceToken, sight, attachedLightSource.getDirection());
+			SightType sight = MapTool.getCampaign().getSightType(token.getSightType());
+			Area visibleArea = calculateLightSourceArea(lightSource, lightSourceToken, sight, attachedLightSource.getDirection());
 
-					// I don't like the NORMAL check here, it doesn't feel right, the API needs to change to support
-					// getting arbitrary light source types, but that's not a simple change
-					if (visibleArea != null && lightSource.getType() == LightSource.Type.NORMAL) {
-						area.add(visibleArea);
-					}
-				}
+			// I don't like the NORMAL check here, it doesn't feel right, the API needs to change to support
+			// getting arbitrary light source types, but that's not a simple change
+			if (visibleArea != null && lightSource.getType() == LightSource.Type.NORMAL) {
+				area.add(visibleArea);
+			}
+		}
 
-				// Cache
-				areaBySightMap.put(token.getSightType(), area);
+		// Cache
+		areaBySightMap.put(token.getSightType(), area);
 
-				return area;
+		return area;
 	}
 
 	private Area calculatePersonalLightSourceArea(LightSource lightSource, Token lightSourceToken, SightType sight, Direction direction) {
@@ -343,7 +342,7 @@ public class ZoneView implements ModelChangeListener {
 									continue;
 								}
 							}
-							
+
 							lightList.add(new DrawableLight(type, light.getPaint(), visibleArea));
 						}
 					}
@@ -359,9 +358,9 @@ public class ZoneView implements ModelChangeListener {
 		lightSourceMap.clear();
 
 		for (Token token : zone.getAllTokens()) {
-			if (token.hasLightSources() && 
-						((token.isVisible() && !token.isVisibleOnlyToOwner()) || 
-								( token.isVisible() && token.isVisibleOnlyToOwner() && AppUtil.playerOwns(token)))) {
+			if (token.hasLightSources() &&
+					((token.isVisible() && !token.isVisibleOnlyToOwner()) ||
+							( token.isVisible() && token.isVisibleOnlyToOwner() && AppUtil.playerOwns(token)))) {
 				for (AttachedLightSource als : token.getLightSources()) {
 
 					LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
@@ -502,36 +501,14 @@ public class ZoneView implements ModelChangeListener {
 				flush((Token)event.getArg());
 			}
 			if (evt == Zone.Event.TOKEN_ADDED || evt == Zone.Event.TOKEN_CHANGED) {
-				Token token = (Token) event.getArg();
-				if (token.hasLightSources() && (token.isVisible() || (MapTool.getPlayer().isGM() && !AppState.isShowAsPlayer()))) {
-					for(AttachedLightSource als : token.getLightSources()) {
-						LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
-						if (lightSource == null) {
-							continue;
-						}
-						Set<GUID> lightSet = lightSourceMap.get(lightSource.getType());
-						if (lightSet == null) {
-							lightSet = new HashSet<GUID>();
-							lightSourceMap.put(lightSource.getType(), lightSet);
-						}
-						lightSet.add(token.getId());
-					}
-				} else {
-					for(AttachedLightSource als : token.getLightSources()) {
-						LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
-						if (lightSource == null) {
-							continue;
-						}
-						Set<GUID> lightSet = lightSourceMap.get(lightSource.getType());
-						if (lightSet != null) {
-							lightSet.remove(token.getId());
-						}
-					}
-				}
-
-				if (token.getHasSight()) {
-					visibleAreaMap.clear();
-				}
+				Object o = event.getArg();
+				List<Token> tokens = null;
+				if (o instanceof Token) {
+					tokens = new ArrayList<Token>(1);
+					tokens.add((Token) o);
+				} else
+					tokens = (List<Token>) o;
+				processTokenAddChangeEvent(tokens);
 			}
 			if (evt == Zone.Event.TOKEN_REMOVED) {
 				Token token = (Token) event.getArg();
@@ -550,10 +527,59 @@ public class ZoneView implements ModelChangeListener {
 		}
 	}
 
-	private static class VisibleAreaMeta {
+	/**
+	 * 
+	 */
+	private void processTokenAddChangeEvent(List<Token> tokens) {
+		boolean hasSight = false;
 
-		Area visibleArea;
-
+		for (Token token : tokens) {
+			boolean hasLightSource = token.hasLightSources() && (token.isVisible() || (MapTool.getPlayer().isGM() && !AppState.isShowAsPlayer()));
+			for (AttachedLightSource als : token.getLightSources()) {
+				LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
+				if (lightSource != null) {
+					Set<GUID> lightSet = lightSourceMap.get(lightSource.getType());
+					if (hasLightSource) {
+						if (lightSet == null) {
+							lightSet = new HashSet<GUID>();
+							lightSourceMap.put(lightSource.getType(), lightSet);
+						}
+						lightSet.add(token.getId());
+					} else if (lightSet != null)
+						lightSet.remove(token.getId());
+				}
+			}
+			hasSight |= token.getHasSight();
+			/* FJE This is the old code.  The idea behind changing it was to optimize the code path. */
+//			if (hasLightSource) {
+//				for (AttachedLightSource als : token.getLightSources()) {
+//					LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
+//					if (lightSource != null) {
+//						Set<GUID> lightSet = lightSourceMap.get(lightSource.getType());
+//						if (lightSet == null) {
+//							lightSet = new HashSet<GUID>();
+//							lightSourceMap.put(lightSource.getType(), lightSet);
+//						}
+//						lightSet.add(token.getId());
+//					}
+//				}
+//			} else {
+//				for (AttachedLightSource als : token.getLightSources()) {
+//					LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
+//					if (lightSource != null) {
+//						Set<GUID> lightSet = lightSourceMap.get(lightSource.getType());
+//						if (lightSet != null) {
+//							lightSet.remove(token.getId());
+//						}
+//					}
+//				}
+//			}
+		}
+		if (hasSight)
+			visibleAreaMap.clear();
 	}
 
+	private static class VisibleAreaMeta {
+		Area visibleArea;
+	}
 }

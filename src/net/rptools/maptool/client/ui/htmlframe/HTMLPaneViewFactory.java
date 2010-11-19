@@ -1,17 +1,17 @@
 package net.rptools.maptool.client.ui.htmlframe;
 
+import javax.swing.text.Element;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.View;
-import javax.swing.text.Element;
 import javax.swing.text.ViewFactory;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLEditorKit.HTMLFactory;
 
 public class HTMLPaneViewFactory extends HTMLFactory {
-	
+
 	/** The view factory to delegate unknown tags to. */
 	private final ViewFactory viewFactory;
-	
+
 	/** The HTML Pane that we belong to, required for processing form events. */
 	private final HTMLPane htmlPane;
 
@@ -24,7 +24,7 @@ public class HTMLPaneViewFactory extends HTMLFactory {
 		viewFactory = delegate;
 		htmlPane = formPane;
 	}
-	
+
 	/**
 	 * Creates a new HTMLPaneViewFactory.
 	 * @param formPane The HTMLPane that we are creating tags for.
@@ -41,16 +41,18 @@ public class HTMLPaneViewFactory extends HTMLFactory {
 	@Override
 	public View create(Element element) {
 		HTML.Tag tagType = (HTML.Tag)element.getAttributes().getAttribute(StyleConstants.NameAttribute);
-		
+		View view;		// For debugging purposes (no easy way to see a return value in Eclipse)
+
 		if (tagType == HTML.Tag.INPUT || tagType == HTML.Tag.SELECT ||
 				tagType == HTML.Tag.TEXTAREA) {
-			return new HTMLPaneFormView(element, htmlPane);
+			view = new HTMLPaneFormView(element, htmlPane);
 		} else {
 			if (viewFactory != null) {
-				return viewFactory.create(element);
+				view = viewFactory.create(element);
 			} else {
-				return super.create(element);
+				view = super.create(element);
 			}
 		}
+		return view;
 	}
 }

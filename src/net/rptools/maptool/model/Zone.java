@@ -854,6 +854,14 @@ public class Zone extends BaseModel {
 	///////////////////////////////////////////////////////////////////////////
 	// tokens
 	///////////////////////////////////////////////////////////////////////////
+	/**
+	 * Adds the specified Token to this zone, accounting for updating the ordered list
+	 * of tokens as well as firing the appropriate <code>ModelChangeEvent</code>
+	 * (either <code>Event.TOKEN_ADDED</code>
+	 * or <code>Event.TOKEN_CHANGED</code>).
+	 * 
+	 * @param token the Token to be added to this zone
+	 */
 	public void putToken(Token token) {
 		boolean newToken = !tokenMap.containsKey(token.getId());
 
@@ -870,6 +878,37 @@ public class Zone extends BaseModel {
 		} else {
 			fireModelChangeEvent(new ModelChangeEvent(this, Event.TOKEN_CHANGED, token));
 		}
+	}
+
+	/**
+	 * Same as {@link #putToken(List)} but optimizes map updates by accepting a list of
+	 * Tokens.  Note that this method fires a single <code>ModelChangeEvent</code>
+	 * using <code>Event.TOKEN_ADDED</code>
+	 * and passes the list of added tokens as a parameter.  Ditto for
+	 * <code>Event.TOKEN_CHANGED</code>.
+	 * 
+	 * @param tokens List of Tokens to be added to this zone
+	 */
+	public void putToken(List<Token> tokens) {
+		// Create a couple of booleans to represent whether tokens were added and/or changed
+		List<Token> addedTokens = new LinkedList<Token>(tokens);
+		addedTokens.removeAll(tokenMap.values());
+
+		List<Token> changedTokens = new LinkedList<Token>(tokens);
+		changedTokens.retainAll(tokenMap.values());
+
+		for (Token t : tokens) {
+			tokenMap.put(t.getId(), t);
+		}
+		tokenOrderedList.removeAll(tokens);
+		tokenOrderedList.addAll(tokens);
+
+		Collections.sort(tokenOrderedList, TOKEN_Z_ORDER_COMPARATOR);
+
+		if (!addedTokens.isEmpty())
+			fireModelChangeEvent(new ModelChangeEvent(this, Event.TOKEN_ADDED, addedTokens));
+		if (!changedTokens.isEmpty())
+			fireModelChangeEvent(new ModelChangeEvent(this, Event.TOKEN_CHANGED, changedTokens));
 	}
 
 	public void removeToken(GUID id) {
