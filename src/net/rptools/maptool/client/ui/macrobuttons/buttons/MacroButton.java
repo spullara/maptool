@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.ui.macrobuttons.buttons;
 
@@ -49,15 +46,12 @@ import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 
 /**
- * Base class of CampaignMacroButton and GlobalMacroButton.
- * TokenMacroButton doesn't extend this class because it is very simple.
- * MacroButtons that extend this class use MacroButtonProperties
- * @see net.rptools.maptool.model.MacroButtonProperties as data object.
- * 
+ * Base class of {@link CampaignMacroButton} and {@link GlobalMacroButton}. {@link TokenMacroButton} doesn't extend this
+ * class because it is very simple. <code>MacroButton</code>s that extend this class use {@link MacroButtonProperties}.
+ * <p>
  * These buttons are used in Macro Button Panel in the UI.
  */
-public class MacroButton extends JButton implements MouseListener
-{
+public class MacroButton extends JButton implements MouseListener {
 	private final MacroButtonProperties properties;
 	private final MacroButtonHotKeyManager hotKeyManager;
 	private final ButtonGroup buttonGroup;
@@ -69,7 +63,9 @@ public class MacroButton extends JButton implements MouseListener
 	private DragGestureListener dgListener;
 	private DragSourceListener dsListener;
 
-	public MacroButton(MacroButtonProperties properties, ButtonGroup buttonGroup){
+	private static final Pattern MACRO_LABEL = Pattern.compile("^(/\\w+\\s+)(.*)$");
+
+	public MacroButton(MacroButtonProperties properties, ButtonGroup buttonGroup) {
 		this(properties, buttonGroup, null);
 	}
 
@@ -78,7 +74,7 @@ public class MacroButton extends JButton implements MouseListener
 		this.buttonGroup = buttonGroup;
 		this.panel = buttonGroup.getPanel();
 		this.panelClass = buttonGroup.getPanel().getPanelClass();
-		if (token==null){
+		if (token == null) {
 			this.tokenId = null;
 		} else {
 			this.tokenId = token.getId();
@@ -100,76 +96,81 @@ public class MacroButton extends JButton implements MouseListener
 	public MacroButtonProperties getProperties() {
 		return properties;
 	}
-	public MacroButtonHotKeyManager getHotKeyManager()
-	{
+
+	public MacroButtonHotKeyManager getHotKeyManager() {
 		return hotKeyManager;
 	}
-	public GUID getTokenId(){
+
+	public GUID getTokenId() {
 		return tokenId;
 	}
+
 	public Token getToken() {
 		ZoneRenderer zr = MapTool.getFrame().getCurrentZoneRenderer();
 		Zone z = (zr == null ? null : zr.getZone());
 		return z == null ? null : z.getToken(tokenId);
 	}
+
 	public AbstractButtonGroup getButtonGroup() {
 		return buttonGroup;
 	}
+
 	public String getPanelClass() {
 		return panelClass;
 	}
 
 	public void setColor(String colorKey) {
-
 		//If the key doesn't correspond to one of our colors, then use the default
-		if (!MapToolUtil.isValidColor(colorKey))
+		// FJE Why??
+		if ("default".equals(colorKey)) {
 			setBackground(null);
-		else {
+		} else {
 			setBackground(MapToolUtil.getColor(colorKey));
 		}
 	}
 
 	/*
-	 *  Get the text for the macro button by filtering out
-	 *   label macro (if any), and add hotkey hint (if any)
+	 * Get the text for the macro button by filtering out label macro (if any), and add hotkey hint (if any)
 	 */
 	public String getButtonText() {
-
 		String buttonLabel;
-		final Pattern MACRO_LABEL = Pattern.compile("^(/\\w+\\s+)(.*)$");
 		String label = properties.getLabel();
 		Matcher m = MACRO_LABEL.matcher(label);
-		if(m.matches())
+		if (m.matches())
 			buttonLabel = m.group(2);
 		else
 			buttonLabel = label;
 
-		String formatButtonLabel = "<div style='text-align:center; font-size:" + properties.getFontSize() + "; color:"+properties.getFontColorKey()+"; "+getMinWidth()+getMaxWidth()+"'>" + buttonLabel;
+		String div = "<body style='font-size: " + properties.getFontSize() + "; text-align: center'>";
+		String formatButtonLabel = "<p style='color: " + properties.getFontColorKey() + "; " + getMinWidth() + getMaxWidth() + "'>" + buttonLabel;
+
 		// if there is no hotkey (HOTKEY[0]) then no need to add hint
 		String hotKey = properties.getHotKey();
-		if( hotKey.equals(MacroButtonHotKeyManager.HOTKEYS[0]) )
-			return "<html>"+formatButtonLabel+"</html>";
+		String result = null;
+		if (hotKey.equals(MacroButtonHotKeyManager.HOTKEYS[0]))
+			result = "<html>" + div + formatButtonLabel + "</p></body></html>";
 		else
-			return "<html>"+formatButtonLabel+"<font style='font-size:0.8em'> (" + hotKey + ")</font></div></html>";
+			result = "<html>" + div + formatButtonLabel + "<font style='font-size:0.8em'> (" + hotKey + ")</font></p></body></html>";
+		return result;
 	}
 
-	public String getMinWidth(){
+	public String getMinWidth() {
 		// the min-width style doesn't appear to work in the current java, so I'm
 		// using width instead.
 		String newMinWidth = properties.getMinWidth();
 		if (newMinWidth != null && !newMinWidth.equals("")) {
-			return " width:"+newMinWidth+";";
+			return " width:" + newMinWidth + ";";
 			// return " min-width:"+newMinWidth+";";
 		}
 		return "";
 	}
 
-	public String getMaxWidth(){
+	public String getMaxWidth() {
 		// doesn't appear to work in current java, leaving it in just in case
 		// it is supported in the future
 		String newMaxWidth = properties.getMaxWidth();
 		if (newMaxWidth != null && !newMaxWidth.equals("")) {
-			return " max-width:"+newMaxWidth+";";
+			return " max-width:" + newMaxWidth + ";";
 		}
 		return "";
 	}
@@ -181,7 +182,7 @@ public class MacroButton extends JButton implements MouseListener
 	public void mousePressed(MouseEvent event) {
 	}
 
-	public void mouseReleased(MouseEvent event)	{
+	public void mouseReleased(MouseEvent event) {
 		if (SwingUtilities.isLeftMouseButton(event)) {
 			// If any of the following 3 conditions are correct we want to run it against all selected tokens,
 			// Shift is held down while clicking the button, the button has apply to selected tokens set, or its a common macro button
@@ -193,18 +194,18 @@ public class MacroButton extends JButton implements MouseListener
 				properties.executeMacro();
 			}
 		} else if (SwingUtilities.isRightMouseButton(event)) {
-			if(getPanelClass().equals("GlobalPanel")) {
+			if (getPanelClass().equals("GlobalPanel")) {
 				new MacroButtonPopupMenu(this, panelClass, false).show(this, event.getX(), event.getY());
-			} else if(getPanelClass().equals("CampaignPanel")) {
-				if(MapTool.getPlayer().isGM()) {
+			} else if (getPanelClass().equals("CampaignPanel")) {
+				if (MapTool.getPlayer().isGM()) {
 					new MacroButtonPopupMenu(this, panelClass, false).show(this, event.getX(), event.getY());
 				} else {
-					if(properties.getAllowPlayerEdits()) {
+					if (properties.getAllowPlayerEdits()) {
 						new MacroButtonPopupMenu(this, panelClass, false).show(this, event.getX(), event.getY());
 					}
 				}
-			} else if(getPanelClass().equals("SelectionPanel") || getPanelClass().equals("ImpersonatePanel")){
-				if(MapTool.getFrame().getSelectionPanel().getCommonMacros().contains(properties)) {
+			} else if (getPanelClass().equals("SelectionPanel") || getPanelClass().equals("ImpersonatePanel")) {
+				if (MapTool.getFrame().getSelectionPanel().getCommonMacros().contains(properties)) {
 					new MacroButtonPopupMenu(this, panelClass, true).show(this, event.getX(), event.getY());
 				} else {
 					new MacroButtonPopupMenu(this, panelClass, false).show(this, event.getX(), event.getY());
@@ -219,24 +220,24 @@ public class MacroButton extends JButton implements MouseListener
 		}
 
 		List<Token> selectedTokens = MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList();
-		if(SwingUtil.isShiftDown(event) || getProperties().getApplyToTokens()) {
+		if (SwingUtil.isShiftDown(event) || getProperties().getApplyToTokens()) {
 			MapTool.getFrame().getCurrentZoneRenderer().setHighlightCommonMacros(selectedTokens);
 		} else {
-			if(getPanelClass() == "SelectionPanel") {
+			if (getPanelClass() == "SelectionPanel") {
 				List<Token> affectedTokens = new ArrayList<Token>();
-				if(getProperties().getCommonMacro()) {
-					for(Token nextSelected : selectedTokens) {
+				if (getProperties().getCommonMacro()) {
+					for (Token nextSelected : selectedTokens) {
 						Boolean isCommonToToken = false;
-						for(MacroButtonProperties nextMacro : nextSelected.getMacroList(true)) {
-							if(nextMacro.hashCodeForComparison() == getProperties().hashCodeForComparison()) {
+						for (MacroButtonProperties nextMacro : nextSelected.getMacroList(true)) {
+							if (nextMacro.hashCodeForComparison() == getProperties().hashCodeForComparison()) {
 								isCommonToToken = true;
 							}
 						}
-						if(isCommonToToken) {
+						if (isCommonToToken) {
 							affectedTokens.add(nextSelected);
 						}
 					}
-				} else if (getProperties().getToken() != null){
+				} else if (getProperties().getToken() != null) {
 					affectedTokens.add(getProperties().getToken());
 				}
 				MapTool.getFrame().getCurrentZoneRenderer().setHighlightCommonMacros(affectedTokens);
@@ -307,7 +308,7 @@ public class MacroButton extends JButton implements MouseListener
 	@Override
 	public String getToolTipText(MouseEvent e) {
 		String tt = properties.getEvaluatedToolTip();
-		return tt.length() == 0  ? null : tt;
+		return tt.length() == 0 ? null : tt;
 	}
 
 }

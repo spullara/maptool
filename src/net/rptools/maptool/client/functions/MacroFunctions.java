@@ -23,25 +23,21 @@ public class MacroFunctions extends AbstractFunction {
 	private static final MacroFunctions instance = new MacroFunctions();
 
 	private MacroFunctions() {
-		super(0, 5, "hasMacro", "createMacro", "setMacroProps", "getMacros", "getMacroProps", "getMacroIndexes",
-				"getMacroName", "getMacroLocation", "setMacroCommand", "getMacroCommand", "getMacroButtonIndex",
-				"removeMacro", "getMacroGroup");
+		super(0, 5, "hasMacro", "createMacro", "setMacroProps", "getMacros", "getMacroProps", "getMacroIndexes", "getMacroName", "getMacroLocation", "setMacroCommand", "getMacroCommand",
+				"getMacroButtonIndex", "removeMacro", "getMacroGroup");
 	}
-
 
 	public static MacroFunctions getInstance() {
 		return instance;
 	}
 
-
 	@Override
-	public Object childEvaluate(Parser parser, String functionName,
-			List<Object> parameters) throws ParserException {
-		MapToolVariableResolver resolver = ((MapToolVariableResolver)parser.getVariableResolver());
+	public Object childEvaluate(Parser parser, String functionName, List<Object> parameters) throws ParserException {
+		MapToolVariableResolver resolver = ((MapToolVariableResolver) parser.getVariableResolver());
 
 		if (functionName.equals("hasMacro")) {
 			return hasMacro(resolver, parameters);
-		} else if (functionName.equals("createMacro")){
+		} else if (functionName.equals("createMacro")) {
 			return createMacro(resolver, parameters);
 		} else if (functionName.equals("getMacros")) {
 			return getMacros(resolver, parameters);
@@ -70,20 +66,23 @@ public class MacroFunctions extends AbstractFunction {
 		}
 	}
 
-
-
 	/**
 	 * Gets the macro button properties for the specified macro on a token.
-	 * @param token The token to get the macro properties for.
-	 * @param index The index of the macro button.
-	 * @param delim The delimiter to use.
+	 * 
+	 * @param token
+	 *            The token to get the macro properties for.
+	 * @param index
+	 *            The index of the macro button.
+	 * @param delim
+	 *            The delimiter to use.
 	 * @return the properties.
-	 * @throws ParserException if an error occurs.
+	 * @throws ParserException
+	 *             if an error occurs.
 	 */
 	public Object getMacroButtonProps(Token token, int index, String delim) throws ParserException {
 		MacroButtonProperties mbp = token.getMacro(index, !MapTool.getParser().isMacroTrusted());
 		if (mbp == null) {
-			throw new ParserException("No macro at index "+ index);
+			throw new ParserException("No macro at index " + index);
 		}
 
 		if ("json".equals(delim)) {
@@ -158,6 +157,7 @@ public class MacroFunctions extends AbstractFunction {
 
 	/**
 	 * Sets the properties for a specified macro button on the specified token.
+	 * 
 	 * @param mbp
 	 * @param propString
 	 * @param delim
@@ -175,16 +175,12 @@ public class MacroFunctions extends AbstractFunction {
 		} else {
 			jobj = JSONMacroFunctions.getInstance().fromStrProp(propString, delim);
 		}
-
 		if (jobj.containsKey("command") && !MapTool.getParser().isMacroTrusted()) {
 			throw new ParserException("setMacroProps(): You do not have permision to change the macro command.");
 		}
-
-
 		if (!mbp.getAllowPlayerEdits() && !MapTool.getParser().isMacroTrusted()) {
 			throw new ParserException("setMacroProps(): You do not have permision to change macros which are not player editable.");
 		}
-
 		for (Object o : jobj.keySet()) {
 			String key = o.toString();
 			String value = jobj.getString(key);
@@ -260,7 +256,9 @@ public class MacroFunctions extends AbstractFunction {
 
 	/**
 	 * Calculates the boolean value based in an input string.
-	 * @param val The input string.
+	 * 
+	 * @param val
+	 *            The input string.
 	 * @return the boolean value of the input string.
 	 */
 	private boolean boolVal(String val) {
@@ -284,13 +282,16 @@ public class MacroFunctions extends AbstractFunction {
 	}
 
 	/**
-	 * Checks to see if the token has the specified macro. The first value in param is the
-	 * name of the macro to check, if there is a second argument then it is the token to check,
-	 * otherwise the token in context is checked.
-	 * @param resolver The variable resolver.
-	 * @param param The parameters.
+	 * Checks to see if the token has the specified macro. The first value in param is the name of the macro to check,
+	 * if there is a second argument then it is the token to check, otherwise the token in context is checked.
+	 * 
+	 * @param resolver
+	 *            The variable resolver.
+	 * @param param
+	 *            The parameters.
 	 * @return BigDecimal.ONE if the token has the macro, BigDecimal.ZERO if it does not.
-	 * @throws ParserException If an error occurs.
+	 * @throws ParserException
+	 *             If an error occurs.
 	 */
 	private BigDecimal hasMacro(MapToolVariableResolver resolver, List<Object> param) throws ParserException {
 		Token token;
@@ -318,13 +319,16 @@ public class MacroFunctions extends AbstractFunction {
 	}
 
 	/**
-	 * Gets the name of the macros for a token. If param has 2 arguments then the
-	 * first is resolved as the token name the second is the macro, if it only has one then
-	 * the token in context is used and the argument is the macro name.
-	 * @param resolver The variable resolver.
-	 * @param param The parameters.
+	 * Gets the name of the macros for a token. If param has 2 arguments then the first is resolved as the token name
+	 * the second is the macro, if it only has one then the token in context is used and the argument is the macro name.
+	 * 
+	 * @param resolver
+	 *            The variable resolver.
+	 * @param param
+	 *            The parameters.
 	 * @return The string containing the macro names.
-	 * @throws ParserException If an error occurs.
+	 * @throws ParserException
+	 *             If an error occurs.
 	 */
 	private String getMacros(MapToolVariableResolver resolver, List<Object> param) throws ParserException {
 		Token token;
@@ -365,14 +369,17 @@ public class MacroFunctions extends AbstractFunction {
 	}
 
 	/**
-	 * Gets the macro properties for a macro button on a token. If param has 1 value it
-	 * used as the index of the button, if there are 2 values then the second is used
-	 * as the delimiter. If there is a third value then it is the token to get the button
-	 * property from. If no token is specified then the token in context is used.
-	 * @param resolver The variable resolver.
-	 * @param param The parameters to the function.
+	 * Gets the macro properties for a macro button on a token. If param has 1 value it used as the index of the button,
+	 * if there are 2 values then the second is used as the delimiter. If there is a third value then it is the token to
+	 * get the button property from. If no token is specified then the token in context is used.
+	 * 
+	 * @param resolver
+	 *            The variable resolver.
+	 * @param param
+	 *            The parameters to the function.
 	 * @return The properties for the button.
-	 * @throws ParserException if an error occurs.
+	 * @throws ParserException
+	 *             if an error occurs.
 	 */
 	private Object getMacroProps(MapToolVariableResolver resolver, List<Object> param) throws ParserException {
 		Token token;
@@ -385,7 +392,7 @@ public class MacroFunctions extends AbstractFunction {
 		if (!(param.get(0) instanceof BigDecimal)) {
 			throw new ParserException("getMacroProps(): first argument must be a number.");
 		}
-		int index = ((BigDecimal)param.get(0)).intValue();
+		int index = ((BigDecimal) param.get(0)).intValue();
 
 		if (param.size() == 1) {
 			delim = ";";
@@ -399,7 +406,7 @@ public class MacroFunctions extends AbstractFunction {
 			if (token == null) {
 				throw new ParserException("getMacroProps(): No impersonated token.");
 			}
-		} else if(param.size() == 3) {
+		} else if (param.size() == 3) {
 			if (!MapTool.getParser().isMacroTrusted()) {
 				throw new ParserException("hasMacroProps(): You do not have the permission to specify the token.");
 			}
@@ -418,14 +425,16 @@ public class MacroFunctions extends AbstractFunction {
 
 	/**
 	 * Gets the indexes for all the macros on a token with the specified label.
-	 * @param resolver The variable resolver.
-	 * @param param The list of parameters. The first parameter is the label to get the
-	 *              indexes for, the second parameter if it exists is the delimiter to
-	 *              use (',' if not specified) and the third is the token to get the
-	 *              indexes from. If no token is specified then the token in context is
-	 *              used.
+	 * 
+	 * @param resolver
+	 *            The variable resolver.
+	 * @param param
+	 *            The list of parameters. The first parameter is the label to get the indexes for, the second parameter
+	 *            if it exists is the delimiter to use (',' if not specified) and the third is the token to get the
+	 *            indexes from. If no token is specified then the token in context is used.
 	 * @return the indexes for the macro buttons.
-	 * @throws ParserException if an error occurs.
+	 * @throws ParserException
+	 *             if an error occurs.
 	 */
 	private String getMacroIndexes(MapToolVariableResolver resolver, List<Object> param) throws ParserException {
 		Token token;
@@ -476,14 +485,17 @@ public class MacroFunctions extends AbstractFunction {
 	}
 
 	/**
-	 * Gets the command for a macro button on a token. The fist value in param
-	 * is the index of the macro button to get the command from. If there is a second value
-	 * in param then this is the token to get the command from. If no token is specified
-	 * then the token in context is used.
-	 * @param resolver The variable resolver.
-	 * @param param The parameters.
+	 * Gets the command for a macro button on a token. The fist value in param is the index of the macro button to get
+	 * the command from. If there is a second value in param then this is the token to get the command from. If no token
+	 * is specified then the token in context is used.
+	 * 
+	 * @param resolver
+	 *            The variable resolver.
+	 * @param param
+	 *            The parameters.
 	 * @return the macro command or "" if it has no command.
-	 * @throws ParserException if there is an error.
+	 * @throws ParserException
+	 *             if there is an error.
 	 */
 	private String getMacroCommand(MapToolVariableResolver resolver, List<Object> param) throws ParserException {
 		if (param.size() < 1) {
@@ -494,7 +506,7 @@ public class MacroFunctions extends AbstractFunction {
 			throw new ParserException("getMacroCommand(): First argument must be a number.");
 		}
 
-		int index = ((BigDecimal)param.get(0)).intValue();
+		int index = ((BigDecimal) param.get(0)).intValue();
 
 		Token token;
 
@@ -518,28 +530,28 @@ public class MacroFunctions extends AbstractFunction {
 
 		MacroButtonProperties mbp = token.getMacro(index, false);
 		if (mbp == null) {
-			throw new ParserException("getMacroCommand(): Macro at index " + index +
-					" does not exist for token " + token.getName());
+			throw new ParserException("getMacroCommand(): Macro at index " + index + " does not exist for token " + token.getName());
 		}
 		String cmd = mbp.getCommand();
 		return cmd != null ? cmd : "";
 	}
 
-
 	/**
-	 * Creates a macro button on a token.
-	 * If There is only one argument in param and it is a json string then the values in this are used
-	 * to create the button on the token in context. If there are two arguments and the first
-	 * is a json string the second argument is the token to create the button on.
-	 * If the first argument is not a json string then it is the label for the new button.
-	 * The second argument is the command, if the third argument is specified then it is the
-	 * properties for the button.  The fourth contains the delimiter for these properties
-	 * (defaults to ';' if not specified).  The fifth argument is the token to create the macro
-	 * button on, if no token is specified it is created on the token in context.
-	 * @param resolver The variable resolver.
-	 * @param param The arguments passed to the function.
+	 * Creates a macro button on a token. If There is only one argument in param and it is a json string then the values
+	 * in this are used to create the button on the token in context. If there are two arguments and the first is a json
+	 * string the second argument is the token to create the button on. If the first argument is not a json string then
+	 * it is the label for the new button. The second argument is the command, if the third argument is specified then
+	 * it is the properties for the button. The fourth contains the delimiter for these properties (defaults to ';' if
+	 * not specified). The fifth argument is the token to create the macro button on, if no token is specified it is
+	 * created on the token in context.
+	 * 
+	 * @param resolver
+	 *            The variable resolver.
+	 * @param param
+	 *            The arguments passed to the function.
 	 * @return the index of the newly created button.
-	 * @throws ParserException if an error occurs.
+	 * @throws ParserException
+	 *             if an error occurs.
 	 */
 	private BigDecimal createMacro(MapToolVariableResolver resolver, List<Object> param) throws ParserException {
 		if (param.size() < 1) {
@@ -560,7 +572,7 @@ public class MacroFunctions extends AbstractFunction {
 				throw new ParserException("createMacro(): No impersonated token.");
 			}
 
-			if (!jobj.containsKey("label"))  {
+			if (!jobj.containsKey("label")) {
 				throw new ParserException("createMacro(): Missing label.");
 			}
 			label = jobj.getString("label");
@@ -575,7 +587,7 @@ public class MacroFunctions extends AbstractFunction {
 			JSONObject jobj;
 			try {
 				jobj = JSONObject.fromObject(param.get(0).toString());
-				if (!jobj.containsKey("label"))  {
+				if (!jobj.containsKey("label")) {
 					throw new ParserException("createMacro(): Missing label.");
 				}
 				label = jobj.getString("label");
@@ -584,7 +596,6 @@ public class MacroFunctions extends AbstractFunction {
 					throw new ParserException("createMacro(): Missing command.");
 				}
 				command = jobj.getString("command");
-
 
 				if (!MapTool.getParser().isMacroTrusted()) {
 					throw new ParserException("createMacro(): You do not have the permission to specify the token.");
@@ -606,7 +617,7 @@ public class MacroFunctions extends AbstractFunction {
 					throw new ParserException("createMacro(): No impersonated token.");
 				}
 			}
-		} else if (param.size()  == 3) { // label, command, props
+		} else if (param.size() == 3) { // label, command, props
 			label = param.get(0).toString();
 			command = param.get(1).toString();
 			prop = param.get(2).toString();
@@ -658,24 +669,24 @@ public class MacroFunctions extends AbstractFunction {
 	}
 
 	/**
-	 * Sets the properties for macro buttons on a token.
-	 * The first argument in params is the button index or label of the buttons to set the
-	 * properties for, if it is an index then only that button is changed, if it is a label
-	 * then all buttons with that label are changed. The second argument is the properties
-	 * to change, the third if specified is the delimiter for the properties (defaults to
-	 * ';') if there is a fourth argment then it is the token that contains the buttons. If
-	 * no token is specified then the token in context is used.
-	 * @param resolver The variable resolver.
-	 * @param param The arguments passed to the function.
+	 * Sets the properties for macro buttons on a token. The first argument in params is the button index or label of
+	 * the buttons to set the properties for, if it is an index then only that button is changed, if it is a label then
+	 * all buttons with that label are changed. The second argument is the properties to change, the third if specified
+	 * is the delimiter for the properties (defaults to ';') if there is a fourth argument then it is the token that
+	 * contains the buttons. If no token is specified then the token in context is used.
+	 * 
+	 * @param resolver
+	 *            The variable resolver.
+	 * @param param
+	 *            The arguments passed to the function.
 	 * @return an empty string.
-	 * @throws ParserException if an error occurs.
+	 * @throws ParserException
+	 *             if an error occurs.
 	 */
 	private String setMacroProps(MapToolVariableResolver resolver, List<Object> param) throws ParserException {
-
 		if (param.size() < 2) {
 			throw new ParserException("setMacroProps(): Not enough parameters.");
 		}
-
 		Token token;
 
 		if (param.size() == 2 || param.size() == 3) {
@@ -696,18 +707,15 @@ public class MacroFunctions extends AbstractFunction {
 		}
 
 		if ((param.get(0) instanceof BigDecimal)) {
-			int index = ((BigDecimal)param.get(0)).intValue();
+			int index = ((BigDecimal) param.get(0)).intValue();
 			MacroButtonProperties mbp = token.getMacro(index, false);
+
 			if (mbp == null) {
-				throw new ParserException("setMacroProps(): No macro at index " + index +
-						" for " + token.getName());
+				throw new ParserException("setMacroProps(): No macro at index " + index + " for " + token.getName());
 			}
-
 			if (!mbp.getAllowPlayerEdits() && !MapTool.getParser().isMacroTrusted()) {
-				throw new ParserException("setMacroProps: You do not have permissions to edit macro button at index "+
-						index + " on " + token.getName());
+				throw new ParserException("setMacroProps: You do not have permissions to edit macro button at index " + index + " on " + token.getName());
 			}
-
 			String delim = param.size() > 2 ? param.get(2).toString() : ";";
 			setMacroProps(mbp, param.get(1).toString(), delim);
 			mbp.save();
@@ -716,32 +724,30 @@ public class MacroFunctions extends AbstractFunction {
 				String delim = param.size() > 2 ? param.get(2).toString() : ";";
 				if (mbp.getLabel().equals(param.get(0).toString())) {
 					if (!mbp.getAllowPlayerEdits() && !MapTool.getParser().isMacroTrusted()) {
-						MapTool.addLocalMessage("Warning: You can not edit macro button " +
-								mbp.getLabel() + " index = " + mbp.getIndex() + " on "
-								+ token.getName());
+						MapTool.addLocalMessage("Warning: You can not edit macro button " + mbp.getLabel() + " index = " + mbp.getIndex() + " on " + token.getName());
 					} else {
 						setMacroProps(mbp, param.get(1).toString(), delim);
-						mbp.save();		// FJE Shouldn't this be outside the 'for' loop?
+						mbp.save();
 					}
 				}
 			}
 		}
-
 		updateToken(token);
 		return "";
-
 	}
 
 	/**
-	 * Sets the command for a macro button on a token.
-	 * The first value param is the index of the macro button to change.
-	 * The second value param is the command to set for the button.
-	 * The third value if present is the token that the button is for.
-	 * If no token is specified then the token in context is used.
-	 * @param res The variable resolver.
-	 * @param param The arguments.
+	 * Sets the command for a macro button on a token. The first value param is the index of the macro button to change.
+	 * The second value param is the command to set for the button. The third value if present is the token that the
+	 * button is for. If no token is specified then the token in context is used.
+	 * 
+	 * @param res
+	 *            The variable resolver.
+	 * @param param
+	 *            The arguments.
 	 * @return An empty string.
-	 * @throws ParserException If an error occurs.
+	 * @throws ParserException
+	 *             If an error occurs.
 	 */
 	private String setMacroCommand(MapToolVariableResolver res, List<Object> param) throws ParserException {
 		if (param.size() < 2) {
@@ -755,7 +761,7 @@ public class MacroFunctions extends AbstractFunction {
 		if (!(param.get(0) instanceof BigDecimal)) {
 			throw new ParserException("setMacroCommand(): First Argument must be a number.");
 		}
-		int index = ((BigDecimal)param.get(0)).intValue();
+		int index = ((BigDecimal) param.get(0)).intValue();
 
 		Token token;
 
@@ -775,7 +781,7 @@ public class MacroFunctions extends AbstractFunction {
 
 		MacroButtonProperties mbp = token.getMacro(index, false);
 		if (mbp == null) {
-			throw new ParserException("setMacroCommand(): No button at index " + index + " for "+ token.getName());
+			throw new ParserException("setMacroCommand(): No button at index " + index + " for " + token.getName());
 		}
 
 		mbp.setCommand(param.get(1).toString());
@@ -785,14 +791,17 @@ public class MacroFunctions extends AbstractFunction {
 	}
 
 	/**
-	 * Removes a macro button from a token.
-	 * The first argument in param is the index of the button to remove.
-	 * The second argument in param is the token to remove the button from,
-	 * if the token is not specified then the token in context is used.
-	 * @param resolver The variable resolver.
-	 * @param parameters The arguments.
+	 * Removes a macro button from a token. The first argument in param is the index of the button to remove. The second
+	 * argument in param is the token to remove the button from, if the token is not specified then the token in context
+	 * is used.
+	 * 
+	 * @param resolver
+	 *            The variable resolver.
+	 * @param parameters
+	 *            The arguments.
 	 * @return the details of the button that was removed.
-	 * @throws ParserException if an error occurs.
+	 * @throws ParserException
+	 *             if an error occurs.
 	 */
 	private String removeMacro(MapToolVariableResolver res, List<Object> param) throws ParserException {
 		if (param.size() < 1) {
@@ -806,7 +815,7 @@ public class MacroFunctions extends AbstractFunction {
 		if (!(param.get(0) instanceof BigDecimal)) {
 			throw new ParserException("removeMacro(): First Argument must be a number.");
 		}
-		int index = ((BigDecimal)param.get(0)).intValue();
+		int index = ((BigDecimal) param.get(0)).intValue();
 
 		Token token;
 
@@ -826,7 +835,7 @@ public class MacroFunctions extends AbstractFunction {
 
 		MacroButtonProperties mbp = token.getMacro(index, false);
 		if (mbp == null) {
-			throw new ParserException("removeMacro(): No button at index " + index + " for "+ token.getName());
+			throw new ParserException("removeMacro(): No button at index " + index + " for " + token.getName());
 		}
 
 		String label = mbp.getLabel();
@@ -837,13 +846,16 @@ public class MacroFunctions extends AbstractFunction {
 		return sb.toString();
 	}
 
-
 	/**
 	 * Gets the index of the macros for a token in the specified group.
-	 * @param resolver The variable resolver.
-	 * @param param The parameters.
+	 * 
+	 * @param resolver
+	 *            The variable resolver.
+	 * @param param
+	 *            The parameters.
 	 * @return The string containing the macro names.
-	 * @throws ParserException If an error occurs.
+	 * @throws ParserException
+	 *             If an error occurs.
 	 */
 	private String getMacroGroup(MapToolVariableResolver resolver, List<Object> param) throws ParserException {
 		Token token;
@@ -880,7 +892,6 @@ public class MacroFunctions extends AbstractFunction {
 			throw new ParserException("getMacroGroup(): Incorrect number of parameters.");
 		}
 
-
 		List<String> indexes = new LinkedList<String>(); // Has to be a string or the list functions wont like it :\
 		for (MacroButtonProperties props : token.getMacroList(false)) {
 			if (props.getGroup().equals(group)) {
@@ -899,11 +910,12 @@ public class MacroFunctions extends AbstractFunction {
 
 	/**
 	 * Updates the token locally and remotely.
-	 * @param token The token to update.
+	 * 
+	 * @param token
+	 *            The token to update.
 	 */
 	private void updateToken(Token token) {
-		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
-				token);
+		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
 	}
 
 }
