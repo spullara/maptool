@@ -75,9 +75,9 @@ import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.Token.ExposedAreaMetaData;
 import net.rptools.maptool.model.TokenProperty;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.Token.ExposedAreaMetaData;
 import net.rptools.maptool.model.Zone.Layer;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.util.GraphicsUtil;
@@ -212,10 +212,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 		// if has fog(required) 
 		// and ((isGM with pref set) OR serverPolicy allows auto reveal by players)
-		if(renderer.getZone().hasFog() 
-			&& ((AppPreferences.getAutoRevealVisionOnGMMovement() && MapTool.getPlayer().isGM()) 
-				|| MapTool.getServerPolicy().isAutoRevealOnMovement())) {
-		    
+		if (renderer.getZone().hasFog() && ((AppPreferences.getAutoRevealVisionOnGMMovement() && MapTool.getPlayer().isGM()) || MapTool.getServerPolicy().isAutoRevealOnMovement())) {
+
 			Set<GUID> exposeSet = new HashSet<GUID>();
 			for (GUID tokenGUID : renderer.getOwnedTokens(renderer.getSelectedTokenSet())) {
 				Token token = renderer.getZone().getToken(tokenGUID);
@@ -840,15 +838,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 						bounds.x = bx;
 						bounds.y = by;
 
-						if(!MapTool.getServerPolicy().isUseIndividualFOW())
-						{
+						if (!MapTool.getServerPolicy().isUseIndividualFOW()) {
 							if (fow.contains(bounds)) {
 								isVisible = true;
 								break;
 							}
-						}
-						else
-						{
+						} else {
 							ExposedAreaMetaData meta = token.getExposedAreaMetaData();
 							if (meta.getExposedAreaHistory().contains(bounds)) {
 								isVisible = true;
@@ -868,35 +863,84 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	}
 
 	/**
-	 * These keystrokes are currently hard-coded and should be exported to the i18n.properties file
-	 * in a perfect universe. :)
+	 * These keystrokes are currently hard-coded and should be exported to the i18n.properties file in a perfect
+	 * universe. :)
 	 * <p>
 	 * <table>
-	 * <tr><td>Meta R<td>Select the FacingTool (to allow rotating with the left/right arrows)
-	 * <tr><td>DELETE<td>Allow deletion of owned tokens
-	 * <tr><td>Space<td>Show arrow pointer on map
-	 * <tr><td>Ctrl Space<td>Show speech bubble on map
-	 * <tr><td>Shift Space<td>Show thought bubble on map
-	 * <tr><td>D<td>Stop dragging token
-	 * <tr><td>T<td>Cycle forward through tokens
-	 * <tr><td>Shift T<td>Cycle backward through tokens
-	 * <tr><td>Ctrl I<td>Expose fog from visible area
-	 * <tr><td>Ctrl P<td>Expose fog from last path
-	 * <tr><td>Ctrl Shift O<td>Expose only PC area (reinsert other fog)
-	 * <tr><td>NumPad digits<td>Move token:<br>
-	 * 		<table>
-	 * 		<tr><td>7 (up/left)<td>8 (up)<td>9 (up/right)
-	 * 		<tr><td>4 (left)<td>5 (stop)<td>6(right)
-	 * 		<tr><td>1 (down/left)<td>2 (down)<td>3 (down/right)
-	 * 		</table>
-	 * <tr><td>Down<td>Move token down
-	 * <tr><td>Up<td>Move token up
-	 * <tr><td>Right<td>Move token right
-	 * <tr><td>Shift Right<td>Rotate token right by facing amount (depends on grid)
-	 * <tr><td>Ctrl Shift Right<td>Rotate token right by 5-deg increments
-	 * <tr><td>Left<td>Move token left
-	 * <tr><td>Shift Left<td>Rotate token left by facing amount (depends on grid)
-	 * <tr><td>Ctrl Shift Left<td>Rotate token left by 5-deg increments
+	 * <tr>
+	 * <td>Meta R
+	 * <td>Select the FacingTool (to allow rotating with the left/right arrows)
+	 * <tr>
+	 * <td>DELETE
+	 * <td>Allow deletion of owned tokens
+	 * <tr>
+	 * <td>Space
+	 * <td>Show arrow pointer on map
+	 * <tr>
+	 * <td>Ctrl Space
+	 * <td>Show speech bubble on map
+	 * <tr>
+	 * <td>Shift Space
+	 * <td>Show thought bubble on map
+	 * <tr>
+	 * <td>D
+	 * <td>Stop dragging token
+	 * <tr>
+	 * <td>T
+	 * <td>Cycle forward through tokens
+	 * <tr>
+	 * <td>Shift T
+	 * <td>Cycle backward through tokens
+	 * <tr>
+	 * <td>Ctrl I
+	 * <td>Expose fog from visible area
+	 * <tr>
+	 * <td>Ctrl P
+	 * <td>Expose fog from last path
+	 * <tr>
+	 * <td>Ctrl Shift O
+	 * <td>Expose only PC area (reinsert other fog)
+	 * <tr>
+	 * <td>NumPad digits
+	 * <td>Move token:<br>
+	 * <table>
+	 * <tr>
+	 * <td>7 (up/left)
+	 * <td>8 (up)
+	 * <td>9 (up/right)
+	 * <tr>
+	 * <td>4 (left)
+	 * <td>5 (stop)
+	 * <td>6(right)
+	 * <tr>
+	 * <td>1 (down/left)
+	 * <td>2 (down)
+	 * <td>3 (down/right)
+	 * </table>
+	 * <tr>
+	 * <td>Down
+	 * <td>Move token down
+	 * <tr>
+	 * <td>Up
+	 * <td>Move token up
+	 * <tr>
+	 * <td>Right
+	 * <td>Move token right
+	 * <tr>
+	 * <td>Shift Right
+	 * <td>Rotate token right by facing amount (depends on grid)
+	 * <tr>
+	 * <td>Ctrl Shift Right
+	 * <td>Rotate token right by 5-deg increments
+	 * <tr>
+	 * <td>Left
+	 * <td>Move token left
+	 * <tr>
+	 * <td>Shift Left
+	 * <td>Rotate token left by facing amount (depends on grid)
+	 * <tr>
+	 * <td>Ctrl Shift Left
+	 * <td>Rotate token left by 5-deg increments
 	 * </table>
 	 */
 	@Override
@@ -1098,6 +1142,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
+				//  Only let the GM's do this
 				if (MapTool.getPlayer().isGM()) {
 					FogUtil.exposePCArea(renderer);
 					MapTool.serverCommand().exposePCArea(renderer.getZone().getId());
@@ -1404,8 +1449,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					}
 
 					// Create the space for the image
-					int width = imgSize.width + (statSize != null ? statSize.width + AppStyle.miniMapBorder.getRightMargin() : 0) + AppStyle.miniMapBorder.getLeftMargin() + AppStyle.miniMapBorder.getRightMargin();
-					int height = Math.max(imgSize.height, (statSize != null ? statSize.height + AppStyle.miniMapBorder.getRightMargin() : 0)) + AppStyle.miniMapBorder.getTopMargin() + AppStyle.miniMapBorder.getBottomMargin();
+					int width = imgSize.width + (statSize != null ? statSize.width + AppStyle.miniMapBorder.getRightMargin() : 0) + AppStyle.miniMapBorder.getLeftMargin()
+							+ AppStyle.miniMapBorder.getRightMargin();
+					int height = Math.max(imgSize.height, (statSize != null ? statSize.height + AppStyle.miniMapBorder.getRightMargin() : 0)) + AppStyle.miniMapBorder.getTopMargin()
+							+ AppStyle.miniMapBorder.getBottomMargin();
 					statSheet = new BufferedImage(width, height, BufferedImage.BITMASK);
 					Graphics2D statsG = statSheet.createGraphics();
 					statsG.setClip(new Rectangle(0, 0, width, height));
