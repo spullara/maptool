@@ -32,7 +32,7 @@ public class HTMLPane extends JEditorPane {
 	private final HTMLPaneEditorKit editorKit;
 
 	public HTMLPane() {
-		registerEditorKitForContentType("text/html", "net.rptools.maptool.client.ui.htmlframe.HTMLPaneEditorKit");
+//		registerEditorKitForContentType("text/html", "net.rptools.maptool.client.ui.htmlframe.HTMLPaneEditorKit");
 		editorKit = new HTMLPaneEditorKit(this);
 		setEditorKit(editorKit);
 		setContentType("text/html");
@@ -59,7 +59,6 @@ public class HTMLPane extends JEditorPane {
 
 	}
 
-
 	public void addActionListener(ActionListener listener) {
 		actionListeners = AWTEventMulticaster.add(actionListeners, listener);
 	}
@@ -68,12 +67,15 @@ public class HTMLPane extends JEditorPane {
 		actionListeners = AWTEventMulticaster.remove(actionListeners, listener);
 	}
 
-
 	/**
 	 * Handle a submit.
-	 * @param method The method of the submit.
-	 * @param action The action for the submit.
-	 * @param data The data from the form.
+	 * 
+	 * @param method
+	 *            The method of the submit.
+	 * @param action
+	 *            The action for the submit.
+	 * @param data
+	 *            The data from the form.
 	 */
 	void doSubmit(String method, String action, String data) {
 		if (actionListeners != null) {
@@ -83,7 +85,9 @@ public class HTMLPane extends JEditorPane {
 
 	/**
 	 * Handle a change in title.
-	 * @param title The title to change to.
+	 * 
+	 * @param title
+	 *            The title to change to.
 	 */
 	private void doChangeTitle(String title) {
 		if (actionListeners != null) {
@@ -93,8 +97,11 @@ public class HTMLPane extends JEditorPane {
 
 	/**
 	 * Handle a request to register a macro callback.
-	 * @param type The type of event.
-	 * @param link The link to the macro.
+	 * 
+	 * @param type
+	 *            The type of event.
+	 * @param link
+	 *            The link to the macro.
 	 */
 	private void doRegisterMacro(String type, String link) {
 		if (actionListeners != null) {
@@ -102,11 +109,13 @@ public class HTMLPane extends JEditorPane {
 		}
 	}
 
-
 	/**
 	 * Handle any meta tag information in the html.
-	 * @param name the name of the meta tag.
-	 * @param content the content of the meta tag.
+	 * 
+	 * @param name
+	 *            the name of the meta tag.
+	 * @param content
+	 *            the content of the meta tag.
 	 */
 	private void handleMetaTag(String name, String content) {
 		if (actionListeners != null) {
@@ -114,18 +123,17 @@ public class HTMLPane extends JEditorPane {
 		}
 	}
 
-
 	@Override
 	public void setText(String text) {
 		// Set up the default style sheet
 
-		HTMLDocument document = (HTMLDocument)getDocument();
+		HTMLDocument document = (HTMLDocument) getDocument();
 
 		StyleSheet style = document.getStyleSheet();
 
-	    HTMLEditorKit.Parser parse = editorKit.getParser();
-	    try {
-	    	super.setText("");
+		HTMLEditorKit.Parser parse = editorKit.getParser();
+		try {
+			super.setText("");
 			Enumeration snames = style.getStyleNames();
 			while (snames.hasMoreElements()) {
 				style.removeStyle(snames.nextElement().toString());
@@ -138,8 +146,6 @@ public class HTMLPane extends JEditorPane {
 			// Do nothing, we should not get an io exception on string
 		}
 
-
-
 		// We use ASCII control characters to mark off the rolls so that there's no limitation on what (printable) characters the output can include
 		text = text.replaceAll("\036([^\036\037]*)\037([^\036]*)\036", "<span class='roll' title='&#171; $1 &#187;'>$2</span>");
 		text = text.replaceAll("\036\01u\02([^\036]*)\036", "&#171; $1 &#187;");
@@ -149,14 +155,11 @@ public class HTMLPane extends JEditorPane {
 		text = text.replaceAll("(^|\\s)(https?://[\\w.%-/~?&+#=]+)", "$1<a href='$2'>$2</a>");
 		super.setText(text);
 
-
-
-
 	}
 
 	/**
 	 * Class that listens for form events.
-	 *
+	 * 
 	 */
 	public class FormActionEvent extends ActionEvent {
 		private final String method;
@@ -176,7 +179,6 @@ public class HTMLPane extends JEditorPane {
 			}
 		}
 
-
 		public String getMethod() {
 			return method;
 		}
@@ -191,7 +193,6 @@ public class HTMLPane extends JEditorPane {
 
 	}
 
-
 	/**
 	 * Action event for changing title of the container.
 	 */
@@ -205,13 +206,13 @@ public class HTMLPane extends JEditorPane {
 
 		/**
 		 * Gets the new title.
+		 * 
 		 * @return
 		 */
 		public String getNewTitle() {
 			return newTitle;
 		}
 	}
-
 
 	public class MetaTagActionEvent extends ActionEvent {
 		private final String name;
@@ -225,6 +226,7 @@ public class HTMLPane extends JEditorPane {
 
 		/**
 		 * Gets the name of the meta tag.
+		 * 
 		 * @return the name of the meta tag.
 		 */
 		public String getName() {
@@ -233,15 +235,14 @@ public class HTMLPane extends JEditorPane {
 
 		/**
 		 * Gets the content for the meta tag.
+		 * 
 		 * @return the content of the meta tag.
 		 */
 		public String getContent() {
 			return content;
 		}
 
-
 	}
-
 
 	/**
 	 * Action event for registering a macro
@@ -258,6 +259,7 @@ public class HTMLPane extends JEditorPane {
 
 		/**
 		 * Gets the type of macro to register.
+		 * 
 		 * @return the type of macro.
 		 */
 		public String getType() {
@@ -266,23 +268,20 @@ public class HTMLPane extends JEditorPane {
 
 		/**
 		 * Gets the link to the macro.
+		 * 
 		 * @return the link to the macro.
 		 */
 		public String getMacro() {
 			return macro;
 		}
 
-
 	}
-
-
 
 	/**
 	 * Class that deals with html parser callbacks.
 	 */
 	class ParserCallBack extends HTMLEditorKit.ParserCallback {
 		private final Stack<HTML.Tag> tagStack = new Stack<HTML.Tag>();
-
 
 		@Override
 		public void handleStartTag(HTML.Tag tag, MutableAttributeSet attributes, int position) {
@@ -316,13 +315,14 @@ public class HTMLPane extends JEditorPane {
 		}
 
 		@Override
-		public void handleError(String errorMsg, int pos){
+		public void handleError(String errorMsg, int pos) {
 		}
-
 
 		/**
 		 * Handles meta tags.
-		 * @param attributes the attributes for the tag.
+		 * 
+		 * @param attributes
+		 *            the attributes for the tag.
 		 */
 		void handleMetaTag(MutableAttributeSet attributes) {
 			Object name = attributes.getAttribute(HTML.Attribute.NAME);
@@ -333,10 +333,11 @@ public class HTMLPane extends JEditorPane {
 			}
 		}
 
-
 		/**
 		 * Handles all the actions for a HTML Link tag.
-		 * @param attributes The attributes for the tag.
+		 * 
+		 * @param attributes
+		 *            The attributes for the tag.
 		 */
 		void handleLinkTag(MutableAttributeSet attributes) {
 			Object rel = attributes.getAttribute(HTML.Attribute.REL);
@@ -351,7 +352,7 @@ public class HTMLPane extends JEditorPane {
 					}
 					try {
 						String cssText = MapTool.getParser().getTokenLibMacro(vals[0], vals[1]);
-						HTMLDocument document = (HTMLDocument)getDocument();
+						HTMLDocument document = (HTMLDocument) getDocument();
 						StyleSheet style = document.getStyleSheet();
 						style.loadRules(new StringReader(cssText), null);
 					} catch (ParserException e) {
@@ -371,7 +372,5 @@ public class HTMLPane extends JEditorPane {
 			}
 		}
 	}
-
-
 
 }
