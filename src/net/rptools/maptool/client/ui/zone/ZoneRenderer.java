@@ -102,6 +102,7 @@ import net.rptools.maptool.model.AbstractPoint;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.CellPoint;
+import net.rptools.maptool.model.ExposedAreaMetaData;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.GridCapabilities;
@@ -112,7 +113,6 @@ import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
-import net.rptools.maptool.model.Token.ExposedAreaMetaData;
 import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
@@ -1341,7 +1341,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				{
 					for(Token tok: view.getTokens())
 					{
-						ExposedAreaMetaData exposedMeta = tok.getExposedAreaMetaData();
+						ExposedAreaMetaData exposedMeta = zone.getExposedAreaMetaData(tok.getId());
 						viewArea.add(new Area(exposedMeta.getExposedAreaHistory()));
 					}
 				}
@@ -1383,7 +1383,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		if (currentTokenVisionArea == null)
 			return;
 
-		ExposedAreaMetaData meta = tokenUnderMouse.getExposedAreaMetaData();
+		ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tokenUnderMouse.getId());
 		if(MapTool.getServerPolicy().isUseIndividualFOW())
 		{
 			meta.getExposedAreaHistory();
@@ -1561,7 +1561,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				// soft FOW and visible area.
 				for(Token tok: view.getTokens())
 				{
-					ExposedAreaMetaData meta = tok.getExposedAreaMetaData();
+					ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tok.getId());
 					exposedArea = meta.getExposedAreaHistory();
 					tempArea.add(new Area(exposedArea));
 				}
@@ -1604,7 +1604,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 						{
 							continue;
 						}
-						ExposedAreaMetaData meta = tok.getExposedAreaMetaData();
+						ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tok.getId());
 						exposedArea = meta.getExposedAreaHistory();
 						myCombined.add(new Area(exposedArea));
 					}

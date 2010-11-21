@@ -90,6 +90,7 @@ import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignFactory;
 import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.model.CellPoint;
+import net.rptools.maptool.model.ExposedAreaMetaData;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.Player;
@@ -110,6 +111,8 @@ import net.rptools.maptool.util.UPnPUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingworker.SwingWorker;
+
+import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
 
 import com.jidesoft.docking.DockableFrame;
 
@@ -778,14 +781,21 @@ public class AppActions {
 			Integer top = null;
 			Integer left = null;
 			tokenCopySet = new HashSet<Token>();
-			for (Token token : tokenList) {
-				if (top == null || token.getY() < top) {
-					top = token.getY();
+			Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
+			for (Token originalToken : tokenList) {
+				if (top == null || originalToken.getY() < top) {
+					top = originalToken.getY();
 				}
-				if (left == null || token.getX() < left) {
-					left = token.getX();
+				if (left == null || originalToken.getX() < left) {
+					left = originalToken.getX();
 				}
-				tokenCopySet.add(new Token(token));
+				Token newToken = new Token(originalToken);
+				System.out.println("Cut Token(original): " + originalToken.getId());
+				System.out.println("Cut Token(new): " + newToken.getId());
+				ExposedAreaMetaData meta = zone.getExposedAreaMetaData(originalToken.getId());
+				Map<GUID, ExposedAreaMetaData> exposedAreaMetaData = zone.getExposedAreaMetaData();
+				exposedAreaMetaData.put(newToken.getId(), meta);
+				tokenCopySet.add(newToken);
 			}
 			// Normalize
 			for (Token token : tokenCopySet) {
@@ -831,9 +841,17 @@ public class AppActions {
 			}
 			List<Token> tokenList = new ArrayList<Token>(tokenCopySet);
 			Collections.sort(tokenList, Token.COMPARE_BY_ZORDER);
+			
 			for (Token origToken : tokenList) {
 				Token token = new Token(origToken);
+				Zone oldZone = MapTool.getFrame().getZoneRenderer(origToken.getZoneId()).getZone();
 
+				System.out.println("Paste Token(original): " + origToken.getId());
+				System.out.println("Paste Token(new): " + token.getId());
+				ExposedAreaMetaData meta = oldZone.getExposedAreaMetaData(origToken.getId());
+				Map<GUID, ExposedAreaMetaData> exposedAreaMetaData = zone.getExposedAreaMetaData();
+				exposedAreaMetaData.put(token.getId(), meta);
+				    
 				token.setX(token.getX() + zonePoint.x);
 				token.setY(token.getY() + zonePoint.y);
 

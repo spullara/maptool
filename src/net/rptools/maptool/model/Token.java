@@ -106,7 +106,6 @@ public class Token extends BaseModel {
 		}
 	};
 
-	private ExposedAreaMetaData exposedAreaMetaData;
 	private final Map<String, MD5Key> imageAssetMap;
 	private String currentImageAsset;
 
@@ -205,7 +204,8 @@ public class Token extends BaseModel {
 	// Deprecated, here to allow deserialization
 	private transient int size; // 1.3b16
 	private transient List<Vision> visionList; // 1.3b18
-
+	private GUID myZone;
+	
 	public enum ChangeEvent {
 		name,
 		MACRO_CHANGED
@@ -258,6 +258,7 @@ public class Token extends BaseModel {
 		sightType = token.sightType;
 		hasSight = token.hasSight;
 		propertyType = token.propertyType;
+		myZone = MapTool.getFrame().getCurrentZoneRenderer().getZone().getId();
 
 		ownerType = token.ownerType;
 		if (token.ownerList != null) {
@@ -1527,59 +1528,21 @@ public class Token extends BaseModel {
 		return this;
 	}
 
-	public ExposedAreaMetaData getExposedAreaMetaData()
-	{
-		if(exposedAreaMetaData == null)
-		{
-			exposedAreaMetaData = new ExposedAreaMetaData();
-		}
-		return exposedAreaMetaData;
-	}
-	public class ExposedAreaMetaData
-	{
-		private Area exposedAreaHistory;
 
-		public ExposedAreaMetaData()
-		{
-			exposedAreaHistory = new Area();
-		}
-		public ExposedAreaMetaData(Area area)
-		{
-			exposedAreaHistory = (Area) area.clone();
-		}
-		public Area getExposedAreaHistory()
-		{
-			if(exposedAreaHistory == null)
-			{
-				exposedAreaHistory = new Area();
-			}
-			return ((Area) exposedAreaHistory.clone());
-		}
-		public void addToExposedAreaHistory(Area newArea) {
-			if(newArea== null)
-			{
-				newArea = new Area();
-			}
-			if(this.exposedAreaHistory == null)
-			{
-				this.exposedAreaHistory = new Area();
-			}
-			this.exposedAreaHistory.add((Area) newArea.clone()) ;
-		}
-		public void removeExposedAreaHistory(Area newArea) {
-			if(newArea== null)
-			{
-				newArea = new Area();
-			}
-			if(this.exposedAreaHistory == null)
-			{
-				this.exposedAreaHistory = new Area();
-			}
-			this.exposedAreaHistory.subtract((Area) newArea.clone()) ;
-		}
-		public void clearExposedAreaHistory() {
-			this.exposedAreaHistory = new Area();
-		}
+	/**
+	 * @return the myZone
+	 */
+	public GUID getZoneId() {
+	    return myZone;
 	}
+
+	/**
+	 * @param myZone the myZone to set
+	 */
+	public void setZoneId(GUID zone) {
+	    myZone = zone;
+	}
+
+
 }
 

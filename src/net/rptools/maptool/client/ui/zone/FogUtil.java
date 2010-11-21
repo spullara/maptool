@@ -36,6 +36,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -49,11 +50,11 @@ import net.rptools.maptool.client.ui.zone.vbl.AreaOcean;
 import net.rptools.maptool.client.ui.zone.vbl.AreaTree;
 import net.rptools.maptool.client.ui.zone.vbl.VisibleAreaSegment;
 import net.rptools.maptool.model.CellPoint;
+import net.rptools.maptool.model.ExposedAreaMetaData;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Player.Role;
-import net.rptools.maptool.model.Token.ExposedAreaMetaData;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
@@ -253,8 +254,14 @@ public class FogUtil {
 			Grid grid = zone.getGrid();
 			Area visionArea = new Area();
 
-			Token tokenClone = new Token(token);
-			ExposedAreaMetaData meta = token.getExposedAreaMetaData();
+			Token tokenClone = new Token(token); 
+			Map<GUID,ExposedAreaMetaData> fullMeta = zone.getExposedAreaMetaData();
+			ExposedAreaMetaData meta = zone.getExposedAreaMetaData().get(token.getId());
+			if(!fullMeta.containsKey(token.getId())) {
+			    meta = new ExposedAreaMetaData();
+			    fullMeta.put(token.getId(), meta);
+			    
+			}
 			for (CellPoint cell : lastPath.getCellPath()) {
 
 				ZonePoint zp = grid.convert(cell);

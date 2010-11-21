@@ -72,10 +72,10 @@ import net.rptools.maptool.client.ui.zone.PlayerView;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.CellPoint;
+import net.rptools.maptool.model.ExposedAreaMetaData;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
-import net.rptools.maptool.model.Token.ExposedAreaMetaData;
 import net.rptools.maptool.model.TokenProperty;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.Zone.Layer;
@@ -844,7 +844,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 								break;
 							}
 						} else {
-							ExposedAreaMetaData meta = token.getExposedAreaMetaData();
+							ExposedAreaMetaData meta = zone.getExposedAreaMetaData(token.getId());
 							if (meta.getExposedAreaHistory().contains(bounds)) {
 								isVisible = true;
 								break;

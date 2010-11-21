@@ -52,6 +52,7 @@ import net.rptools.maptool.client.ui.zone.FogUtil;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.CellPoint;
+import net.rptools.maptool.model.ExposedAreaMetaData;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.InitiativeList;
 import net.rptools.maptool.model.MacroButtonProperties;
@@ -59,7 +60,6 @@ import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Player.Role;
 import net.rptools.maptool.model.Token;
-import net.rptools.maptool.model.Token.ExposedAreaMetaData;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 
@@ -205,9 +205,10 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 			String tokenViewMenu = I18N.getText("token.popup.menu.fow.tokens");
 			JMenu subMenu = new JMenu(tokenViewMenu);
 			int subItemCount = 0;
-			for (Token tok : getRenderer().getZone().getTokens()) {
+			Zone zone = getRenderer().getZone();
+			for (Token tok : zone.getTokens()) {
 				if (tok.getHasSight() && tok.isVisible()) {
-					ExposedAreaMetaData meta = tok.getExposedAreaMetaData();
+					ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tok.getId());
 					if (!meta.getExposedAreaHistory().isEmpty()) {
 						subMenu.add(new AddTokensExposedAreaAction(tok.getId()));
 						subItemCount++;
@@ -235,11 +236,12 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		}
 
 		public void actionPerformed(ActionEvent e) {
+		    	Zone zone = getRenderer().getZone();
 			Token sourceToken = getRenderer().getZone().getToken(tokID);
-			ExposedAreaMetaData sourceMeta = sourceToken.getExposedAreaMetaData();
+			ExposedAreaMetaData sourceMeta = zone.getExposedAreaMetaData(sourceToken.getId());
 			for (GUID tok : selectedTokenSet) {
 				Token targetToken = getRenderer().getZone().getToken(tok);
-				ExposedAreaMetaData targetMeta = targetToken.getExposedAreaMetaData();
+				ExposedAreaMetaData targetMeta = zone.getExposedAreaMetaData(targetToken.getId());
 				targetMeta.addToExposedAreaHistory((Area) sourceMeta.getExposedAreaHistory().clone());
 
 				targetMeta = null;
@@ -262,12 +264,13 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		}
 
 		public void actionPerformed(ActionEvent e) {
+		    Zone zone = getRenderer().getZone();
 			List<Token> allToks = getRenderer().getZone().getTokens();
 			for (Token tokenSource : allToks) {
-				ExposedAreaMetaData sourceMeta = tokenSource.getExposedAreaMetaData();
+				ExposedAreaMetaData sourceMeta = zone.getExposedAreaMetaData(tokenSource.getId());
 				for (GUID tok : selectedTokenSet) {
-					Token token = getRenderer().getZone().getToken(tok);
-					ExposedAreaMetaData meta = token.getExposedAreaMetaData();
+					Token token = zone.getToken(tok);
+					ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tok);
 					meta.addToExposedAreaHistory((Area) sourceMeta.getExposedAreaHistory().clone());
 					meta = null;
 					getRenderer().flush(token);
@@ -286,10 +289,11 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			Area area = getRenderer().getZone().getExposedArea();
+		    Zone zone = getRenderer().getZone();
+			Area area = zone.getExposedArea();
 			for (GUID tok : selectedTokenSet) {
 				Token token = getRenderer().getZone().getToken(tok);
-				ExposedAreaMetaData meta = token.getExposedAreaMetaData();
+				ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tok);
 				meta.addToExposedAreaHistory((Area) area.clone());
 				meta = null;
 				getRenderer().flush(token);
@@ -308,14 +312,15 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 		public void actionPerformed(ActionEvent e) {
 			if (MapTool.getServerPolicy().isUseIndividualFOW()) {
+			    Zone zone = getRenderer().getZone();
 				for (GUID tok : selectedTokenSet) {
-					Token token = getRenderer().getZone().getToken(tok);
-					ExposedAreaMetaData meta = token.getExposedAreaMetaData();
+					Token token = zone.getToken(tok);
+					ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tok);
 					meta.clearExposedAreaHistory();
 					getRenderer().flush(token);
 					getRenderer().getZone().putToken(token);
 					meta = null;
-					MapTool.serverCommand().putToken(getRenderer().getZone().getId(), token);
+					MapTool.serverCommand().putToken(zone.getId(), token);
 				}
 			}
 			getRenderer().repaint();
