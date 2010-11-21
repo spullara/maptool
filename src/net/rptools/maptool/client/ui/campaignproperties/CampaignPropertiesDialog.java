@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.ui.campaignproperties;
 
@@ -48,6 +45,7 @@ import javax.swing.KeyStroke;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
@@ -63,11 +61,10 @@ import net.rptools.maptool.util.StringUtil;
 
 import com.jeta.forms.components.panel.FormPanel;
 
-public class CampaignPropertiesDialog extends JDialog  {
+public class CampaignPropertiesDialog extends JDialog {
 
 	public enum Status {
-		OK,
-		CANCEL
+		OK, CANCEL
 	}
 
 	private TokenPropertiesManagementPanel tokenPropertiesPanel;
@@ -79,12 +76,12 @@ public class CampaignPropertiesDialog extends JDialog  {
 	private Campaign campaign;
 
 	public CampaignPropertiesDialog(JFrame owner) {
-		super (owner, "Campaign Properties", true);
-		setMinimumSize(new Dimension(450, 450));	// These sizes mess up my custom LAF settings. :(
+		super(owner, "Campaign Properties", true);
+		setMinimumSize(new Dimension(450, 450)); // These sizes mess up my custom LAF settings. :(
 //		setPreferredSize(new Dimension(450, 450));	// If the dialog were packed() would they be needed?
 
 		initialize();
-		pack();		// FJE
+		pack(); // FJE
 
 //		setSize(635, 605);
 	}
@@ -153,7 +150,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 					return;
 				}
 				// TODO: Check for uniqueness
-				((DefaultListModel)getRepositoryList().getModel()).addElement(newRepo);
+				((DefaultListModel) getRepositoryList().getModel()).addElement(newRepo);
 			}
 		});
 	}
@@ -163,11 +160,10 @@ public class CampaignPropertiesDialog extends JDialog  {
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: Check for uniqueness
-				((DefaultListModel)getRepositoryList().getModel()).addElement("http://www.rptools.net/image-indexes/gallery.rpax.gz");
+				((DefaultListModel) getRepositoryList().getModel()).addElement("http://www.rptools.net/image-indexes/gallery.rpax.gz");
 			}
 		});
 	}
-
 
 	public void initDeleteRepoButton() {
 		JButton button = (JButton) formPanel.getButton("deleteRepoButton");
@@ -175,8 +171,8 @@ public class CampaignPropertiesDialog extends JDialog  {
 			public void actionPerformed(ActionEvent e) {
 				int[] selectedRows = getRepositoryList().getSelectedIndices();
 				Arrays.sort(selectedRows);
-				for (int i = selectedRows.length-1; i >= 0; i--) {
-					((DefaultListModel)getRepositoryList().getModel()).remove(selectedRows[i]);
+				for (int i = selectedRows.length - 1; i >= 0; i--) {
+					((DefaultListModel) getRepositoryList().getModel()).remove(selectedRows[i]);
 				}
 			}
 		});
@@ -204,12 +200,12 @@ public class CampaignPropertiesDialog extends JDialog  {
 	}
 
 	private void copyCampaignToUI(CampaignProperties campaignProperties) {
+		JEditorPane epane = (JEditorPane) formPanel.getComponentByName("lightHelp");
+		epane.setCaretPosition(0);
 		tokenPropertiesPanel.copyCampaignToUI(campaignProperties);
 		updateRepositoryList(campaignProperties);
 		updateSightPanel(campaignProperties);
 		updateLightPanel(campaignProperties);
-		JEditorPane epane = (JEditorPane) formPanel.getComponentByName("lightHelp");
-		epane.setCaretPosition(0);
 		tokenStatesController.copyCampaignToUI(campaignProperties);
 		tokenBarController.copyCampaignToUI(campaignProperties);
 //		updateTableList();
@@ -221,26 +217,26 @@ public class CampaignPropertiesDialog extends JDialog  {
 			builder.append(sight.getName()).append(": ");
 
 			switch (sight.getShape()) {
-			case SQUARE :
+			case SQUARE:
 				builder.append("square ");
 				if (sight.getDistance() != 0)
 					builder.append("distance=").append(StringUtil.formatDecimal(sight.getDistance())).append(' ');
 				break;
-			case CIRCLE :
+			case CIRCLE:
 				builder.append("circle ");
 				if (sight.getDistance() != 0)
 					builder.append("distance=").append(StringUtil.formatDecimal(sight.getDistance())).append(' ');
 				break;
-			case CONE :
+			case CONE:
 				builder.append("cone ");
-				if (sight.getArc()!= 0)
+				if (sight.getArc() != 0)
 					builder.append("arc=").append(StringUtil.formatDecimal(sight.getArc())).append(' ');
 				if (sight.getOffset() != 0)
 					builder.append("offset=").append(StringUtil.formatDecimal(sight.getOffset())).append(' ');
 				if (sight.getDistance() != 0)
 					builder.append("distance=").append(StringUtil.formatDecimal(sight.getDistance())).append(' ');
 				break;
-			default :
+			default:
 				throw new IllegalArgumentException("Invalid shape?!");
 			}
 			// Multiplier
@@ -257,6 +253,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 			builder.append('\n');
 		}
 		getSightPanel().setText(builder.toString());
+		getSightPanel().setCaretPosition(0);
 	}
 
 	private void updateLightPanel(CampaignProperties properties) {
@@ -274,11 +271,11 @@ public class CampaignPropertiesDialog extends JDialog  {
 				for (Light light : lightSource.getLightList()) {
 					if (light.getShape() != null) {
 						switch (light.getShape()) {
-						case CIRCLE :
+						case CIRCLE:
 							// TODO: Make this a preference
 							builder.append(light.getShape().toString().toLowerCase()).append(' ');
 							break;
-						case CONE :
+						case CONE:
 							// TODO: This HAS to change, the lights need to be auto describing, this hard wiring sucks
 							if (light.getArcAngle() != 0 && light.getArcAngle() != 90)
 								builder.append("arc=").append(StringUtil.formatDecimal(light.getArcAngle())).append(' ');
@@ -294,7 +291,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 					builder.append(StringUtil.formatDecimal(light.getRadius()));
 
 					if (light.getPaint() instanceof DrawableColorPaint) {
-						Color color = (Color)light.getPaint().getPaint();
+						Color color = (Color) light.getPaint().getPaint();
 						builder.append(toHex(color));
 					}
 					builder.append(' ');
@@ -304,6 +301,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 			builder.append('\n');
 		}
 		getLightPanel().setText(builder.toString());
+		getLightPanel().setCaretPosition(0);
 	}
 
 	private String toHex(Color color) {
@@ -348,10 +346,11 @@ public class CampaignPropertiesDialog extends JDialog  {
 		tokenStatesController.copyUIToCampaign(campaign);
 		tokenBarController.copyUIToCampaign(campaign);
 
-		if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
-			MapTool.getFrame().getCurrentZoneRenderer().getZoneView().flush();
-			MapTool.getFrame().getCurrentZoneRenderer().flushFog();
-			MapTool.getFrame().getCurrentZoneRenderer().flushLight();
+		ZoneRenderer zr = MapTool.getFrame().getCurrentZoneRenderer();
+		if (zr != null) {
+			zr.getZoneView().flush();
+			zr.flushFog();
+			zr.flushLight();
 			MapTool.getFrame().refresh();
 		}
 	}
@@ -373,7 +372,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 				// Parse line
 				int split = line.indexOf(":");
 				String label = line.substring(0, split).trim();
-				String value = line.substring(split+1).trim();
+				String value = line.substring(split + 1).trim();
 
 				if (label.length() == 0) {
 					continue;
@@ -390,7 +389,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 				double pLightRange = 0;
 
 				for (String arg : args) {
-					assert arg.length() > 0;		// The split() uses "one or more spaces", removing empty strings
+					assert arg.length() > 0; // The split() uses "one or more spaces", removing empty strings
 					try {
 						shape = ShapeType.valueOf(arg.toUpperCase());
 						continue;
@@ -399,10 +398,10 @@ public class CampaignPropertiesDialog extends JDialog  {
 					}
 					try {
 						if (arg.startsWith("x")) {
-							toBeParsed = arg.substring(1);			// Used in the catch block, below
-							errmsg = "msg.error.mtprops.sight.multiplier";	// (ditto)
+							toBeParsed = arg.substring(1); // Used in the catch block, below
+							errmsg = "msg.error.mtprops.sight.multiplier"; // (ditto)
 							magnifier = StringUtil.parseDecimal(toBeParsed);
-						} else if (arg.startsWith("r")) { 			// XXX Why not "r=#" instead of "r#"??
+						} else if (arg.startsWith("r")) { // XXX Why not "r=#" instead of "r#"??
 							toBeParsed = arg.substring(1);
 							errmsg = "msg.error.mtprops.sight.range";
 							pLightRange = StringUtil.parseDecimal(toBeParsed);
@@ -428,9 +427,9 @@ public class CampaignPropertiesDialog extends JDialog  {
 						errlog.add(I18N.getText(errmsg, reader.getLineNumber(), toBeParsed));
 					}
 				}
-				if (pLightRange > 0) 	{
+				if (pLightRange > 0) {
 					personalLight = new LightSource();
-					personalLight.add(new Light(shape,0,pLightRange, arc,null));
+					personalLight.add(new Light(shape, 0, pLightRange, arc, null));
 				}
 				SightType sight = new SightType(label, magnifier, personalLight, shape, arc);
 				sight.setDistance(range);
@@ -446,7 +445,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 			// Show the user a list of errors so they can (attempt to) correct all of them at once
 			MapTool.showFeedback(errlog.toArray());
 			errlog.clear();
-			throw new IllegalArgumentException();	// Don't save sights...
+			throw new IllegalArgumentException(); // Don't save sights...
 		}
 		campaign.setSightTypes(sightList);
 	}
@@ -494,7 +493,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 				double arc = 0;
 				boolean gmOnly = false;
 				boolean owner = false;
-				for (String arg : line.substring(split+1).split("\\s+")) {
+				for (String arg : line.substring(split + 1).split("\\s+")) {
 					arg = arg.trim();
 					if (arg.length() == 0) {
 						continue;
@@ -529,14 +528,14 @@ public class CampaignPropertiesDialog extends JDialog  {
 					split = arg.indexOf('=');
 					if (split > 0) {
 						String key = arg.substring(0, split);
-						String value = arg.substring(split+1);
+						String value = arg.substring(split + 1);
 
 						// TODO: Make this a generic map to pass instead of 'arc'
 						if ("arc".equals(key)) {
 							try {
 								arc = StringUtil.parseDecimal(value);
 							} catch (ParseException pe) {
-								errlog.add( I18N.getText("msg.error.mtprops.light.arc", reader.getLineNumber(), value) );
+								errlog.add(I18N.getText("msg.error.mtprops.light.arc", reader.getLineNumber(), value));
 							}
 						}
 						continue;
@@ -551,16 +550,12 @@ public class CampaignPropertiesDialog extends JDialog  {
 						color = Color.decode(colorString);
 					}
 					//
-					owner = gmOnly == true? false: owner;
+					owner = gmOnly == true ? false : owner;
 					try {
-						lightSource.add(
-								new Light(shape, 0, StringUtil.parseDecimal(distance), arc
-										, color != null ? new DrawableColorPaint(color): null
-												, lightSource.getType() != LightSource.Type.AURA? false: gmOnly
-														, lightSource.getType() != LightSource.Type.AURA? false: owner)
-						);
+						lightSource.add(new Light(shape, 0, StringUtil.parseDecimal(distance), arc, color != null ? new DrawableColorPaint(color) : null,
+								lightSource.getType() != LightSource.Type.AURA ? false : gmOnly, lightSource.getType() != LightSource.Type.AURA ? false : owner));
 					} catch (ParseException pe) {
-						errlog.add( I18N.getText("msg.error.mtprops.light.distance", reader.getLineNumber(), distance) );
+						errlog.add(I18N.getText("msg.error.mtprops.light.distance", reader.getLineNumber(), distance));
 					}
 				}
 
@@ -585,7 +580,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 		if (!errlog.isEmpty()) {
 			MapTool.showFeedback(errlog.toArray());
 			errlog.clear();
-			throw new IllegalArgumentException();	// Don't save lights...
+			throw new IllegalArgumentException(); // Don't save lights...
 		}
 		campaign.getLightSourcesMap().clear();
 		campaign.getLightSourcesMap().putAll(lightMap);
@@ -608,7 +603,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 	}
 
 	private void initOKButton() {
-		getOKButton().addActionListener(new ActionListener(){
+		getOKButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				accept();
 			}
@@ -628,7 +623,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 	}
 
 	private void initCancelButton() {
-		getCancelButton().addActionListener(new ActionListener(){
+		getCancelButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				status = Status.CANCEL;
 				setVisible(false);
@@ -637,7 +632,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 	}
 
 	private void initImportButton() {
-		getImportButton().addActionListener(new ActionListener(){
+		getImportButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser chooser = MapTool.getFrame().getLoadPropsFileChooser();
 
@@ -653,7 +648,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 							MapTool.getCampaign().mergeCampaignProperties(properties);
 							copyCampaignToUI(properties);
 						} catch (IOException ioe) {
-							MapTool.showError("Could not load properties: " + ioe);
+							MapTool.showError("Could not load properties: ", ioe);
 						}
 					}
 				});
@@ -662,7 +657,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 	}
 
 	private void initExportButton() {
-		getExportButton().addActionListener(new ActionListener(){
+		getExportButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: Remove this hack.  Specifically, make the export use a properties object
 				// composed of the current dialog entries instead of directly from the campaign

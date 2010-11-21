@@ -143,6 +143,8 @@ public class MacroButtonDialog extends JDialog {
 				getGroupTextField().setText(properties.getGroup());
 				getSortbyTextField().setText(properties.getSortby());
 				getCommandTextArea().setText(properties.getCommand());
+				getCommandTextArea().setCaretPosition(0);
+
 				getAutoExecuteCheckBox().setSelected(properties.getAutoExecute());
 				getIncludeLabelCheckBox().setSelected(properties.getIncludeLabel());
 				getApplyToTokensCheckBox().setSelected(properties.getApplyToTokens());

@@ -547,7 +547,9 @@ public class MacroButtonProperties implements Comparable<Object> {
 	}
 
 	public String getFontColorKey() {
-		return fontColorKey;
+		if (MapToolUtil.isValidColor(fontColorKey))
+			return fontColorKey;
+		return "black";
 	}
 
 	public void setFontColorKey(String fontColorKey) {
@@ -648,7 +650,7 @@ public class MacroButtonProperties implements Comparable<Object> {
 	}
 
 	public void reset() {
-		colorKey = "";
+		colorKey = "default";
 		hotKey = MacroButtonHotKeyManager.HOTKEYS[0];
 		command = "";
 		label = String.valueOf(index);
@@ -657,7 +659,7 @@ public class MacroButtonProperties implements Comparable<Object> {
 		autoExecute = true;
 		includeLabel = false;
 		applyToTokens = false;
-		fontColorKey = "";
+		fontColorKey = "black";
 		fontSize = "";
 		minWidth = "";
 		maxWidth = "";
