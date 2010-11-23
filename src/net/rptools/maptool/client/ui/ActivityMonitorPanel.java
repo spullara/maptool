@@ -25,6 +25,7 @@ import net.rptools.clientserver.ActivityListener;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.swing.Animatable;
 import net.rptools.maptool.client.swing.AnimationManager;
+import net.rptools.maptool.language.I18N;
 
 /**
  * @author trevor
@@ -54,11 +55,11 @@ public class ActivityMonitorPanel extends JComponent implements ActivityListener
 	static {
 		
 		try {
-			transmitOn  = ImageUtil.getImage("net/rptools/maptool/client/image/transmitOn.png");
-			transmitOff = ImageUtil.getImage("net/rptools/maptool/client/image/activityOff.png");
+			transmitOn  = ImageUtil.getImage("net/rptools/maptool/client/image/transmitOn.png"); //$NON-NLS-1$
+			transmitOff = ImageUtil.getImage("net/rptools/maptool/client/image/activityOff.png"); //$NON-NLS-1$
 	
-			receiveOn  = ImageUtil.getImage("net/rptools/maptool/client/image/receiveOn.png");
-			receiveOff = ImageUtil.getImage("net/rptools/maptool/client/image/activityOff.png");
+			receiveOn  = ImageUtil.getImage("net/rptools/maptool/client/image/receiveOn.png"); //$NON-NLS-1$
+			receiveOff = ImageUtil.getImage("net/rptools/maptool/client/image/activityOff.png"); //$NON-NLS-1$
 			
 			int width = Math.max(transmitOn.getWidth(null), transmitOff.getWidth(null)) + Math.max(receiveOn.getWidth(null), receiveOff.getWidth(null));
 			int height = Math.max(transmitOn.getHeight(null), transmitOff.getHeight(null)) + Math.max(receiveOn.getHeight(null), receiveOff.getHeight(null));
@@ -72,7 +73,7 @@ public class ActivityMonitorPanel extends JComponent implements ActivityListener
 	}
 	
 	public ActivityMonitorPanel() {
-		setToolTipText("Green:Sending Red:Receiving");
+		setToolTipText(I18N.getString("ActivityMonitorPanel.colorDefinition")); //$NON-NLS-1$
 	}
 	
 	/* (non-Javadoc)
