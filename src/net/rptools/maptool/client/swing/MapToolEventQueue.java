@@ -9,6 +9,7 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.language.I18N;
 
 import org.apache.log4j.Logger;
 
@@ -24,10 +25,10 @@ public class MapToolEventQueue extends EventQueue {
             super.dispatchEvent(event);
         } catch (Throwable e) {
         	log.error(e, e);
-        	JideOptionPane optionPane = new JideOptionPane("Click \"Details\" button to see more information ... ", JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
-            optionPane.setTitle("An unexpected error has occured.");
+        	JideOptionPane optionPane = new JideOptionPane(I18N.getString("MapToolEventQueue.details"), JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION); //$NON-NLS-1$
+            optionPane.setTitle(I18N.getString("MapToolEventQueue.unexpectedError")); //$NON-NLS-1$
             optionPane.setDetails(toString(e));
-            JDialog dialog = optionPane.createDialog(MapTool.getFrame(), "Warning");
+            JDialog dialog = optionPane.createDialog(MapTool.getFrame(), I18N.getString("MapToolEventQueue.warning")); //$NON-NLS-1$
             dialog.setResizable(true);
             dialog.pack();
             dialog.setVisible(true);

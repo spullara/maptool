@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.language.I18N;
 
 /**
  */
@@ -31,7 +32,7 @@ public class CoordinateStatusBar extends JLabel {
     private static final Dimension minSize = new Dimension(75, 10);
     
     public CoordinateStatusBar() {
-    	setToolTipText("Map Coordinates");
+    	setToolTipText(I18N.getString("CoordinateStatusBar.mapCoordinates")); //$NON-NLS-1$
     }
     
     /* (non-Javadoc)
@@ -49,10 +50,10 @@ public class CoordinateStatusBar extends JLabel {
     }
     
     public void clear() {
-    	setText("");
+    	setText(""); //$NON-NLS-1$
     }
     
     public void update(int x, int y) {
-    	setText("  " + x + ", " + y);
+    	setText("  " + x + ", " + y); //$NON-NLS-1$ //$NON-NLS-2$
     }
 }
