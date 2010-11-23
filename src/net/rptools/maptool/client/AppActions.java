@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client;
 
@@ -112,30 +109,23 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingworker.SwingWorker;
 
-import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
-
 import com.jidesoft.docking.DockableFrame;
 
 /**
- * This class acts as a container for a wide variety of {@link Action}s that are
- * used throughout the application. Most of these are added to the main frame
- * menu, but some are added dynamically as needed, sometimes to the frame menu
- * but also to the context menu (the "right-click menu").
- *
- * Each object instantiated from {@link DefaultClientAction} should have an
- * initializer that calls {@link ClientAction#init(String)} and passes the base
- * message key from the properties file. This base message key will be used to
- * locate the text that should appear on the menu item as well as the
- * accelerator, mnemonic, and short description strings. (See the {@link I18N}
- * class for more details on how the key is used.
- *
- * In addition, each object should override {@link ClientAction#isAvailable()}
- * and return true if the application is in a state where the Action should be
- * enabled. (The default is <code>true</code>.)
- *
- * Last is the {@link ClientAction#execute(ActionEvent)} method. It is passed
- * the {@link ActionEvent} object that triggered this Action as a parameter. It
- * should perform the necessary work to accomplish the effect of the Action.
+ * This class acts as a container for a wide variety of {@link Action}s that are used throughout the application. Most
+ * of these are added to the main frame menu, but some are added dynamically as needed, sometimes to the frame menu but
+ * also to the context menu (the "right-click menu").
+ * 
+ * Each object instantiated from {@link DefaultClientAction} should have an initializer that calls
+ * {@link ClientAction#init(String)} and passes the base message key from the properties file. This base message key
+ * will be used to locate the text that should appear on the menu item as well as the accelerator, mnemonic, and short
+ * description strings. (See the {@link I18N} class for more details on how the key is used.
+ * 
+ * In addition, each object should override {@link ClientAction#isAvailable()} and return true if the application is in
+ * a state where the Action should be enabled. (The default is <code>true</code>.)
+ * 
+ * Last is the {@link ClientAction#execute(ActionEvent)} method. It is passed the {@link ActionEvent} object that
+ * triggered this Action as a parameter. It should perform the necessary work to accomplish the effect of the Action.
  */
 public class AppActions {
 
@@ -152,15 +142,13 @@ public class AppActions {
 			if (key == Event.CTRL_MASK)
 				key = Event.META_MASK;
 			/*
-			 * In order for SoyLatte/OpenJDK to work on Mac OS X, the user must have the X11
-			 * package installed.  If they're running headless, they don't need it.  Otherwise,
-			 * they must already have it or we wouldn't have gotten this far. :)  However, in
-			 * order for the Command key to work, the X11 Preferences must be set to
-			 * "Enabled the Meta Key" in X11 applications.  Essentially, if this checkbox is
-			 * turned on, the Command key (called Meta in X11) will be intercepted by the
-			 * X1 package and not sent on to the application.  Our next step will be better
-			 * integration with the Mac desktop to eliminate the X11 menu altogether.  It
-			 * might be nice to give them a one-time warning about this...
+			 * In order for SoyLatte/OpenJDK to work on Mac OS X, the user must have the X11 package installed. If
+			 * they're running headless, they don't need it. Otherwise, they must already have it or we wouldn't have
+			 * gotten this far. :) However, in order for the Command key to work, the X11 Preferences must be set to
+			 * "Enabled the Meta Key" in X11 applications. Essentially, if this checkbox is turned on, the Command key
+			 * (called Meta in X11) will be intercepted by the X1 package and not sent on to the application. Our next
+			 * step will be better integration with the Mac desktop to eliminate the X11 menu altogether. It might be
+			 * nice to give them a one-time warning about this...
 			 */
 		}
 		return key;
@@ -196,8 +184,7 @@ public class AppActions {
 				}
 				MapTool.getCampaign().setExportDialog(d);
 				d.setVisible(true);
-			}
-			catch (Exception ex) {
+			} catch (Exception ex) {
 				MapTool.showError(I18N.getString("Cannot create the ExportDialog object"), ex);
 			}
 		}
@@ -224,8 +211,6 @@ public class AppActions {
 			}
 		}
 	};
-
-
 
 	public static final Action EXPORT_CAMPAIGN_REPO = new AdminClientAction() {
 
@@ -310,7 +295,7 @@ public class AppActions {
 				}
 
 			} catch (IOException ioe) {
-				MapTool.showError(I18N.getString("msg.error.failedExportingCampaignRepo") ,ioe);
+				MapTool.showError(I18N.getString("msg.error.failedExportingCampaignRepo"), ioe);
 				return;
 			}
 
@@ -325,63 +310,55 @@ public class AppActions {
 
 		/**
 		 * <p>
-		 * This action performs a repository update by comparing the assets in the current
-		 * campaign against all assets in all repositories and uploading assets to one of
-		 * the repositories and creating a replacement <b>index.gz</b> which is also
-		 * uploaded.
+		 * This action performs a repository update by comparing the assets in the current campaign against all assets
+		 * in all repositories and uploading assets to one of the repositories and creating a replacement
+		 * <b>index.gz</b> which is also uploaded.
 		 * </p>
 		 * <p>
-		 * For the purposes of this action, only the FTP protocol is supported.  The primary
-		 * reason for this has to do with the way images will be uploaded.  If HTTP were
-		 * used and a single file sent, there would need to be a script on the remote end
-		 * that knew how to unpack the file correctly.  This cannot be assumed in the
-		 * general case.
+		 * For the purposes of this action, only the FTP protocol is supported. The primary reason for this has to do
+		 * with the way images will be uploaded. If HTTP were used and a single file sent, there would need to be a
+		 * script on the remote end that knew how to unpack the file correctly. This cannot be assumed in the general
+		 * case.
 		 * </p>
 		 * <p>
-		 * Using FTP, we can upload individual files to particular directories.  While this
-		 * same approach could be used for HTTP, once again the user would have to
-		 * install some kind of upload script on the server side.  This again makes HTTP
-		 * impractical and FTP more "user-friendly".
+		 * Using FTP, we can upload individual files to particular directories. While this same approach could be used
+		 * for HTTP, once again the user would have to install some kind of upload script on the server side. This again
+		 * makes HTTP impractical and FTP more "user-friendly".
 		 * </p>
 		 * <p>
-		 * <b>Implementation.</b>  This method first makes a list of all known
-		 * repositories from the campaign properties.  They are presented to the user who
-		 * then selects one as the destination for new assets to be uploaded.  A list of
-		 * assets currently used in the campaign is then generated and compared against
-		 * the index files of all repositories from the previous list.  Any new assets are
-		 * aggregated and the user is presented with a summary of the images to be
-		 * uploaded, including file size.  The user enters FTP connection information and
-		 * the upload begins as a separate thread.  (Perhaps the Transfer Window can be
-		 * used to keep track of the uploading process?)
+		 * <b>Implementation.</b> This method first makes a list of all known repositories from the campaign properties.
+		 * They are presented to the user who then selects one as the destination for new assets to be uploaded. A list
+		 * of assets currently used in the campaign is then generated and compared against the index files of all
+		 * repositories from the previous list. Any new assets are aggregated and the user is presented with a summary
+		 * of the images to be uploaded, including file size. The user enters FTP connection information and the upload
+		 * begins as a separate thread. (Perhaps the Transfer Window can be used to keep track of the uploading
+		 * process?)
 		 * </p>
 		 * <p>
-		 * <b>Optimizations.</b>  At some point, creating the list of assets could be
-		 * spun into another thread, although there's probably not much value there.  Or
-		 * the FTP information could be collected at the beginning and as assets are checked
-		 * they could immediately begin uploading with the summary including all assets,
-		 * even those already uploaded.
+		 * <b>Optimizations.</b> At some point, creating the list of assets could be spun into another thread, although
+		 * there's probably not much value there. Or the FTP information could be collected at the beginning and as
+		 * assets are checked they could immediately begin uploading with the summary including all assets, even those
+		 * already uploaded.
 		 * </p>
 		 * <p>
-		 * My review of FTP client libraries brought me to
-		 * <a href="http://www.javaworld.com/javaworld/jw-04-2003/jw-0404-ftp.html">
-		 * this extensive review of FTP libraries</a>
-		 * If we're going to do much more with FTP, <b>Globus GridFTP</b> looks good,
-		 * but the library itself is 2.7MB.
+		 * My review of FTP client libraries brought me to <a
+		 * href="http://www.javaworld.com/javaworld/jw-04-2003/jw-0404-ftp.html"> this extensive review of FTP
+		 * libraries</a> If we're going to do much more with FTP, <b>Globus GridFTP</b> looks good, but the library
+		 * itself is 2.7MB.
 		 * </p>
 		 */
 		@Override
 		public void execute(ActionEvent e) {
 			/*
-			 * 1.  Ask the user to select repositories which should be considered.
-			 * 2.  Ask the user for FTP upload information.
+			 * 1. Ask the user to select repositories which should be considered. 2. Ask the user for FTP upload
+			 * information.
 			 */
 			UpdateRepoDialog urd;
 
 			Campaign campaign = MapTool.getCampaign();
 			CampaignProperties props = campaign.getCampaignProperties();
 
-			urd = new UpdateRepoDialog(MapTool.getFrame(), props.getRemoteRepositoryList(),
-					MapTool.getCampaign().getExportDialog().getExportLocation());
+			urd = new UpdateRepoDialog(MapTool.getFrame(), props.getRemoteRepositoryList(), MapTool.getCampaign().getExportDialog().getExportLocation());
 			urd.pack();
 			urd.setVisible(true);
 			if (urd.getStatus() == JOptionPane.CANCEL_OPTION) {
@@ -390,24 +367,21 @@ public class AppActions {
 			MapTool.getCampaign().getExportDialog().setExportLocation(urd.getFTPLocation());
 
 			/*
-			 * 3.  Check all assets against the repository indices and build a new list from
-			 * those that are not found.
+			 * 3. Check all assets against the repository indices and build a new list from those that are not found.
 			 */
 			Map<MD5Key, Asset> missing = AssetManager.findAllAssetsNotInRepositories(urd.getSelectedRepositories());
 
 			/*
-			 * 4.  Give the user a summary and ask for permission to begin the upload.
-			 * I'm going to display a listbox and let the user click on elements of the list
-			 * in order to see a preview to the right.  But there's no plan to make it a
-			 * CheckBoxList.  (Wouldn't be _that_ tough, however.)
+			 * 4. Give the user a summary and ask for permission to begin the upload. I'm going to display a listbox and
+			 * let the user click on elements of the list in order to see a preview to the right. But there's no plan to
+			 * make it a CheckBoxList. (Wouldn't be _that_ tough, however.)
 			 */
-			if (! MapTool.confirm(I18N.getText("msg.confirm.aboutToBeginFTP", missing.size()+1)))
+			if (!MapTool.confirm(I18N.getText("msg.confirm.aboutToBeginFTP", missing.size() + 1)))
 				return;
 
 			/*
-			 * 5.  Build the index as we go, but add the images to FTP to a queue handled by
-			 * another thread.  Add a progress bar of some type or use the Transfer Status
-			 * window.
+			 * 5. Build the index as we go, but add the images to FTP to a queue handled by another thread. Add a
+			 * progress bar of some type or use the Transfer Status window.
 			 */
 			try {
 				File topdir = urd.getDirectory();
@@ -418,7 +392,7 @@ public class AppActions {
 
 				// Enabling this means the upload begins immediately upon the first queued entry
 				ftp.setEnabled(true);
-				ProgressBarList pbl = new ProgressBarList(MapTool.getFrame(), ftp, missing.size()+1);
+				ProgressBarList pbl = new ProgressBarList(MapTool.getFrame(), ftp, missing.size() + 1);
 
 				for (Map.Entry<MD5Key, Asset> entry : missing.entrySet()) {
 					String remote = entry.getKey().toString();
@@ -527,7 +501,7 @@ public class AppActions {
 				MapTool.getFrame().repaint();
 
 			} catch (IOException ioe) {
-				MapTool.showError("msg.error.failedAddingDefaultTables" ,ioe);
+				MapTool.showError("msg.error.failedAddingDefaultTables", ioe);
 			}
 		}
 	};
@@ -764,7 +738,7 @@ public class AppActions {
 			for (GUID guid : tokenSet) {
 				Token token = zone.getToken(guid);
 				if (token != null) {
-					if(!AppUtil.playerOwns(token)){
+					if (!AppUtil.playerOwns(token)) {
 						continue;
 					}
 					tokenList.add(token);
@@ -777,7 +751,7 @@ public class AppActions {
 	public static final void copyTokens(List<Token> tokenList) {
 		// Only cut if some tokens are selected.  Don't want to accidentally
 		// lose what might already be in the clipboard.
-		if (tokenList.size() > 0 ) {
+		if (tokenList.size() > 0) {
 			Integer top = null;
 			Integer left = null;
 			tokenCopySet = new HashSet<Token>();
@@ -841,7 +815,7 @@ public class AppActions {
 			}
 			List<Token> tokenList = new ArrayList<Token>(tokenCopySet);
 			Collections.sort(tokenList, Token.COMPARE_BY_ZORDER);
-			
+
 			for (Token origToken : tokenList) {
 				Token token = new Token(origToken);
 				Zone oldZone = MapTool.getFrame().getZoneRenderer(origToken.getZoneId()).getZone();
@@ -851,7 +825,7 @@ public class AppActions {
 				ExposedAreaMetaData meta = oldZone.getExposedAreaMetaData(origToken.getId());
 				Map<GUID, ExposedAreaMetaData> exposedAreaMetaData = zone.getExposedAreaMetaData();
 				exposedAreaMetaData.put(token.getId(), meta);
-				    
+
 				token.setX(token.getX() + zonePoint.x);
 				token.setY(token.getY() + zonePoint.y);
 
@@ -942,18 +916,17 @@ public class AppActions {
 		}
 
 		@Override
-		public boolean isSelected(){
+		public boolean isSelected() {
 			return AppState.isNotificationEnforced();
 		}
 
 		@Override
-		public void execute(ActionEvent e){
+		public void execute(ActionEvent e) {
 			AppState.setNotificationEnforced(!AppState.isNotificationEnforced());
 			MapTool.serverCommand().enforceNotification(AppState.isNotificationEnforced());
 		}
 
 	};
-
 
 	/**
 	 * This is the menu option that forces the player view to continuously track the GM view.
@@ -1072,7 +1045,6 @@ public class AppActions {
 				MapTool.addZone(zoneCopy);
 			}
 		}
-
 	};
 
 	public static final Action REMOVE_ZONE = new ZoneAdminClientAction() {
@@ -1082,15 +1054,12 @@ public class AppActions {
 
 		@Override
 		public void execute(ActionEvent e) {
-
 			if (!MapTool.confirm("msg.confirm.removeZone")) {
 				return;
 			}
-
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			MapTool.removeZone(renderer.getZone());
 		}
-
 	};
 
 	public static final Action SHOW_ABOUT = new DefaultClientAction() {
@@ -1100,10 +1069,8 @@ public class AppActions {
 
 		@Override
 		public void execute(ActionEvent e) {
-
 			MapTool.getFrame().showAboutDialog();
 		}
-
 	};
 
 	/**
@@ -1116,15 +1083,12 @@ public class AppActions {
 
 		@Override
 		public void execute(ActionEvent e) {
-
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			if (renderer == null) {
 				return;
 			}
-
 			renderer.forcePlayersView();
 		}
-
 	};
 
 	/**
@@ -1604,10 +1568,10 @@ public class AppActions {
 					StartServerDialog dialog = new StartServerDialog();
 					dialog.showDialog();
 
-					if (!dialog.accepted())	// Results stored in Preferences.userRoot()
+					if (!dialog.accepted()) // Results stored in Preferences.userRoot()
 						return;
 
-					StartServerDialogPreferences serverProps = new StartServerDialogPreferences();	// data retrieved from Preferences.userRoot()
+					StartServerDialogPreferences serverProps = new StartServerDialogPreferences(); // data retrieved from Preferences.userRoot()
 
 					ServerPolicy policy = new ServerPolicy();
 					policy.setAutoRevealOnMovement(serverProps.isAutoRevealOnMovement());
@@ -1623,10 +1587,9 @@ public class AppActions {
 					//my addition
 					policy.setRestrictedImpersonation(serverProps.getRestrictedImpersonation());
 					policy.setMovementMetric(serverProps.getMovementMetric());
-					policy.setUseIndividualFOW(serverProps.getUseIndividualViews() &&  serverProps.getUseIndividualFOW());
+					policy.setUseIndividualFOW(serverProps.getUseIndividualViews() && serverProps.getUseIndividualFOW());
 
-					ServerConfig config = new ServerConfig(serverProps.getUsername(), serverProps.getGMPassword(),
-							serverProps.getPlayerPassword(), serverProps.getPort(), serverProps.getRPToolsName());
+					ServerConfig config = new ServerConfig(serverProps.getUsername(), serverProps.getGMPassword(), serverProps.getPlayerPassword(), serverProps.getPort(), serverProps.getRPToolsName());
 
 					// Use the existing campaign
 					Campaign campaign = MapTool.getCampaign();
@@ -1645,30 +1608,23 @@ public class AppActions {
 						// local changes well ... yet
 
 						/*
-						 * JFJ 2010-10-27
-						 * The below creates a NEW campaign with a copy
-						 * of the existing campaign.  However, this is NOT
-						 * a full copy.  In the constructor called below, each
-						 * zone from the previous campaign(ie, the one passed in)
-						 * is recreated.   This means that only some items for that
-						 * campaign, zone(s), and token's are copied over when you
-						 * start a new server instance.
+						 * JFJ 2010-10-27 The below creates a NEW campaign with a copy of the existing campaign.
+						 * However, this is NOT a full copy. In the constructor called below, each zone from the
+						 * previous campaign(ie, the one passed in) is recreated. This means that only some items for
+						 * that campaign, zone(s), and token's are copied over when you start a new server instance.
 						 * 
-						 * You need to modify either Campaign(Campaign) or Zone(Zone)
-						 * to get any data you need to persist from the pre server
-						 * campaign to the post server start up campaign.
+						 * You need to modify either Campaign(Campaign) or Zone(Zone) to get any data you need to
+						 * persist from the pre server campaign to the post server start up campaign.
 						 */
 
 						MapTool.startServer(dialog.getUsernameTextField().getText(), config, policy, new Campaign(campaign));
 
 						// Connect to server
 						String playerType = dialog.getRoleCombo().getSelectedItem().toString();
-						if(playerType.equals("GM")){
-							MapTool.createConnection("localhost", serverProps.getPort(), new Player(dialog.getUsernameTextField().getText(), serverProps.getRole(),
-									serverProps.getGMPassword()));
-						}else{
-							MapTool.createConnection("localhost",serverProps.getPort(), new Player(dialog.getUsernameTextField().getText(), serverProps.getRole(),
-									serverProps.getPlayerPassword()));
+						if (playerType.equals("GM")) {
+							MapTool.createConnection("localhost", serverProps.getPort(), new Player(dialog.getUsernameTextField().getText(), serverProps.getRole(), serverProps.getGMPassword()));
+						} else {
+							MapTool.createConnection("localhost", serverProps.getPort(), new Player(dialog.getUsernameTextField().getText(), serverProps.getRole(), serverProps.getPlayerPassword()));
 						}
 
 						// connecting
@@ -1844,9 +1800,9 @@ public class AppActions {
 						// CLEAN ME CLEAN ME CLEAN ME !   I NEED A SWINGWORKER!
 						current = MapTool.getFrame().getCurrentZoneRenderer();
 						MapTool.getFrame().setCurrentZoneRenderer(null);
-						ImageManager.flush();								// Clear out the old campaign's images
+						ImageManager.flush(); // Clear out the old campaign's images
 						MapTool.getFrame().showFilledGlassPane(progressDialog);
-						MapTool.getAutoSaveManager().pause();	// Pause auto-save while loading
+						MapTool.getAutoSaveManager().pause(); // Pause auto-save while loading
 
 						// Before we do anything, let's back it up
 						if (MapTool.getBackupManager() != null)
@@ -1861,9 +1817,8 @@ public class AppActions {
 							AppMenuBar.getMruManager().addMRUCampaign(campaignFile);
 
 							/*
-							 * Bypass the serialization when we are hosting the server.
-							 * TODO: This optimization doesn't work since the player name isn't
-							 * the right thing to use to exclude this thread...
+							 * Bypass the serialization when we are hosting the server. TODO: This optimization doesn't
+							 * work since the player name isn't the right thing to use to exclude this thread...
 							 */
 //							if (MapTool.isHostingServer() || MapTool.isPersonalServer()) {
 //								String playerName = MapTool.getPlayer().getName();
@@ -1896,10 +1851,9 @@ public class AppActions {
 	}
 
 	/**
-	 * This is the integrated load/save interface that allows individual components of the
-	 * application's dataet to be saved to an external file.  The goal is to allow specific
-	 * maps and tokens, campaign properties (sight, light, token props), and layers + their
-	 * contents to be saved through a single unified interface.
+	 * This is the integrated load/save interface that allows individual components of the application's dataet to be
+	 * saved to an external file. The goal is to allow specific maps and tokens, campaign properties (sight, light,
+	 * token props), and layers + their contents to be saved through a single unified interface.
 	 */
 	public static final Action LOAD_SAVE = new DeveloperClientAction() {
 		{
@@ -1969,6 +1923,7 @@ public class AppActions {
 				}
 				return null;
 			}
+
 			@Override
 			protected void done() {
 				MapTool.getFrame().hideGlassPane();
@@ -2062,13 +2017,11 @@ public class AppActions {
 	};
 
 	/**
-	 * LOAD_MAP is the Action used to implement the loading of an externally
-	 * stored map into the current campaign. This Action is only available when
-	 * the current application is either hosting a server or is not connected to
-	 * a server.
-	 *
+	 * LOAD_MAP is the Action used to implement the loading of an externally stored map into the current campaign. This
+	 * Action is only available when the current application is either hosting a server or is not connected to a server.
+	 * 
 	 * Property used from <b>i18n.properties</b> is <code>action.loadMap</code>
-	 *
+	 * 
 	 * @author FJE
 	 */
 	public static final DeveloperClientAction LOAD_MAP = new DeveloperClientAction() {
@@ -2253,6 +2206,7 @@ public class AppActions {
 
 					return null;
 				}
+
 				@Override
 				protected void done() {
 				}
@@ -2558,12 +2512,10 @@ public class AppActions {
 		}
 
 		/**
-		 * This convenience function returns the KeyStroke that represents the
-		 * accelerator key used by the Action. This function can return
-		 * <code>null</code> because not all Actions have an associated
-		 * accelerator key defined, but it is currently only called by methods
-		 * that reference the {CUT,COPY,PASTE}_TOKEN Actions.
-		 *
+		 * This convenience function returns the KeyStroke that represents the accelerator key used by the Action. This
+		 * function can return <code>null</code> because not all Actions have an associated accelerator key defined, but
+		 * it is currently only called by methods that reference the {CUT,COPY,PASTE}_TOKEN Actions.
+		 * 
 		 * @return KeyStroke associated with the Action or <code>null</code>
 		 */
 		public final KeyStroke getKeyStroke() {
@@ -2597,9 +2549,8 @@ public class AppActions {
 	}
 
 	/**
-	 * This class simply provides an implementation for
-	 * <code>isAvailable()</code> that returns <code>true</code> if the current
-	 * player is a GM.
+	 * This class simply provides an implementation for <code>isAvailable()</code> that returns <code>true</code> if the
+	 * current player is a GM.
 	 */
 	public static abstract class AdminClientAction extends ClientAction {
 
@@ -2610,9 +2561,8 @@ public class AppActions {
 	}
 
 	/**
-	 * This class simply provides an implementation for
-	 * <code>isAvailable()</code> that returns <code>true</code> if the current
-	 * player is a GM and there is a ZoneRenderer current.
+	 * This class simply provides an implementation for <code>isAvailable()</code> that returns <code>true</code> if the
+	 * current player is a GM and there is a ZoneRenderer current.
 	 */
 	public static abstract class ZoneAdminClientAction extends AdminClientAction {
 
@@ -2623,8 +2573,7 @@ public class AppActions {
 	}
 
 	/**
-	 * This class simply provides an implementation for
-	 * <code>isAvailable()</code> that returns <code>true</code>.
+	 * This class simply provides an implementation for <code>isAvailable()</code> that returns <code>true</code>.
 	 */
 	public static abstract class DefaultClientAction extends ClientAction {
 
@@ -2635,19 +2584,17 @@ public class AppActions {
 	}
 
 	/**
-	 * This class simply provides an implementation for
-	 * <code>isAvailable()</code> that returns <code>true</code> if the system
-	 * property MAPTOOL_DEV is not set to "false".  This allows it to contain the version
-	 * number of the compatible build for debugging purposes.  For example, if I'm working
-	 * on a patch to 1.3.b54, I can set MAPTOOL_DEV to 1.3.b54 in order to test it against
-	 * a 1.3.b54 client.
+	 * This class simply provides an implementation for <code>isAvailable()</code> that returns <code>true</code> if the
+	 * system property MAPTOOL_DEV is not set to "false". This allows it to contain the version number of the compatible
+	 * build for debugging purposes. For example, if I'm working on a patch to 1.3.b54, I can set MAPTOOL_DEV to 1.3.b54
+	 * in order to test it against a 1.3.b54 client.
 	 */
 	@SuppressWarnings("serial")
 	public static abstract class DeveloperClientAction extends ClientAction {
 
 		@Override
 		public boolean isAvailable() {
-			return System.getProperty("MAPTOOL_DEV") != null && ! "false".equals(System.getProperty("MAPTOOL_DEV"));
+			return System.getProperty("MAPTOOL_DEV") != null && !"false".equals(System.getProperty("MAPTOOL_DEV"));
 		}
 	}
 
@@ -2685,10 +2632,9 @@ public class AppActions {
 			}
 
 			/*
-			 * There is some extra space appearing to the right of the images,
-			 * which sounds similar to what was reported in this bug (bottom
-			 * half): http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5047379
-			 * Removing the mnemonic will remove this extra space.
+			 * There is some extra space appearing to the right of the images, which sounds similar to what was reported
+			 * in this bug (bottom half): http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5047379 Removing the
+			 * mnemonic will remove this extra space.
 			 */
 			putValue(Action.SHORT_DESCRIPTION, htmlTip);
 		}
