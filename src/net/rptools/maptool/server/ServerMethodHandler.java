@@ -31,6 +31,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignProperties;
+import net.rptools.maptool.model.ExposedAreaMetaData;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.InitiativeList;
@@ -118,7 +119,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 			case updateCampaignMacros:		updateCampaignMacros((List<MacroButtonProperties>) context.get(0));break;
 			case setTokenLocation:					setTokenLocation(context.getGUID(0), context.getGUID(1), context.getInt(2), context.getInt(3));break;
 			case exposePCArea:					exposePCArea(context.getGUID(0));break;
-			//exposePCArea
+			case updateExposedAreaMeta:				updateExposedAreaMeta(context.getGUID(0),context.getGUID(1), (ExposedAreaMetaData) context.get(2)); break;
 			}
 		} finally {
 			RPCContext.setCurrent(null);
@@ -533,6 +534,12 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 	public void setBoard(GUID zoneGUID, MD5Key mapId, int x, int y) {
 		forwardToClients();
 	}
+	/* (non-Javadoc)
+	 * @see net.rptools.maptool.server.ServerCommand#updateExposedAreaMeta(net.rptools.maptool.model.GUID, net.rptools.maptool.model.GUID, net.rptools.maptool.model.ExposedAreaMetaData)
+	 */
+	public void updateExposedAreaMeta(GUID zoneGUID, GUID tokenGUID, ExposedAreaMetaData meta) {
+	    forwardToClients();
+	}
 
 	////
 	// CONTEXT
@@ -588,4 +595,6 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 			return (Boolean) parameters[index];
 		}
 	}
+
+
 }

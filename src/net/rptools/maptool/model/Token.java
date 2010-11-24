@@ -258,7 +258,6 @@ public class Token extends BaseModel {
 		sightType = token.sightType;
 		hasSight = token.hasSight;
 		propertyType = token.propertyType;
-		myZone = MapTool.getFrame().getCurrentZoneRenderer().getZone().getId();
 
 		ownerType = token.ownerType;
 		if (token.ownerList != null) {

@@ -3665,6 +3665,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				flushFog = true;
 			}
 			MapTool.getFrame().updateTokenTree();
+			if(MapTool.getPlayer().getName().equals("Joe")) {
+			    System.out.println("Fog Changed");
+			}
 			repaint();
 		}
 	}

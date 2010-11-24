@@ -106,6 +106,7 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 			List<String> newTokens = new ArrayList<String>(numberCopies);
 			for (int i = 0; i < numberCopies; i++) {
 				Token t = new Token(token);
+				t.setZoneId(zone.getId());
 				setTokenValues(t, newVals, zone, res);
 				zone.putToken(t);
 

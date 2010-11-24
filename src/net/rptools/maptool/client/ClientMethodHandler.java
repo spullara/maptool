@@ -31,6 +31,7 @@ import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.model.CellPoint;
+import net.rptools.maptool.model.ExposedAreaMetaData;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.InitiativeList;
@@ -612,6 +613,14 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					Boolean enforce = (Boolean) parameters[0];
 
 					MapTool.getFrame().getCommandPanel().disableNotifyButton(enforce);
+					return;
+					
+				case updateExposedAreaMeta:
+				    zoneGUID = (GUID) parameters[0];
+				    tokenGUID = (GUID) parameters[1];
+				    ExposedAreaMetaData meta = (ExposedAreaMetaData) parameters[2];
+				    zone = MapTool.getCampaign().getZone(zoneGUID);
+				    zone.setExposedAreaMetaData(tokenGUID, meta);
 					return;
 				}
 			}

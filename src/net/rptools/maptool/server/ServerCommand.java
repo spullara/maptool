@@ -22,6 +22,7 @@ import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignProperties;
+import net.rptools.maptool.model.ExposedAreaMetaData;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.InitiativeList;
 import net.rptools.maptool.model.Label;
@@ -85,7 +86,8 @@ public interface ServerCommand {
 		setLiveTypingLabel, // Experimental
 		enforceNotification, // Override toggle button to show typing notifications
 		exposePCArea,
-		setBoard
+		setBoard, 
+		updateExposedAreaMeta
 	};
 
 	public void bootPlayer(String player);
@@ -135,4 +137,5 @@ public interface ServerCommand {
 	public void setLiveTypingLabel(String name, boolean show);
 	public void enforceNotification(Boolean enforce);
 	public void exposePCArea(GUID zoneGUID);
+	public void updateExposedAreaMeta(GUID zoneGUID, GUID tokenGUID, ExposedAreaMetaData meta);
 }

@@ -23,6 +23,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignProperties;
+import net.rptools.maptool.model.ExposedAreaMetaData;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.InitiativeList;
 import net.rptools.maptool.model.Label;
@@ -261,6 +262,14 @@ public class ServerCommandClientImpl implements ServerCommand {
 		putAsset(AssetManager.getAsset(mapAssetId));
 		// Second, tell the client to change the zone's board info
 		makeServerCall(COMMAND.setBoard, zoneGUID, mapAssetId, x, y);
+	}
+
+
+	/* (non-Javadoc)
+	 * @see net.rptools.maptool.server.ServerCommand#updateExposedAreaMeta(net.rptools.maptool.model.GUID, net.rptools.maptool.model.GUID, net.rptools.maptool.model.ExposedAreaMetaData)
+	 */
+	public void updateExposedAreaMeta(GUID zoneGUID, GUID tokenGUID, ExposedAreaMetaData meta) {
+	    makeServerCall(COMMAND.updateExposedAreaMeta,  zoneGUID,tokenGUID, meta);
 	}
 
 	/**

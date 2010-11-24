@@ -314,6 +314,7 @@ public class Zone extends BaseModel {
 			while (i.hasNext()) {
 				Token old = zone.tokenMap.get(i.next());
 				Token token = new Token(old);
+				token.setZoneId(getId());
 				ExposedAreaMetaData oldMeta = zone.getExposedAreaMetaData(old.getId());
 				if(oldMeta!= null) {
 				    exposedAreaMeta.put(token.getId(), new ExposedAreaMetaData(oldMeta.getExposedAreaHistory()));
@@ -1337,5 +1338,10 @@ public class Zone extends BaseModel {
 		else {
 		    return new ExposedAreaMetaData();
 		}
+	}
+	public void setExposedAreaMetaData(GUID tokenGuid, ExposedAreaMetaData meta) {
+	    exposedAreaMeta.put(tokenGuid, meta);
+	    fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
+	    
 	}
 }

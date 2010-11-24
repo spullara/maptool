@@ -17,6 +17,7 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.event.ActionEvent;
+import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -764,6 +765,7 @@ public class AppActions {
 					left = originalToken.getX();
 				}
 				Token newToken = new Token(originalToken);
+				newToken.setZoneId(zone.getId());
 				System.out.println("Cut Token(original): " + originalToken.getId());
 				System.out.println("Cut Token(new): " + newToken.getId());
 				ExposedAreaMetaData meta = zone.getExposedAreaMetaData(originalToken.getId());
@@ -824,7 +826,10 @@ public class AppActions {
 				System.out.println("Paste Token(new): " + token.getId());
 				ExposedAreaMetaData meta = oldZone.getExposedAreaMetaData(origToken.getId());
 				Map<GUID, ExposedAreaMetaData> exposedAreaMetaData = zone.getExposedAreaMetaData();
-				exposedAreaMetaData.put(token.getId(), meta);
+				ExposedAreaMetaData newMeta = new ExposedAreaMetaData();
+				newMeta.addToExposedAreaHistory(new Area(meta.getExposedAreaHistory()));
+				exposedAreaMetaData.put(token.getId(), newMeta);
+				
 
 				token.setX(token.getX() + zonePoint.x);
 				token.setY(token.getY() + zonePoint.y);
@@ -838,6 +843,7 @@ public class AppActions {
 				}
 				zone.putToken(token);
 				MapTool.serverCommand().putToken(zone.getId(), token);
+				MapTool.serverCommand().updateExposedAreaMeta(zone.getId(), token.getId(), newMeta);
 			}
 			renderer.repaint();
 		}

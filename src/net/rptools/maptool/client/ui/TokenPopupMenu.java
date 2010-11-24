@@ -243,17 +243,9 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 				Token targetToken = getRenderer().getZone().getToken(tok);
 				ExposedAreaMetaData targetMeta = zone.getExposedAreaMetaData(targetToken.getId());
 				targetMeta.addToExposedAreaHistory((Area) sourceMeta.getExposedAreaHistory().clone());
-
-				targetMeta = null;
-
 				getRenderer().flush(targetToken);
-				getRenderer().getZone().putToken(targetToken);
-				MapTool.serverCommand().putToken(getRenderer().getZone().getId(), targetToken);
-				targetToken = null;
-
+				MapTool.serverCommand().updateExposedAreaMeta(zone.getId(), targetToken.getId(), targetMeta);
 			}
-			sourceMeta = null;
-			sourceToken = null;
 			getRenderer().repaint();
 		}
 	}
@@ -272,11 +264,8 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 					Token token = zone.getToken(tok);
 					ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tok);
 					meta.addToExposedAreaHistory((Area) sourceMeta.getExposedAreaHistory().clone());
-					meta = null;
 					getRenderer().flush(token);
-					getRenderer().getZone().putToken(token);
-					MapTool.serverCommand().putToken(getRenderer().getZone().getId(), token);
-					token = null;
+					MapTool.serverCommand().updateExposedAreaMeta(zone.getId(), token.getId(), meta);
 				}
 			}
 			getRenderer().repaint();
@@ -295,11 +284,9 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 				Token token = getRenderer().getZone().getToken(tok);
 				ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tok);
 				meta.addToExposedAreaHistory((Area) area.clone());
-				meta = null;
+				zone.setExposedAreaMetaData(token.getId(), meta);
 				getRenderer().flush(token);
-				getRenderer().getZone().putToken(token);
-				MapTool.serverCommand().putToken(getRenderer().getZone().getId(), token);
-				token = null;
+				MapTool.serverCommand().updateExposedAreaMeta(zone.getId(), token.getId(), meta);
 			}
 			getRenderer().repaint();
 		}
