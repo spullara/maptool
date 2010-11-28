@@ -40,7 +40,6 @@ import net.rptools.maptool.client.tool.StampTool;
 import net.rptools.maptool.client.ui.token.EditTokenDialog;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
-import net.rptools.maptool.model.AttachedLightSource;
 import net.rptools.maptool.model.Direction;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
@@ -115,27 +114,23 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 
 		if (tokenUnderMouse.hasLightSources()) {
 			menu.add(new ClearLightAction());
-			
+
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			for (GUID tokenGUID : selectedTokenSet) {
 
 				Token token = renderer.getZone().getToken(tokenGUID);
-				if(token.hasLightSourceType(LightSource.Type.NORMAL))
-				{
+				if (token.hasLightSourceType(LightSource.Type.NORMAL)) {
 					menu.add(new ClearLightsOnlyAction());
 				}
-				if(token.hasLightSourceType(LightSource.Type.AURA))
-				{
+				if (token.hasLightSourceType(LightSource.Type.AURA)) {
 					menu.add(new ClearAurasOnlyAction());
 				}
-				if(token.hasGMAuras())
-				{
+				if (token.hasGMAuras()) {
 					menu.add(new ClearGMAurasOnlyAction());
 				}
-				if(token.hasOwnerOnlyAuras())
-				{
+				if (token.hasOwnerOnlyAuras()) {
 					menu.add(new ClearOwnerAurasOnlyAction());
-				}			
+				}
 			}
 			menu.addSeparator();
 		}
@@ -603,12 +598,10 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 			for (GUID tokenGUID : selectedTokenSet) {
 
 				Token token = renderer.getZone().getToken(tokenGUID);
-				if(token.hasLightSourceType(LightSource.Type.NORMAL))
-				{
+				if (token.hasLightSourceType(LightSource.Type.NORMAL)) {
 					token.removeLightSourceType(LightSource.Type.NORMAL);
 				}
 
-				
 				renderer.flush(token);
 				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 				renderer.getZone().putToken(token);
@@ -617,62 +610,48 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 			renderer.repaint();
 		}
 	}
-	public class ClearAurasOnlyAction extends AbstractAction {
 
+	public class ClearAurasOnlyAction extends AbstractAction {
 		public ClearAurasOnlyAction() {
 			super("Clear Auras Only");
 		}
 
 		public void actionPerformed(ActionEvent e) {
-
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			for (GUID tokenGUID : selectedTokenSet) {
-
 				Token token = renderer.getZone().getToken(tokenGUID);
-				if(token.hasLightSourceType(LightSource.Type.AURA))
-				{
+				if (token.hasLightSourceType(LightSource.Type.AURA)) {
 					token.removeLightSourceType(LightSource.Type.AURA);
 				}
-
-				
 				renderer.flush(token);
 				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 				renderer.getZone().putToken(token);
 			}
-
 			renderer.repaint();
 		}
 	}
 
 	public class ClearGMAurasOnlyAction extends AbstractAction {
-
-
 		public ClearGMAurasOnlyAction() {
 			super("Clear GM Auras Only");
 		}
 
 		public void actionPerformed(ActionEvent e) {
-
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			for (GUID tokenGUID : selectedTokenSet) {
-
 				Token token = renderer.getZone().getToken(tokenGUID);
-				if(token.hasGMAuras())
-				{
-					token.removeGMAuras();;
+				if (token.hasGMAuras()) {
+					token.removeGMAuras();
 				}
-
 				renderer.flush(token);
 				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 				renderer.getZone().putToken(token);
 			}
-
 			renderer.repaint();
 		}
 	}
 
 	public class ClearOwnerAurasOnlyAction extends AbstractAction {
-
 
 		public ClearOwnerAurasOnlyAction() {
 			super("Clear Owner Auras Only");
@@ -684,8 +663,7 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 			for (GUID tokenGUID : selectedTokenSet) {
 
 				Token token = renderer.getZone().getToken(tokenGUID);
-				if(token.hasOwnerOnlyAuras())
-				{
+				if (token.hasOwnerOnlyAuras()) {
 					token.removeOwnerOnlyAuras();
 				}
 
