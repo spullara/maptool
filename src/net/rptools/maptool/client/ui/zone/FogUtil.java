@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.ui.zone;
 
@@ -25,10 +22,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,13 +52,14 @@ import net.rptools.maptool.model.Player.Role;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
-import net.rptools.maptool.util.GraphicsUtil;
+
+import org.apache.log4j.Logger;
 
 public class FogUtil {
-
+	private static final Logger log = Logger.getLogger(FogUtil.class);
 
 	public static Area calculateVisibility(int x, int y, Area vision, AreaTree topology) {
-		CodeTimer timer = new CodeTimer("5");
+		CodeTimer timer = new CodeTimer("calculateVisibility");
 
 		vision = new Area(vision);
 		vision.transform(AffineTransform.getTranslateInstance(x, y));
@@ -81,7 +76,6 @@ public class FogUtil {
 			return null;
 		}
 
-		int blockCount = 0;
 		int skippedAreas = 0;
 
 		List<VisibleAreaSegment> segmentList = new ArrayList<VisibleAreaSegment>(ocean.getVisibleAreaSegments(origin));
@@ -93,7 +87,7 @@ public class FogUtil {
 			boolean found = false;
 			for (Area clearedArea : clearedAreaList) {
 				if (clearedArea.contains(segment.getPath().getBounds())) {
-					skippedAreas ++;
+					skippedAreas++;
 					found = true;
 					break;
 				}
@@ -121,8 +115,8 @@ public class FogUtil {
 			clearedAreaList.add(intersectedArea != null ? intersectedArea : area);
 		}
 
-		blockCount = segmentList.size();
-		int metaBlockCount = clearedAreaList.size();
+//		blockCount = segmentList.size();
+//		int metaBlockCount = clearedAreaList.size();
 
 		while (clearedAreaList.size() > 1) {
 
@@ -142,13 +136,15 @@ public class FogUtil {
 
 		// For simplicity, this catches some of the edge cases
 
-
 		return vision;
 	}
 
+	//  @formatter:off
+/*
 	private static class RelativeLine {
 		private final Line2D line;
 		private final double distance;
+
 		public RelativeLine(Line2D line, double distance) {
 			this.line = line;
 			this.distance = distance;
@@ -156,28 +152,29 @@ public class FogUtil {
 	}
 
 	private static Area createBlockArea(Point2D origin, Line2D line) {
-
 		Point2D p1 = line.getP1();
 		Point2D p2 = line.getP2();
 
-		Point2D p1out = GraphicsUtil.getProjectedPoint(origin, p1, Integer.MAX_VALUE/2);
-		Point2D p2out = GraphicsUtil.getProjectedPoint(origin, p2, Integer.MAX_VALUE/2);
+		Point2D p1out = GraphicsUtil.getProjectedPoint(origin, p1, Integer.MAX_VALUE / 2);
+		Point2D p2out = GraphicsUtil.getProjectedPoint(origin, p2, Integer.MAX_VALUE / 2);
 
 		// TODO: Remove the (float) when we move to jdk6
 		GeneralPath path = new GeneralPath();
-		path.moveTo((float)p1.getX(), (float)p1.getY());
-		path.lineTo((float)p2.getX(), (float)p2.getY());
-		path.lineTo((float)p2out.getX(), (float)p2out.getY());
-		path.lineTo((float)p1out.getX(), (float)p1out.getY());
+		path.moveTo((float) p1.getX(), (float) p1.getY());
+		path.lineTo((float) p2.getX(), (float) p2.getY());
+		path.lineTo((float) p2out.getX(), (float) p2out.getY());
+		path.lineTo((float) p1out.getX(), (float) p1out.getY());
 		path.closePath();
 
 		return new Area(path);
 	}
+*/
+	//  @formatter:on
 
 	public static void exposeVisibleArea(ZoneRenderer renderer, Set<GUID> tokenSet) {
 
 		Zone zone = renderer.getZone();
-	
+
 		for (GUID tokenGUID : tokenSet) {
 			Token token = zone.getToken(tokenGUID);
 			if (token == null) {
@@ -187,10 +184,9 @@ public class FogUtil {
 			if (!token.getHasSight()) {
 				continue;
 			}
-			if(token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token)){
+			if (token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token)) {
 				continue;
 			}
-
 
 			renderer.flush(token);
 			Area tokenVision = renderer.getVisibleArea(token);
@@ -202,7 +198,7 @@ public class FogUtil {
 				MapTool.serverCommand().exposeFoW(zone.getId(), tokenVision, filteredToks);
 			}
 		}
-		
+
 	}
 
 	public static void exposePCArea(ZoneRenderer renderer) {
@@ -215,7 +211,7 @@ public class FogUtil {
 			if (!token.getHasSight()) {
 				continue;
 			}
-			if (( !MapTool.isPersonalServer() || MapTool.getServerPolicy().isUseIndividualViews()) && !owner) {
+			if ((!MapTool.isPersonalServer() || MapTool.getServerPolicy().isUseIndividualViews()) && !owner) {
 				continue;
 			}
 			tokenSet.add(token.getId());
@@ -243,9 +239,11 @@ public class FogUtil {
 
 			if (!token.isSnapToGrid()) {
 				// We don't support this currently
+				log.warn("Exposing a token's path is not supported for non-SnapToGrid maps");
 				continue;
 			}
 
+			@SuppressWarnings("unchecked")
 			Path<CellPoint> lastPath = (Path<CellPoint>) token.getLastPath();
 			if (lastPath == null) {
 				continue;
@@ -254,13 +252,13 @@ public class FogUtil {
 			Grid grid = zone.getGrid();
 			Area visionArea = new Area();
 
-			Token tokenClone = new Token(token); 
-			Map<GUID,ExposedAreaMetaData> fullMeta = zone.getExposedAreaMetaData();
+			Token tokenClone = new Token(token);
+			Map<GUID, ExposedAreaMetaData> fullMeta = zone.getExposedAreaMetaData();
 			ExposedAreaMetaData meta = zone.getExposedAreaMetaData().get(token.getId());
-			if(!fullMeta.containsKey(token.getId())) {
-			    meta = new ExposedAreaMetaData();
-			    fullMeta.put(token.getId(), meta);
-			    
+			if (!fullMeta.containsKey(token.getId())) {
+				meta = new ExposedAreaMetaData();
+				fullMeta.put(token.getId(), meta);
+
 			}
 			for (CellPoint cell : lastPath.getCellPath()) {
 
@@ -282,20 +280,19 @@ public class FogUtil {
 			filteredToks.add(token.getId());
 			zone.exposeArea(visionArea, filteredToks);
 			zone.putToken(token);
-			MapTool.serverCommand().exposeFoW(zone.getId(), visionArea,filteredToks);
+			MapTool.serverCommand().exposeFoW(zone.getId(), visionArea, filteredToks);
 		}
 
 	}
 
 	/**
-	 * Find the center point of a vision
-	 * TODO: This is a horrible horrible method.  the API is just plain disgusting.  But it'll work to consolidate
-	 * all the places this has to be done until we can encapsulate it into the vision itself
+	 * Find the center point of a vision TODO: This is a horrible horrible method. the API is just plain disgusting. But
+	 * it'll work to consolidate all the places this has to be done until we can encapsulate it into the vision itself
 	 */
 	public static Point calculateVisionCenter(Token token, Zone zone) {
 
 		Grid grid = zone.getGrid();
-		int x=0, y=0;
+		int x = 0, y = 0;
 
 		Rectangle bounds = null;
 		if (token.isSnapToGrid()) {
@@ -304,12 +301,11 @@ public class FogUtil {
 			bounds = token.getBounds(zone);
 		}
 
-		x = bounds.x + bounds.width/2;
-		y = bounds.y + bounds.height/2;
+		x = bounds.x + bounds.width / 2;
+		y = bounds.y + bounds.height / 2;
 
 		return new Point(x, y);
 	}
-
 
 	public static void main(String[] args) {
 
@@ -327,9 +323,9 @@ public class FogUtil {
 		}
 
 		// Make sure the the center point is not contained inside the blocked area
-		topology.subtract(new Area(new Rectangle(topSize/2-200, topSize/2-200, 400, 400)));
+		topology.subtract(new Area(new Rectangle(topSize / 2 - 200, topSize / 2 - 200, 400, 400)));
 
-		final Area vision = new Area(new Rectangle(-Integer.MAX_VALUE/2, -Integer.MAX_VALUE/2, Integer.MAX_VALUE, Integer.MAX_VALUE));
+		final Area vision = new Area(new Rectangle(-Integer.MAX_VALUE / 2, -Integer.MAX_VALUE / 2, Integer.MAX_VALUE, Integer.MAX_VALUE));
 
 		int pointCount = 0;
 		for (PathIterator iter = topology.getPathIterator(null); !iter.isDone(); iter.next()) {
@@ -342,17 +338,15 @@ public class FogUtil {
 		final AreaTree tree = new AreaTree(topology);
 
 		// Make sure all classes are loaded
-		calculateVisibility(topSize/2, topSize/2, vision, tree);
-
+		calculateVisibility(topSize / 2, topSize / 2, vision, tree);
 
 		Area area1 = new Area();
-//		JOptionPane.showMessageDialog(new JFrame(), "Hello");
-		long start = System.currentTimeMillis();
 		for (int i = 0; i < 1; i++) {
-			area1 = calculateVisibility(topSize/2, topSize/2, vision, tree);
+			// Return value isn't used except for debugging
+			area1 = calculateVisibility(topSize / 2, topSize / 2, vision, tree);
 		}
+		area1.equals(null); // Eliminates the warning about "area1 never read locally" from Eclipse
 
-		final Area a1 = area1;
 		JFrame f = new JFrame();
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.setBounds(0, 0, 400, 200);
@@ -364,13 +358,11 @@ public class FogUtil {
 				addMouseMotionListener(new MouseMotionAdapter() {
 					@Override
 					public void mouseDragged(MouseEvent e) {
-
+						final long start = System.currentTimeMillis();
 						Dimension size = getSize();
-						int x = (int)((e.getX() - (size.width/2)) / (size.width/2.0/topSize));
-						int y = (int)(e.getY() / (size.height/2.0/topSize)/2);
-
-						long start = System.currentTimeMillis();
-//						theArea = calculateVisibility5(x, y, vision, data);
+						int x = (int) ((e.getX() - (size.width / 2)) / (size.width / 2.0 / topSize));
+						int y = (int) (e.getY() / (size.height / 2.0 / topSize) / 2);
+						theArea = FogUtil.calculateVisibility(x, y, vision, tree);
 						System.out.println("Calc: " + (System.currentTimeMillis() - start));
 						repaint();
 					}
@@ -378,18 +370,17 @@ public class FogUtil {
 				addMouseListener(new MouseAdapter() {
 					@Override
 					public void mousePressed(MouseEvent e) {
-
+						final long start = System.currentTimeMillis();
 						Dimension size = getSize();
-						int x = (int)((e.getX() - (size.width/2)) / (size.width/2.0/topSize));
-						int y = (int)(e.getY() / (size.height/2.0/topSize)/2);
-
-						long start = System.currentTimeMillis();
-//						theArea = calculateVisibility5(x, y, vision, data);
+						int x = (int) ((e.getX() - (size.width / 2)) / (size.width / 2.0 / topSize));
+						int y = (int) (e.getY() / (size.height / 2.0 / topSize) / 2);
+						theArea = FogUtil.calculateVisibility(x, y, vision, tree);
 						System.out.println("Calc: " + (System.currentTimeMillis() - start));
 						repaint();
 					}
 				});
 			}
+
 			@Override
 			protected void paintComponent(Graphics g) {
 
@@ -397,24 +388,24 @@ public class FogUtil {
 				g.setColor(Color.white);
 				g.fillRect(0, 0, size.width, size.height);
 
-				Graphics2D g2d = (Graphics2D)g;
+				Graphics2D g2d = (Graphics2D) g;
 
-				AffineTransform at = AffineTransform.getScaleInstance((size.width/2)/(double)topSize, (size.height)/(double)topSize);
+				AffineTransform at = AffineTransform.getScaleInstance((size.width / 2) / (double) topSize, (size.height) / (double) topSize);
 				if (topImage == null) {
 					Area top = topology.createTransformedArea(at);
-					topImage = new BufferedImage(size.width/2, size.height, BufferedImage.OPAQUE);
+					topImage = new BufferedImage(size.width / 2, size.height, BufferedImage.OPAQUE);
 
 					Graphics2D g2 = topImage.createGraphics();
 					g2.setColor(Color.white);
-					g2.fillRect(0, 0, size.width/2, size.height);
+					g2.fillRect(0, 0, size.width / 2, size.height);
 
 					g2.setColor(Color.green);
 					g2.fill(top);
 					g2.dispose();
 				}
 
-				g.setColor (Color.black);
-				g.drawLine(size.width/2, 0, size.width/2, size.height);
+				g.setColor(Color.black);
+				g.drawLine(size.width / 2, 0, size.width / 2, size.height);
 
 //				g.setClip(new Rectangle(0, 0, size.width/2, size.height));
 //				g.setColor(Color.green);
@@ -423,7 +414,7 @@ public class FogUtil {
 //				g.setColor(Color.lightGray);
 //				g2d.fill(a1.createTransformedArea(at));
 
-				g.setClip(new Rectangle(size.width/2, 0, size.width/2, size.height));
+				g.setClip(new Rectangle(size.width / 2, 0, size.width / 2, size.height));
 				g2d.translate(200, 0);
 				g.setColor(Color.green);
 				g2d.drawImage(topImage, 0, 0, this);
