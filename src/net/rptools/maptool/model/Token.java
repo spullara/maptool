@@ -71,7 +71,7 @@ public class Token extends BaseModel {
 	public static final String NUM_ON_BOTH = "Both";
 
 	private boolean beingImpersonated = false;
-	private Area exposedAreaHistory;
+	private GUID exposedAreaGUID;
 
 	public enum TokenShape {
 		TOP_DOWN("Top down"), CIRCLE("Circle"), SQUARE("Square");
@@ -198,8 +198,6 @@ public class Token extends BaseModel {
 	@SuppressWarnings("unused")
 	private transient List<Vision> visionList; // 1.3b18
 
-	private GUID myZone;
-
 	public enum ChangeEvent {
 		name, MACRO_CHANGED
 	}
@@ -291,10 +289,12 @@ public class Token extends BaseModel {
 		if (token.sizeMap != null) {
 			sizeMap = new HashMap<Class<? extends Grid>, GUID>(token.sizeMap);
 		}
+		exposedAreaGUID = token.exposedAreaGUID;
 	}
 
 	public Token() {
 		imageAssetMap = new HashMap<String, MD5Key>();
+		
 
 	}
 
@@ -1508,21 +1508,26 @@ public class Token extends BaseModel {
 			propertyMap = new CaseInsensitiveHashMap<Object>();
 			propertyMap.putAll(oldMap);
 		}
+		// 1.3 b77
+		if(exposedAreaGUID == null) {
+		    exposedAreaGUID = new GUID();
+		}
 		return this;
+		
+	}
+
+
+	/**
+	 * @param exposedAreaGUID the exposedAreaGUID to set
+	 */
+	public void setExposedAreaGUID(GUID exposedAreaGUID) {
+	    this.exposedAreaGUID = exposedAreaGUID;
 	}
 
 	/**
-	 * @return the myZone
+	 * @return the exposedAreaGUID
 	 */
-	public GUID getZoneId() {
-		return myZone;
-	}
-
-	/**
-	 * @param myZone
-	 *            the myZone to set
-	 */
-	public void setZoneId(GUID zone) {
-		myZone = zone;
+	public GUID getExposedAreaGUID() {
+	    return exposedAreaGUID;
 	}
 }

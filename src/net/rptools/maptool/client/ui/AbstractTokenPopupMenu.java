@@ -515,7 +515,10 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 
 		public void actionPerformed(ActionEvent e) {
 
+		    	File defaultFile = new File(tokenUnderMouse.getName());
 			JFileChooser chooser = MapTool.getFrame().getSaveFileChooser();
+			chooser.setSelectedFile(defaultFile);
+			
 			if (chooser.showSaveDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
 				return;
 			}
@@ -526,7 +529,7 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 			if (!file.getName().endsWith(Token.FILE_EXTENSION)) {
 				file = new File(file.getAbsolutePath() + "." + Token.FILE_EXTENSION);
 			}
-
+			
 			// Confirm
 			if (file.exists()) {
 				if (!MapTool.confirm("File exists, would you like to overwrite?")) {

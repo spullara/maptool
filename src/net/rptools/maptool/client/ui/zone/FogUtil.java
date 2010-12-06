@@ -221,7 +221,6 @@ public class FogUtil {
 	}
 
 	public static void exposeLastPath(ZoneRenderer renderer, Set<GUID> tokenSet) {
-
 		if (!renderer.getZone().getGrid().getCapabilities().isPathingSupported() || !renderer.getZone().getGrid().getCapabilities().isSnapToGridSupported()) {
 			return;
 		}
@@ -232,36 +231,30 @@ public class FogUtil {
 			if (token == null) {
 				continue;
 			}
-
 			if (!token.getHasSight()) {
 				continue;
 			}
-
 			if (!token.isSnapToGrid()) {
 				// We don't support this currently
 				log.warn("Exposing a token's path is not supported for non-SnapToGrid maps");
 				continue;
 			}
-
 			@SuppressWarnings("unchecked")
 			Path<CellPoint> lastPath = (Path<CellPoint>) token.getLastPath();
 			if (lastPath == null) {
 				continue;
 			}
-
 			Grid grid = zone.getGrid();
 			Area visionArea = new Area();
 
 			Token tokenClone = new Token(token);
 			Map<GUID, ExposedAreaMetaData> fullMeta = zone.getExposedAreaMetaData();
-			ExposedAreaMetaData meta = zone.getExposedAreaMetaData().get(token.getId());
-			if (!fullMeta.containsKey(token.getId())) {
+			ExposedAreaMetaData meta = zone.getExposedAreaMetaData().get(token.getExposedAreaGUID());
+			if (!fullMeta.containsKey(token.getExposedAreaGUID())) {
 				meta = new ExposedAreaMetaData();
-				fullMeta.put(token.getId(), meta);
-
+				fullMeta.put(token.getExposedAreaGUID(), meta);
 			}
 			for (CellPoint cell : lastPath.getCellPath()) {
-
 				ZonePoint zp = grid.convert(cell);
 
 				tokenClone.setX(zp.x);
@@ -270,19 +263,18 @@ public class FogUtil {
 				Area currVisionArea = renderer.getZoneView().getVisibleArea(tokenClone);
 				if (currVisionArea != null) {
 					visionArea.add(currVisionArea);
-					meta.addToExposedAreaHistory(new Area(currVisionArea));
+					meta.addToExposedAreaHistory(currVisionArea);
 				}
 				renderer.getZoneView().flush(tokenClone);
 			}
-
 			renderer.flush(token);
 			Set<GUID> filteredToks = new HashSet<GUID>();
 			filteredToks.add(token.getId());
 			zone.exposeArea(visionArea, filteredToks);
 			zone.putToken(token);
 			MapTool.serverCommand().exposeFoW(zone.getId(), visionArea, filteredToks);
+			MapTool.serverCommand().updateExposedAreaMeta(zone.getId(), token.getExposedAreaGUID(), meta);
 		}
-
 	}
 
 	/**
@@ -290,7 +282,6 @@ public class FogUtil {
 	 * it'll work to consolidate all the places this has to be done until we can encapsulate it into the vision itself
 	 */
 	public static Point calculateVisionCenter(Token token, Zone zone) {
-
 		Grid grid = zone.getGrid();
 		int x = 0, y = 0;
 

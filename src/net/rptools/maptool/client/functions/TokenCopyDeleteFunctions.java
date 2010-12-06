@@ -10,6 +10,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.language.I18N;
+import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenFootprint;
@@ -104,9 +105,17 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 			}
 			Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 			List<String> newTokens = new ArrayList<String>(numberCopies);
+			List<Token> allTokens = zone.getTokens();
 			for (int i = 0; i < numberCopies; i++) {
 				Token t = new Token(token);
-				t.setZoneId(zone.getId());
+
+				if(allTokens != null){
+					for(Token tok: allTokens){
+						if(tok.getExposedAreaGUID().equals(t.getExposedAreaGUID())){
+							t.setExposedAreaGUID(new GUID());
+						}
+					}
+				}
 				setTokenValues(t, newVals, zone, res);
 				zone.putToken(t);
 

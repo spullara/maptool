@@ -116,6 +116,7 @@ import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.Player.Role;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.DrawnElement;
@@ -1341,7 +1342,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				{
 					for(Token tok: view.getTokens())
 					{
-						ExposedAreaMetaData exposedMeta = zone.getExposedAreaMetaData(tok.getId());
+						ExposedAreaMetaData exposedMeta = zone.getExposedAreaMetaData(tok.getExposedAreaGUID());
 						viewArea.add(new Area(exposedMeta.getExposedAreaHistory()));
 					}
 				}
@@ -1383,7 +1384,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		if (currentTokenVisionArea == null)
 			return;
 
-		ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tokenUnderMouse.getId());
+		ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tokenUnderMouse.getExposedAreaGUID());
 		if(MapTool.getServerPolicy().isUseIndividualFOW())
 		{
 			meta.getExposedAreaHistory();
@@ -1561,7 +1562,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				// soft FOW and visible area.
 				for(Token tok: view.getTokens())
 				{
-					ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tok.getId());
+					ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tok.getExposedAreaGUID());
 					exposedArea = meta.getExposedAreaHistory();
 					tempArea.add(new Area(exposedArea));
 				}
@@ -1604,7 +1605,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 						{
 							continue;
 						}
-						ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tok.getId());
+						ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tok.getExposedAreaGUID());
 						exposedArea = meta.getExposedAreaHistory();
 						myCombined.add(new Area(exposedArea));
 					}
@@ -1816,7 +1817,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		Set<SelectionSet> movementSet = new HashSet<SelectionSet>();
 		for (SelectionSet selection : selectionSetMap.values()) {
 
-			if (selection.getPlayerId().equals(MapTool.getPlayer().getName())) {
+			if (selection.getPlayerId().equals(MapTool.getPlayer().getName()) ) {
 				movementSet.add(selection);
 			}
 		}
@@ -1904,6 +1905,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 						g.setClip(new GeneralPath(visibleArea));
 
 						clipInstalled = true;
+						//System.out.println("Adding Clip: " + MapTool.getPlayer().getName());
 					}
 				}
 
@@ -1968,6 +1970,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 					Area theVisibleArea = MapTool.getServerPolicy().isUseIndividualFOW() ? zoneView.getVisibleArea(view)	: new Area(exposedFogArea);
 					Grid grid = zone.getGrid();
 					boolean showLabels = view.isGMView() || set.getPlayerId().equals(MapTool.getPlayer().getName());
+					//System.out.println("Player: " +MapTool.getPlayer().getName());
+					//System.out.println("showLabels: " +showLabels);
 					if(MapTool.getServerPolicy().isUseIndividualFOW()){
 
 						Path<AbstractPoint> path = set.getWalker() != null ? set.getWalker().getPath() : set.gridlessPath;
@@ -2000,6 +2004,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 							}*/
 							showLabels = showLabels ||  (theVisibleArea.contains(tokenRectangle) || theVisibleArea.intersects(tokenRectangle));
+							//System.out.println("showLabels: " +showLabels);
 						}
 						else {
 							showLabels = false;
@@ -2010,7 +2015,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 						showLabels = showLabels || (visibleScreenArea != null && visibleScreenArea.intersects(bounds) && ((exposedFogArea.intersects(bounds) ||  exposedFogArea.contains(bounds)))); // vision
 						showLabels = showLabels || (visibleScreenArea == null && zone.hasFog() && (exposedFogArea.intersects(bounds) || exposedFogArea.contains(bounds))); // fog
 					}
-
+					//System.out.println("showLabels: " +showLabels);
 					if (showLabels) {
 						// if the token is visible on the screen it will be in the location cache
 						if (tokenLocationCache.containsKey(token)) {
@@ -3653,21 +3658,19 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	private class ZoneModelChangeListener implements ModelChangeListener {
 		public void modelChanged(ModelChangeEvent event) {
 			Object evt = event.getEvent();
-
+			
 			if (evt == Zone.Event.TOPOLOGY_CHANGED) {
 				flushFog();
 				flushLight();
+				
 			}
 			if (evt == Zone.Event.TOKEN_CHANGED || evt == Zone.Event.TOKEN_REMOVED) {
 				flush((Token) event.getArg());
 			}
 			if (evt == Zone.Event.FOG_CHANGED) {
-				flushFog = true;
+				flushFog = true;				
 			}
 			MapTool.getFrame().updateTokenTree();
-			if(MapTool.getPlayer().getName().equals("Joe")) {
-			    System.out.println("Fog Changed");
-			}
 			repaint();
 		}
 	}

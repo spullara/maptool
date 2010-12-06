@@ -765,12 +765,16 @@ public class AppActions {
 					left = originalToken.getX();
 				}
 				Token newToken = new Token(originalToken);
-				newToken.setZoneId(zone.getId());
+				//System.out.println("Cut Token(original): " + originalToken.getExposedAreaGUID());
+				//System.out.println("Cut Token(new): " + newToken.getExposedAreaGUID());
+				/*newToken.setZoneId(zone.getId());
 				System.out.println("Cut Token(original): " + originalToken.getId());
 				System.out.println("Cut Token(new): " + newToken.getId());
-				ExposedAreaMetaData meta = zone.getExposedAreaMetaData(originalToken.getId());
-				Map<GUID, ExposedAreaMetaData> exposedAreaMetaData = zone.getExposedAreaMetaData();
-				exposedAreaMetaData.put(newToken.getId(), meta);
+				if(MapTool.getServerPolicy().isUseIndividualFOW() && newToken.getHasSight()) {
+				    ExposedAreaMetaData meta = zone.getExposedAreaMetaData(originalToken.getId());
+				    Map<GUID, ExposedAreaMetaData> exposedAreaMetaData = zone.getExposedAreaMetaData();
+				    exposedAreaMetaData.put(newToken.getId(), meta);
+				}*/
 				tokenCopySet.add(newToken);
 			}
 			// Normalize
@@ -818,32 +822,56 @@ public class AppActions {
 			List<Token> tokenList = new ArrayList<Token>(tokenCopySet);
 			Collections.sort(tokenList, Token.COMPARE_BY_ZORDER);
 
+			List<Token> allTokens = zone.getTokens();
 			for (Token origToken : tokenList) {
-				Token token = new Token(origToken);
-				Zone oldZone = MapTool.getFrame().getZoneRenderer(origToken.getZoneId()).getZone();
+			    Token token = new Token(origToken);
 
-				System.out.println("Paste Token(original): " + origToken.getId());
-				System.out.println("Paste Token(new): " + token.getId());
-				ExposedAreaMetaData meta = oldZone.getExposedAreaMetaData(origToken.getId());
-				Map<GUID, ExposedAreaMetaData> exposedAreaMetaData = zone.getExposedAreaMetaData();
-				ExposedAreaMetaData newMeta = new ExposedAreaMetaData();
-				newMeta.addToExposedAreaHistory(new Area(meta.getExposedAreaHistory()));
-				exposedAreaMetaData.put(token.getId(), newMeta);
-				
+			    // need this here to get around times when a 
+			    // token is copied and pasted into the 
+			    // same zone, such as a framework "template"
+			    if(allTokens != null){
+			    	for(Token tok: allTokens){
+			    		if(tok.getExposedAreaGUID().equals(token.getExposedAreaGUID())){
+			    			token.setExposedAreaGUID(new GUID());
+			    		}
+			    	}
+			    }
+			    //System.out.println("Paste Token(original): " + origToken.getExposedAreaGUID());
+			    //System.out.println("Paste Token(new): " + token.getExposedAreaGUID());
 
-				token.setX(token.getX() + zonePoint.x);
-				token.setY(token.getY() + zonePoint.y);
+/*			    Old stuff.... get rid of once we know it's not needed.
+ * 
+ * 				GUID tokGUID = origToken.getZoneId();
+			    Zone oldZone = MapTool.getFrame().getZoneRenderer(tokGUID).getZone();
+			    token.setZoneId(zone.getId());
 
-				// paste into correct layer
-				token.setLayer(renderer.getActiveLayer());
-
-				// check the token's name, don't change PC token names ... ever
-				if (origToken.getType() != Token.Type.PC) {
-					token.setName(MapToolUtil.nextTokenId(zone, token));
+			    System.out.println("Paste Token(original): " + origToken.getId());
+			    System.out.println("Paste Token(new): " + token.getId());
+			    if(MapTool.getServerPolicy().isUseIndividualFOW() && token.getHasSight()) {
+				if(tokGUID.equals(zone.getId())){
+				    ExposedAreaMetaData meta = oldZone.getExposedAreaMetaData(origToken.getId());
+				    Map<GUID, ExposedAreaMetaData> exposedAreaMetaData = zone.getExposedAreaMetaData();
+				    ExposedAreaMetaData newMeta = new ExposedAreaMetaData();
+				    newMeta.addToExposedAreaHistory(new Area(meta.getExposedAreaHistory()));
+				    exposedAreaMetaData.put(token.getId(), newMeta);
+				    MapTool.serverCommand().updateExposedAreaMeta(zone.getId(), token.getId(), newMeta);
 				}
-				zone.putToken(token);
-				MapTool.serverCommand().putToken(zone.getId(), token);
-				MapTool.serverCommand().updateExposedAreaMeta(zone.getId(), token.getId(), newMeta);
+			    }*/
+
+
+			    token.setX(token.getX() + zonePoint.x);
+			    token.setY(token.getY() + zonePoint.y);
+
+			    // paste into correct layer
+			    token.setLayer(renderer.getActiveLayer());
+
+			    // check the token's name, don't change PC token names ... ever
+			    if (origToken.getType() != Token.Type.PC) {
+				token.setName(MapToolUtil.nextTokenId(zone, token));
+			    }
+			    zone.putToken(token);
+			    MapTool.serverCommand().putToken(zone.getId(), token);
+
 			}
 			renderer.repaint();
 		}

@@ -314,11 +314,11 @@ public class Zone extends BaseModel {
 			while (i.hasNext()) {
 				Token old = zone.tokenMap.get(i.next());
 				Token token = new Token(old);
-				token.setZoneId(getId());
-				ExposedAreaMetaData oldMeta = zone.getExposedAreaMetaData(old.getId());
-				if(oldMeta!= null) {
-				    exposedAreaMeta.put(token.getId(), new ExposedAreaMetaData(oldMeta.getExposedAreaHistory()));
-				}
+				//token.setZoneId(getId());
+				//ExposedAreaMetaData oldMeta = zone.getExposedAreaMetaData(old.getExposedAreaGUID());
+				//if(oldMeta!= null) {
+				 //   exposedAreaMeta.put(old.getExposedAreaGUID(), new ExposedAreaMetaData(oldMeta.getExposedAreaHistory()));
+				//}
 				
 				this.putToken(token);
 				List<Integer> list = zone.initiativeList.indexOf(old);
@@ -347,6 +347,7 @@ public class Zone extends BaseModel {
 
 		boardPosition = (Point)zone.boardPosition.clone();
 		exposedArea = (Area)zone.exposedArea.clone();
+		exposedAreaMeta = zone.exposedAreaMeta;
 		topology = (Area)zone.topology.clone();
 		isVisible = zone.isVisible;
 		hasFog = zone.hasFog;
@@ -593,16 +594,16 @@ public class Zone extends BaseModel {
 		{
 			if((MapTool.getServerPolicy().isUseIndividualFOW() && AppUtil.playerOwns(token)) || MapTool.isPersonalServer() )
 			{
-			    if(exposedAreaMeta.containsKey(token.getId())) {
-				ExposedAreaMetaData meta = exposedAreaMeta.get(token.getId());
-				meta.addToExposedAreaHistory(new Area(area));
-				meta.addToExposedAreaHistory(MapTool.getFrame().getZoneRenderer(getId()).getZoneView().getVisibleArea(token));
-				exposedAreaMeta.put(token.getId(), meta);
+			    if(exposedAreaMeta.containsKey(token.getExposedAreaGUID())) {
+			    	ExposedAreaMetaData meta = exposedAreaMeta.get(token.getExposedAreaGUID());
+			    	meta.addToExposedAreaHistory(new Area(area));
+			    	meta.addToExposedAreaHistory(MapTool.getFrame().getZoneRenderer(getId()).getZoneView().getVisibleArea(token));
+			    	exposedAreaMeta.put(token.getExposedAreaGUID(), meta);
 			    }else {
-				ExposedAreaMetaData meta = new ExposedAreaMetaData();
-				meta.addToExposedAreaHistory(new Area(area));
-				meta.addToExposedAreaHistory(MapTool.getFrame().getZoneRenderer(getId()).getZoneView().getVisibleArea(token));
-				exposedAreaMeta.put(token.getId(), meta);
+			    	ExposedAreaMetaData meta = new ExposedAreaMetaData();
+					meta.addToExposedAreaHistory(new Area(area));
+					meta.addToExposedAreaHistory(MapTool.getFrame().getZoneRenderer(getId()).getZoneView().getVisibleArea(token));
+					exposedAreaMeta.put(token.getExposedAreaGUID(), meta);
 			    }
 				
 			    MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush();
@@ -619,37 +620,37 @@ public class Zone extends BaseModel {
 		if (area == null) {
 			return;
 		}
-		List<Token> allToks = new ArrayList<Token>();
-		if(selectedToks!= null && selectedToks.size() >0)
-		{
+		if(MapTool.getServerPolicy().isUseIndividualFOW()) {
+		    List<Token> allToks = new ArrayList<Token>();
+		    if(selectedToks!= null && selectedToks.size() >0)
+		    {
 			for(GUID guid: selectedToks)
 			{
-				allToks.add(getToken(guid));
+			    allToks.add(getToken(guid));
 			}
-		}
-		else
-		{
+		    }
+		    else
+		    {
 			allToks = getTokens();
-		}
-		for(Token tok: allToks)
-		{
+		    }
+		    for(Token tok: allToks)
+		    {
 			if(!tok.getHasSight())
 			{
-				continue;
+			    continue;
 			}
-			 if(exposedAreaMeta.containsKey(tok.getId())) {
-				ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getId());
-				meta.addToExposedAreaHistory(new Area(area));
-				exposedAreaMeta.put(tok.getId(), meta);
-			    }else {
-				ExposedAreaMetaData meta = new ExposedAreaMetaData();
-				meta.addToExposedAreaHistory(new Area(area));
-				exposedAreaMeta.put(tok.getId(), meta);
-			    }
+			if(exposedAreaMeta.containsKey(tok.getExposedAreaGUID())) {
+			    ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getExposedAreaGUID());
+			    meta.addToExposedAreaHistory(new Area(area));
+			    exposedAreaMeta.put(tok.getExposedAreaGUID(), meta);
+			}else {
+			    ExposedAreaMetaData meta = new ExposedAreaMetaData();
+			    meta.addToExposedAreaHistory(new Area(area));
+			    exposedAreaMeta.put(tok.getExposedAreaGUID(), meta);
+			}
 			MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush();
-			putToken(tok);
+		    }
 		}
-
 		exposedArea.add(area);
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
@@ -658,38 +659,39 @@ public class Zone extends BaseModel {
 		if (area == null) {
 			return;
 		}
-		clearExposedArea();
-		List<Token> allToks = new ArrayList<Token>();
-		if(selectedToks!= null && selectedToks.size() >0)
-		{
+		if(MapTool.getServerPolicy().isUseIndividualFOW()) {
+		    List<Token> allToks = new ArrayList<Token>();
+		    if(selectedToks!= null && selectedToks.size() >0)
+		    {
 			for(GUID guid: selectedToks)
 			{
-				allToks.add(getToken(guid));
+			    allToks.add(getToken(guid));
 			}
-		}
-		else
-		{
-			allToks = getTokens();
-		}
-		for(Token tok: allToks)
-		{
-		    if(!tok.getHasSight())
-		    {
-			continue;
 		    }
-		    if(exposedAreaMeta.containsKey(tok.getId())) {
-			ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getId());
-			meta.clearExposedAreaHistory();
-			meta.addToExposedAreaHistory(new Area(area));
-			exposedAreaMeta.put(tok.getId(), meta);
-		    }else {
-			ExposedAreaMetaData meta = new ExposedAreaMetaData();
-			meta.clearExposedAreaHistory();
-			meta.addToExposedAreaHistory(new Area(area));
-			exposedAreaMeta.put(tok.getId(), meta);
-		    }			
-		    MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush(tok);
-		    putToken(tok);
+		    else
+		    {
+			allToks = getTokens();
+		    }
+		    for(Token tok: allToks)
+		    {
+			if(!tok.getHasSight())
+			{
+			    continue;
+			}
+			if(exposedAreaMeta.containsKey(tok.getExposedAreaGUID())) {
+			    ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getExposedAreaGUID());
+			    meta.clearExposedAreaHistory();
+			    meta.addToExposedAreaHistory(new Area(area));
+			    exposedAreaMeta.put(tok.getExposedAreaGUID(), meta);
+			}else {
+			    ExposedAreaMetaData meta = new ExposedAreaMetaData();
+			    meta.clearExposedAreaHistory();
+			    meta.addToExposedAreaHistory(new Area(area));
+			    exposedAreaMeta.put(tok.getExposedAreaGUID(), meta);
+			}			
+			MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush(tok);
+			putToken(tok);
+		    }
 		}
 		exposedArea = area;
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
@@ -699,39 +701,44 @@ public class Zone extends BaseModel {
 		if (area == null) {
 			return;
 		}
-		List<Token> allToks = new ArrayList<Token>();
-		if(selectedToks!= null && selectedToks.size() >0)
-		{
+		if(MapTool.getServerPolicy().isUseIndividualFOW()) {
+		    List<Token> allToks = new ArrayList<Token>();
+		    if(selectedToks!= null && selectedToks.size() >0)
+		    {
 			for(GUID guid: selectedToks)
 			{
-				allToks.add(getToken(guid));
+			    allToks.add(getToken(guid));
 			}
-		}
-		else
-		{
-			allToks = getTokens();
-		}
-
-		for(Token tok: allToks)
-		{
-		    if(!tok.getHasSight())
+		    }
+		    else
 		    {
-			continue;
-		    }
-		    if(exposedAreaMeta.containsKey(tok.getId())) {
-			ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getId());
-			meta.removeExposedAreaHistory(new Area(area));
-			exposedAreaMeta.put(tok.getId(), meta);
-		    }else {
-			ExposedAreaMetaData meta = new ExposedAreaMetaData();
-			meta.removeExposedAreaHistory(new Area(area));
-			exposedAreaMeta.put(tok.getId(), meta);
+			allToks = getTokens();
 		    }
 
-		    MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush(tok);
-		    putToken(tok);
+		    for(Token tok: allToks)
+		    {
+			if(!tok.getHasSight())
+			{
+			    continue;
+			}
+			if(exposedAreaMeta != null ) {
+			    if(exposedAreaMeta.containsKey(tok.getExposedAreaGUID())) {
+				ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getExposedAreaGUID());
+				meta.removeExposedAreaHistory(new Area(area));
+				exposedAreaMeta.put(tok.getExposedAreaGUID(), meta);
+			    }else {
+				ExposedAreaMetaData meta = new ExposedAreaMetaData();
+				meta.removeExposedAreaHistory(new Area(area));
+				exposedAreaMeta.put(tok.getExposedAreaGUID(), meta);
+			    }
+			}
+
+			MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush(tok);
+			putToken(tok);
+		    }
 		}
 		exposedArea.subtract(area);
+		MapTool.serverCommand().hideFoW(getId(), area, selectedToks);
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
 
@@ -763,17 +770,17 @@ public class Zone extends BaseModel {
 
 		if(toks == null)
 		{
-			return new Area();
+		    toks = getTokens(); 
 		}
 		for(Token tok: toks)
 		{
-		    if(!tok.getHasSight())
+		    if(!tok.getHasSight() || !AppUtil.playerOwns(tok))
 		    {
-			continue;
+		    	continue;
 		    }
-		    if(exposedAreaMeta.containsKey(tok.getId())) {
-			ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getId());
-			area.add(new Area(meta.getExposedAreaHistory()));
+		    if(exposedAreaMeta.containsKey(tok.getExposedAreaGUID())) {
+		    	ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getExposedAreaGUID());
+		    	area.add(new Area(meta.getExposedAreaHistory()));
 		    }
 		}
 		return area;
@@ -1272,6 +1279,11 @@ public class Zone extends BaseModel {
 	protected Object readResolve() {
 		super.readResolve();
 
+		// 1.3b76 -> 1.3b77
+		// adding the exposed area for Individual FOW
+		if(exposedAreaMeta == null){
+			exposedAreaMeta = new HashMap<GUID,ExposedAreaMetaData>();
+		}
 		// 1.3b70 -> 1.3b71
 		// These two variables were added
 		if (drawBoard == false) {
@@ -1340,6 +1352,9 @@ public class Zone extends BaseModel {
 		}
 	}
 	public void setExposedAreaMetaData(GUID tokenGuid, ExposedAreaMetaData meta) {
+		if(exposedAreaMeta == null){
+			exposedAreaMeta = new HashMap<GUID,ExposedAreaMetaData>();
+		}
 	    exposedAreaMeta.put(tokenGuid, meta);
 	    fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	    

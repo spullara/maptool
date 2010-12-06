@@ -844,7 +844,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 								break;
 							}
 						} else {
-							ExposedAreaMetaData meta = zone.getExposedAreaMetaData(token.getId());
+							ExposedAreaMetaData meta = zone.getExposedAreaMetaData(token.getExposedAreaGUID());
 							if (meta.getExposedAreaHistory().contains(bounds)) {
 								isVisible = true;
 								break;
