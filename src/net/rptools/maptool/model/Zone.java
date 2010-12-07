@@ -738,7 +738,6 @@ public class Zone extends BaseModel {
 		    }
 		}
 		exposedArea.subtract(area);
-		MapTool.serverCommand().hideFoW(getId(), area, selectedToks);
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
 
