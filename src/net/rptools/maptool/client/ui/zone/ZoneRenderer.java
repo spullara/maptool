@@ -3664,7 +3664,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				flushLight();
 				
 			}
-			if (evt == Zone.Event.TOKEN_CHANGED || evt == Zone.Event.TOKEN_REMOVED) {
+			if (evt == Zone.Event.TOKEN_CHANGED || evt == Zone.Event.TOKEN_REMOVED || evt == Zone.Event.TOKEN_ADDED) {
 				flush((Token) event.getArg());
 			}
 			if (evt == Zone.Event.FOG_CHANGED) {
