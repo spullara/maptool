@@ -1,3 +1,33 @@
 <project name="maptool" default="dist">
 	<import file="../common.build/common-webstart-targets.xml" />
+	<target name="sign-jars" depends="setup, prepare-dist">
+	    	<!-- WEBSTART FILE CREATION -->
+	
+		<copy todir="${tmp}/lib">
+			<fileset dir="lib">
+				<include name="**/*.txt" />
+			</fileset>
+		</copy>
+	
+		<!-- Packing alters the order of the classes in the jar.  The repack
+		step MUST precede a signing -->
+		<echo message="Before repack (pack and unpack)" />
+		<pack200fs destdir="${tmp}/lib" repack="true">
+			<fileset dir="lib">
+				<include name="*.jar" />
+				<include name="*.txt" />
+			</fileset>
+			<fileset file="${jar.file.versioned}" />
+		</pack200fs>
+	
+		<echo message="Before signing" />
+		<signjar keystore="../common.build/keystore" keypass="rptools"
+				alias="rptools" storepass="rptools" lazy="true">
+			<fileset dir="${tmp}/lib">
+				<include name="*.jar" />
+			</fileset>
+		</signjar>
+
+	    	<echo message="The output is in ${tmp}/lib ..." />
+	</target>
 </project>
