@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.ui.campaignproperties;
 
@@ -171,35 +168,32 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
 	public static final String[] DATA_ENTRY_COMPONENTS = { COLOR, BG_COLOR, THICKNESS, IMAGES, IMAGE_ADD, IMAGE_DELETE, IMAGE_MOVE_DOWN, IMAGE_MOVE_UP, IMAGE_UPDATE };
 
 	/** Each of the data entry components that can be enabled/disabled by type of bar */
-	public static final String[] DATA_ENTRY_COMPONENT_LABELS = { COLOR + "Label", BG_COLOR + "Label", THICKNESS + "Label", IMAGES + "Label"};
+	public static final String[] DATA_ENTRY_COMPONENT_LABELS = { COLOR + "Label", BG_COLOR + "Label", THICKNESS + "Label", IMAGES + "Label" };
 
 	/**
-	 * Flags for each of the data entry components needed by each of the types. The order of the types is the'
-	 * same as the list in the combo box. The order of the flags is the same as that in {@link #DATA_ENTRY_COMPONENTS}.
+	 * Flags for each of the data entry components needed by each of the types. The order of the types is the' same as
+	 * the list in the combo box. The order of the flags is the same as that in {@link #DATA_ENTRY_COMPONENTS}.
 	 */
-	public static final boolean[][] NEEDED_COMPONENTS = {
-		{false, false, false, true,  true,  true,  true,   true,  true }, // Two Image
-		{false, false, false, true,  true,  true,  true,   true,  true }, // One Image
-		{false, false, false, true,  true,  true,  true,   true,  true }, // Multiple Image
-		{true,  false, true,  false, false, false, false,  false, false}, // Solid
-		{true,  true,  true,  false, false, false, false,  false, false}, // Two Tone
+	public static final boolean[][] NEEDED_COMPONENTS = { { false, false, false, true, true, true, true, true, true }, // Two Image
+			{ false, false, false, true, true, true, true, true, true }, // One Image
+			{ false, false, false, true, true, true, true, true, true }, // Multiple Image
+			{ true, false, true, false, false, false, false, false, false }, // Solid
+			{ true, true, true, false, false, false, false, false, false }, // Two Tone
 	};
 
 	/**
 	 * The number of images needed by each type of bar. The increments are added to this
 	 */
-	public static final String[][] NEEDED_IMAGES = {
-		{"Base", "Bar"},
-		{"Bar"},
-		null,  // Multiple images
-		new String[0],   // Solid
-		new String[0],   // Two Tone
+	public static final String[][] NEEDED_IMAGES = { { "Base", "Bar" }, { "Bar" }, null, // Multiple images
+			new String[0], // Solid
+			new String[0], // Two Tone
 	};
 
 	/**
 	 * Set up the button listeners, spinner models, list cell renderer and selection listeners
 	 * 
-	 * @param panel The {@link CampaignProperties} form panel
+	 * @param panel
+	 *            The {@link CampaignProperties} form panel
 	 */
 	public TokenBarController(FormPanel panel) {
 		formPanel = panel;
@@ -226,8 +220,8 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
 		panel.getCheckBox(SHOW_GM).addItemListener(this);
 		panel.getCheckBox(SHOW_OTHERS).addItemListener(this);
 		panel.getCheckBox(SHOW_OWNER).addItemListener(this);
-		((JSlider)panel.getComponentByName(TESTER)).addChangeListener(this);
-		((JSlider)panel.getComponentByName(TESTER)).setValue(100);
+		((JSlider) panel.getComponentByName(TESTER)).addChangeListener(this);
+		((JSlider) panel.getComponentByName(TESTER)).setValue(100);
 		enableDataComponents();
 		changedUpdate(null);
 	}
@@ -247,12 +241,12 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
 	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e) {
-		String name = ((JComponent)e.getSource()).getName();
+		String name = ((JComponent) e.getSource()).getName();
 		JList list = formPanel.getList(BARS);
-		DefaultListModel model = (DefaultListModel)list.getModel();
+		DefaultListModel model = (DefaultListModel) list.getModel();
 		int selected = list.getSelectedIndex();
 		JList imageList = formPanel.getList(IMAGES);
-		DefaultListModel imageModel = (DefaultListModel)imageList.getModel();
+		DefaultListModel imageModel = (DefaultListModel) imageList.getModel();
 		int imageSelected = imageList.getSelectedIndex();
 
 		// Add a new bar
@@ -275,7 +269,7 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
 		} else if (DELETE.equals(name)) {
 			int[] selectedElements = list.getSelectedIndices();
 			for (int j = selectedElements.length - 1; j >= 0; j--) {
-				BarTokenOverlay overlay = (BarTokenOverlay)model.remove(selectedElements[j]);
+				BarTokenOverlay overlay = (BarTokenOverlay) model.remove(selectedElements[j]);
 				getNames().remove(overlay.getName());
 			} // endfor
 			changedUpdate(null);
@@ -284,14 +278,15 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
 		} else if (IMAGE_ADD.equals(name)) {
 			if (getImageFileChooser().showOpenDialog(formPanel) == JFileChooser.APPROVE_OPTION) {
 				File imageFile = getImageFileChooser().getSelectedFile();
-				if (imageFile == null || imageFile.isDirectory() || !imageFile.exists() || !imageFile.canRead()) return;
+				if (imageFile == null || imageFile.isDirectory() || !imageFile.exists() || !imageFile.canRead())
+					return;
 				if (imageSelected >= 0) {
 					imageModel.insertElementAt(TokenStatesController.loadAsssetFile(imageFile.getAbsolutePath(), formPanel), imageSelected);
 				} else {
 					imageModel.addElement(TokenStatesController.loadAsssetFile(imageFile.getAbsolutePath(), formPanel));
 					imageSelected = imageModel.size() - 1;
 				} // endif
-				((JScrollPane)formPanel.getComponentByName("tokenBarImagesScroll")).scrollRectToVisible(imageList.getCellBounds(imageSelected, imageSelected));
+				((JScrollPane) formPanel.getComponentByName("tokenBarImagesScroll")).scrollRectToVisible(imageList.getCellBounds(imageSelected, imageSelected));
 				AppPreferences.setLoadDir(imageFile.getParentFile());
 				changedUpdate(null);
 			} // endif
@@ -299,11 +294,12 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
 			// Update an image in the list
 		} else if (IMAGE_UPDATE.equals(name)) {
 			if (imageSelected < 0) {
-				return;		// We really should disable the UPDATE button unless an image is selected...
+				return; // We really should disable the UPDATE button unless an image is selected...
 			}
 			if (getImageFileChooser().showOpenDialog(formPanel) == JFileChooser.APPROVE_OPTION) {
 				File imageFile = getImageFileChooser().getSelectedFile();
-				if (imageFile == null || imageFile.isDirectory() || !imageFile.exists() || !imageFile.canRead()) return;
+				if (imageFile == null || imageFile.isDirectory() || !imageFile.exists() || !imageFile.canRead())
+					return;
 				imageModel.set(imageSelected, TokenStatesController.loadAsssetFile(imageFile.getAbsolutePath(), formPanel));
 				AppPreferences.setLoadDir(imageFile.getParentFile());
 			} // endif
@@ -311,7 +307,7 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
 			// Delete an image in the list
 		} else if (IMAGE_DELETE.equals(name)) {
 			if (imageSelected < 0) {
-				return;		// We really should disable the DELETE button unless an image is selected...
+				return; // We really should disable the DELETE button unless an image is selected...
 			}
 			imageModel.remove(imageSelected);
 			changedUpdate(null);
@@ -319,7 +315,7 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
 			// Move an image up one row
 		} else if (IMAGE_MOVE_UP.equals(name)) {
 			if (imageSelected < 0) {
-				return;		// We really should disable the MOVE_UP button unless an image is selected...
+				return; // We really should disable the MOVE_UP button unless an image is selected...
 			}
 			Object element = imageModel.remove(imageSelected);
 			imageModel.add(imageSelected - 1, element);
@@ -329,7 +325,7 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
 			// Move an image down one row
 		} else if (IMAGE_MOVE_DOWN.equals(name)) {
 			if (imageSelected < 0) {
-				return;		// We really should disable the MOVE_DOWN button unless an image is selected...
+				return; // We really should disable the MOVE_DOWN button unless an image is selected...
 			}
 			Object element = imageModel.remove(imageSelected);
 			imageModel.add(imageSelected + 1, element);
@@ -342,7 +338,7 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
 
 			// Update the selected overlay
 		} else if (UPDATE.equals(name)) {
-			BarTokenOverlay selectedOverlay = (BarTokenOverlay)formPanel.getSelectedItem(BARS);
+			BarTokenOverlay selectedOverlay = (BarTokenOverlay) formPanel.getSelectedItem(BARS);
 			BarTokenOverlay overlay = createTokenOverlay(selectedOverlay);
 			if (overlay != null)
 				model.set(selected, overlay);
@@ -409,6 +405,9 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
 		int size = NEEDED_IMAGES[type] == null ? -1 : NEEDED_IMAGES[type].length;
 		int imageCount = formPanel.getList(IMAGES).getModel().getSize();
 		int increments = TokenStatesController.getSpinner(INCREMENTS, "increments", formPanel);
+		String text = formPanel.getText(NAME);
+		boolean hasName = text != null && (text = text.trim()).length() != 0;
+		boolean hasShow = formPanel.isSelected(SHOW_GM) || formPanel.isSelected(SHOW_OWNER) || formPanel.isSelected(SHOW_OTHERS);
 		boolean hasImages = false;
 		if (size > 0 && imageCount == size) {
 			hasImages = true;
@@ -417,11 +416,8 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
 		} else if (size == 0) {
 			hasImages = true;
 		} // endif
-		String text = formPanel.getText(NAME);
-		boolean hasName = text != null && (text = text.trim()).length() != 0;
-		boolean hasShow = formPanel.isSelected(SHOW_GM) || formPanel.isSelected(SHOW_OWNER) || formPanel.isSelected(SHOW_OTHERS);
 		formPanel.getButton(ADD).setEnabled(hasName && !getNames().contains(text) && hasImages && hasShow);
-		formPanel.getButton(UPDATE).setEnabled(hasName && formPanel.getSelectedItem(BARS) != null && hasShow);
+		formPanel.getButton(UPDATE).setEnabled(hasName && formPanel.getSelectedItem(BARS) != null && hasShow && hasImages);
 	}
 
 	/**
@@ -444,7 +440,8 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
 	 * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
 	 */
 	public void valueChanged(ListSelectionEvent e) {
-		if (e.getValueIsAdjusting()) return;
+		if (e.getValueIsAdjusting())
+			return;
 		if (e.getSource() == formPanel.getList(BARS)) {
 			int selected = formPanel.getList(BARS).getSelectedIndex();
 			formPanel.getButton(DELETE).setEnabled(selected >= 0);
@@ -454,7 +451,7 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
 			if (selected >= 0) {
 
 				// Set common stuff
-				BarTokenOverlay bar = (BarTokenOverlay)formPanel.getList(BARS).getSelectedValue();
+				BarTokenOverlay bar = (BarTokenOverlay) formPanel.getList(BARS).getSelectedValue();
 				formPanel.setText(NAME, bar.getName());
 				formPanel.setSelected(MOUSEOVER, bar.isMouseover());
 				formPanel.getSpinner(OPACITY).setValue(new Integer(bar.getOpacity()));
@@ -467,29 +464,31 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
 				// Handle the drawn overlays
 				int type = -1;
 				if (bar instanceof DrawnBarTokenOverlay) {
-					formPanel.getSpinner(THICKNESS).setValue(Integer.valueOf(((DrawnBarTokenOverlay)bar).getThickness()));
-					((JETAColorWell)formPanel.getComponentByName(COLOR)).setColor(((DrawnBarTokenOverlay)bar).getBarColor());
+					formPanel.getSpinner(THICKNESS).setValue(Integer.valueOf(((DrawnBarTokenOverlay) bar).getThickness()));
+					((JETAColorWell) formPanel.getComponentByName(COLOR)).setColor(((DrawnBarTokenOverlay) bar).getBarColor());
 					type = 3;
 				} // endif
 				if (bar instanceof TwoToneBarTokenOverlay) {
-					((JETAColorWell)formPanel.getComponentByName(BG_COLOR)).setColor(((TwoToneBarTokenOverlay)bar).getBgColor());
+					((JETAColorWell) formPanel.getComponentByName(BG_COLOR)).setColor(((TwoToneBarTokenOverlay) bar).getBgColor());
 					type = 4;
 				} // endif
 
 				// Handle images
 				MD5Key[] assetIds = null;
 				if (bar instanceof TwoImageBarTokenOverlay) {
-					assetIds = new MD5Key[] {((TwoImageBarTokenOverlay)bar).getBottomAssetId(), ((TwoImageBarTokenOverlay)bar).getTopAssetId()};
+					assetIds = new MD5Key[] { ((TwoImageBarTokenOverlay) bar).getBottomAssetId(), ((TwoImageBarTokenOverlay) bar).getTopAssetId() };
 					type = 0;
 				} else if (bar instanceof SingleImageBarTokenOverlay) {
-					assetIds = new MD5Key[] {((SingleImageBarTokenOverlay)bar).getAssetId()};
+					assetIds = new MD5Key[] { ((SingleImageBarTokenOverlay) bar).getAssetId() };
 					type = 1;
 				} else if (bar instanceof MultipleImageBarTokenOverlay) {
-					assetIds = ((MultipleImageBarTokenOverlay)bar).getAssetIds();
+					assetIds = ((MultipleImageBarTokenOverlay) bar).getAssetIds();
 					type = 2;
 				}
 				DefaultListModel model = new DefaultListModel();
-				if (assetIds != null) for (MD5Key key : assetIds) model.addElement(key);
+				if (assetIds != null)
+					for (MD5Key key : assetIds)
+						model.addElement(key);
 				formPanel.getList(IMAGES).setModel(model);
 				formPanel.getList(IMAGES).repaint();
 
@@ -526,8 +525,14 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
 
 		/** Create an icon from the token bar. */
 		Icon icon = new Icon() {
-			public int getIconHeight() { return ICON_SIZE; }
-			public int getIconWidth() { return ICON_SIZE; }
+			public int getIconHeight() {
+				return ICON_SIZE;
+			}
+
+			public int getIconWidth() {
+				return ICON_SIZE;
+			}
+
 			public void paintIcon(Component c, java.awt.Graphics g, int x, int y) {
 				Shape old = g.getClip();
 				g.setClip(bounds.intersection(old.getBounds()));
@@ -540,13 +545,13 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
 		/**
 		 * Set the icon and name in the renderer.
 		 * 
-		 * @see javax.swing.DefaultListCellRenderer#getListCellRendererComponent(javax.swing.JList, java.lang.Object, int, boolean, boolean)
+		 * @see javax.swing.DefaultListCellRenderer#getListCellRendererComponent(javax.swing.JList, java.lang.Object,
+		 *      int, boolean, boolean)
 		 */
 		@Override
-		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
-				boolean cellHasFocus) {
+		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 			super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-			key = (MD5Key)value;
+			key = (MD5Key) value;
 			int type = formPanel.getComboBox(TYPE).getSelectedIndex();
 			if (NEEDED_IMAGES[type] == null) {
 				int increments = TokenStatesController.getSpinner(INCREMENTS, "increments", formPanel);
@@ -576,7 +581,8 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
 	/**
 	 * Copy the token states from the campaign properties to the state tab.
 	 * 
-	 * @param campaign Place the states in these properties in the form panel
+	 * @param campaign
+	 *            Place the states in these properties in the form panel
 	 */
 	public void copyCampaignToUI(CampaignProperties campaign) {
 		DefaultListModel model = new DefaultListModel();
@@ -592,13 +598,14 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
 	/**
 	 * Copy the token states from the state tab and place it in the passed campaign.
 	 * 
-	 * @param campaign Campaign containing the properties being updated
+	 * @param campaign
+	 *            Campaign containing the properties being updated
 	 */
 	public void copyUIToCampaign(Campaign campaign) {
 		ListModel model = formPanel.getList(BARS).getModel();
 		Map<String, BarTokenOverlay> states = new LinkedHashMap<String, BarTokenOverlay>();
 		for (int i = 0; i < model.getSize(); i++) {
-			BarTokenOverlay overlay = (BarTokenOverlay)model.getElementAt(i);
+			BarTokenOverlay overlay = (BarTokenOverlay) model.getElementAt(i);
 			overlay.setOrder(i);
 			states.put(overlay.getName(), overlay);
 		}
@@ -609,17 +616,18 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
 	/**
 	 * Create a token state from the user's input
 	 * 
-	 * @param updatedOverlay Overlay being modified
+	 * @param updatedOverlay
+	 *            Overlay being modified
 	 * @return The new token state.
 	 */
 	public BarTokenOverlay createTokenOverlay(BarTokenOverlay updatedOverlay) {
 
 		// Need the color and name for everything
-		Color color = ((JETAColorWell)formPanel.getComponentByName(COLOR)).getColor();
-		Color bgColor = ((JETAColorWell)formPanel.getComponentByName(BG_COLOR)).getColor();
+		Color color = ((JETAColorWell) formPanel.getComponentByName(COLOR)).getColor();
+		Color bgColor = ((JETAColorWell) formPanel.getComponentByName(BG_COLOR)).getColor();
 		String name = formPanel.getText(NAME);
 		boolean mouseover = formPanel.isSelected(MOUSEOVER);
-		String overlay = ((ListItemProperty)formPanel.getSelectedItem(TYPE)).getLabel();
+		String overlay = ((ListItemProperty) formPanel.getSelectedItem(TYPE)).getLabel();
 		int opacity = TokenStatesController.getSpinner(OPACITY, "opacity", formPanel);
 		boolean showGM = formPanel.isSelected(SHOW_GM);
 		boolean showOwner = formPanel.isSelected(SHOW_OWNER);
@@ -636,7 +644,7 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
 		} else {
 
 			// Get all of the assets
-			DefaultListModel model = (DefaultListModel)formPanel.getList(IMAGES).getModel();
+			DefaultListModel model = (DefaultListModel) formPanel.getList(IMAGES).getModel();
 			MD5Key[] assetIds = new MD5Key[model.getSize()];
 			model.copyInto(assetIds);
 
@@ -647,7 +655,7 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
 				to = new SingleImageBarTokenOverlay(name, assetIds[0]);
 			} else if (overlay.equals("Multiple Images")) {
 				to = new MultipleImageBarTokenOverlay(name, assetIds);
-			}  // endif
+			} // endif
 		} // endif
 
 		// Set the common token stuff
@@ -675,14 +683,17 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
 	 */
 	public void stateChanged(ChangeEvent e) {
 		if (e.getSource() == formPanel.getComponentByName(TESTER)) {
-			renderer.value = new Double(((JSlider)formPanel.getComponentByName(TESTER)).getValue() / 100.0);
+			renderer.value = new Double(((JSlider) formPanel.getComponentByName(TESTER)).getValue() / 100.0);
 			formPanel.getList(BARS).repaint();
 		} else {
 			changedUpdate(null);
 		}
 	}
 
-	/** @param names Setter for names */
+	/**
+	 * @param names
+	 *            Setter for names
+	 */
 	public void setNames(Set<String> names) {
 		this.names = names;
 	}
