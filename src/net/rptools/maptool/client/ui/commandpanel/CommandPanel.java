@@ -327,8 +327,8 @@ public class CommandPanel extends JPanel implements Observer {
 			actions.put(AppActions.COMMAND_DOWN_ID, new CommandHistoryDownAction());
 
 			InputMap inputs = commandTextArea.getInputMap();
-			inputs.put(KeyStroke.getKeyStroke("ESCAPE"), AppActions.CANCEL_COMMAND_ID);
-			inputs.put(KeyStroke.getKeyStroke("ENTER"), AppActions.COMMIT_COMMAND_ID);
+			inputs.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), AppActions.CANCEL_COMMAND_ID);
+			inputs.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), AppActions.COMMIT_COMMAND_ID);
 			inputs.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), AppActions.COMMAND_UP_ID);
 			inputs.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), AppActions.COMMAND_DOWN_ID);
 

@@ -24,13 +24,17 @@ public class HTMLPanel extends JPanel {
 
 	/**
 	 * Creates a new HTMLPanel.
-	 * @param container The container that will hold the HTML panel.
-	 * @param closeButton If the panel has a close button.
-	 * @param scrollBar Should panel have scroll bars or not.
+	 * 
+	 * @param container
+	 *            The container that will hold the HTML panel.
+	 * @param closeButton
+	 *            If the panel has a close button.
+	 * @param scrollBar
+	 *            Should panel have scroll bars or not.
 	 */
 	HTMLPanel(final HTMLPanelContainer container, boolean closeButton, boolean scrollBar) {
 		setLayout(new BorderLayout());
-		
+
 		JButton jcloseButton = new JButton("Close");
 		jcloseButton.setActionCommand("Close");
 		jcloseButton.addActionListener(container);
@@ -38,40 +42,43 @@ public class HTMLPanel extends JPanel {
 		closePanel.add(Box.createHorizontalGlue());
 		closePanel.add(jcloseButton);
 		closePanel.add(Box.createHorizontalGlue());
-		
+
 		if (scrollBar) {
 			add(new JScrollPane(pane), BorderLayout.CENTER);
 		} else {
 			add(pane, BorderLayout.CENTER);
 		}
 		updateContents("", closeButton);
-		
+
 		// ESCAPE closes the window
-		pane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-				KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "cancel");
+		pane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "cancel");
 		pane.getActionMap().put("cancel", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				container.closeRequest();
-			}});
-		
+			}
+		});
+
 		// Add an action listener so we can get notified about form events.
 		pane.addActionListener(container);
 	}
 
 	/**
 	 * Update the contents of the panel.
-	 * @param html The HTML to display.
-	 * @param closeButton If the panel has a close button.
+	 * 
+	 * @param html
+	 *            The HTML to display.
+	 * @param closeButton
+	 *            If the panel has a close button.
 	 */
 	public void updateContents(final String html, boolean closeButton) {
 		if (closeButton) {
 			add(closePanel, BorderLayout.SOUTH);
 		} else {
-			remove(closePanel); 
+			remove(closePanel);
 		}
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				((MessagePanelEditorKit)pane.getEditorKit()).flush();
+				((MessagePanelEditorKit) pane.getEditorKit()).flush();
 				pane.setText(html);
 				pane.setCaretPosition(0);
 			}
@@ -82,24 +89,26 @@ public class HTMLPanel extends JPanel {
 	 * Flushes any caching for the panel.
 	 */
 	public void flush() {
-		EventQueue.invokeLater(new Runnable() { 
+		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				((MessagePanelEditorKit)pane.getEditorKit()).flush();
+				((MessagePanelEditorKit) pane.getEditorKit()).flush();
 			}
-		});		
+		});
 	}
-	
+
 	/**
 	 * Updates if this panel is an input panel or not.
-	 * @param input is this panel has a close button or not.
+	 * 
+	 * @param input
+	 *            is this panel has a close button or not.
 	 */
 	void updateContents(boolean closeButton) {
 		if (closeButton) {
 			add(closePanel, BorderLayout.SOUTH);
 		} else {
-			remove(closePanel); 
+			remove(closePanel);
 		}
 		revalidate();
 	}
-	
+
 }
