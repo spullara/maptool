@@ -271,6 +271,7 @@ public class CampaignPropertiesDialog extends JDialog {
 				for (Light light : lightSource.getLightList()) {
 					if (light.getShape() != null) {
 						switch (light.getShape()) {
+						case SQUARE:
 						case CIRCLE:
 							// TODO: Make this a preference
 							builder.append(light.getShape().toString().toLowerCase()).append(' ');
@@ -493,6 +494,7 @@ public class CampaignPropertiesDialog extends JDialog {
 				double arc = 0;
 				boolean gmOnly = false;
 				boolean owner = false;
+				String distance = null;
 				for (String arg : line.substring(split + 1).split("\\s+")) {
 					arg = arg.trim();
 					if (arg.length() == 0) {
@@ -540,25 +542,23 @@ public class CampaignPropertiesDialog extends JDialog {
 						}
 						continue;
 					}
-					String distance = arg;
 					Color color = null;
+					distance = arg;
 					split = arg.indexOf("#");
 					if (split > 0) {
 						String colorString = arg.substring(split); // Keep the '#'
 						distance = arg.substring(0, split);
-
 						color = Color.decode(colorString);
 					}
-					//
 					owner = gmOnly == true ? false : owner;
 					try {
-						lightSource.add(new Light(shape, 0, StringUtil.parseDecimal(distance), arc, color != null ? new DrawableColorPaint(color) : null,
-								lightSource.getType() != LightSource.Type.AURA ? false : gmOnly, lightSource.getType() != LightSource.Type.AURA ? false : owner));
+						boolean isAura = lightSource.getType() == LightSource.Type.AURA;
+						Light t = new Light(shape, 0, StringUtil.parseDecimal(distance), arc, color != null ? new DrawableColorPaint(color) : null, !isAura ? false : gmOnly, !isAura ? false : owner);
+						lightSource.add(t);
 					} catch (ParseException pe) {
 						errlog.add(I18N.getText("msg.error.mtprops.light.distance", reader.getLineNumber(), distance));
 					}
 				}
-
 				// Keep ID the same if modifying existing light
 				if (campaign.getLightSourcesMap().containsKey(currentGroupName)) {
 					for (LightSource ls : campaign.getLightSourcesMap().get(currentGroupName).values()) {
