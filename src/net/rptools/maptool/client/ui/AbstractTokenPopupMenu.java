@@ -48,6 +48,7 @@ import net.rptools.maptool.model.LightSource;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.PersistenceUtil;
 import net.rptools.maptool.util.TokenUtil;
@@ -515,10 +516,10 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 
 		public void actionPerformed(ActionEvent e) {
 
-		    	File defaultFile = new File(tokenUnderMouse.getName());
+			File defaultFile = new File(tokenUnderMouse.getName());
 			JFileChooser chooser = MapTool.getFrame().getSaveFileChooser();
 			chooser.setSelectedFile(defaultFile);
-			
+
 			if (chooser.showSaveDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
 				return;
 			}
@@ -529,7 +530,7 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 			if (!file.getName().endsWith(Token.FILE_EXTENSION)) {
 				file = new File(file.getAbsolutePath() + "." + Token.FILE_EXTENSION);
 			}
-			
+
 			// Confirm
 			if (file.exists()) {
 				if (!MapTool.confirm("File exists, would you like to overwrite?")) {
@@ -716,13 +717,20 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 		public void actionPerformed(ActionEvent e) {
 
 			for (GUID guid : selectedTokenSet) {
-
-				Token token = renderer.getZone().getToken(guid);
+				Zone zone = renderer.getZone();
+				Token token = zone.getToken(guid);
 				if (token == null) {
 					continue;
 				}
 
 				token.setSnapToGrid(!snapToGrid);
+				Grid grid = zone.getGrid();
+				if (grid.getCapabilities().isSnapToGridSupported() && token.isSnapToGrid()) {
+					ZonePoint zp = new ZonePoint(token.getX(), token.getY());
+					zp = grid.convert(grid.convert(zp));
+					token.setX(zp.x);
+					token.setY(zp.y);
+				}
 				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 			}
 		}

@@ -199,11 +199,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	}
 
 	public void stopTokenDrag() {
-		renderer.commitMoveSelectionSet(tokenBeingDragged.getId()); // TODO:
-		// figure
-		// out a
-		// better
-		// way
+		renderer.commitMoveSelectionSet(tokenBeingDragged.getId()); // TODO:  figure out a better way
 		isDraggingToken = false;
 		isMovingWithKeys = false;
 

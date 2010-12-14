@@ -1,6 +1,4 @@
-
 package net.rptools.maptool.client.functions;
-
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -32,15 +30,12 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 		super(1, 4, COPY_FUNC, REMOVE_FUNC);
 	}
 
-
 	public static TokenCopyDeleteFunctions getInstance() {
 		return instance;
 	}
 
-
 	@Override
-	public Object childEvaluate(Parser parser, String functionName,
-			List<Object> parameters) throws ParserException {
+	public Object childEvaluate(Parser parser, String functionName, List<Object> parameters) throws ParserException {
 		if (!MapTool.getParser().isMacroTrusted()) {
 			throw new ParserException(I18N.getText("macro.function.general.noPerm", functionName));
 		}
@@ -57,8 +52,6 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 		throw new ParserException(I18N.getText("macro.function.general.unknownFunction", functionName));
 	}
 
-
-
 	private String deleteToken(MapToolVariableResolver res, List<Object> parameters) throws ParserException {
 		Token token = FindTokenFunctions.findToken(parameters.get(0).toString(), null);
 
@@ -70,10 +63,10 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 		return "Deleted token " + token.getId() + " (" + token.getName() + ")";
 	}
 
-
 	/*
-	 * Token		copyToken(String tokenId, Number numCopies: 1, String fromMap: (""|currentMap()), JSONObject updates: null)
-	 * JSONArray	copyToken(String tokenId, Number numCopies,     String fromMap: (""|currentMap()), JSONObject updates: null)
+	 * Token copyToken(String tokenId, Number numCopies: 1, String fromMap: (""|currentMap()), JSONObject updates: null)
+	 * JSONArray copyToken(String tokenId, Number numCopies, String fromMap: (""|currentMap()), JSONObject updates:
+	 * null)
 	 */
 	private Object copyTokens(MapToolVariableResolver res, List<Object> param) throws ParserException {
 		Token token = null;
@@ -83,22 +76,22 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 
 		int size = param.size();
 		switch (size) {
-		default :	// Come here with four or more parameters
+		default: // Come here with four or more parameters
 			throw new ParserException(I18N.getText("macro.function.general.tooManyParam", COPY_FUNC, 4, size));
-		case 4 :
+		case 4:
 			Object o = JSONMacroFunctions.asJSON(param.get(3));
 			if (!(o instanceof JSONObject)) {
 				throw new ParserException(I18N.getText("macro.function.general.argumentTypeO", COPY_FUNC, 4));
 			}
 			newVals = (JSONObject) o;
-		case 3 :
+		case 3:
 			zoneName = param.get(2).toString();
-		case 2 :
+		case 2:
 			if (!(param.get(1) instanceof BigDecimal)) {
 				throw new ParserException(I18N.getText("macro.function.general.argumentTypeI", COPY_FUNC, 2, param.get(1).toString()));
 			}
-			numberCopies = ((BigDecimal)param.get(1)).intValue();
-		case 1 :
+			numberCopies = ((BigDecimal) param.get(1)).intValue();
+		case 1:
 			token = FindTokenFunctions.findToken(param.get(0).toString(), zoneName);
 			if (token == null) {
 				throw new ParserException(I18N.getText("macro.function.general.unknownTokenOnMap", COPY_FUNC, param.get(0), zoneName));
@@ -109,9 +102,9 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 			for (int i = 0; i < numberCopies; i++) {
 				Token t = new Token(token);
 
-				if(allTokens != null){
-					for(Token tok: allTokens){
-						if(tok.getExposedAreaGUID().equals(t.getExposedAreaGUID())){
+				if (allTokens != null) {
+					for (Token tok : allTokens) {
+						if (tok.getExposedAreaGUID().equals(t.getExposedAreaGUID())) {
 							t.setExposedAreaGUID(new GUID());
 						}
 					}
@@ -128,8 +121,8 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 			} else {
 				return JSONArray.fromObject(newTokens);
 			}
-		case 0 :
-			throw new ParserException(I18N.getText("macro.function.general.argumentTypeT", COPY_FUNC, 1));	// should be notEnoughParams
+		case 0:
+			throw new ParserException(I18N.getText("macro.function.general.argumentTypeT", COPY_FUNC, 1)); // should be notEnoughParams
 		}
 	}
 
@@ -142,7 +135,7 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 
 		// Update the Token Name.
 		if (newVals.containsKey("name")) {
-			if(newVals.getString("name").equals("")){
+			if (newVals.getString("name").equals("")) {
 				throw new ParserException(I18N.getText("macro.function.tokenName.emptyTokenNameForbidden", COPY_FUNC));
 			}
 			token.setName(newVals.getString("name"));
@@ -169,14 +162,16 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 		}
 
 		// Location...
-		boolean useDistance = true;
+		boolean useDistance = false; // FALSE means to multiple x,y values by grid size
 		if (newVals.containsKey("useDistance")) {
-			if (newVals.getInt("useDistance") == 0) {
-				useDistance = false;
+			if (newVals.getInt("useDistance") != 0) {
+				useDistance = true;
 			}
 		}
 		Grid grid = zone.getGrid();
-		int x = token.getX(), y = token.getY();
+		TokenFootprint tf = token.getFootprint(grid);
+		int x = token.getX();
+		int y = token.getY();
 		boolean tokenMoved = false;
 		boolean delta = false;
 
@@ -188,18 +183,19 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 
 		// X
 		if (newVals.containsKey("x")) {
-			x = newVals.getInt("x") * (useDistance ? grid.getSize() : 1) + (delta ? x : 0);
+			x = newVals.getInt("x") * (useDistance ? 1 : grid.getSize()) + (delta ? x : 0);
 			tokenMoved = true;
 		}
 
 		// Y
 		if (newVals.containsKey("y")) {
-			y = newVals.getInt("y") * (useDistance ? grid.getSize() : 1) + (delta ? y : 0);
+			y = newVals.getInt("y") * (useDistance ? 1 : grid.getSize()) + (delta ? y : 0);
 			tokenMoved = true;
 		}
 
 		if (tokenMoved) {
-			TokenLocationFunctions.getInstance().moveToken(token, x, y, true);		// Always using ZonePoint coords
+			System.err.println(newVals + " @ (" + x + ", " + y + ")");
+			TokenLocationFunctions.getInstance().moveToken(token, x, y, true); // Always using ZonePoint coords
 		}
 
 		// Facing
@@ -209,7 +205,7 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 		}
 
 		// Size
-		if (newVals.containsKey("size")) {				// FJE ... && token.isSnapToScale()) {
+		if (newVals.containsKey("size")) { // FJE ... && token.isSnapToScale()) {
 			String size = newVals.getString("size");
 			for (TokenFootprint footprint : grid.getFootprints()) {
 				if (footprint.getName().equalsIgnoreCase(size)) {
@@ -221,17 +217,17 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 		}
 
 		// tokenImage
-		if( newVals.containsKey("tokenImage")) {
+		if (newVals.containsKey("tokenImage")) {
 			String assetName = newVals.getString("tokenImage");
 			TokenImage.setImage(token, assetName);
 		}
 		// handoutImage
-		if( newVals.containsKey("handoutImage")) {
+		if (newVals.containsKey("handoutImage")) {
 			String assetName = newVals.getString("handoutImage");
 			TokenImage.setHandout(token, assetName);
 		}
 		// portraitImage
-		if( newVals.containsKey("portraitImage")) {
+		if (newVals.containsKey("portraitImage")) {
 			String assetName = newVals.getString("portraitImage");
 			TokenImage.setPortrait(token, assetName);
 		}

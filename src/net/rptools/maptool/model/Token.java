@@ -16,7 +16,6 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Transparency;
-import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.Serializable;
@@ -114,8 +113,7 @@ public class Token extends BaseModel {
 	private int lastY;
 	private Path<? extends AbstractPoint> lastPath;
 
-	private boolean snapToScale = true; // Whether the scaleX and scaleY
-	// represent snap-to-grid measurements
+	private boolean snapToScale = true; // Whether the scaleX and scaleY represent snap-to-grid measurements
 
 	// These are the original image width and height
 	private int width;
@@ -126,8 +124,7 @@ public class Token extends BaseModel {
 
 	private Map<Class<? extends Grid>, GUID> sizeMap;
 
-	private boolean snapToGrid = true; // Whether the token snaps to the
-	// current grid or is free floating
+	private boolean snapToGrid = true; // Whether the token snaps to the current grid or is free floating
 
 	private boolean isVisible = true;
 	private boolean visibleOnlyToOwner = false;
@@ -184,7 +181,14 @@ public class Token extends BaseModel {
 	/**
 	 * Properties
 	 */
-	private CaseInsensitiveHashMap<Object> propertyMap;
+	// I screwed up.  propertyMap was HashMap<String,Object> in pre-1.3b70 (?)
+	// and became a CaseInsensitiveHashMap<Object> thereafter.  So in order to
+	// be able to load old tokens, we need to read in the original data type and
+	// copy the elements into the new data type.  But because the name didn't
+	// change (that was the screw up) we have special code in readResolve() to
+	// help XStream move the data around.
+	private transient Map<String, Object> propertyMap; // 1.3b77
+	private CaseInsensitiveHashMap<Object> propertyMapCI;
 
 	private Map<String, String> macroMap;
 	private Map<Integer, Object> macroPropertiesMap;
@@ -263,9 +267,9 @@ public class Token extends BaseModel {
 			state.putAll(token.state);
 		}
 
-		if (token.propertyMap != null) {
+		if (token.propertyMapCI != null) {
 			getPropertyMap().clear();
-			getPropertyMap().putAll(token.propertyMap);
+			getPropertyMap().putAll(token.propertyMapCI);
 		}
 
 		if (token.macroPropertiesMap != null) {
@@ -294,7 +298,6 @@ public class Token extends BaseModel {
 
 	public Token() {
 		imageAssetMap = new HashMap<String, MD5Key>();
-		
 
 	}
 
@@ -335,7 +338,7 @@ public class Token extends BaseModel {
 		macroMap = null;
 //		macroPropertiesMap = null;
 		ownerList = null;
-		// propertyMap = null;
+		// propertyMapCI = null;
 		// propertyType = "Basic";
 //		sightType = "Normal";
 		sightType = MapTool.getCampaign().getCampaignProperties().getDefaultSightType();
@@ -1059,10 +1062,10 @@ public class Token extends BaseModel {
 	}
 
 	private CaseInsensitiveHashMap<Object> getPropertyMap() {
-		if (propertyMap == null) {
-			propertyMap = new CaseInsensitiveHashMap<Object>();
+		if (propertyMapCI == null) {
+			propertyMapCI = new CaseInsensitiveHashMap<Object>();
 		}
-		return propertyMap;
+		return propertyMapCI;
 	}
 
 	private void loadOldMacros() {
@@ -1503,31 +1506,41 @@ public class Token extends BaseModel {
 	@Override
 	protected Object readResolve() {
 		super.readResolve();
-		if (propertyMap != null && !(propertyMap instanceof CaseInsensitiveHashMap)) {
-			Map<String, Object> oldMap = propertyMap;
-			propertyMap = new CaseInsensitiveHashMap<Object>();
-			propertyMap.putAll(oldMap);
+		// FJE: If the propertyMap field has something in it, it could be:
+		//		a pre-1.3b66 token that contains a HashMap<?,?>, or
+		//		a pre-1.3b78 token that actually has the CaseInsensitiveHashMap<?>.
+		// Newer tokens will use propertyMapCI so we only need to make corrections
+		// if the old field has data in it.  And the old field will never contain data in newer
+		// tokens since the field is marked transient.  (Ugh.)
+		if (propertyMap != null) {
+			if (propertyMap instanceof CaseInsensitiveHashMap) {
+				propertyMapCI = (CaseInsensitiveHashMap<Object>) propertyMap;
+			} else {
+				propertyMapCI = new CaseInsensitiveHashMap<Object>();
+				propertyMapCI.putAll(propertyMap);
+				propertyMap.clear(); // It'll never be written out, but we should free the memory.
+			}
+			propertyMap = null;
 		}
 		// 1.3 b77
-		if(exposedAreaGUID == null) {
-		    exposedAreaGUID = new GUID();
+		if (exposedAreaGUID == null) {
+			exposedAreaGUID = new GUID();
 		}
 		return this;
-		
 	}
 
-
 	/**
-	 * @param exposedAreaGUID the exposedAreaGUID to set
+	 * @param exposedAreaGUID
+	 *            the exposedAreaGUID to set
 	 */
 	public void setExposedAreaGUID(GUID exposedAreaGUID) {
-	    this.exposedAreaGUID = exposedAreaGUID;
+		this.exposedAreaGUID = exposedAreaGUID;
 	}
 
 	/**
 	 * @return the exposedAreaGUID
 	 */
 	public GUID getExposedAreaGUID() {
-	    return exposedAreaGUID;
+		return exposedAreaGUID;
 	}
 }
