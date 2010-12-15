@@ -76,7 +76,7 @@ public class MiscInitiativeFunction extends AbstractFunction {
 			int current = -1; // Assume that the current isn't visible
 			boolean hideNPCs = list.isHideNPC();
 			for (TokenInitiative ti : list.getTokens()) {
-				if (!InitiativeListModel.isTokenVisible(ti.getToken(), hideNPCs))
+				if (!MapTool.getParser().isMacroTrusted() && !InitiativeListModel.isTokenVisible(ti.getToken(), hideNPCs))
 					continue;
 				if (ti == list.getTokenInitiative(list.getCurrent()))
 					current = tokens.size(); // Make sure the current number matches what the user can see
