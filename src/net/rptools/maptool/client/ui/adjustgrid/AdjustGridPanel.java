@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.ui.adjustgrid;
 
@@ -30,432 +27,418 @@ import java.beans.PropertyChangeSupport;
 
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.ui.Scale;
 
 public class AdjustGridPanel extends JComponent implements MouseListener, MouseMotionListener, MouseWheelListener {
 
-    private static final int MINIMUM_GRID_SIZE = 5;
-    
-    private static enum Direction { Increase, Decrease };
+	private static final int MINIMUM_GRID_SIZE = 5;
 
-    public static final String PROPERTY_GRID_OFFSET_X = "gridOffsetX";
-    public static final String PROPERTY_GRID_OFFSET_Y = "gridOffsetY";
-    public static final String PROPERTY_GRID_SIZE = "gridSize";
-    public static final String PROPERTY_ZOOM = "zoom";
-    
-    private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
-    
-    private int gridOffsetX = 0;
-    private int gridOffsetY = 0;
-    private int gridSize = 40;
-    private boolean showGrid = true;
+	private static enum Direction {
+		Increase, Decrease
+	};
 
-    private int mouseX;
-    private int mouseY;
-    
-    private int dragStartX;
+	public static final String PROPERTY_GRID_OFFSET_X = "gridOffsetX";
+	public static final String PROPERTY_GRID_OFFSET_Y = "gridOffsetY";
+	public static final String PROPERTY_GRID_SIZE = "gridSize";
+	public static final String PROPERTY_ZOOM = "zoom";
+
+	private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+
+	private int gridOffsetX = 0;
+	private int gridOffsetY = 0;
+	private int gridSize = 40;
+	private boolean showGrid = true;
+
+	private int mouseX;
+	private int mouseY;
+
+	private int dragStartX;
 	private int dragStartY;
 	private int dragOffsetX;
 	private int dragOffsetY;
-	
+
 	private Color gridColor = Color.darkGray;
 
 	private BufferedImage image;
-    
-    private Scale scale;
-    
-    public AdjustGridPanel() {
-        setOpaque(false);
-        addMouseListener(this);
-        addMouseMotionListener(this);
-        addMouseWheelListener(this);
-        
-        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("-"), "zoomOut");
-        getActionMap().put("zoomOut", new AbstractAction() {
-        	public void actionPerformed(ActionEvent e) {
-        		zoomOut();
-        	}
-        });
 
-        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("="), "zoomIn");
-        getActionMap().put("zoomIn", new AbstractAction() {
-        	public void actionPerformed(ActionEvent e) {
-        		zoomIn();
-        	}
-        });
-        
-        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("+"), "zoomRest");
-        getActionMap().put("zoomReset", new AbstractAction() {
-        	public void actionPerformed(ActionEvent e) {
-        		zoomReset();
-        	}
-        });
-    }
-    
-    public void setZoneImage(BufferedImage image) {
-        this.image = image;
+	private Scale scale;
 
-        scale = new Scale(image.getWidth(), image.getHeight());
-    }
+	public AdjustGridPanel() {
+		setOpaque(false);
+		addMouseListener(this);
+		addMouseMotionListener(this);
+		addMouseWheelListener(this);
 
-    public void setZoomIndex(int index) {
-    	scale.setScale(index);
-    	repaint();
-    }
-    
-    @Override
-    protected void paintComponent(Graphics g) {
-        
-        if (image == null) {
-            return;
-        }
+		getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(AppActions.ZOOM_OUT.getKeyStroke(), "zoomOut");
+		getActionMap().put("zoomOut", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				zoomOut();
+			}
+		});
 
-        Dimension size = getSize();
-        
-        if (scale.initialize(size.width, size.height)) {
-	    	propertyChangeSupport.firePropertyChange(PROPERTY_ZOOM, 0, (int)scale.getScale());
-        }
+		getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(AppActions.ZOOM_IN.getKeyStroke(), "zoomIn");
+		getActionMap().put("zoomIn", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				zoomIn();
+			}
+		});
 
-        // CALCULATIONS
-        Dimension imageSize = getScaledImageSize();
-        Point imagePosition = getScaledImagePosition();
-        
-        double imgRatio = scale.getScale();
+		getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(AppActions.ZOOM_RESET.getKeyStroke(), "zoomReset");
+		getActionMap().put("zoomReset", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				zoomReset();
+			}
+		});
+	}
 
-        // SETUP
-        Graphics2D g2d = (Graphics2D) g;
+	public void setZoneImage(BufferedImage image) {
+		this.image = image;
 
-        // BG FILL
-        g2d.setColor(getBackground());
-        g2d.fillRect(0, 0, size.width, size.height);
-        
-        // IMAGE
-        g2d.drawImage(image, imagePosition.x, imagePosition.y, imageSize.width, imageSize.height, null);
-        g2d.setColor(Color.black);
-        g2d.drawRect(imagePosition.x, imagePosition.y, imageSize.width, imageSize.height);
-        
-        // GRID
-        g2d.setColor(gridColor);
-        double gridSize = this.gridSize * imgRatio;
-        
-        // across
-        int x = imagePosition.x + (int)(gridOffsetX*imgRatio);
-        for (double i = gridSize; i <= imageSize.width; i += gridSize) {
-            g2d.drawLine(x + (int)i, imagePosition.y, x + (int)i, imagePosition.y + imageSize.height-1);
-        }
-        
-        // down
-        int y = imagePosition.y + (int)(gridOffsetY*imgRatio);
-        for (double i = gridSize; i <= imageSize.height; i += gridSize) {
-            g2d.drawLine(imagePosition.x, y+(int)i, imagePosition.x+imageSize.width-1, y+(int)i);
-        }
-    }
-    
-    public void setGridColor(Color color) {
-    	gridColor = color;
-    }
-    
-    @Override
-    public boolean isFocusable() {
-    	return true;
-    }
-    public void setGridOffset(int offsetX, int offsetY) {
-    	gridOffsetX = offsetX;
-    	gridOffsetY = offsetY;
-    	
-        repaint();
-    }
-    
-    public int getGridSize() {
-    	return gridSize;
-    }
-    
-    public int getGridOffsetX() {
-    	return gridOffsetX;
-    }
-    
-    public int getGridOffsetY() {
-    	return gridOffsetY;
-    }
-    
-    public void setGridSize(int size) {
-    	gridSize = Math.max(MINIMUM_GRID_SIZE, size);
-    	repaint();
-    }
-    
-    private Dimension getScaledImageSize() {
+		scale = new Scale(image.getWidth(), image.getHeight());
+	}
 
-        Dimension imageSize = new Dimension(image.getWidth(), image.getHeight());
-        imageSize.width *= scale.getScale();
-        imageSize.height *= scale.getScale();
-        
-        return imageSize;
-    }
-    
-    private Point getScaledImagePosition() {
-        
-        int imgX = scale.getOffsetX();
-        int imgY = scale.getOffsetY();
-        
-        return new Point(imgX, imgY);
-    }
-    
-    public void zoomIn() {
-    	scale.zoomIn(mouseX, mouseY);
-    	repaint();
-    }
-    
-    public void zoomOut() {
-    	scale.zoomOut(mouseX, mouseY);
-    	repaint();
-    }
-    
-    public void zoomReset() {
-    	scale.reset();
-    	repaint();
-    }
-    
-    public void moveGridBy(int dx, int dy) {
+	public void setZoomIndex(int index) {
+		scale.setScale(index);
+		repaint();
+	}
 
-    	int oldOffsetX = gridOffsetX;
-    	int oldOffsetY = gridOffsetY;
-    	
-        gridOffsetX += dx;
-        gridOffsetY += dy;
+	@Override
+	protected void paintComponent(Graphics g) {
 
-        gridOffsetX %= gridSize;
-        gridOffsetY %= gridSize;
+		if (image == null) {
+			return;
+		}
 
-        if (gridOffsetY > 0) {
-            gridOffsetY = gridOffsetY - gridSize;
-        }
-        
-        if (gridOffsetX > 0) {
-            gridOffsetX = gridOffsetX - gridSize;
-        }
+		Dimension size = getSize();
 
-        repaint();
-        
-        propertyChangeSupport.firePropertyChange(PROPERTY_GRID_OFFSET_X, oldOffsetX, gridOffsetX);
-        propertyChangeSupport.firePropertyChange(PROPERTY_GRID_OFFSET_Y, oldOffsetY, gridOffsetY);
-    }
+		if (scale.initialize(size.width, size.height)) {
+			propertyChangeSupport.firePropertyChange(PROPERTY_ZOOM, 0, (int) scale.getScale());
+		}
 
-    public void adjustGridSize(int delta) {
-    	
-    	int oldSize = gridSize;
-        gridSize = Math.max(MINIMUM_GRID_SIZE, gridSize + delta);
+		// CALCULATIONS
+		Dimension imageSize = getScaledImageSize();
+		Point imagePosition = getScaledImagePosition();
 
-        repaint();
-        propertyChangeSupport.firePropertyChange(PROPERTY_GRID_SIZE, oldSize, gridSize);
-    }
+		double imgRatio = scale.getScale();
 
-    private void adjustGridSize(Direction direction) {
+		// SETUP
+		Graphics2D g2d = (Graphics2D) g;
 
-        Point imagePosition = getScaledImagePosition();
+		// BG FILL
+		g2d.setColor(getBackground());
+		g2d.fillRect(0, 0, size.width, size.height);
 
-        double gridSize = this.gridSize * scale.getScale();
-        
-        int cellX = (int)((mouseX - imagePosition.x-gridOffsetX) / gridSize);
-        int cellY = (int)((mouseY - imagePosition.y-gridOffsetY) / gridSize);
+		// IMAGE
+		g2d.drawImage(image, imagePosition.x, imagePosition.y, imageSize.width, imageSize.height, null);
+		g2d.setColor(Color.black);
+		g2d.drawRect(imagePosition.x, imagePosition.y, imageSize.width, imageSize.height);
 
-        switch (direction) {
-        case Increase:
-            adjustGridSize(1);
-            
-            if (this.gridSize != gridSize) {
-            	moveGridBy(-cellX, -cellY);
-            }
-            break;
-        case Decrease:
-            adjustGridSize(-1);
+		// GRID
+		g2d.setColor(gridColor);
+		double gridSize = this.gridSize * imgRatio;
 
-            if (this.gridSize != gridSize) {
-            	moveGridBy(cellX, cellY);
-            }
-            break;
-        }
-    }
-    
-    //// 
-    // MOUSE LISTENER
-    public void mouseClicked(MouseEvent e) {}
-    public void mouseEntered(MouseEvent e) {}
-    public void mouseExited(MouseEvent e) {}
-    public void mousePressed(MouseEvent e) {
-        
+		// across
+		int x = imagePosition.x + (int) (gridOffsetX * imgRatio);
+		for (double i = gridSize; i <= imageSize.width; i += gridSize) {
+			g2d.drawLine(x + (int) i, imagePosition.y, x + (int) i, imagePosition.y + imageSize.height - 1);
+		}
+
+		// down
+		int y = imagePosition.y + (int) (gridOffsetY * imgRatio);
+		for (double i = gridSize; i <= imageSize.height; i += gridSize) {
+			g2d.drawLine(imagePosition.x, y + (int) i, imagePosition.x + imageSize.width - 1, y + (int) i);
+		}
+	}
+
+	public void setGridColor(Color color) {
+		gridColor = color;
+	}
+
+	@Override
+	public boolean isFocusable() {
+		return true;
+	}
+
+	public void setGridOffset(int offsetX, int offsetY) {
+		gridOffsetX = offsetX;
+		gridOffsetY = offsetY;
+
+		repaint();
+	}
+
+	public int getGridSize() {
+		return gridSize;
+	}
+
+	public int getGridOffsetX() {
+		return gridOffsetX;
+	}
+
+	public int getGridOffsetY() {
+		return gridOffsetY;
+	}
+
+	public void setGridSize(int size) {
+		gridSize = Math.max(MINIMUM_GRID_SIZE, size);
+		repaint();
+	}
+
+	private Dimension getScaledImageSize() {
+
+		Dimension imageSize = new Dimension(image.getWidth(), image.getHeight());
+		imageSize.width *= scale.getScale();
+		imageSize.height *= scale.getScale();
+
+		return imageSize;
+	}
+
+	private Point getScaledImagePosition() {
+
+		int imgX = scale.getOffsetX();
+		int imgY = scale.getOffsetY();
+
+		return new Point(imgX, imgY);
+	}
+
+	public void zoomIn() {
+		scale.zoomIn(mouseX, mouseY);
+		repaint();
+	}
+
+	public void zoomOut() {
+		scale.zoomOut(mouseX, mouseY);
+		repaint();
+	}
+
+	public void zoomReset() {
+		scale.reset();
+		repaint();
+	}
+
+	public void moveGridBy(int dx, int dy) {
+
+		int oldOffsetX = gridOffsetX;
+		int oldOffsetY = gridOffsetY;
+
+		gridOffsetX += dx;
+		gridOffsetY += dy;
+
+		gridOffsetX %= gridSize;
+		gridOffsetY %= gridSize;
+
+		if (gridOffsetY > 0) {
+			gridOffsetY = gridOffsetY - gridSize;
+		}
+
+		if (gridOffsetX > 0) {
+			gridOffsetX = gridOffsetX - gridSize;
+		}
+
+		repaint();
+
+		propertyChangeSupport.firePropertyChange(PROPERTY_GRID_OFFSET_X, oldOffsetX, gridOffsetX);
+		propertyChangeSupport.firePropertyChange(PROPERTY_GRID_OFFSET_Y, oldOffsetY, gridOffsetY);
+	}
+
+	public void adjustGridSize(int delta) {
+
+		int oldSize = gridSize;
+		gridSize = Math.max(MINIMUM_GRID_SIZE, gridSize + delta);
+
+		repaint();
+		propertyChangeSupport.firePropertyChange(PROPERTY_GRID_SIZE, oldSize, gridSize);
+	}
+
+	private void adjustGridSize(Direction direction) {
+
+		Point imagePosition = getScaledImagePosition();
+
+		double gridSize = this.gridSize * scale.getScale();
+
+		int cellX = (int) ((mouseX - imagePosition.x - gridOffsetX) / gridSize);
+		int cellY = (int) ((mouseY - imagePosition.y - gridOffsetY) / gridSize);
+
+		switch (direction) {
+		case Increase:
+			adjustGridSize(1);
+
+			if (this.gridSize != gridSize) {
+				moveGridBy(-cellX, -cellY);
+			}
+			break;
+		case Decrease:
+			adjustGridSize(-1);
+
+			if (this.gridSize != gridSize) {
+				moveGridBy(cellX, cellY);
+			}
+			break;
+		}
+	}
+
+	//// 
+	// MOUSE LISTENER
+	public void mouseClicked(MouseEvent e) {
+	}
+
+	public void mouseEntered(MouseEvent e) {
+	}
+
+	public void mouseExited(MouseEvent e) {
+	}
+
+	public void mousePressed(MouseEvent e) {
+
 		mouseX = e.getX();
 		mouseY = e.getY();
 
 		dragStartX = e.getX();
 		dragStartY = e.getY();
-		
-        Point imagePosition = getScaledImagePosition();
 
-        int x = (int)((e.getX() - imagePosition.x)/scale.getScale()-gridOffsetX);
-        int y = (int)((e.getY() - imagePosition.y)/scale.getScale()-gridOffsetY);
-		
-        dragOffsetX = x % gridSize;
-        dragOffsetY = y % gridSize;
-    }
-    
-    public void mouseReleased(MouseEvent e) {
-    }
+		Point imagePosition = getScaledImagePosition();
 
-    ////
-    // MOUSE MOTION LISTENER
-    public void mouseDragged(MouseEvent e) {
-        
-    	if (SwingUtilities.isLeftMouseButton(e)) {
+		int x = (int) ((e.getX() - imagePosition.x) / scale.getScale() - gridOffsetX);
+		int y = (int) ((e.getY() - imagePosition.y) / scale.getScale() - gridOffsetY);
 
-            Point imagePosition = getScaledImagePosition();
+		dragOffsetX = x % gridSize;
+		dragOffsetY = y % gridSize;
+	}
 
-            int x = (int)((e.getX() - imagePosition.x)/scale.getScale() - dragOffsetX);
-            int y = (int)((e.getY() - imagePosition.y)/scale.getScale() - dragOffsetY);
+	public void mouseReleased(MouseEvent e) {
+	}
 
-            int oldOffsetX = gridOffsetX;
-            int oldOffsetY = gridOffsetY;
-            
-            gridOffsetX = x % gridSize;
-            gridOffsetY = y % gridSize;
-            
-            if (gridOffsetY > 0) {
-                gridOffsetY = gridOffsetY - gridSize;
-            }
-            
-            if (gridOffsetX > 0) {
-                gridOffsetX = gridOffsetX - gridSize;
-            }
+	////
+	// MOUSE MOTION LISTENER
+	public void mouseDragged(MouseEvent e) {
 
-            repaint();
-            propertyChangeSupport.firePropertyChange(PROPERTY_GRID_OFFSET_X, oldOffsetX, gridOffsetX);
-            propertyChangeSupport.firePropertyChange(PROPERTY_GRID_OFFSET_Y, oldOffsetY, gridOffsetY);
-    	} else {
-    		int offsetX = scale.getOffsetX() + e.getX() - dragStartX;
-    		int offsetY = scale.getOffsetY() + e.getY() - dragStartY;
-    		
-    		scale.setOffset(offsetX, offsetY);
-    		
-    		dragStartX = e.getX();
-    		dragStartY = e.getY();
+		if (SwingUtilities.isLeftMouseButton(e)) {
 
-    		repaint();
-    	}
-    }
-    public void mouseMoved(MouseEvent e) {
-        
-        Dimension imgSize = getScaledImageSize();
-        Point imgPos = getScaledImagePosition();
-        
-        boolean insideMap = e.getX() > imgPos.x && e.getX() < imgPos.x+imgSize.width && e.getY() > imgPos.y && e.getY() < imgPos.y + imgSize.height;
-        if ((insideMap && showGrid) || (!insideMap && !showGrid)) {
-            showGrid = !insideMap;
-            repaint();
-        }
-        
+			Point imagePosition = getScaledImagePosition();
+
+			int x = (int) ((e.getX() - imagePosition.x) / scale.getScale() - dragOffsetX);
+			int y = (int) ((e.getY() - imagePosition.y) / scale.getScale() - dragOffsetY);
+
+			int oldOffsetX = gridOffsetX;
+			int oldOffsetY = gridOffsetY;
+
+			gridOffsetX = x % gridSize;
+			gridOffsetY = y % gridSize;
+
+			if (gridOffsetY > 0) {
+				gridOffsetY = gridOffsetY - gridSize;
+			}
+
+			if (gridOffsetX > 0) {
+				gridOffsetX = gridOffsetX - gridSize;
+			}
+
+			repaint();
+			propertyChangeSupport.firePropertyChange(PROPERTY_GRID_OFFSET_X, oldOffsetX, gridOffsetX);
+			propertyChangeSupport.firePropertyChange(PROPERTY_GRID_OFFSET_Y, oldOffsetY, gridOffsetY);
+		} else {
+			int offsetX = scale.getOffsetX() + e.getX() - dragStartX;
+			int offsetY = scale.getOffsetY() + e.getY() - dragStartY;
+
+			scale.setOffset(offsetX, offsetY);
+
+			dragStartX = e.getX();
+			dragStartY = e.getY();
+
+			repaint();
+		}
+	}
+
+	public void mouseMoved(MouseEvent e) {
+
+		Dimension imgSize = getScaledImageSize();
+		Point imgPos = getScaledImagePosition();
+
+		boolean insideMap = e.getX() > imgPos.x && e.getX() < imgPos.x + imgSize.width && e.getY() > imgPos.y && e.getY() < imgPos.y + imgSize.height;
+		if ((insideMap && showGrid) || (!insideMap && !showGrid)) {
+			showGrid = !insideMap;
+			repaint();
+		}
+
 		mouseX = e.getX();
 		mouseY = e.getY();
-    }
-    
-    ////
-    // MOUSE WHEEL LISTENER
-    public void mouseWheelMoved(MouseWheelEvent e) {
+	}
 
-        if (SwingUtil.isControlDown(e)) {
-        	
-        	double oldScale = scale.getScale();
-	    	if (e.getWheelRotation() > 0) {
-	    		scale.zoomOut(e.getX(), e.getY());
-	    	} else {
-	    		scale.zoomIn(e.getX(), e.getY());
-	    	}
-	    	propertyChangeSupport.firePropertyChange(PROPERTY_ZOOM, oldScale, scale.getScale());
-        } else {
+	////
+	// MOUSE WHEEL LISTENER
+	public void mouseWheelMoved(MouseWheelEvent e) {
 
-            if (e.getWheelRotation() > 0) {
-                
-                adjustGridSize(Direction.Increase);
-            } else {
-                
-            	adjustGridSize(Direction.Decrease);
-            }
-        }
-    	repaint();
-    }
+		if (SwingUtil.isControlDown(e)) {
 
-    ////
-    // PROPERTY CHANGE SUPPORT
-    public void addPropertyChangeListener(PropertyChangeListener listener) {
-    	propertyChangeSupport.addPropertyChangeListener(listener);
-    }
-    
-    public void removePropertyChangeListener(PropertyChangeListener listener) {
-    	propertyChangeSupport.removePropertyChangeListener(listener);
-    }
-    public void addPropertyChangeListener(String name, PropertyChangeListener listener) {
-    	propertyChangeSupport.addPropertyChangeListener(name, listener);
-    }
-    
-    public void removePropertyChangeListener(String name, PropertyChangeListener listener) {
-    	propertyChangeSupport.removePropertyChangeListener(name, listener);
-    }
-/*
-    private final Map<KeyStroke, Action> KEYSTROKES = new HashMap<KeyStroke, Action>() {
-	    {
-	        put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(Size.Decrease));
-	        put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(Size.Decrease));
-	        put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(Size.Increase));
-	        put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(Size.Increase));
-	        put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), new GridOffsetAction(GridOffsetAction.Direction.Up));
-	        put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), new GridOffsetAction(GridOffsetAction.Direction.Left));
-	        put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), new GridOffsetAction(GridOffsetAction.Direction.Down));
-	        put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), new GridOffsetAction(GridOffsetAction.Direction.Right));
-	    }
-    };
-    protected Map<KeyStroke, Action> getKeyActionMap() {
-        return KEYSTROKES;
-    }
-    
-    private final class GridSizeAction extends AbstractAction {
-        private final Size size;
-        public GridSizeAction(Size size) {
-            this.size = size;
-        }
+			double oldScale = scale.getScale();
+			if (e.getWheelRotation() > 0) {
+				scale.zoomOut(e.getX(), e.getY());
+			} else {
+				scale.zoomIn(e.getX(), e.getY());
+			}
+			propertyChangeSupport.firePropertyChange(PROPERTY_ZOOM, oldScale, scale.getScale());
+		} else {
 
-        public void actionPerformed(ActionEvent e) {
-            ZoneRenderer renderer = (ZoneRenderer) e.getSource();
-            adjustGridSize(renderer, size);
-        }
-    }
-    
-    private static final class GridOffsetAction extends AbstractAction {
-        private static enum Direction { Left, Right, Up, Down };
-        private final Direction direction;
+			if (e.getWheelRotation() > 0) {
 
-        public GridOffsetAction(Direction direction) {
-            this.direction = direction;
-        }
+				adjustGridSize(Direction.Increase);
+			} else {
 
-        public void actionPerformed(ActionEvent e) {
-            ZoneRenderer renderer = (ZoneRenderer) e.getSource();
-            switch (direction) {
-            case Left:
-                renderer.moveGridBy(-1, 0);
-                break;
-            case Right:
-                renderer.moveGridBy(1, 0);
-                break;
-            case Up:
-                renderer.moveGridBy(0, -1);
-                break;
-            case Down:
-                renderer.moveGridBy(0, 1);
-                break;
-            }
-        }
-    }
- */    
+				adjustGridSize(Direction.Decrease);
+			}
+		}
+		repaint();
+	}
+
+	////
+	// PROPERTY CHANGE SUPPORT
+	@Override
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		propertyChangeSupport.addPropertyChangeListener(listener);
+	}
+
+	@Override
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		propertyChangeSupport.removePropertyChangeListener(listener);
+	}
+
+	@Override
+	public void addPropertyChangeListener(String name, PropertyChangeListener listener) {
+		propertyChangeSupport.addPropertyChangeListener(name, listener);
+	}
+
+	@Override
+	public void removePropertyChangeListener(String name, PropertyChangeListener listener) {
+		propertyChangeSupport.removePropertyChangeListener(name, listener);
+	}
+	/*
+	 * private final Map<KeyStroke, Action> KEYSTROKES = new HashMap<KeyStroke, Action>() { {
+	 * put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(Size.Decrease));
+	 * put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(Size.Decrease));
+	 * put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(Size.Increase));
+	 * put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(Size.Increase));
+	 * put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), new GridOffsetAction(GridOffsetAction.Direction.Up));
+	 * put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), new GridOffsetAction(GridOffsetAction.Direction.Left));
+	 * put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), new GridOffsetAction(GridOffsetAction.Direction.Down));
+	 * put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), new GridOffsetAction(GridOffsetAction.Direction.Right)); } };
+	 * protected Map<KeyStroke, Action> getKeyActionMap() { return KEYSTROKES; }
+	 * 
+	 * private final class GridSizeAction extends AbstractAction { private final Size size; public GridSizeAction(Size
+	 * size) { this.size = size; }
+	 * 
+	 * public void actionPerformed(ActionEvent e) { ZoneRenderer renderer = (ZoneRenderer) e.getSource();
+	 * adjustGridSize(renderer, size); } }
+	 * 
+	 * private static final class GridOffsetAction extends AbstractAction { private static enum Direction { Left, Right,
+	 * Up, Down }; private final Direction direction;
+	 * 
+	 * public GridOffsetAction(Direction direction) { this.direction = direction; }
+	 * 
+	 * public void actionPerformed(ActionEvent e) { ZoneRenderer renderer = (ZoneRenderer) e.getSource(); switch
+	 * (direction) { case Left: renderer.moveGridBy(-1, 0); break; case Right: renderer.moveGridBy(1, 0); break; case
+	 * Up: renderer.moveGridBy(0, -1); break; case Down: renderer.moveGridBy(0, 1); break; } } }
+	 */
 }

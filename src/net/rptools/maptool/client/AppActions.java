@@ -17,7 +17,6 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.event.ActionEvent;
-import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -88,7 +87,6 @@ import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignFactory;
 import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.model.CellPoint;
-import net.rptools.maptool.model.ExposedAreaMetaData;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.Player;
@@ -767,14 +765,14 @@ public class AppActions {
 				Token newToken = new Token(originalToken);
 				//System.out.println("Cut Token(original): " + originalToken.getExposedAreaGUID());
 				//System.out.println("Cut Token(new): " + newToken.getExposedAreaGUID());
-				/*newToken.setZoneId(zone.getId());
-				System.out.println("Cut Token(original): " + originalToken.getId());
-				System.out.println("Cut Token(new): " + newToken.getId());
-				if(MapTool.getServerPolicy().isUseIndividualFOW() && newToken.getHasSight()) {
-				    ExposedAreaMetaData meta = zone.getExposedAreaMetaData(originalToken.getId());
-				    Map<GUID, ExposedAreaMetaData> exposedAreaMetaData = zone.getExposedAreaMetaData();
-				    exposedAreaMetaData.put(newToken.getId(), meta);
-				}*/
+				/*
+				 * newToken.setZoneId(zone.getId()); System.out.println("Cut Token(original): " +
+				 * originalToken.getId()); System.out.println("Cut Token(new): " + newToken.getId());
+				 * if(MapTool.getServerPolicy().isUseIndividualFOW() && newToken.getHasSight()) { ExposedAreaMetaData
+				 * meta = zone.getExposedAreaMetaData(originalToken.getId()); Map<GUID, ExposedAreaMetaData>
+				 * exposedAreaMetaData = zone.getExposedAreaMetaData(); exposedAreaMetaData.put(newToken.getId(), meta);
+				 * }
+				 */
 				tokenCopySet.add(newToken);
 			}
 			// Normalize
@@ -824,53 +822,50 @@ public class AppActions {
 
 			List<Token> allTokens = zone.getTokens();
 			for (Token origToken : tokenList) {
-			    Token token = new Token(origToken);
+				Token token = new Token(origToken);
 
-			    // need this here to get around times when a 
-			    // token is copied and pasted into the 
-			    // same zone, such as a framework "template"
-			    if(allTokens != null){
-			    	for(Token tok: allTokens){
-			    		if(tok.getExposedAreaGUID().equals(token.getExposedAreaGUID())){
-			    			token.setExposedAreaGUID(new GUID());
-			    		}
-			    	}
-			    }
-			    //System.out.println("Paste Token(original): " + origToken.getExposedAreaGUID());
-			    //System.out.println("Paste Token(new): " + token.getExposedAreaGUID());
-
-/*			    Old stuff.... get rid of once we know it's not needed.
- * 
- * 				GUID tokGUID = origToken.getZoneId();
-			    Zone oldZone = MapTool.getFrame().getZoneRenderer(tokGUID).getZone();
-			    token.setZoneId(zone.getId());
-
-			    System.out.println("Paste Token(original): " + origToken.getId());
-			    System.out.println("Paste Token(new): " + token.getId());
-			    if(MapTool.getServerPolicy().isUseIndividualFOW() && token.getHasSight()) {
-				if(tokGUID.equals(zone.getId())){
-				    ExposedAreaMetaData meta = oldZone.getExposedAreaMetaData(origToken.getId());
-				    Map<GUID, ExposedAreaMetaData> exposedAreaMetaData = zone.getExposedAreaMetaData();
-				    ExposedAreaMetaData newMeta = new ExposedAreaMetaData();
-				    newMeta.addToExposedAreaHistory(new Area(meta.getExposedAreaHistory()));
-				    exposedAreaMetaData.put(token.getId(), newMeta);
-				    MapTool.serverCommand().updateExposedAreaMeta(zone.getId(), token.getId(), newMeta);
+				// need this here to get around times when a 
+				// token is copied and pasted into the 
+				// same zone, such as a framework "template"
+				if (allTokens != null) {
+					for (Token tok : allTokens) {
+						if (tok.getExposedAreaGUID().equals(token.getExposedAreaGUID())) {
+							token.setExposedAreaGUID(new GUID());
+						}
+					}
 				}
-			    }*/
+				//System.out.println("Paste Token(original): " + origToken.getExposedAreaGUID());
+				//System.out.println("Paste Token(new): " + token.getExposedAreaGUID());
 
+				/*
+				 * Old stuff.... get rid of once we know it's not needed.
+				 * 
+				 * GUID tokGUID = origToken.getZoneId(); Zone oldZone =
+				 * MapTool.getFrame().getZoneRenderer(tokGUID).getZone(); token.setZoneId(zone.getId());
+				 * 
+				 * System.out.println("Paste Token(original): " + origToken.getId());
+				 * System.out.println("Paste Token(new): " + token.getId());
+				 * if(MapTool.getServerPolicy().isUseIndividualFOW() && token.getHasSight()) {
+				 * if(tokGUID.equals(zone.getId())){ ExposedAreaMetaData meta =
+				 * oldZone.getExposedAreaMetaData(origToken.getId()); Map<GUID, ExposedAreaMetaData> exposedAreaMetaData
+				 * = zone.getExposedAreaMetaData(); ExposedAreaMetaData newMeta = new ExposedAreaMetaData();
+				 * newMeta.addToExposedAreaHistory(new Area(meta.getExposedAreaHistory()));
+				 * exposedAreaMetaData.put(token.getId(), newMeta);
+				 * MapTool.serverCommand().updateExposedAreaMeta(zone.getId(), token.getId(), newMeta); } }
+				 */
 
-			    token.setX(token.getX() + zonePoint.x);
-			    token.setY(token.getY() + zonePoint.y);
+				token.setX(token.getX() + zonePoint.x);
+				token.setY(token.getY() + zonePoint.y);
 
-			    // paste into correct layer
-			    token.setLayer(renderer.getActiveLayer());
+				// paste into correct layer
+				token.setLayer(renderer.getActiveLayer());
 
-			    // check the token's name, don't change PC token names ... ever
-			    if (origToken.getType() != Token.Type.PC) {
-				token.setName(MapToolUtil.nextTokenId(zone, token));
-			    }
-			    zone.putToken(token);
-			    MapTool.serverCommand().putToken(zone.getId(), token);
+				// check the token's name, don't change PC token names ... ever
+				if (origToken.getType() != Token.Type.PC) {
+					token.setName(MapToolUtil.nextTokenId(zone, token));
+				}
+				zone.putToken(token);
+				MapTool.serverCommand().putToken(zone.getId(), token);
 
 			}
 			renderer.repaint();
@@ -1322,8 +1317,8 @@ public class AppActions {
 
 		@Override
 		public void execute(ActionEvent e) {
-
 			AppState.setZoomLocked(!AppState.isZoomLocked());
+			MapTool.getFrame().getZoomStatusBar().update(); // So the textfield becomes grayed out
 		}
 	};
 
@@ -1477,9 +1472,21 @@ public class AppActions {
 		}
 	};
 
-	public static final Action ZOOM_IN = new DefaultClientAction() {
+	/**
+	 * Note that the ZOOM actions are defined as DefaultClientAction types. This allows the
+	 * {@link ClientAction#getKeyStroke()} method to be invoked where otherwise it couldn't be.
+	 * <p>
+	 * (Well, it <i>could be</i> if we cast this object to the right type everywhere else but that's just tedious. And
+	 * what is tedious is error-prone. :))
+	 */
+	public static final DefaultClientAction ZOOM_IN = new DefaultClientAction() {
 		{
 			init("action.zoomIn", false);
+		}
+
+		@Override
+		public boolean isAvailable() {
+			return !AppState.isZoomLocked();
 		}
 
 		@Override
@@ -1493,9 +1500,14 @@ public class AppActions {
 		}
 	};
 
-	public static final Action ZOOM_OUT = new DefaultClientAction() {
+	public static final DefaultClientAction ZOOM_OUT = new DefaultClientAction() {
 		{
 			init("action.zoomOut", false);
+		}
+
+		@Override
+		public boolean isAvailable() {
+			return !AppState.isZoomLocked();
 		}
 
 		@Override
@@ -1509,13 +1521,16 @@ public class AppActions {
 		}
 	};
 
-	public static final Action ZOOM_RESET = new DefaultClientAction() {
-
+	public static final DefaultClientAction ZOOM_RESET = new DefaultClientAction() {
 		private Double lastZoom;
 
 		{
-			// FIXME Produces menu text, "unknown code: 0x2b"
 			init("action.zoom100", false);
+		}
+
+		@Override
+		public boolean isAvailable() {
+			return !AppState.isZoomLocked();
 		}
 
 		@Override

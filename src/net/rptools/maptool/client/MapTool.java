@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client;
 
@@ -113,8 +110,7 @@ public class MapTool {
 	private static final Logger log = Logger.getLogger(MapTool.class);
 
 	/**
-	 * URLs for the Help menu. Currently consists of: <b>helpURL</b>,
-	 * <b>tutorialsURL</b>, and <b>forumsURL</b>.
+	 * URLs for the Help menu. Currently consists of: <b>helpURL</b>, <b>tutorialsURL</b>, and <b>forumsURL</b>.
 	 */
 	private static final String CONFIGURATION_PROPERTIES = "net/rptools/maptool/client/configuration.properties";
 
@@ -124,14 +120,13 @@ public class MapTool {
 	private static final String SPLASH_IMAGE = "net/rptools/maptool/client/image/maptool_splash.png";
 
 	/**
-	 * Contains just the version number of MapTool, such as <code>1.3.b49</code>
-	 * .
+	 * Contains just the version number of MapTool, such as <code>1.3.b49</code> .
 	 */
 	private static final String VERSION_TXT = "net/rptools/maptool/client/version.txt";
 
 	/**
-	 * Specifies the properties file that holds sound information. Only two
-	 * sounds currently: <b>Dink</b> and <b>Clink</b>.
+	 * Specifies the properties file that holds sound information. Only two sounds currently: <b>Dink</b> and
+	 * <b>Clink</b>.
 	 */
 	private static final String SOUND_PROPERTIES = "net/rptools/maptool/client/sounds.properties";
 
@@ -146,10 +141,7 @@ public class MapTool {
 	public static boolean WINDOWS = (System.getProperty("os.name").toLowerCase().startsWith("windows"));
 
 	public static enum ZoneEvent {
-		Added,
-		Removed,
-		Activated,
-		Deactivated
+		Added, Removed, Activated, Deactivated
 	}
 
 	public static enum PreferencesEvent {
@@ -198,10 +190,13 @@ public class MapTool {
 	private static String lastWhisperer;
 
 	/**
-	 * This method looks up the message key in the properties file and returns the resultant
-	 * text with the detail message from the <code>Throwable</code> appended to the end.
-	 * @param msgKey the string to use when calling {@link I18N#getText(String)}
-	 * @param t the exception currently being processed
+	 * This method looks up the message key in the properties file and returns the resultant text with the detail
+	 * message from the <code>Throwable</code> appended to the end.
+	 * 
+	 * @param msgKey
+	 *            the string to use when calling {@link I18N#getText(String)}
+	 * @param t
+	 *            the exception currently being processed
 	 * @return the <code>String</code> result
 	 */
 	public static String generateMessage(String msgKey, Throwable t) {
@@ -217,17 +212,22 @@ public class MapTool {
 	}
 
 	/**
-	 * This method is the base method for putting a dialog box up on the screen that might
-	 * be an error, a warning, or just an information message.  Do not use this method if
-	 * the desired result is a simple confirmation box (use {@link #confirm(String)} instead).
-	 * @param msgKey the string to put in the body of the dialog
-	 * @param titleKey the string to use when retrieving the title of the dialog window
-	 * @param messageType JOptionPane.{ERROR|WARNING|INFORMATION}_MESSAGE
+	 * This method is the base method for putting a dialog box up on the screen that might be an error, a warning, or
+	 * just an information message. Do not use this method if the desired result is a simple confirmation box (use
+	 * {@link #confirm(String)} instead).
+	 * 
+	 * @param msgKey
+	 *            the string to put in the body of the dialog
+	 * @param titleKey
+	 *            the string to use when retrieving the title of the dialog window
+	 * @param messageType
+	 *            JOptionPane.{ERROR|WARNING|INFORMATION}_MESSAGE
 	 */
 	public static void showMessage(String message, String titleKey, int messageType, Object... params) {
 		String title = I18N.getText(titleKey, params);
 		JOptionPane.showMessageDialog(clientFrame, "<html>" + I18N.getText(message, params), title, messageType);
 	}
+
 	public static void showMessage(Object[] messages, String titleKey, int messageType, Object... params) {
 		String title = I18N.getText(titleKey, params);
 		JList list = new JList(messages);
@@ -241,6 +241,7 @@ public class MapTool {
 	public static void showError(String msgKey) {
 		showError(msgKey, null);
 	}
+
 	public static void showError(String msgKey, Throwable t) {
 		String msg = generateMessage(msgKey, t);
 		log.error(msg, t);
@@ -250,6 +251,7 @@ public class MapTool {
 	public static void showWarning(String msgKey) {
 		showWarning(msgKey, null);
 	}
+
 	public static void showWarning(String msgKey, Throwable t) {
 		String msg = generateMessage(msgKey, t);
 		log.warn(msg, t);
@@ -259,6 +261,7 @@ public class MapTool {
 	public static void showInformation(String msgKey) {
 		showInformation(msgKey, null);
 	}
+
 	public static void showInformation(String msgKey, Throwable t) {
 		String msg = generateMessage(msgKey, t);
 		log.info(msg, t);
@@ -269,37 +272,33 @@ public class MapTool {
 		String msg = I18N.getText(message, params);
 		log.debug(msg);
 		String title = I18N.getText("msg.title.messageDialogConfirm");
-		return JOptionPane.showConfirmDialog(clientFrame, msg, title,
-				JOptionPane.OK_OPTION) == JOptionPane.OK_OPTION;
+		return JOptionPane.showConfirmDialog(clientFrame, msg, title, JOptionPane.OK_OPTION) == JOptionPane.OK_OPTION;
 	}
 
 	/**
-	 * This method is specific to deleting a token,  but it can be used as a basis
-	 * for any other method which wants to be turned off via a property
+	 * This method is specific to deleting a token, but it can be used as a basis for any other method which wants to be
+	 * turned off via a property
+	 * 
 	 * @return true if the token should be deleted.
 	 */
 	public static boolean confirmTokenDelete() {
-		if(!AppPreferences.getTokensWarnWhenDeleted()) {
+		if (!AppPreferences.getTokensWarnWhenDeleted()) {
 			return true;
 		}
 
 		String msg = I18N.getText("msg.confirm.deleteToken");
 		log.debug(msg);
-		Object[] options = { I18N.getText("msg.title.messageDialog.yes"),
-				I18N.getText("msg.title.messageDialog.cancel"),
-				I18N.getText("msg.title.messageDialog.dontAskAgain") };
+		Object[] options = { I18N.getText("msg.title.messageDialog.yes"), I18N.getText("msg.title.messageDialog.cancel"), I18N.getText("msg.title.messageDialog.dontAskAgain") };
 		String title = I18N.getText("msg.title.messageDialogConfirm");
-		int val = JOptionPane.showOptionDialog(clientFrame, msg, title,
-				JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE,
-				null, options, options[0]);
+		int val = JOptionPane.showOptionDialog(clientFrame, msg, title, JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
 
 		// Cancel Button
-		if(val == 1) {
+		if (val == 1) {
 			return false;
 		}
 
 		// Don't show again Button
-		if(val == 2) {
+		if (val == 2) {
 			showInformation("msg.confirm.deleteToken.removed");
 			AppPreferences.setTokensWarnWhenDeleted(false);
 		}
@@ -609,9 +608,8 @@ public class MapTool {
 	}
 
 	/**
-	 * Add a message only this client can see. This is a shortcut for
-	 * addMessage(ME, ...)
-	 *
+	 * Add a message only this client can see. This is a shortcut for addMessage(ME, ...)
+	 * 
 	 * @param message
 	 */
 	public static void addLocalMessage(String message) {
@@ -628,13 +626,15 @@ public class MapTool {
 	}
 
 	/**
-	 * Add a message all specified clients will see. This is a shortcut for addMessage(WHISPER, ...)
-	 * and addMessage(GM, ...). The <code>targets</code> is expected do be in a string list built
-	 * with <code>separator</code>.
+	 * Add a message all specified clients will see. This is a shortcut for addMessage(WHISPER, ...) and addMessage(GM,
+	 * ...). The <code>targets</code> is expected do be in a string list built with <code>separator</code>.
 	 * 
-	 * @param message message to be sent
-	 * @param targets string specifying clients to send the message to (spaces are trimmed)
-	 * @param separator the separator between entries in <code>targets</code>
+	 * @param message
+	 *            message to be sent
+	 * @param targets
+	 *            string specifying clients to send the message to (spaces are trimmed)
+	 * @param separator
+	 *            the separator between entries in <code>targets</code>
 	 */
 	public static void addGlobalMessage(String message, String targets, String separator) {
 		List<String> list = new LinkedList<String>();
@@ -644,11 +644,13 @@ public class MapTool {
 	}
 
 	/**
-	 * Add a message all specified clients will see. This is a shortcut for addMessage(WHISPER, ...)
-	 * and addMessage(GM, ...).
+	 * Add a message all specified clients will see. This is a shortcut for addMessage(WHISPER, ...) and addMessage(GM,
+	 * ...).
 	 * 
-	 * @param message message to be sent
-	 * @param targets list of <code>String</code>s specifying clients to send the message to
+	 * @param message
+	 *            message to be sent
+	 * @param targets
+	 *            list of <code>String</code>s specifying clients to send the message to
 	 */
 	public static void addGlobalMessage(String message, List<String> targets) {
 		for (String target : targets) {
@@ -694,8 +696,7 @@ public class MapTool {
 			ZoneRenderer renderer = ZoneRendererFactory.newRenderer(zone);
 			clientFrame.addZoneRenderer(renderer);
 
-			if ((zone.getId().equals(defaultRendererId) || currRenderer == null)
-					&& (getPlayer().isGM() || zone.isVisible())) {
+			if ((zone.getId().equals(defaultRendererId) || currRenderer == null) && (getPlayer().isGM() || zone.isVisible())) {
 				currRenderer = renderer;
 			}
 
@@ -804,7 +805,7 @@ public class MapTool {
 		if (getCampaign().getZones().size() == 1) {
 			// Remove the default map
 			Zone singleZone = getCampaign().getZones().get(0);
-			if (ZoneFactory.DEFAULT_MAP_NAME.equals(singleZone.getName())&& singleZone.isEmpty()) {
+			if (ZoneFactory.DEFAULT_MAP_NAME.equals(singleZone.getName()) && singleZone.isEmpty()) {
 				removeZone(singleZone);
 			}
 		}
@@ -964,7 +965,7 @@ public class MapTool {
 				defaults.put("OptionPane.bannerFontSize", 13);
 				defaults.put("OptionPane.bannerFontStyle", Font.BOLD);
 				defaults.put("OptionPane.bannerMaxCharsPerLine", 60);
-				defaults.put("OptionPane.bannerForeground", painter != null ? painter.getOptionPaneBannerForeground() : null);  // you should adjust this if banner background is not the default gradient paint
+				defaults.put("OptionPane.bannerForeground", painter != null ? painter.getOptionPaneBannerForeground() : null); // you should adjust this if banner background is not the default gradient paint
 				defaults.put("OptionPane.bannerBorder", null); // use default border
 
 				// set both bannerBackgroundDk and // set both bannerBackgroundLt to null if you don't want gradient
@@ -1018,7 +1019,6 @@ public class MapTool {
 		final Toolkit tk = Toolkit.getDefaultToolkit();
 		tk.getSystemEventQueue().push(new MapToolEventQueue());
 
-
 		// LAF
 		try {
 			// If we are running under Mac OS X then save native menu bar look & feel components
@@ -1044,7 +1044,7 @@ public class MapTool {
 			}
 
 			com.jidesoft.utils.Lm.verifyLicense("Trevor Croft", "rptools", "5MfIVe:WXJBDrToeLWPhMv3kI2s3VFo");
-			LookAndFeelFactory.addUIDefaultsCustomizer(new LookAndFeelFactory.UIDefaultsCustomizer(){
+			LookAndFeelFactory.addUIDefaultsCustomizer(new LookAndFeelFactory.UIDefaultsCustomizer() {
 				public void customize(UIDefaults defaults) {
 					// Remove red border around menus
 					defaults.put("PopupMenu.foreground", Color.lightGray);
@@ -1066,7 +1066,7 @@ public class MapTool {
 		if (Locale.CHINA.equals(Locale.getDefault())) {
 			Font f = new Font("����宋体", Font.PLAIN, 12);
 			FontUIResource fontRes = new FontUIResource(f);
-			for (Enumeration keys = UIManager.getDefaults().keys(); keys.hasMoreElements();) {
+			for (Enumeration<Object> keys = UIManager.getDefaults().keys(); keys.hasMoreElements();) {
 				Object key = keys.nextElement();
 				Object value = UIManager.get(key);
 				if (value instanceof FontUIResource)
@@ -1097,9 +1097,9 @@ public class MapTool {
 	}
 
 	/**
-	 * If we're running on OSX we should call this method to download and install the
-	 * MapTool logo from the main web site.  We cache this image so that it appears
-	 * correctly if the application is later executed in "offline" mode, so to speak.
+	 * If we're running on OSX we should call this method to download and install the MapTool logo from the main web
+	 * site. We cache this image so that it appears correctly if the application is later executed in "offline" mode, so
+	 * to speak.
 	 */
 	private static void macOSXicon() {
 		// If we're running on OSX, add the dock icon image
@@ -1129,11 +1129,10 @@ public class MapTool {
 			}
 		}
 		/*
-			Unfortunately the next line doesn't allow Eclipse to compile the code on anything
-			but a Mac.  Too bad because there's no problem at runtime since this code wouldn't
-			be executed an any machine *except* a Mac.  Sigh.
-
-		com.apple.eawt.Application appl = com.apple.eawt.Application.getApplication();
+		 * Unfortunately the next line doesn't allow Eclipse to compile the code on anything but a Mac. Too bad because
+		 * there's no problem at runtime since this code wouldn't be executed an any machine *except* a Mac. Sigh.
+		 * 
+		 * com.apple.eawt.Application appl = com.apple.eawt.Application.getApplication();
 		 */
 		try {
 			Class<?> appClass = Class.forName("com.apple.eawt.Application");
@@ -1147,7 +1146,7 @@ public class MapTool {
 			Method setDockIconBadge = appl.getClass().getDeclaredMethod("setDockIconBadge", new Class[] { java.lang.String.class });
 			String vers = getVersion();
 			vers = vers.substring(vers.length() - 2);
-			vers = vers.replaceAll("[^0-9]", "0");		// Convert all non-digits to zeroes
+			vers = vers.replaceAll("[^0-9]", "0"); // Convert all non-digits to zeroes
 			setDockIconBadge.invoke(appl, new Object[] { vers });
 		} catch (Exception e) {
 			log.info("Cannot find/invoke methods on com.apple.eawt.Application; use -X command line options to set dock bar attributes", e);
@@ -1169,9 +1168,8 @@ public class MapTool {
 	}
 
 	/**
-	 * Return whether the campaign file has changed.  Only checks to see if there is a
-	 * single empty map with the default name (ZoneFactory.DEFAULT_MAP_NAME).
-	 * If so, the campaign is "empty".  We really should check against things like
+	 * Return whether the campaign file has changed. Only checks to see if there is a single empty map with the default
+	 * name (ZoneFactory.DEFAULT_MAP_NAME). If so, the campaign is "empty". We really should check against things like
 	 * campaign property changes as well, including campaign macros...
 	 */
 	public static boolean isCampaignDirty() {
@@ -1195,7 +1193,6 @@ public class MapTool {
 	public static String getLastWhisperer() {
 		return lastWhisperer;
 	}
-
 
 	public static boolean useToolTipsForUnformatedRolls() {
 		if (isPersonalServer()) {
