@@ -972,7 +972,7 @@ public class Token extends BaseModel {
 	 *            The property to set.
 	 * @param aValue
 	 *            The new value for the property.
-	 * @return The original vaoue of the property, if any.
+	 * @return The original value of the state, if any.
 	 */
 	public Object setState(String aState, Object aValue) {
 		if (aValue == null)
