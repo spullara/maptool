@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client;
 
@@ -34,8 +31,7 @@ public class AppUtil {
 	private static File dataDirPath;
 
 	/**
-	 * Returns a File object for USER_HOME
-	 * if USER_HOME is non-null, otherwise null.
+	 * Returns a File object for USER_HOME if USER_HOME is non-null, otherwise null.
 	 * 
 	 * @return the users home directory as a File object
 	 */
@@ -44,16 +40,15 @@ public class AppUtil {
 	}
 
 	/**
-	 * Returns a File path that points to the AppHome base directory
-	 * along with the subpath denoted in the "subdir" argument
+	 * Returns a File path that points to the AppHome base directory along with the subpath denoted in the "subdir"
+	 * argument
 	 * <p>
-	 * For example <code>getAppHome("cache")</code> will return the path
-	 * <code>{APPHOME}/cache</code>
+	 * For example <code>getAppHome("cache")</code> will return the path <code>{APPHOME}/cache</code>
 	 * <p>
-	 * As a side-effect the function
-	 * creates the directory pointed to by File.
-	 *
-	 * @param subdir of the maptool home directory
+	 * As a side-effect the function creates the directory pointed to by File.
+	 * 
+	 * @param subdir
+	 *            of the maptool home directory
 	 * @return the maptool data directory name subdir
 	 * @see getAppHome()
 	 */
@@ -109,17 +104,14 @@ public class AppUtil {
 	}
 
 	/**
-	 * Returns a File path representing the base directory to store local data.
-	 * By default this is a ".maptool" directory in the user's home directory.
+	 * Returns a File path representing the base directory to store local data. By default this is a ".maptool"
+	 * directory in the user's home directory.
 	 * <p>
-	 * If you want to change the dir for data storage you can set the system
-	 * property MAPTOOL_DATADIR.  If the value of the MAPTOOL_DATADIR has any file separator
-	 * characters in it, it will assume you are using an absolute path.  If the
-	 * path does not include a file separator it will use it as a subdirectory in the user's
-	 * home directory
+	 * If you want to change the dir for data storage you can set the system property MAPTOOL_DATADIR. If the value of
+	 * the MAPTOOL_DATADIR has any file separator characters in it, it will assume you are using an absolute path. If
+	 * the path does not include a file separator it will use it as a subdirectory in the user's home directory
 	 * <p>
-	 * As a side-effect the function
-	 * creates the directory pointed to by File.
+	 * As a side-effect the function creates the directory pointed to by File.
 	 * 
 	 * @return the maptool data directory
 	 */
@@ -128,10 +120,7 @@ public class AppUtil {
 	}
 
 	/**
-	 * Returns a File object for
-	 * the maptool tmp directory, or null
-	 * if the users home directory could
-	 * not be determined.
+	 * Returns a File object for the maptool tmp directory, or null if the users home directory could not be determined.
 	 * 
 	 * @return the maptool tmp directory
 	 */
@@ -140,38 +129,33 @@ public class AppUtil {
 	}
 
 	/**
-	 * Returns true if the player owns the token,
-	 * otherwise false. If the player is GM this
-	 * function always returns true. If strict
-	 * token management is disabled then this
-	 * function always returns true.
+	 * Returns true if the player owns the token, otherwise false. If the player is GM this function always returns
+	 * true. If strict token management is disabled then this function always returns true.
 	 * 
 	 * @param token
 	 * @return true if the player owns the token
 	 */
 	public static boolean playerOwns(Token token) {
-
 		Player player = MapTool.getPlayer();
-
 		if (player.isGM()) {
 			return true;
 		}
-
 		if (!MapTool.getServerPolicy().useStrictTokenManagement()) {
 			return true;
 		}
-
 		return token.isOwner(player.getName());
 	}
 
 	/**
-	 * Returns true if the token is visible in the zone.
-	 * If the view is the GM view then this function always
-	 * returns true.
+	 * Returns true if the token is visible in the zone. If the view is the GM view then this function always returns
+	 * true.
 	 * 
-	 * @param zone to check for visibility
-	 * @param token to check for visibility in zone
-	 * @param view to use when checking visibility
+	 * @param zone
+	 *            to check for visibility
+	 * @param token
+	 *            to check for visibility in zone
+	 * @param view
+	 *            to use when checking visibility
 	 * @return true if token is visible in zone given the view
 	 */
 	public static boolean tokenIsVisible(Zone zone, Token token, PlayerView view) {

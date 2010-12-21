@@ -449,16 +449,18 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		 * getDisplayName(), but it might be much simpler to debug if toString() weren't used. In that case, there's no
 		 * reason to use an enum either ... may as well use a class with static final objects in it. Sigh.
 		 */
-		CONNECTIONS("Connections"), //
-		TOKEN_TREE("MapExplorer"), // These comments prevent
-		INITIATIVE("Initiative"), // the source reformatter from
-		IMAGE_EXPLORER("Library"), // rearranging the structure
-		CHAT("Chat"), // of these lines, keeping each
-		LOOKUP_TABLES("Tables"), // one on its own line. :)
-		GLOBAL("Global"), //
-		CAMPAIGN("Campaign"), //
-		SELECTION("Selected"), //
-		IMPERSONATED("Impersonate"); //
+		// @formatter:off
+		CONNECTIONS("Connections"),
+		TOKEN_TREE("MapExplorer"),
+		INITIATIVE("Initiative"),
+		IMAGE_EXPLORER("Library"),
+		CHAT("Chat"),
+		LOOKUP_TABLES("Tables"),
+		GLOBAL("Global"),
+		CAMPAIGN("Campaign"),
+		SELECTION("Selected"),
+		IMPERSONATED("Impersonate");
+		// @formatter:on
 
 		private String displayName;
 
