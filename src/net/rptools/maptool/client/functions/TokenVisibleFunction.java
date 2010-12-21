@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.functions;
 
@@ -31,11 +28,12 @@ public class TokenVisibleFunction extends AbstractFunction {
 	private static final TokenVisibleFunction instance = new TokenVisibleFunction();
 
 	private TokenVisibleFunction() {
-		super(0, 2, "setVisible", "getVisible","setOwnerOnlyVisible","getOwnerOnlyVisible");
+		super(0, 2, "setVisible", "getVisible", "setOwnerOnlyVisible", "getOwnerOnlyVisible");
 	}
 
 	/**
 	 * Gets the instance of Visible.
+	 * 
 	 * @return the instance.
 	 */
 	public static TokenVisibleFunction getInstance() {
@@ -55,18 +53,24 @@ public class TokenVisibleFunction extends AbstractFunction {
 
 	/**
 	 * Gets if the token is visible.
-	 * @param token The token to check.
+	 * 
+	 * @param token
+	 *            The token to check.
 	 * @return if the token is visible.
-	 * @throws ParserException if the player does not have permissions to check.
+	 * @throws ParserException
+	 *             if the player does not have permissions to check.
 	 */
 	public Object getVisible(Token token) throws ParserException {
-		return getBooleanVisible(token) ? BigDecimal.valueOf(1) :  BigDecimal.valueOf(0);
+		return getBooleanVisible(token) ? BigDecimal.ONE : BigDecimal.ZERO;
 	}
 
 	/**
 	 * Sets if the token is visible or not.
-	 * @param token the token to set.
-	 * @param val the value to set the visible flag to.
+	 * 
+	 * @param token
+	 *            the token to set.
+	 * @param val
+	 *            the value to set the visible flag to.
 	 * @throws ParserException
 	 */
 	public void setVisible(Token token, Object val) throws ParserException {
@@ -87,7 +91,7 @@ public class TokenVisibleFunction extends AbstractFunction {
 			}
 		}
 		token.setVisible(set);
-		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),token);
+		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
 	}
 
 	public void setOwnerOnlyVisible(Token token, Object val) throws ParserException {
@@ -108,29 +112,32 @@ public class TokenVisibleFunction extends AbstractFunction {
 			}
 		}
 		token.setVisibleOnlyToOwner(set);
-		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),token);
+		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
 	}
 
 	@Override
-	public Object childEvaluate(Parser parser, String functionName, List<Object> param)
-	throws ParserException {
+	public Object childEvaluate(Parser parser, String functionName, List<Object> param) throws ParserException {
 		if (functionName.equals("getVisible")) {
 			return getVisible(parser, param);
-		} else if (functionName.equals("setOwnerOnlyVisible")){
+		} else if (functionName.equals("setOwnerOnlyVisible")) {
 			return setOwnerOnlyVisible(parser, param);
-		} else if (functionName.equals("getOwnerOnlyVisible")){
+		} else if (functionName.equals("getOwnerOnlyVisible")) {
 			return getOwnerOnlyVisible(parser, param);
-		}else {
+		} else {
 			return setVisible(parser, param);
 		}
 	}
 
 	/**
 	 * Gets if the token is visible
-	 * @param parser The parser that called the object.
-	 * @param args The arguments.
+	 * 
+	 * @param parser
+	 *            The parser that called the object.
+	 * @param args
+	 *            The arguments.
 	 * @return if the token is visible or not.
-	 * @throws ParserException if an error occurs.
+	 * @throws ParserException
+	 *             if an error occurs.
 	 */
 	private Object getVisible(Parser parser, List<Object> args) throws ParserException {
 		Token token;
@@ -141,7 +148,7 @@ public class TokenVisibleFunction extends AbstractFunction {
 				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "getVisible", args.get(0)));
 			}
 		} else if (args.size() == 0) {
-			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
+			MapToolVariableResolver res = (MapToolVariableResolver) parser.getVariableResolver();
 			token = res.getTokenInContext();
 			if (token == null) {
 				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "getVisible"));
@@ -154,10 +161,14 @@ public class TokenVisibleFunction extends AbstractFunction {
 
 	/**
 	 * Sets if the token is visible
-	 * @param parser The parser that called the object.
-	 * @param args The arguments.
+	 * 
+	 * @param parser
+	 *            The parser that called the object.
+	 * @param args
+	 *            The arguments.
 	 * @return the value visible is set to.
-	 * @throws ParserException if an error occurs.
+	 * @throws ParserException
+	 *             if an error occurs.
 	 */
 	private Object setVisible(Parser parser, List<Object> args) throws ParserException {
 		Object val;
@@ -169,7 +180,7 @@ public class TokenVisibleFunction extends AbstractFunction {
 				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "setVisible", args.get(1)));
 			}
 		} else if (args.size() == 1) {
-			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
+			MapToolVariableResolver res = (MapToolVariableResolver) parser.getVariableResolver();
 			token = res.getTokenInContext();
 			if (token == null) {
 				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "setVisible"));
@@ -180,7 +191,7 @@ public class TokenVisibleFunction extends AbstractFunction {
 			throw new ParserException(I18N.getText("macro.function.general.tooManyParam", "setVisible", 2, args.size()));
 		}
 		val = args.get(0);
-		setVisible(token, val);	// Already calls serverCommand().putToken()
+		setVisible(token, val); // Already calls serverCommand().putToken()
 //		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
 		MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
 
@@ -197,7 +208,7 @@ public class TokenVisibleFunction extends AbstractFunction {
 				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "setOwnerOnlyVisible", args.get(1)));
 			}
 		} else if (args.size() == 1) {
-			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
+			MapToolVariableResolver res = (MapToolVariableResolver) parser.getVariableResolver();
 			token = res.getTokenInContext();
 			if (token == null) {
 				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "setOwnerOnlyVisible"));
@@ -208,7 +219,7 @@ public class TokenVisibleFunction extends AbstractFunction {
 			throw new ParserException(I18N.getText("macro.function.general.tooManyParam", "setOwnerOnlyVisible", 2, args.size()));
 		}
 		val = args.get(0);
-		setOwnerOnlyVisible(token, val);	// Already calls serverCommand().putToken()
+		setOwnerOnlyVisible(token, val); // Already calls serverCommand().putToken()
 		MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
 
 		return val;
@@ -223,7 +234,7 @@ public class TokenVisibleFunction extends AbstractFunction {
 				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "getOwnerOnlyVisible", args.get(0)));
 			}
 		} else if (args.size() == 0) {
-			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
+			MapToolVariableResolver res = (MapToolVariableResolver) parser.getVariableResolver();
 			token = res.getTokenInContext();
 			if (token == null) {
 				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "getOwnerOnlyVisible"));
@@ -238,6 +249,6 @@ public class TokenVisibleFunction extends AbstractFunction {
 		if (!MapTool.getParser().isMacroTrusted()) {
 			throw new ParserException(I18N.getText("macro.function.general.noPerm", "getOwnerOnlyVisible"));
 		}
-		return token.isVisibleOnlyToOwner() ? BigDecimal.valueOf(1) :  BigDecimal.valueOf(0);
+		return token.isVisibleOnlyToOwner() ? BigDecimal.ONE : BigDecimal.ZERO;
 	}
 }

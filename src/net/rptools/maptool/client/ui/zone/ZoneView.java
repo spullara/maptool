@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.ui.zone;
 
@@ -50,7 +47,7 @@ public class ZoneView implements ModelChangeListener {
 	private final Map<GUID, Area> tokenVisionCache = new HashMap<GUID, Area>();
 	private final Map<GUID, Map<String, Area>> lightSourceCache = new HashMap<GUID, Map<String, Area>>();
 	private final Map<LightSource.Type, Set<GUID>> lightSourceMap = new HashMap<LightSource.Type, Set<GUID>>();
-	private final Map<GUID, Map<String,Set<DrawableLight>>> drawableLightCache = new HashMap<GUID, Map<String, Set<DrawableLight>>>();
+	private final Map<GUID, Map<String, Set<DrawableLight>>> drawableLightCache = new HashMap<GUID, Map<String, Set<DrawableLight>>>();
 	private final Map<GUID, Map<String, Set<Area>>> brightLightCache = new HashMap<GUID, Map<String, Set<Area>>>();
 	private final Map<PlayerView, VisibleAreaMeta> visibleAreaMap = new HashMap<PlayerView, VisibleAreaMeta>();
 	private AreaData topologyAreaData;
@@ -67,7 +64,7 @@ public class ZoneView implements ModelChangeListener {
 
 	public Area getVisibleArea(PlayerView view) {
 		calculateVisibleArea(view);
-		return visibleAreaMap.get(view) != null ? visibleAreaMap.get(view).visibleArea: new Area();
+		return visibleAreaMap.get(view) != null ? visibleAreaMap.get(view).visibleArea : new Area();
 	}
 
 	public boolean isUsingVision() {
@@ -132,9 +129,11 @@ public class ZoneView implements ModelChangeListener {
 	private Area calculatePersonalLightSourceArea(LightSource lightSource, Token lightSourceToken, SightType sight, Direction direction) {
 		return calculateLightSourceArea(lightSource, lightSourceToken, sight, direction, true);
 	}
+
 	private Area calculateLightSourceArea(LightSource lightSource, Token lightSourceToken, SightType sight, Direction direction) {
 		return calculateLightSourceArea(lightSource, lightSourceToken, sight, direction, false);
 	}
+
 	private Area calculateLightSourceArea(LightSource lightSource, Token lightSourceToken, SightType sight, Direction direction, boolean isPersonalLight) {
 
 		if (sight == null) {
@@ -295,16 +294,13 @@ public class ZoneView implements ModelChangeListener {
 	}
 
 	public List<DrawableLight> getLights(LightSource.Type type) {
-
 		List<DrawableLight> lightList = new LinkedList<DrawableLight>();
 		if (lightSourceMap.get(type) != null) {
-
 			for (GUID lightSourceToken : lightSourceMap.get(type)) {
 				Token token = zone.getToken(lightSourceToken);
 				if (token == null) {
 					continue;
 				}
-
 				Point p = FogUtil.calculateVisionCenter(token, zone);
 
 				for (AttachedLightSource als : token.getLightSources()) {
@@ -312,7 +308,6 @@ public class ZoneView implements ModelChangeListener {
 					if (lightSource == null) {
 						continue;
 					}
-
 					if (lightSource.getType() == type) {
 						// This needs to be cached somehow
 						Area lightSourceArea = lightSource.getArea(token, zone, Direction.CENTER);
@@ -320,62 +315,50 @@ public class ZoneView implements ModelChangeListener {
 						if (visibleArea == null) {
 							continue;
 						}
-
 						for (Light light : lightSource.getLightList()) {
 							boolean isOwner = token.getOwners().contains(MapTool.getPlayer().getName());
-							if((light.isGM() && !MapTool.getPlayer().isGM()))
-							{
+							if ((light.isGM() && !MapTool.getPlayer().isGM())) {
 								continue;
 							}
-							if((light.isGM() || !token.isVisible())&& MapTool.getPlayer().isGM() && AppState.isShowAsPlayer() )
-							{
+							if ((light.isGM() || !token.isVisible()) && MapTool.getPlayer().isGM() && AppState.isShowAsPlayer()) {
 								continue;
 							}
-							if(token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token))
-							{
+							if (token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token)) {
 								continue;
 							}
-							if(light.isOwnerOnly() && lightSource.getType() == LightSource.Type.AURA)
-							{
-								if (!isOwner && !MapTool.getPlayer().isGM())
-								{
+							if (light.isOwnerOnly() && lightSource.getType() == LightSource.Type.AURA) {
+								if (!isOwner && !MapTool.getPlayer().isGM()) {
 									continue;
 								}
 							}
-
 							lightList.add(new DrawableLight(type, light.getPaint(), visibleArea));
 						}
 					}
 				}
 			}
 		}
-
 		return lightList;
 	}
 
 	private void findLightSources() {
-
 		lightSourceMap.clear();
 
 		for (Token token : zone.getAllTokens()) {
-			if (token.hasLightSources() &&
-					((token.isVisible() && !token.isVisibleOnlyToOwner()) ||
-							( token.isVisible() && token.isVisibleOnlyToOwner() && AppUtil.playerOwns(token)))) {
-				for (AttachedLightSource als : token.getLightSources()) {
-
-					LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
-					if (lightSource == null) {
-						continue;
+			if (token.hasLightSources() && token.isVisible())
+				if (!token.isVisibleOnlyToOwner() || (token.isVisibleOnlyToOwner() && AppUtil.playerOwns(token))) {
+					for (AttachedLightSource als : token.getLightSources()) {
+						LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
+						if (lightSource == null) {
+							continue;
+						}
+						Set<GUID> lightSet = lightSourceMap.get(lightSource.getType());
+						if (lightSet == null) {
+							lightSet = new HashSet<GUID>();
+							lightSourceMap.put(lightSource.getType(), lightSet);
+						}
+						lightSet.add(token.getId());
 					}
-
-					Set<GUID> lightSet = lightSourceMap.get(lightSource.getType());
-					if (lightSet == null) {
-						lightSet = new HashSet<GUID>();
-						lightSourceMap.put(lightSource.getType(), lightSet);
-					}
-					lightSet.add(token.getId());
 				}
-			}
 		}
 	}
 
@@ -450,7 +433,7 @@ public class ZoneView implements ModelChangeListener {
 		List<Token> tokenList = view.isUsingTokenView() ? view.getTokens() : zone.getAllTokens();
 		for (Token token : tokenList) {
 
-			if (!token.getHasSight ()) {
+			if (!token.getHasSight()) {
 				continue;
 			}
 
@@ -461,7 +444,7 @@ public class ZoneView implements ModelChangeListener {
 
 			// Permission
 			if (MapTool.getServerPolicy().isUseIndividualViews() || MapTool.isPersonalServer()) {
-				if (!AppUtil.playerOwns(token)){
+				if (!AppUtil.playerOwns(token)) {
 					continue;
 				}
 			} else {
@@ -498,7 +481,7 @@ public class ZoneView implements ModelChangeListener {
 				tokenVisibleAreaCache.clear();
 			}
 			if (evt == Zone.Event.TOKEN_CHANGED || evt == Zone.Event.TOKEN_REMOVED) {
-				flush((Token)event.getArg());
+				flush((Token) event.getArg());
 			}
 			if (evt == Zone.Event.TOKEN_ADDED || evt == Zone.Event.TOKEN_CHANGED) {
 				Object o = event.getArg();
@@ -512,7 +495,7 @@ public class ZoneView implements ModelChangeListener {
 			}
 			if (evt == Zone.Event.TOKEN_REMOVED) {
 				Token token = (Token) event.getArg();
-				for(AttachedLightSource als : token.getLightSources()) {
+				for (AttachedLightSource als : token.getLightSources()) {
 					LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
 					if (lightSource == null) {
 						continue;
@@ -550,7 +533,7 @@ public class ZoneView implements ModelChangeListener {
 				}
 			}
 			hasSight |= token.getHasSight();
-			/* FJE This is the old code.  The idea behind changing it was to optimize the code path. */
+			/* FJE This is the old code. The idea behind changing it was to optimize the code path. */
 //			if (hasLightSource) {
 //				for (AttachedLightSource als : token.getLightSources()) {
 //					LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());

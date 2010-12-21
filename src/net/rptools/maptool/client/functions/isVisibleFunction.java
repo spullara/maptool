@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.functions;
 
@@ -32,26 +29,21 @@ public class isVisibleFunction extends AbstractFunction {
 	/** The singleton instance. */
 	private static final isVisibleFunction instance = new isVisibleFunction();
 
-
 	private isVisibleFunction() {
 		super(2, 3, "isVisible");
 	}
 
-
 	/**
 	 * Gets the instance of isVisibleFunction.
+	 * 
 	 * @return the instance.
 	 */
 	public static isVisibleFunction getInstance() {
 		return instance;
 	}
 
-
-
-
 	@Override
-	public Object childEvaluate(Parser parser, String functionName, List<Object> param)
-	throws ParserException {
+	public Object childEvaluate(Parser parser, String functionName, List<Object> param) throws ParserException {
 		ZoneRenderer zr = MapTool.getFrame().getCurrentZoneRenderer();
 		Token token = null;
 
@@ -67,7 +59,7 @@ public class isVisibleFunction extends AbstractFunction {
 				throw new ParserException(I18N.getText("macro.function.general.unknownToken", functionName, param.get(2).toString()));
 			}
 		} else {
-			MapToolVariableResolver mvr =  (MapToolVariableResolver)parser.getVariableResolver();
+			MapToolVariableResolver mvr = (MapToolVariableResolver) parser.getVariableResolver();
 			if (mvr.getTokenInContext() != null) {
 				token = mvr.getTokenInContext();
 			}
@@ -83,16 +75,15 @@ public class isVisibleFunction extends AbstractFunction {
 		if (!(param.get(1) instanceof BigDecimal)) {
 			throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 2, param.get(1).toString()));
 		}
-		if(token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token)){
+		if (token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token)) {
 			return BigDecimal.ZERO;
 		}
-		int x = ((BigDecimal)param.get(0)).intValue();
-		int y = ((BigDecimal)param.get(1)).intValue();
-
+		int x = ((BigDecimal) param.get(0)).intValue();
+		int y = ((BigDecimal) param.get(1)).intValue();
 
 		Area visArea = zr.getZoneView().getVisibleArea(token);
 		if (visArea == null) {
-			return BigDecimal.valueOf(0);
+			return BigDecimal.ZERO;
 		}
 
 		return visArea.contains(x, y) ? BigDecimal.ONE : BigDecimal.ZERO;

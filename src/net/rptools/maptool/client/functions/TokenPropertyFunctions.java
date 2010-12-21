@@ -31,7 +31,6 @@ import net.rptools.parser.function.AbstractFunction;
 import net.sf.json.JSONArray;
 
 public class TokenPropertyFunctions extends AbstractFunction {
-
 	private static final TokenPropertyFunctions instance = new TokenPropertyFunctions();
 
 	private TokenPropertyFunctions() {
@@ -47,7 +46,6 @@ public class TokenPropertyFunctions extends AbstractFunction {
 
 	@Override
 	public Object childEvaluate(Parser parser, String functionName, List<Object> parameters) throws ParserException {
-
 		MapToolVariableResolver resolver = (MapToolVariableResolver) parser.getVariableResolver();
 
 		// Cached for all those putToken() calls that are needed
@@ -74,7 +72,6 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			if (parameters.size() > 2) {
 				throw new ParserException(I18N.getText("macro.function.general.tooManyParam", functionName, 2, parameters.size()));
 			}
-
 			Token token = getTokenFromParam(resolver, functionName, parameters, 1);
 			token.setPropertyType(parameters.get(0).toString());
 			MapTool.serverCommand().putToken(zone.getId(), token);
@@ -171,7 +168,6 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			zone.putToken(token);
 			zoneR.flushLight();
 			MapTool.getFrame().updateTokenTree();
-
 			return "";
 		}
 
@@ -188,7 +184,6 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			zone.putToken(token);
 			zoneR.flushLight();
 			MapTool.getFrame().updateTokenTree();
-
 			return "";
 		}
 
@@ -218,7 +213,6 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			zone.putToken(token);
 			zoneR.flushLight();
 			MapTool.getFrame().updateTokenTree();
-
 			return layer;
 		}
 
@@ -363,7 +357,6 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			} else {
 				return val;
 			}
-
 		}
 
 		/*
@@ -405,11 +398,9 @@ public class TokenPropertyFunctions extends AbstractFunction {
 					}
 				}
 			}
-
 			if (val == null) {
 				return "";
 			}
-
 			if (val instanceof String) {
 				// try to convert to a number
 				try {
@@ -431,10 +422,9 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			}
 			Set<GUID> tokens = new HashSet<GUID>();
 			Token token = getTokenFromParam(resolver, functionName, parameters, 0);
-
 			tokens.add(token.getId());
 			MapTool.serverCommand().bringTokensToFront(zone.getId(), tokens);
-
+			zone.putToken(token);
 			return "";
 		}
 
@@ -447,10 +437,9 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			}
 			Set<GUID> tokens = new HashSet<GUID>();
 			Token token = getTokenFromParam(resolver, functionName, parameters, 0);
-
 			tokens.add(token.getId());
 			MapTool.serverCommand().sendTokensToBack(zone.getId(), tokens);
-
+			zone.putToken(token);
 			return "";
 		}
 
@@ -470,7 +459,6 @@ public class TokenPropertyFunctions extends AbstractFunction {
 				location = MapTool.getParser().getMacroSource();
 			}
 			Token token = MapTool.getParser().getTokenMacroLib(location);
-
 			Object val = token.getProperty(parameters.get(0).toString());
 
 			// Attempt to convert to a number ...
@@ -501,7 +489,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			token.setProperty(parameters.get(0).toString(), parameters.get(1).toString());
 			Zone z = MapTool.getParser().getTokenMacroLibZone(location);
 			MapTool.serverCommand().putToken(z.getId(), token);
-
+			zone.putToken(token);
 			return "";
 		}
 
@@ -526,7 +514,6 @@ public class TokenPropertyFunctions extends AbstractFunction {
 				throw new ParserException(I18N.getText("macro.function.tokenProperty.unknownLibToken", functionName, location));
 			}
 			String delim = parameters.size() > 1 ? parameters.get(1).toString() : ",";
-
 			return getPropertyNames(token, delim, ".*", false);
 		}
 
@@ -584,7 +571,6 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			if (!(parameters.get(0) instanceof BigDecimal)) {
 				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 1, parameters.get(0).toString()));
 			}
-
 			Token token = getTokenFromParam(resolver, functionName, parameters, 1);
 			token.setFacing(((BigDecimal) parameters.get(0)).intValue());
 			MapTool.serverCommand().putToken(zone.getId(), token);
@@ -629,19 +615,20 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			Token token = getTokenFromParam(resolver, functionName, parameters, 1);
 			// Remove current owners
 			token.clearAllOwners();
-
 			if (parameters.get(0).equals("")) {
-				return "";
-			}
-
-			Object json = JSONMacroFunctions.asJSON(parameters.get(0));
-			if (json != null && json instanceof JSONArray) {
-				for (Object o : (JSONArray) json) {
-					token.addOwner(o.toString());
-				}
+				token.setOwnedByAll(true);
 			} else {
-				token.addOwner(parameters.get(0).toString());
+				Object json = JSONMacroFunctions.asJSON(parameters.get(0));
+				if (json != null && json instanceof JSONArray) {
+					for (Object o : (JSONArray) json) {
+						token.addOwner(o.toString());
+					}
+				} else {
+					token.addOwner(parameters.get(0).toString());
+				}
 			}
+			MapTool.serverCommand().putToken(zone.getId(), token);
+			zone.putToken(token);
 			return "";
 		}
 		throw new ParserException(I18N.getText("macro.function.general.unknownFunction", functionName));
