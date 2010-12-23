@@ -46,7 +46,7 @@ public class MacroLinkFunction extends AbstractFunction {
 
 	/**
 	 * Gets and instance of the MacroLinkFunction class.
-	 *
+	 * 
 	 * @return an instance of MacroLinkFunction.
 	 */
 	public static MacroLinkFunction getInstance() {
@@ -58,8 +58,7 @@ public class MacroLinkFunction extends AbstractFunction {
 	}
 
 	@Override
-	public Object childEvaluate(Parser parser, String functionName,
-			List<Object> args) throws ParserException {
+	public Object childEvaluate(Parser parser, String functionName, List<Object> args) throws ParserException {
 
 		boolean formatted;
 
@@ -118,9 +117,9 @@ public class MacroLinkFunction extends AbstractFunction {
 				linkTarget = "Impersonated";
 			}
 		} else { // execLink
-		    if (!MapTool.getParser().isMacroTrusted()) {
+			if (!MapTool.getParser().isMacroTrusted()) {
 				throw new ParserException(I18N.getText("macro.function.general.noPerm", functionName));
-	        }
+			}
 
 			boolean defer = false;
 			if (args.size() > 1) {
@@ -128,7 +127,7 @@ public class MacroLinkFunction extends AbstractFunction {
 					defer = BigDecimal.ZERO.equals(args.get(1)) ? false : true;
 				}
 			}
-			execLink((String)args.get(0), defer);
+			execLink((String) args.get(0), defer);
 			return "";
 		}
 
@@ -159,24 +158,27 @@ public class MacroLinkFunction extends AbstractFunction {
 
 	/**
 	 * <p>
-	 * This method generates a string in the form of a macro invocation.</p>
-	 * <p>
-	 * The resulting output is of the form
-	 * <code>macro://</code><i>macroName</i><code>/</code><i>who</i>
-	 * <code>/</code><i>target</i><code>?</code><i>args</i>
+	 * This method generates a string in the form of a macro invocation.
 	 * </p>
-	 * <p>The <code>args</code> parameter is a String which is converted
-	 * to a property list and then back to a String.</p>
-	 *
-	 * @param macroName such as <code>MacroName@Lib:Core</code>
-	 * @param who where output should go
-	 * @param target the string <code>impersonated</code>, <code>all</code>
+	 * <p>
+	 * The resulting output is of the form <code>macro://</code><i>macroName</i><code>/</code><i>who</i> <code>/</code>
+	 * <i>target</i><code>?</code><i>args</i>
+	 * </p>
+	 * <p>
+	 * The <code>args</code> parameter is a String which is converted to a property list and then back to a String.
+	 * </p>
+	 * 
+	 * @param macroName
+	 *            such as <code>MacroName@Lib:Core</code>
+	 * @param who
+	 *            where output should go
+	 * @param target
+	 *            the string <code>impersonated</code>, <code>all</code>
 	 * @param args
 	 * @return
 	 * @throws ParserException
 	 */
-	public String createMacroText(String macroName, String who, String target,
-			String args) throws ParserException {
+	public String createMacroText(String macroName, String who, String target, String args) throws ParserException {
 		if (macroName.toLowerCase().endsWith("@this")) {
 			macroName = macroName.substring(0, macroName.length() - 4) + MapTool.getParser().getMacroSource();
 		}
@@ -186,7 +188,6 @@ public class MacroLinkFunction extends AbstractFunction {
 		sb.append(encode(args));
 		return sb.toString();
 	}
-
 
 	private String encode(String str) throws ParserException {
 		try {
@@ -203,7 +204,7 @@ public class MacroLinkFunction extends AbstractFunction {
 
 	private String decode(String str) throws ParserException {
 		try {
-			return 	JSONObject.fromObject(URLDecoder.decode(str, "utf-8")).toString();
+			return JSONObject.fromObject(URLDecoder.decode(str, "utf-8")).toString();
 		} catch (UnsupportedEncodingException e) {
 			throw new ParserException(e);
 		} catch (JSONException e) {
@@ -214,7 +215,7 @@ public class MacroLinkFunction extends AbstractFunction {
 
 	/**
 	 * Converts a URL argument string into a property list.
-	 *
+	 * 
 	 * @param args
 	 *            the URL argument string.
 	 * @return a property list representation of the arguments.
@@ -227,7 +228,7 @@ public class MacroLinkFunction extends AbstractFunction {
 
 		try {
 			for (String s : vals) {
-				String decoded = URLDecoder.decode(s, "utf8");
+				String decoded = URLDecoder.decode(s, "utf-8");
 				decoded = decoded.replaceAll(";", "&#59");
 				if (propList.length() == 0) {
 					propList.append(decoded);
@@ -244,7 +245,7 @@ public class MacroLinkFunction extends AbstractFunction {
 
 	/**
 	 * Takes a Property list and creates a URL Ready argument list.
-	 *
+	 * 
 	 * @param props
 	 *            The property list to convert.
 	 * @return a string that can be used as an argument to a url.
@@ -274,7 +275,7 @@ public class MacroLinkFunction extends AbstractFunction {
 
 	/**
 	 * Gets a string that describes the macro link.
-	 *
+	 * 
 	 * @param link
 	 *            the link to get the tool tip of.
 	 * @return a string containing the tool tip.
@@ -289,18 +290,13 @@ public class MacroLinkFunction extends AbstractFunction {
 
 				tip.append("<html>");
 				if (isAutoExecLink(link)) {
-					tip
-							.append("<tr><th style='color: red'><u>&laquo;").append(
-									I18N.getText("macro.function.macroLink.autoExecToolTip")).append("&raquo;</b></u></th></tr>");
+					tip.append("<tr><th style='color: red'><u>&laquo;").append(I18N.getText("macro.function.macroLink.autoExecToolTip")).append("&raquo;</b></u></th></tr>");
 				} else {
-					tip
-							.append("<tr><th><u>&laquo;Macro Link&raquo;</b></u></th></tr>");
+					tip.append("<tr><th><u>&laquo;Macro Link&raquo;</b></u></th></tr>");
 				}
 				tip.append("<table>");
-				tip.append("<tr><th>Output to</th><td>").append(m.group(3))
-						.append("</td></td>");
-				tip.append("<tr><th>Command</th><td>").append(m.group(2))
-						.append("</td></td>");
+				tip.append("<tr><th>Output to</th><td>").append(m.group(3)).append("</td></td>");
+				tip.append("<tr><th>Command</th><td>").append(m.group(2)).append("</td></td>");
 				String val = m.group(5);
 				if (val != null) {
 					try {
@@ -313,14 +309,12 @@ public class MacroLinkFunction extends AbstractFunction {
 							MapTool.addLocalMessage(I18N.getText("macro.function.macroLink.errorRunning", e1.getLocalizedMessage()));
 						}
 					}
-					tip.append("<tr><th>").append(I18N.getText("macro.function.macroLink.arguments")).append(val)
-							.append("</td></tr>");
+					tip.append("<tr><th>").append(I18N.getText("macro.function.macroLink.arguments")).append(val).append("</td></tr>");
 				}
 				String[] targets = m.group(4).split(",");
 				tip.append("</table>");
 				tip.append("<b>").append(I18N.getText("macro.function.macroLink.executeOn")).append("</b><ul>");
-				Zone zone = MapTool.getFrame().getCurrentZoneRenderer()
-						.getZone();
+				Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 				for (String t : targets) {
 					String name;
 					if (t.equalsIgnoreCase("impersonated")) {
@@ -348,7 +342,7 @@ public class MacroLinkFunction extends AbstractFunction {
 
 	/**
 	 * Runs the macro specified by the link.
-	 *
+	 * 
 	 * @param link
 	 *            the link to the macro.
 	 */
@@ -358,12 +352,11 @@ public class MacroLinkFunction extends AbstractFunction {
 
 	/**
 	 * Runs the macro specified by the link.
-	 *
+	 * 
 	 * @param link
 	 *            the link to the macro.
 	 * @param setVars
-	 *            should the variables be set in the macro context as well as
-	 *            passed in as macro.args.
+	 *            should the variables be set in the macro context as well as passed in as macro.args.
 	 */
 	public void runMacroLink(String link, boolean setVars) {
 		if (link == null || link.length() == 0) {
@@ -387,11 +380,9 @@ public class MacroLinkFunction extends AbstractFunction {
 					outputTo = OutputTo.GM;
 				} else if (who.equalsIgnoreCase("none")) {
 					outputTo = OutputTo.NONE;
-				} else if (who.equalsIgnoreCase("all")
-						|| who.equalsIgnoreCase("say")) {
+				} else if (who.equalsIgnoreCase("all") || who.equalsIgnoreCase("say")) {
 					outputTo = OutputTo.ALL;
-				} else if (who.equalsIgnoreCase("gm-self")
-						|| who.equalsIgnoreCase("gmself")) {
+				} else if (who.equalsIgnoreCase("gm-self") || who.equalsIgnoreCase("gmself")) {
 					outputTo = OutputTo.SELF_AND_GM;
 				} else if (who.equalsIgnoreCase("list")) {
 					outputTo = OutputTo.LIST;
@@ -399,7 +390,6 @@ public class MacroLinkFunction extends AbstractFunction {
 					outputTo = OutputTo.NONE;
 				}
 				macroName = m.group(2);
-
 
 				String val = m.group(5);
 				if (val != null) {
@@ -411,13 +401,12 @@ public class MacroLinkFunction extends AbstractFunction {
 						try {
 							val = argsToStrPropList(val);
 						} catch (ParserException e1) {
-							MapTool.addLocalMessage("Error running macro link: "
-											+ e1.getMessage());
+							MapTool.addLocalMessage("Error running macro link: " + e1.getMessage());
 						}
 					}
-					args=val;
+					args = val;
 					try {
-						JSONObject jobj =JSONObject.fromObject(args);
+						JSONObject jobj = JSONObject.fromObject(args);
 						if (jobj.containsKey("mlOutputList")) {
 							outputToPlayers.addAll(jobj.getJSONArray("mlOutputList"));
 						}
@@ -425,26 +414,21 @@ public class MacroLinkFunction extends AbstractFunction {
 						// Do nothing as we just dont populate the list.
 					}
 
-
 				}
 
 				String[] targets = m.group(4).split(",");
-				Zone zone = MapTool.getFrame().getCurrentZoneRenderer()
-						.getZone();
+				Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 
 				try {
 					for (String t : targets) {
 						if (t.equalsIgnoreCase("impersonated")) {
-							String identity = MapTool.getFrame()
-									.getCommandPanel().getIdentity();
+							String identity = MapTool.getFrame().getCommandPanel().getIdentity();
 							Token token = zone.resolveToken(identity);
 							MapToolVariableResolver resolver = new MapToolVariableResolver(token);
 							String output = MapTool.getParser().runMacro(resolver, token, macroName, args);
 							doOutput(token, outputTo, output, outputToPlayers); // TODO
 						} else if (t.equalsIgnoreCase("selected")) {
-							for (GUID id : MapTool.getFrame()
-									.getCurrentZoneRenderer()
-									.getSelectedTokenSet()) {
+							for (GUID id : MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokenSet()) {
 								Token token = zone.getToken(id);
 								MapToolVariableResolver resolver = new MapToolVariableResolver(token);
 								String output = MapTool.getParser().runMacro(resolver, token, macroName, args);
@@ -472,9 +456,9 @@ public class MacroLinkFunction extends AbstractFunction {
 
 		/*
 		 * First we check our player list to make sure we are not sending things out multiple times or the wrong way
-		 * This looks looks a little ugly, but all it is doing is searching for the strings say, gm, or gmself, and
-		 * if it contains no other strings changes it to a more appropriate for such as /togm, /self, etc. If it
-		 * contains other names then gm, self etc will be replaced with player names.
+		 * This looks looks a little ugly, but all it is doing is searching for the strings say, gm, or gmself, and if
+		 * it contains no other strings changes it to a more appropriate for such as /togm, /self, etc. If it contains
+		 * other names then gm, self etc will be replaced with player names.
 		 */
 		if (outputTo == OutputTo.LIST) {
 			if (playerList == null) {
@@ -507,12 +491,12 @@ public class MacroLinkFunction extends AbstractFunction {
 					playerList.add(getSelf());
 				}
 			} else if (playerList.contains("gm")) {
-					playerList.remove("gm");
-					if (playerList.size() == 0) { // if that was only thing in the list then dont use whispers
-						outputTo = OutputTo.GM;
-					} else {
-						playerList.addAll(getGMs());
-						playerList.add(getSelf());
+				playerList.remove("gm");
+				if (playerList.size() == 0) { // if that was only thing in the list then dont use whispers
+					outputTo = OutputTo.GM;
+				} else {
+					playerList.addAll(getGMs());
+					playerList.add(getSelf());
 				}
 			} else if (playerList.contains("self")) {
 				playerList.remove("self");
@@ -532,23 +516,22 @@ public class MacroLinkFunction extends AbstractFunction {
 			MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), I18N.getText("togm.self", line), null));
 			// Intentionally falls through
 		case GM:
-			MapTool.addMessage(new TextMessage(TextMessage.Channel.GM, null,
-					MapTool.getPlayer().getName(), I18N.getText("togm.saysToGM", MapTool.getPlayer().getName()) + " " + line, null));
+			MapTool.addMessage(new TextMessage(TextMessage.Channel.GM, null, MapTool.getPlayer().getName(), I18N.getText("togm.saysToGM", MapTool.getPlayer().getName()) + " " + line, null));
 			break;
 		case ALL:
 			doSay(line, token, false, "");
 			break;
 		case LIST:
 			StringBuilder sb = new StringBuilder();
-			for(String name : playerList) {
+			for (String name : playerList) {
 				doWhisper(line, token, name);
 				if (sb.length() > 0) {
 					sb.append(", ");
 				}
 				sb.append(name);
 			}
-	        MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), "<span class='whisper' style='color:blue'>" +
-	        		I18N.getText("whisper.you.string", sb.toString(), line) + "</span>", null));
+			MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), "<span class='whisper' style='color:blue'>"
+					+ I18N.getText("whisper.you.string", sb.toString(), line) + "</span>", null));
 
 			break;
 		case NONE:
@@ -560,36 +543,32 @@ public class MacroLinkFunction extends AbstractFunction {
 
 	private void doWhisper(String message, Token token, String playerName) {
 
-			ObservableList<Player> playerList = MapTool.getPlayerList();
-	        List<String> players = new ArrayList<String>();
-	        for(int count = 0; count < playerList.size(); count++)
-	        {
-	        	Player p = playerList.get(count);
-	        	String thePlayer = p.getName();
-	        	players.add(thePlayer);
-	        }
-	        String playerNameMatch = StringUtil.findMatch(playerName, players);
-	        playerName = (!playerNameMatch.equals(""))? playerNameMatch: playerName;
+		ObservableList<Player> playerList = MapTool.getPlayerList();
+		List<String> players = new ArrayList<String>();
+		for (int count = 0; count < playerList.size(); count++) {
+			Player p = playerList.get(count);
+			String thePlayer = p.getName();
+			players.add(thePlayer);
+		}
+		String playerNameMatch = StringUtil.findMatch(playerName, players);
+		playerName = (!playerNameMatch.equals("")) ? playerNameMatch : playerName;
 
-	        // Validate
-	        if (!MapTool.isPlayerConnected(playerName)) {
-	            MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), I18N.getText("msg.error.playerNotConnected", playerName), null));
-	        }
-	        if (MapTool.getPlayer().getName().equalsIgnoreCase(playerName)) {
-	            return;
-	        }
+		// Validate
+		if (!MapTool.isPlayerConnected(playerName)) {
+			MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), I18N.getText("msg.error.playerNotConnected", playerName), null));
+		}
+		if (MapTool.getPlayer().getName().equalsIgnoreCase(playerName)) {
+			return;
+		}
 
-	        // Send
-	        MapTool.addMessage(new TextMessage(TextMessage.Channel.WHISPER, playerName, MapTool.getPlayer().getName(),
-	        		"<span class='whisper' style='color:blue'>" + "<span class='whisper' style='color:blue'>"
-	        		+ I18N.getText("whisper.string",  MapTool.getFrame().getCommandPanel().getIdentity(), message)+"</span>", null));
+		// Send
+		MapTool.addMessage(new TextMessage(TextMessage.Channel.WHISPER, playerName, MapTool.getPlayer().getName(), "<span class='whisper' style='color:blue'>"
+				+ "<span class='whisper' style='color:blue'>" + I18N.getText("whisper.string", MapTool.getFrame().getCommandPanel().getIdentity(), message) + "</span>", null));
 
 	}
 
-
 	private List<String> getGMs() {
 		List<String> gms = new ArrayList<String>();
-
 
 		Iterator<Player> pliter = MapTool.getPlayerList().iterator();
 		while (pliter.hasNext()) {
@@ -606,9 +585,8 @@ public class MacroLinkFunction extends AbstractFunction {
 	}
 
 	/**
-	 * Runs the macro specified by the link if it is auto executable otherwise
-	 * does nothing..
-	 *
+	 * Runs the macro specified by the link if it is auto executable otherwise does nothing..
+	 * 
 	 * @param link
 	 *            the link to the macro.
 	 */
@@ -619,9 +597,8 @@ public class MacroLinkFunction extends AbstractFunction {
 	}
 
 	/**
-	 * Runs the macro specified by the link if it is auto executable otherwise
-	 * does nothing..
-	 *
+	 * Runs the macro specified by the link if it is auto executable otherwise does nothing..
+	 * 
 	 * @param link
 	 *            the link to the macro.
 	 */
@@ -634,13 +611,11 @@ public class MacroLinkFunction extends AbstractFunction {
 				try {
 					String[] parts = command.split("@");
 					if (parts.length > 1) {
-						Token token = MapTool.getParser().getTokenMacroLib(
-								parts[1]);
+						Token token = MapTool.getParser().getTokenMacroLib(parts[1]);
 						if (token == null) {
 							return false;
 						}
-						MacroButtonProperties mbp = token.getMacro(parts[0],
-								false);
+						MacroButtonProperties mbp = token.getMacro(parts[0], false);
 						if (mbp == null) {
 							return false;
 						}
@@ -683,14 +658,10 @@ public class MacroLinkFunction extends AbstractFunction {
 		return false;
 	}
 
-
-
-	private void doSay(String msg, Token token, boolean trusted,
-			String macroName) {
+	private void doSay(String msg, Token token, boolean trusted, String macroName) {
 		StringBuilder sb = new StringBuilder();
 
-		String identity = token == null ? MapTool.getPlayer().getName() : token
-				.getName();
+		String identity = token == null ? MapTool.getPlayer().getName() : token.getName();
 
 		sb.append("<table cellpadding=0><tr>");
 
@@ -700,17 +671,13 @@ public class MacroLinkFunction extends AbstractFunction {
 				if (imageId == null) {
 					imageId = token.getImageAssetId();
 				}
-				sb
-						.append(
-								"<td valign=top width=40 style=\"padding-right:5px\"><img src=\"asset://")
-						.append(imageId).append("-40\" ></td>");
+				sb.append("<td valign=top width=40 style=\"padding-right:5px\"><img src=\"asset://").append(imageId).append("-40\" ></td>");
 			}
 		}
 
 		sb.append("<td valign=top style=\"margin-right: 5px\">");
 		if (trusted && !MapTool.getPlayer().isGM()) {
-			sb.append("<span style='background-color: #C9F7AD' ").append(
-					"title='").append(macroName).append("'>");
+			sb.append("<span style='background-color: #C9F7AD' ").append("title='").append(macroName).append("'>");
 		}
 		sb.append(identity).append(": ");
 		if (trusted && !MapTool.getPlayer().isGM()) {
@@ -719,12 +686,9 @@ public class MacroLinkFunction extends AbstractFunction {
 
 		sb.append("</td><td valign=top>");
 
-		Color color = MapTool.getFrame().getCommandPanel().getTextColorWell()
-				.getColor();
+		Color color = MapTool.getFrame().getCommandPanel().getTextColorWell().getColor();
 		if (color != null) {
-			sb.append("<span style='color:#").append(
-					String.format("%06X", (color.getRGB() & 0xFFFFFF))).append(
-					"'>");
+			sb.append("<span style='color:#").append(String.format("%06X", (color.getRGB() & 0xFFFFFF))).append("'>");
 		}
 		sb.append(msg);
 		if (color != null) {
@@ -737,8 +701,7 @@ public class MacroLinkFunction extends AbstractFunction {
 			MacroContext context = new MacroContext();
 			context.addTransform(msg);
 
-			MapTool.addMessage(TextMessage.say(context
-					.getTransformationHistory(), sb.toString()));
+			MapTool.addMessage(TextMessage.say(context.getTransformationHistory(), sb.toString()));
 		}
 	}
 }

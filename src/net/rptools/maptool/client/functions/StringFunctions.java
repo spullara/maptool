@@ -18,28 +18,21 @@ import net.rptools.parser.function.AbstractFunction;
 
 public class StringFunctions extends AbstractFunction {
 
-
 	private int matchNo = 0;
 
 	private static final StringFunctions instance = new StringFunctions();
 
 	private StringFunctions() {
-		super(1, UNLIMITED_PARAMETERS, "replace", "stringToList", "substring",
-				"length", "upper", "lower", "indexOf", "lastIndexOf",
-				"trim", "strformat", "matches", "string", "number", "isNumber",
-				"strfind", "getFindCount", "getGroup", "getGroupStart", "getGroupEnd", "getGroupCount",
-				"encode", "decode", "startsWith", "endsWith");
+		super(1, UNLIMITED_PARAMETERS, "replace", "stringToList", "substring", "length", "upper", "lower", "indexOf", "lastIndexOf", "trim", "strformat", "matches", "string", "number", "isNumber",
+				"strfind", "getFindCount", "getGroup", "getGroupStart", "getGroupEnd", "getGroupCount", "encode", "decode", "startsWith", "endsWith");
 	}
-
 
 	public static StringFunctions getInstance() {
 		return instance;
 	}
 
-
 	@Override
-	public Object childEvaluate(Parser parser, String functionName,
-			List<Object> parameters) throws ParserException {
+	public Object childEvaluate(Parser parser, String functionName, List<Object> parameters) throws ParserException {
 
 		try {
 			if (functionName.equals("replace")) {
@@ -47,13 +40,11 @@ public class StringFunctions extends AbstractFunction {
 					throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 3, parameters.size()));
 				}
 
-
 				if (parameters.size() > 3) {
 					if (!(parameters.get(3) instanceof BigDecimal)) {
 						throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 4, parameters.get(3).toString()));
 					}
-					return replace(parameters.get(0).toString(), parameters.get(1).toString(),
-							parameters.get(2).toString(), ((BigDecimal)parameters.get(3)).intValue());
+					return replace(parameters.get(0).toString(), parameters.get(1).toString(), parameters.get(2).toString(), ((BigDecimal) parameters.get(3)).intValue());
 				} else {
 					return replace(parameters.get(0).toString(), parameters.get(1).toString(), parameters.get(2).toString());
 				}
@@ -85,12 +76,12 @@ public class StringFunctions extends AbstractFunction {
 					if (!(parameters.get(2) instanceof BigDecimal)) {
 						throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 3, parameters.get(2).toString()));
 					}
-					end = ((BigDecimal)parameters.get(2)).intValue();
+					end = ((BigDecimal) parameters.get(2)).intValue();
 				} else {
 					end = parameters.get(0).toString().length();
 				}
 
-				return parameters.get(0).toString().substring(((BigDecimal)parameters.get(1)).intValue(), end);
+				return parameters.get(0).toString().substring(((BigDecimal) parameters.get(1)).intValue(), end);
 			}
 
 			if (functionName.equals("length")) {
@@ -141,23 +132,19 @@ public class StringFunctions extends AbstractFunction {
 				} else {
 					from = 0;
 				}
-				return BigDecimal.valueOf(parameters.get(0).toString().indexOf(
-						parameters.get(1).toString(), from));
+				return BigDecimal.valueOf(parameters.get(0).toString().indexOf(parameters.get(1).toString(), from));
 			}
-
 
 			if (functionName.equals("lastIndexOf")) {
 				if (parameters.size() < 2) {
 					throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 2, parameters.size()));
 				}
-				return BigDecimal.valueOf(parameters.get(0).toString().lastIndexOf(
-						parameters.get(1).toString()));
+				return BigDecimal.valueOf(parameters.get(0).toString().lastIndexOf(parameters.get(1).toString()));
 			}
 
 			if (functionName.equals("trim")) {
 				return parameters.get(0).toString().trim();
 			}
-
 
 			if (functionName.equals("strformat")) {
 				int size = parameters.size();
@@ -267,6 +254,7 @@ public class StringFunctions extends AbstractFunction {
 			}
 			String encoded;
 			try {
+				// Shouldn't this use '&#59;' like net.rptools.maptool.client.functions.MacroLinkFunction.argsToStrPropList(String) does?
 				encoded = parameters.get(0).toString().replaceAll(";", "&semi;");
 				encoded = URLEncoder.encode(encoded, "utf-8");
 			} catch (UnsupportedEncodingException e) {
@@ -282,8 +270,9 @@ public class StringFunctions extends AbstractFunction {
 			}
 			String decoded;
 			try {
+				// Shouldn't this use '&#59;' like net.rptools.maptool.client.functions.MacroLinkFunction.argsToStrPropList(String) does?
 				decoded = URLDecoder.decode(parameters.get(0).toString(), "utf-8");
-				decoded = decoded.replaceAll("&semi;",";");
+				decoded = decoded.replaceAll("&semi;", ";");
 			} catch (UnsupportedEncodingException e) {
 				throw new ParserException(e);
 			}
@@ -296,29 +285,30 @@ public class StringFunctions extends AbstractFunction {
 			if (parameters.size() < 2) {
 				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 2, parameters.size()));
 			}
-			return parameters.get(0).toString().startsWith(parameters.get(1).toString()) ?
-					BigDecimal.ONE : BigDecimal.ZERO;
+			return parameters.get(0).toString().startsWith(parameters.get(1).toString()) ? BigDecimal.ONE : BigDecimal.ZERO;
 		}
 
 		if (functionName.equals("endsWith")) {
 			if (parameters.size() < 2) {
 				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 2, parameters.size()));
 			}
-			return parameters.get(0).toString().endsWith(parameters.get(1).toString()) ?
-					BigDecimal.ONE : BigDecimal.ZERO;
+			return parameters.get(0).toString().endsWith(parameters.get(1).toString()) ? BigDecimal.ONE : BigDecimal.ZERO;
 		}
-
 
 		// should never happen
 		throw new ParserException(functionName + "(): Unknown function.");
 	}
 
 	/**
-	 * Formats a string using the String.format() rules, as well as replacing any values in %{} with
-	 * the contents of the variable.
-	 * @param string The string to format.
-	 * @param resolver The variable resolver used to resolve variables within %{}.
-	 * @param args The arguments for formating options.
+	 * Formats a string using the String.format() rules, as well as replacing any values in %{} with the contents of the
+	 * variable.
+	 * 
+	 * @param string
+	 *            The string to format.
+	 * @param resolver
+	 *            The variable resolver used to resolve variables within %{}.
+	 * @param args
+	 *            The arguments for formating options.
 	 * @return the formated string.
 	 * @throws ParserException
 	 */
@@ -326,7 +316,7 @@ public class StringFunctions extends AbstractFunction {
 		StringBuffer sb = new StringBuffer();
 		// First replace all variables
 		Matcher m = Pattern.compile("%\\{([^}]+)\\}").matcher(string);
-		while(m.find()) {
+		while (m.find()) {
 			m.appendReplacement(sb, resolver.getVariable(m.group(1)).toString());
 		}
 		m.appendTail(sb);
@@ -334,7 +324,6 @@ public class StringFunctions extends AbstractFunction {
 		if (args == null) {
 			return sb.toString();
 		}
-
 
 		Object[] argArray = args.toArray();
 
@@ -355,15 +344,19 @@ public class StringFunctions extends AbstractFunction {
 		}
 	}
 
-
 	public String sanitize(String input) {
 		return input.replaceAll("«|»|&#171;|&#187;|&laquo;|&raquo;|\036|\037", "");
 	}
+
 	/**
 	 * Splits up a string based on a pattern and returns s string delimited list.
-	 * @param string The string to split up.
-	 * @param pattern The pattern used to split the string.
-	 * @param delim The delimiter that is used in the resulting output string.
+	 * 
+	 * @param string
+	 *            The string to split up.
+	 * @param pattern
+	 *            The pattern used to split the string.
+	 * @param delim
+	 *            The delimiter that is used in the resulting output string.
 	 * @return the delimited list.
 	 */
 	public String stringToList(String string, String pattern, String delim) {
@@ -373,7 +366,9 @@ public class StringFunctions extends AbstractFunction {
 
 	/**
 	 * Joins the array together as a string with a default delimiter of ','.
-	 * @param array The array to join.
+	 * 
+	 * @param array
+	 *            The array to join.
 	 * @return the resulting string.
 	 */
 	public String join(String[] array) {
@@ -382,7 +377,9 @@ public class StringFunctions extends AbstractFunction {
 
 	/**
 	 * Joins the array together as a string with a default delimiter of ','.
-	 * @param array The array to join.
+	 * 
+	 * @param array
+	 *            The array to join.
 	 * @return the resulting string.
 	 */
 	public String join(List<String> list) {
@@ -391,7 +388,9 @@ public class StringFunctions extends AbstractFunction {
 
 	/**
 	 * Joins the array together as a string with a default delimiter of ','.
-	 * @param array The array to join.
+	 * 
+	 * @param array
+	 *            The array to join.
 	 * @return the resulting string.
 	 */
 	public String join(List<String> list, String delim) {
@@ -400,12 +399,13 @@ public class StringFunctions extends AbstractFunction {
 		return join(array, delim);
 	}
 
-
-
 	/**
 	 * Joins the array together as a string with the specified delimiter.
-	 * @param array The array to join.
-	 * @param demlim The delimiter to use between elements.
+	 * 
+	 * @param array
+	 *            The array to join.
+	 * @param demlim
+	 *            The delimiter to use between elements.
 	 * @return the resulting string.
 	 */
 	public String join(String[] array, String delim) {
@@ -420,13 +420,17 @@ public class StringFunctions extends AbstractFunction {
 	}
 
 	/**
-	 * Replaces a pattern in a string a certain number of times. The pattern and
-	 * replacement strings follow the same rules as in the repalceFirst() and
-	 * replaceAll() methods in String.
-	 * @param string The string to do the replacement on.
-	 * @param pattern The pattern to replace.
-	 * @param replacement The value to replace the pattern with.
-	 * @param times The number of times to perform the replacement.
+	 * Replaces a pattern in a string a certain number of times. The pattern and replacement strings follow the same
+	 * rules as in the repalceFirst() and replaceAll() methods in String.
+	 * 
+	 * @param string
+	 *            The string to do the replacement on.
+	 * @param pattern
+	 *            The pattern to replace.
+	 * @param replacement
+	 *            The value to replace the pattern with.
+	 * @param times
+	 *            The number of times to perform the replacement.
 	 * @return the modified version of the string.
 	 */
 	public String replace(String string, String pattern, String replacement, int times) {
@@ -436,7 +440,7 @@ public class StringFunctions extends AbstractFunction {
 
 		StringBuffer sb = new StringBuffer();
 		Matcher m = Pattern.compile(pattern).matcher(string);
-		while(m.find()) {
+		while (m.find()) {
 			if (times < 1) {
 				break;
 			}
@@ -448,12 +452,15 @@ public class StringFunctions extends AbstractFunction {
 	}
 
 	/**
-	 * Replaces all the occurrences of a pattern in a string. The pattern and
-	 * replacement strings follow the same rules as in the repalceFirst() and
-	 * replaceAll() methods in String.
-	 * @param string The string to do the replacement on.
-	 * @param pattern The pattern to replace.
-	 * @param replacement The value to replace the pattern with.
+	 * Replaces all the occurrences of a pattern in a string. The pattern and replacement strings follow the same rules
+	 * as in the repalceFirst() and replaceAll() methods in String.
+	 * 
+	 * @param string
+	 *            The string to do the replacement on.
+	 * @param pattern
+	 *            The pattern to replace.
+	 * @param replacement
+	 *            The value to replace the pattern with.
 	 * @return the modified version of the string.
 	 */
 	public String replace(String string, String pattern, String replacement) {
@@ -461,24 +468,26 @@ public class StringFunctions extends AbstractFunction {
 	}
 
 	/**
-	 * Matches the pattern against the input string and set variables in the resolver
-	 * with the capture groups
-	 * @param resolver The variable resolver to set the variables in.
-	 * @param str The string to match the pattern against.
-	 * @param pattern The pattern to match.
+	 * Matches the pattern against the input string and set variables in the resolver with the capture groups
+	 * 
+	 * @param resolver
+	 *            The variable resolver to set the variables in.
+	 * @param str
+	 *            The string to match the pattern against.
+	 * @param pattern
+	 *            The pattern to match.
 	 * @return The number of matches that were found
 	 * @throws ParserException
-	 *
-	 * Variables that are set in the variable resolver.
-	 * match.groupCount = The number of capture groups in the pattern.
-	 * {matchNo} is a sequence used to differentiate different calls to strfind
-	 * match.{matchNo}.matchCount = The number of matches found.
-	 * match.{matchNo}.m{M}.group{G} = The matching string for Match {M} and Group number {G}.
-	 * match.{matchNo}.m{M}.group{G}.start = The start of Group number {G} in Match Number {M}
-	 * match.{matchNo}.m{M}.group{G}.end = The end of Group number {G} in Match Number {M}
+	 * 
+	 *             Variables that are set in the variable resolver. match.groupCount = The number of capture groups in
+	 *             the pattern. {matchNo} is a sequence used to differentiate different calls to strfind
+	 *             match.{matchNo}.matchCount = The number of matches found. match.{matchNo}.m{M}.group{G} = The
+	 *             matching string for Match {M} and Group number {G}. match.{matchNo}.m{M}.group{G}.start = The start
+	 *             of Group number {G} in Match Number {M} match.{matchNo}.m{M}.group{G}.end = The end of Group number
+	 *             {G} in Match Number {M}
 	 */
 	public BigDecimal stringFind(VariableResolver resolver, String str, String pattern) throws ParserException {
-		Pattern p  = Pattern.compile(pattern);
+		Pattern p = Pattern.compile(pattern);
 		Matcher m = p.matcher(str);
 		int found = 0;
 
@@ -487,7 +496,7 @@ public class StringFunctions extends AbstractFunction {
 		while (m.find()) {
 			found++;
 			for (int i = 1; i < m.groupCount() + 1; i++) {
-				resolver.setVariable("match." + matchId + ".m" + found + ".group" + i , m.group(i) == null ? "" : m.group(i));
+				resolver.setVariable("match." + matchId + ".m" + found + ".group" + i, m.group(i) == null ? "" : m.group(i));
 				resolver.setVariable("match." + matchId + ".m" + found + ".group" + i + ".start", m.start(i));
 				resolver.setVariable("match." + matchId + ".m" + found + ".group" + i + ".end", m.end(i));
 			}
@@ -498,7 +507,6 @@ public class StringFunctions extends AbstractFunction {
 		resolver.setVariable("match." + matchId + ".matchCount", found);
 		return BigDecimal.valueOf(matchId);
 	}
-
 
 	private synchronized int nextMatchNo() {
 		return matchNo++;

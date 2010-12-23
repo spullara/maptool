@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.ui.commandpanel;
 
@@ -66,8 +63,12 @@ public class MessagePanel extends JPanel {
 		textPane.setEditable(false);
 		textPane.setEditorKit(new MessagePanelEditorKit());
 		textPane.addComponentListener(new ComponentListener() {
-			public void componentHidden(ComponentEvent e) {}
-			public void componentMoved(ComponentEvent e) {}
+			public void componentHidden(ComponentEvent e) {
+			}
+
+			public void componentMoved(ComponentEvent e) {
+			}
+
 			public void componentResized(ComponentEvent e) {
 				// Jump to the bottom on new text
 				if (!MapTool.getFrame().getCommandPanel().getScrollLockButton().isSelected()) {
@@ -75,7 +76,9 @@ public class MessagePanel extends JPanel {
 					textPane.scrollRectToVisible(rowBounds);
 				}
 			}
-			public void componentShown(ComponentEvent e) {}
+
+			public void componentShown(ComponentEvent e) {
+			}
 		});
 		textPane.addHyperlinkListener(new HyperlinkListener() {
 			public void hyperlinkUpdate(HyperlinkEvent e) {
@@ -149,16 +152,15 @@ public class MessagePanel extends JPanel {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				textPane.setText("<html><body id=\"body\"></body></html>");
-				((MessagePanelEditorKit)textPane.getEditorKit()).flush();
+				((MessagePanelEditorKit) textPane.getEditorKit()).flush();
 			}
 		});
 	}
 
-	/* We use ASCII control characters to mark off the rolls so that there's no limitation on what (printable) characters the output can include
-	 * Rolls look like "\036roll output\036" or
-	 *                 "\036tooltip\037roll output\036" or
-	 *                 "\036\001format info\002roll output\036" or
-	 *                 "\036\001format info\002tooltip\037roll output\036"
+	/*
+	 * We use ASCII control characters to mark off the rolls so that there's no limitation on what (printable)
+	 * characters the output can include Rolls look like "\036roll output\036" or "\036tooltip\037roll output\036" or
+	 * "\036\001format info\002roll output\036" or "\036\001format info\002tooltip\037roll output\036"
 	 */
 	private static Pattern roll_pattern = Pattern.compile("\036(?:\001([^\002]*)\002)?([^\036\037]*)(?:\037([^\036]*))?\036");
 
@@ -188,12 +190,10 @@ public class MessagePanel extends JPanel {
 								continue;
 							}
 						}
-
 						String replacement = null;
 						if (m.group(3) != null) {
-							if (!options.contains("st") && !options.contains("gt") ||
-									options.contains("st") && message.getSource().equals(MapTool.getPlayer().getName()) ||
-									options.contains("gt") && MapTool.getPlayer().getRole() == Role.GM)
+							if (!options.contains("st") && !options.contains("gt") || options.contains("st") && message.getSource().equals(MapTool.getPlayer().getName()) || options.contains("gt")
+									&& MapTool.getPlayer().getRole() == Role.GM)
 								replacement = "<span class='roll' title='&#171; $2 &#187;'>$3</span>";
 							else
 								replacement = "$3";
@@ -208,21 +208,19 @@ public class MessagePanel extends JPanel {
 					m.appendTail(text);
 					output = text.toString();
 				}
-
 				// Auto inline expansion for {HTTP|HTTPS} URLs
-				output = output.replaceAll("(^|\\s|>|\002)(https?://[\\w.%-/~?&+#=]+)", "$1<a href='$2'>$2</a>");
-
+//				output = output.replaceAll("(^|\\s|>|\002)(https?://[\\w.%-/~?&+#=]+)", "$1<a href='$2'>$2</a>");
+				output = output.replaceAll("(^|\\s|>|\002)(https?://[^<>\002\003]+)", "$1<a href='$2'>$2</a>");
 
 				if (!message.getSource().equals(MapTool.getPlayer().getName())) {
-					Matcher m = Pattern.compile("href=([\"'])\\s*(([^:]*)://(?:[^/]*)/(?:[^?]*)(?:\\?(?:.*?))?)\\1\\s*").matcher(output);
+					// TODO change this to 'macro' is case-insensitive
+					Matcher m = Pattern.compile("href=([\"'])\\s*(macro://(?:[^/]*)/(?:[^?]*)(?:\\?(?:.*?))?)\\1\\s*").matcher(output);
 					while (m.find()) {
-						if (m.group(3).equalsIgnoreCase("macro")) {
-							MacroLinkFunction.getInstance().processMacroLink(m.group(2));
-						}
+						MacroLinkFunction.getInstance().processMacroLink(m.group(2));
 					}
 				}
-
 				// if rolls not being visible to this user result in an empty message, display nothing
+				// TODO The leading and trailing '.*' are probably not needed -- test this before removing them
 				if (!output.matches(".*\002\\s*\003.*")) {
 					output = output.replaceAll("\002|\003", "");
 
@@ -242,5 +240,4 @@ public class MessagePanel extends JPanel {
 			}
 		});
 	}
-
 }

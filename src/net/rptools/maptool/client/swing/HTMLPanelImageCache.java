@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.swing;
 
@@ -29,16 +26,17 @@ import java.util.Map;
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.util.ImageManager;
 
 public class HTMLPanelImageCache extends Dictionary<URL, Image> {
 
-	private Map<String, Image> imageMap = new HashMap<String, Image>();
+	private final Map<String, Image> imageMap = new HashMap<String, Image>();
 
 	public void flush() {
 		imageMap.clear();
 	}
-	
+
 	@Override
 	public Enumeration elements() {
 		// Not used
@@ -61,44 +59,37 @@ public class HTMLPanelImageCache extends Dictionary<URL, Image> {
 				try {
 					image = ImageUtil.getImage(path);
 				} catch (IOException ioe) {
-					// TODO: Show my own broken image
-					ioe.printStackTrace();
+					MapTool.showWarning("Can't find 'cp://" + key.toString() + "' in image cache?!", ioe);
 				}
 			} else if ("asset".equals(protocol)) {
-
 				// Look for size request
 				int index = path.indexOf("-");
 				int size = -1;
 				if (index >= 0) {
-					String szStr = path.substring(index+1);
+					String szStr = path.substring(index + 1);
 					path = path.substring(0, index);
 					size = Integer.parseInt(szStr);
 				}
-				
 				image = ImageManager.getImageAndWait(new MD5Key(path));
 
 				if (size > 0) {
 					Dimension sz = new Dimension(image.getWidth(null), image.getHeight(null));
 					SwingUtil.constrainTo(sz, size);
-					
+
 					BufferedImage img = new BufferedImage(sz.width, sz.height, ImageUtil.pickBestTransparency(image));
 					Graphics2D g = img.createGraphics();
 					g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 					g.drawImage(image, 0, 0, sz.width, sz.height, null);
 					g.dispose();
-					
+
 					image = img;
 				}
-				
 			} else {
-
 				// Normal method
 				image = Toolkit.getDefaultToolkit().createImage(url);
 			}
-
 			imageMap.put(url.toString(), image);
 		}
-
 		return image;
 	}
 
