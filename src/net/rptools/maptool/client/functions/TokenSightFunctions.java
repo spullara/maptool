@@ -23,7 +23,7 @@ public class TokenSightFunctions extends AbstractFunction {
 	private static final TokenSightFunctions instance = new TokenSightFunctions();
 
 	private TokenSightFunctions() {
-		super(0, 1, "hasSight", "setHasSight", "getSightType", "setSightType", "canSeeToken");
+		super(0, 2, "hasSight", "setHasSight", "getSightType", "setSightType", "canSeeToken");
 	}
 
 	public static TokenSightFunctions getInstance() {
