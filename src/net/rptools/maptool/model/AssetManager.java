@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.model;
 
@@ -42,12 +39,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 /**
- * This class handles the caching, loading,
- * and downloading of assets. All assets are
- * loaded through this class.
- *
+ * This class handles the caching, loading, and downloading of assets. All assets are loaded through this class.
+ * 
  * @author RPTools Team
- *
+ * 
  */
 public class AssetManager {
 	private static final Logger log = Logger.getLogger(AssetManager.class);
@@ -62,11 +57,10 @@ public class AssetManager {
 	private static boolean usePersistentCache;
 
 	/**
-	 * A list of listeners which should be notified
-	 * when the asset associated with a given MD5
-	 * sum has finished downloading.
+	 * A list of listeners which should be notified when the asset associated with a given MD5 sum has finished
+	 * downloading.
 	 */
-	private static Map<MD5Key, List<AssetAvailableListener>> assetListenerListMap  = new ConcurrentHashMap<MD5Key, List<AssetAvailableListener>>();
+	private static Map<MD5Key, List<AssetAvailableListener>> assetListenerListMap = new ConcurrentHashMap<MD5Key, List<AssetAvailableListener>>();
 
 	/** Property string associated with asset name */
 	public static final String NAME = "name";
@@ -84,9 +78,7 @@ public class AssetManager {
 	}
 
 	/**
-	 * Remove all existing repositories and
-	 * load all the repositories from the currently
-	 * loaded campaign.
+	 * Remove all existing repositories and load all the repositories from the currently loaded campaign.
 	 */
 	public static void updateRepositoryList() {
 		assetLoader.removeAllRepositories();
@@ -96,13 +88,12 @@ public class AssetManager {
 	}
 
 	/**
-	 * Determine if the asset is currently being
-	 * requested. While an asset is being loaded
-	 * it will be marked as requested and this function
-	 * will return true. Once the asset is done loading
-	 * this function will return false and the asset will
-	 * be available from the cache.
-	 * @param key MD5Key of asset being requested
+	 * Determine if the asset is currently being requested. While an asset is being loaded it will be marked as
+	 * requested and this function will return true. Once the asset is done loading this function will return false and
+	 * the asset will be available from the cache.
+	 * 
+	 * @param key
+	 *            MD5Key of asset being requested
 	 * @return True if asset is currently being requested, false otherwise
 	 */
 	public static boolean isAssetRequested(MD5Key key) {
@@ -110,11 +101,12 @@ public class AssetManager {
 	}
 
 	/**
-	 * Register a listener with the asset manager. The
-	 * listener will be notified when the asset is done
-	 * loading.
-	 * @param key MD5Key of the asset
-	 * @param listener Listener to notify when the asset is done loading
+	 * Register a listener with the asset manager. The listener will be notified when the asset is done loading.
+	 * 
+	 * @param key
+	 *            MD5Key of the asset
+	 * @param listener
+	 *            Listener to notify when the asset is done loading
 	 */
 	public static void addAssetListener(MD5Key key, AssetAvailableListener... listeners) {
 
@@ -153,10 +145,10 @@ public class AssetManager {
 	}
 
 	/**
-	 * Determine if the asset manager has the asset.
-	 * This does not tell you if the asset is done
-	 * downloading.
-	 * @param asset Asset to look for
+	 * Determine if the asset manager has the asset. This does not tell you if the asset is done downloading.
+	 * 
+	 * @param asset
+	 *            Asset to look for
 	 * @return True if the asset exists, false otherwise
 	 */
 	public static boolean hasAsset(Asset asset) {
@@ -164,9 +156,8 @@ public class AssetManager {
 	}
 
 	/**
-	 * Determine if the asset manager has the asset.
-	 * This does not tell you if the asset is done
-	 * downloading.
+	 * Determine if the asset manager has the asset. This does not tell you if the asset is done downloading.
+	 * 
 	 * @param key
 	 * @return
 	 */
@@ -176,7 +167,9 @@ public class AssetManager {
 
 	/**
 	 * Determines if the asset data is in memory.
-	 * @param key MD5 sum associated with asset
+	 * 
+	 * @param key
+	 *            MD5 sum associated with asset
 	 * @return True if hte asset is loaded, false otherwise
 	 */
 	public static boolean hasAssetInMemory(MD5Key key) {
@@ -184,9 +177,10 @@ public class AssetManager {
 	}
 
 	/**
-	 * Add the asset to the asset cache.
-	 * Listeners for this asset are notified.
-	 * @param asset Asset to add to cache
+	 * Add the asset to the asset cache. Listeners for this asset are notified.
+	 * 
+	 * @param asset
+	 *            Asset to add to cache
 	 */
 	public static void putAsset(Asset asset) {
 
@@ -217,7 +211,7 @@ public class AssetManager {
 	}
 
 	/**
-	 * Similar to getAsset(), but does not block.  It will always use the listeners to pass the data
+	 * Similar to getAsset(), but does not block. It will always use the listeners to pass the data
 	 */
 	public static void getAssetAsynchronously(final MD5Key id, final AssetAvailableListener... listeners) {
 
@@ -245,11 +239,11 @@ public class AssetManager {
 	}
 
 	/**
-	 * Get the asset from the cache. If the asset
-	 * is not currently available, will return null.
-	 * Does not request the asset from the server
-	 *
-	 * @param id MD5 of the asset requested
+	 * Get the asset from the cache. If the asset is not currently available, will return null. Does not request the
+	 * asset from the server
+	 * 
+	 * @param id
+	 *            MD5 of the asset requested
 	 * @return Asset object for the MD5 sum
 	 */
 	public static Asset getAsset(MD5Key id) {
@@ -279,7 +273,7 @@ public class AssetManager {
 
 					// Just to be sure the image didn't change
 					if (!asset.getId().equals(id)) {
-						throw new IOException ("Image reference did not match the requested image");
+						throw new IOException("Image reference did not match the requested image");
 					}
 
 					// Put it in the persistent cache so we'll find it faster next time
@@ -296,7 +290,9 @@ public class AssetManager {
 
 	/**
 	 * Remove the asset from the asset cache.
-	 * @param id MD5 of the asset to remove
+	 * 
+	 * @param id
+	 *            MD5 of the asset to remove
 	 */
 	public static void removeAsset(MD5Key id) {
 		assetMap.remove(id);
@@ -304,11 +300,13 @@ public class AssetManager {
 
 	/**
 	 * Enable the use of the persistent asset cache.
-	 * @param enable True to enable the cache, false to disable
+	 * 
+	 * @param enable
+	 *            True to enable the cache, false to disable
 	 */
 	public static void setUsePersistentCache(boolean enable) {
 		if (enable && cacheDir == null) {
-			throw new IllegalArgumentException ("Could not enable persistent cache: no such directory");
+			throw new IllegalArgumentException("Could not enable persistent cache: no such directory");
 		}
 
 		usePersistentCache = enable;
@@ -316,7 +314,9 @@ public class AssetManager {
 
 	/**
 	 * Request that the asset be loaded from the server
-	 * @param id MD5 of the asset to load from the server
+	 * 
+	 * @param id
+	 *            MD5 of the asset to load from the server
 	 */
 	private static void requestAssetFromServer(MD5Key id, AssetAvailableListener... listeners) {
 
@@ -327,11 +327,11 @@ public class AssetManager {
 	}
 
 	/**
-	 * Retrieve the asset from the persistent cache.
-	 * If the asset is not in the cache, or loading
-	 * from the cache failed then this function
-	 * returns null.
-	 * @param id MD5 of the requested asset
+	 * Retrieve the asset from the persistent cache. If the asset is not in the cache, or loading from the cache failed
+	 * then this function returns null.
+	 * 
+	 * @param id
+	 *            MD5 of the requested asset
 	 * @return Asset from the cache
 	 */
 	private static Asset getFromPersistentCache(MD5Key id) {
@@ -352,7 +352,7 @@ public class AssetManager {
 
 			Asset asset = new Asset(props.getProperty(NAME), data);
 
-			if ( !asset.getId().equals(id)) {
+			if (!asset.getId().equals(id)) {
 				log.error("MD5 for asset " + asset.getName() + " corrupted");
 			}
 
@@ -368,17 +368,21 @@ public class AssetManager {
 
 	/**
 	 * Create an asset from a file.
-	 * @param file File to use for asset
+	 * 
+	 * @param file
+	 *            File to use for asset
 	 * @return Asset associated with the file
 	 * @throws IOException
 	 */
 	public static Asset createAsset(File file) throws IOException {
-		return  new Asset(FileUtil.getNameWithoutExtension(file), FileUtils.readFileToByteArray(file));
+		return new Asset(FileUtil.getNameWithoutExtension(file), FileUtils.readFileToByteArray(file));
 	}
 
 	/**
 	 * Create an asset from a file.
-	 * @param file File to use for asset
+	 * 
+	 * @param file
+	 *            File to use for asset
 	 * @return Asset associated with the file
 	 * @throws IOException
 	 */
@@ -398,7 +402,9 @@ public class AssetManager {
 
 	/**
 	 * Return a set of properties associated with the asset.
-	 * @param id MD5 of the asset
+	 * 
+	 * @param id
+	 *            MD5 of the asset
 	 * @return Properties object containing asset properties.
 	 */
 	public static Properties getAssetInfo(MD5Key id) {
@@ -419,7 +425,9 @@ public class AssetManager {
 
 	/**
 	 * Serialize the asset into the persistent cache.
-	 * @param asset Asset to serialize
+	 * 
+	 * @param asset
+	 *            Asset to serialize
 	 */
 	private static void putInPersistentCache(final Asset asset) {
 
@@ -458,7 +466,7 @@ public class AssetManager {
 				// Info
 				OutputStream out = new FileOutputStream(infoFile);
 				Properties props = new Properties();
-				props.put (NAME, asset.getName() != null ? asset.getName() : "");
+				props.put(NAME, asset.getName() != null ? asset.getName() : "");
 				props.store(out, "Asset Info");
 				out.close();
 
@@ -472,7 +480,9 @@ public class AssetManager {
 
 	/**
 	 * Return the file associated with the asset, if any.
-	 * @param id MD5 of the asset
+	 * 
+	 * @param id
+	 *            MD5 of the asset
 	 * @return The file associated with the asset, null if none.
 	 */
 	private static File getLocalReference(MD5Key id) {
@@ -501,11 +511,10 @@ public class AssetManager {
 	}
 
 	/**
-	 * Store an absolute path to where this asset exists.
-	 * Perhaps this should be saved in a single data structure that is read/written when
-	 * it's modified?  This would allow the fileFilterText field from the AssetPanel the
-	 * option of searching through all directories and not just the current one.  FJE
-	 *
+	 * Store an absolute path to where this asset exists. Perhaps this should be saved in a single data structure that
+	 * is read/written when it's modified? This would allow the fileFilterText field from the AssetPanel the option of
+	 * searching through all directories and not just the current one. FJE
+	 * 
 	 * @param image
 	 */
 	public static void rememberLocalImageReference(File image) throws IOException {
@@ -536,7 +545,9 @@ public class AssetManager {
 
 	/**
 	 * Determine if the asset has a local reference
-	 * @param id MD5 sum of the asset
+	 * 
+	 * @param id
+	 *            MD5 sum of the asset
 	 * @return True if there is a local reference, false otherwise
 	 */
 	private static boolean assetHasLocalReference(MD5Key id) {
@@ -546,7 +557,9 @@ public class AssetManager {
 
 	/**
 	 * Determine if the asset is in the persistent cache.
-	 * @param asset Asset to search for
+	 * 
+	 * @param asset
+	 *            Asset to search for
 	 * @return True if asset is in the persistent cache, false otherwise
 	 */
 	private static boolean assetIsInPersistentCache(Asset asset) {
@@ -555,7 +568,9 @@ public class AssetManager {
 
 	/**
 	 * The assets information is in the persistent cache.
-	 * @param asset Asset to search for
+	 * 
+	 * @param asset
+	 *            Asset to search for
 	 * @return True if the assets information exists in the persistent cache
 	 */
 	private static boolean assetInfoIsInPersistentCache(Asset asset) {
@@ -564,7 +579,9 @@ public class AssetManager {
 
 	/**
 	 * Determine if the asset is in the persistent cache.
-	 * @param id MD5 sum of the asset
+	 * 
+	 * @param id
+	 *            MD5 sum of the asset
 	 * @return True if asset is in the persistent cache, false otherwise
 	 * @see assetIsInPersistentCache(Asset asset)
 	 */
@@ -575,7 +592,9 @@ public class AssetManager {
 
 	/**
 	 * Return the assets cache file, if any
-	 * @param asset Asset to search for
+	 * 
+	 * @param asset
+	 *            Asset to search for
 	 * @return The assets cache file, or null if it doesn't have one
 	 */
 	public static File getAssetCacheFile(Asset asset) {
@@ -584,17 +603,21 @@ public class AssetManager {
 
 	/**
 	 * Return the assets cache file, if any
-	 * @param is MD5 sum of the asset
+	 * 
+	 * @param is
+	 *            MD5 sum of the asset
 	 * @return The assets cache file, or null if it doesn't have one
 	 * @see getAssetCacheFile(Asset asset)
 	 */
 	public static File getAssetCacheFile(MD5Key id) {
-		return new File (cacheDir.getAbsolutePath() + File.separator + id);
+		return new File(cacheDir.getAbsolutePath() + File.separator + id);
 	}
 
 	/**
 	 * Return the asset info file, if any
-	 * @param asset Asset to search for
+	 * 
+	 * @param asset
+	 *            Asset to search for
 	 * @return The assets info file, or null if it doesn't have one
 	 */
 	private static File getAssetInfoFile(Asset asset) {
@@ -603,39 +626,42 @@ public class AssetManager {
 
 	/**
 	 * Return the asset info file, if any
-	 * @param id MD5 sum of the asset
+	 * 
+	 * @param id
+	 *            MD5 sum of the asset
 	 * @return File - The assets info file, or null if it doesn't have one
 	 * @see getAssetInfoFile(Asset asset)
 	 */
 	private static File getAssetInfoFile(MD5Key id) {
-		return new File (cacheDir.getAbsolutePath() + File.separator + id + ".info");
+		return new File(cacheDir.getAbsolutePath() + File.separator + id + ".info");
 	}
 
 	/**
 	 * Return the asset link file, if any
-	 * @param id MD5 sum of the asset
+	 * 
+	 * @param id
+	 *            MD5 sum of the asset
 	 * @return File The asset link file
 	 */
 	private static File getAssetLinkFile(MD5Key id) {
-		return new File (cacheDir.getAbsolutePath() + File.separator + id + ".lnk");
+		return new File(cacheDir.getAbsolutePath() + File.separator + id + ".lnk");
 	}
 
 	/**
-	 * Recursively search from the rootDir, filtering files
-	 * based on fileFilter, and store a reference to every
-	 * file seen.
-	 * @param rootDir Starting directory to recurse from
-	 * @param fileFilter Only add references to image files that are allowed by the filter
+	 * Recursively search from the rootDir, filtering files based on fileFilter, and store a reference to every file
+	 * seen.
+	 * 
+	 * @param rootDir
+	 *            Starting directory to recurse from
+	 * @param fileFilter
+	 *            Only add references to image files that are allowed by the filter
 	 */
 	public static void searchForImageReferences(File rootDir, FilenameFilter fileFilter) {
-
 		for (File file : rootDir.listFiles()) {
-
 			if (file.isDirectory()) {
 				searchForImageReferences(file, fileFilter);
 				continue;
 			}
-
 			try {
 				if (fileFilter.accept(rootDir, file.getName())) {
 					if (MapTool.getFrame() != null) {
@@ -647,7 +673,6 @@ public class AssetManager {
 				ioe.printStackTrace();
 			}
 		}
-
 		// Done
 		if (MapTool.getFrame() != null) {
 			MapTool.getFrame().setStatusMessage("");
@@ -656,22 +681,23 @@ public class AssetManager {
 
 	/**
 	 * <p>
-	 * This method accepts the name of a repository (as it appears in the
-	 * CampaignProperties) and updates it by adding the additional mappings that are in
-	 * <code>add</code>.
+	 * This method accepts the name of a repository (as it appears in the CampaignProperties) and updates it by adding
+	 * the additional mappings that are in <code>add</code>.
 	 * </p>
 	 * <p>
-	 * This method first retrieves the mapping from the AssetLoader.  It then adds in the
-	 * new assets.  Last, it has to create the new index file.  The index file should be stored
-	 * in the local repository cache.  Note that this function <b>does not</b> update
-	 * the original (network storage) repository location.
+	 * This method first retrieves the mapping from the AssetLoader. It then adds in the new assets. Last, it has to
+	 * create the new index file. The index file should be stored in the local repository cache. Note that this function
+	 * <b>does not</b> update the original (network storage) repository location.
 	 * </p>
 	 * <p>
-	 * If the calling function does not update the network storage for <b>index.gz</b>,
-	 * a restart of MapTool will lose the information when the index is downloaded again.
+	 * If the calling function does not update the network storage for <b>index.gz</b>, a restart of MapTool will lose
+	 * the information when the index is downloaded again.
 	 * </p>
-	 * @param repo name of the repository to update
-	 * @param add entries to add to the repository
+	 * 
+	 * @param repo
+	 *            name of the repository to update
+	 * @param add
+	 *            entries to add to the repository
 	 * @return the contents of the new repository in uploadable format
 	 */
 	public static byte[] updateRepositoryMap(String repo, Map<String, String> add) {
@@ -689,16 +715,17 @@ public class AssetManager {
 
 	/**
 	 * <p>
-	 * Constructs a set of all assets in the given list of repositories, then builds a map of
-	 * <code>MD5Key</code> and <code>Asset</code> for all assets that do not
-	 * appear in that set.
+	 * Constructs a set of all assets in the given list of repositories, then builds a map of <code>MD5Key</code> and
+	 * <code>Asset</code> for all assets that do not appear in that set.
 	 * </p>
 	 * <p>
-	 * This provides the calling function with a list of all assets currently in use by the
-	 * campaign that do not appear in one of the listed repositories.  It's entirely possible that
-	 * the asset is in a different repository or in none at all.
+	 * This provides the calling function with a list of all assets currently in use by the campaign that do not appear
+	 * in one of the listed repositories. It's entirely possible that the asset is in a different repository or in none
+	 * at all.
 	 * </p>
-	 * @param repos list of repositories to exclude
+	 * 
+	 * @param repos
+	 *            list of repositories to exclude
 	 * @return Map of all known assets that are NOT in the specified repositories
 	 */
 	public static Map<MD5Key, Asset> findAllAssetsNotInRepositories(List<String> repos) {
@@ -715,19 +742,16 @@ public class AssetManager {
 		}
 
 		/*
-		 * The 'aggregate' now holds the sum total of all asset keys that are in repositories.
-		 * Now we go through the 'assetMap' and copy over <K,V> pairs that are NOT in
-		 * 'aggregate' to our 'missing' Map.
-		 *
-		 * Unfortunately, the repository is a Map<String, String> while the return value is
-		 * going to be a Map<MD5Key, Asset>, which means each individual entry needs to
-		 * be checked and references copied.  If both were the same data type, converting
-		 * both to Set<String> would allow for an addAll() and removeAll() and be done with
-		 * it!
+		 * The 'aggregate' now holds the sum total of all asset keys that are in repositories. Now we go through the
+		 * 'assetMap' and copy over <K,V> pairs that are NOT in 'aggregate' to our 'missing' Map.
+		 * 
+		 * Unfortunately, the repository is a Map<String, String> while the return value is going to be a Map<MD5Key,
+		 * Asset>, which means each individual entry needs to be checked and references copied. If both were the same
+		 * data type, converting both to Set<String> would allow for an addAll() and removeAll() and be done with it!
 		 */
 		Map<MD5Key, Asset> missing = new HashMap<MD5Key, Asset>(Math.min(assetMap.size(), aggregate.size()));
 		for (MD5Key key : assetMap.keySet()) {
-			if (aggregate.contains(key) == false)	// Not in any repository so add it.
+			if (aggregate.contains(key) == false) // Not in any repository so add it.
 				missing.put(key, assetMap.get(key));
 		}
 		return missing;

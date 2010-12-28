@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.ui.assetpanel;
 
@@ -34,17 +31,17 @@ import net.rptools.maptool.util.PersistenceUtil;
 
 public class AssetDirectory extends Directory {
 
-    public static final String PROPERTY_IMAGE_LOADED = "imageLoaded";
-    
-	private Map<File, FutureTask<Image>> imageMap = new HashMap<File, FutureTask<Image>>();
+	public static final String PROPERTY_IMAGE_LOADED = "imageLoaded";
+
+	private final Map<File, FutureTask<Image>> imageMap = new HashMap<File, FutureTask<Image>>();
 
 	private static final Image INVALID_IMAGE = new BufferedImage(1, 1, Transparency.OPAQUE);
-	
+
 	private static ExecutorService largeImageLoaderService = Executors.newFixedThreadPool(1);
 	private static ExecutorService smallImageLoaderService = Executors.newFixedThreadPool(2);
-    
-    private AtomicBoolean continueProcessing = new AtomicBoolean(true);
-    
+
+	private AtomicBoolean continueProcessing = new AtomicBoolean(true);
+
 	public AssetDirectory(File directory, FilenameFilter fileFilter) {
 		super(directory, fileFilter);
 	}
@@ -53,53 +50,49 @@ public class AssetDirectory extends Directory {
 	public String toString() {
 		return getPath().getName();
 	}
-	
+
 	@Override
 	public void refresh() {
 		imageMap.clear();
-        
-        // Tell any in-progress processing to stop
-        AtomicBoolean oldBool = continueProcessing;
-        continueProcessing = new AtomicBoolean(true);
-        oldBool.set(false);
-        
+
+		// Tell any in-progress processing to stop
+		AtomicBoolean oldBool = continueProcessing;
+		continueProcessing = new AtomicBoolean(true);
+		oldBool.set(false);
+
 		super.refresh();
 	}
-	
+
 	/**
-	 * Returns the asset associated with this file, or null if the
-	 * file has not yet been loaded as an asset
+	 * Returns the asset associated with this file, or null if the file has not yet been loaded as an asset
+	 * 
 	 * @param imageFile
 	 * @return
 	 */
 	public Image getImageFor(File imageFile) {
-
 		FutureTask<Image> future = imageMap.get(imageFile);
 		if (future != null) {
 			if (future.isDone()) {
 				try {
 					return future.get() != INVALID_IMAGE ? future.get() : null;
 				} catch (InterruptedException e) {
-                    // TODO: need to indicate a broken image
+					// TODO: need to indicate a broken image
 					return null;
 				} catch (ExecutionException e) {
-                    // TODO: need to indicate a broken image
+					// TODO: need to indicate a broken image
 					return null;
-				} 
+				}
 			}
-			
 			// Not done loading yet, don't block
-			return null; 
+			return null;
 		}
-		
 		// load the asset in the background
-		future = new FutureTask<Image>(new ImageLoader(imageFile)){
+		future = new FutureTask<Image>(new ImageLoader(imageFile)) {
 			@Override
 			protected void done() {
-	            firePropertyChangeEvent(new PropertyChangeEvent(AssetDirectory.this, PROPERTY_IMAGE_LOADED, false, true));
+				firePropertyChangeEvent(new PropertyChangeEvent(AssetDirectory.this, PROPERTY_IMAGE_LOADED, false, true));
 			}
 		};
-		
 		if (imageFile.length() < 30 * 1024) {
 			smallImageLoaderService.execute(future);
 		} else {
@@ -108,28 +101,25 @@ public class AssetDirectory extends Directory {
 		imageMap.put(imageFile, future);
 		return null;
 	}
-	
+
 	@Override
 	protected Directory newDirectory(File directory, FilenameFilter fileFilter) {
 		return new AssetDirectory(directory, fileFilter);
 	}
-	
+
 	private class ImageLoader implements Callable<Image> {
-		
-		private File imageFile;
-		
-		public ImageLoader (File imageFile) {
+		private final File imageFile;
+
+		public ImageLoader(File imageFile) {
 			this.imageFile = imageFile;
 		}
-		
-		public Image call() throws Exception {
 
-            // Have we been orphaned ?
-            if (!continueProcessing.get()) {
-                return null;
-            }
-            
-            // Load it up
+		public Image call() throws Exception {
+			// Have we been orphaned ?
+			if (!continueProcessing.get()) {
+				return null;
+			}
+			// Load it up
 			Image thumbnail = null;
 			try {
 				if (imageFile.getName().toLowerCase().endsWith(Token.FILE_EXTENSION)) {
@@ -138,13 +128,10 @@ public class AssetDirectory extends Directory {
 					thumbnail = MapTool.getThumbnailManager().getThumbnail(imageFile);
 				}
 			} catch (Throwable t) {
-                t.printStackTrace();
+				t.printStackTrace();
 				thumbnail = INVALID_IMAGE;
 			}
-
 			return thumbnail;
 		}
-		
-		
 	}
 }

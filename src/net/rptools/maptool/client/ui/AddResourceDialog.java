@@ -50,9 +50,7 @@ public class AddResourceDialog extends AbeillePanel<AddResourceDialog.Model> {
 	private static final String LIBRARY_LIST_URL = LIBRARY_URL + "/listArtPacks";
 
 	public enum Tab {
-		LOCAL,
-		WEB,
-		RPTOOLS
+		LOCAL, WEB, RPTOOLS
 	}
 
 	private GenericDialog dialog;
@@ -60,7 +58,6 @@ public class AddResourceDialog extends AbeillePanel<AddResourceDialog.Model> {
 	private boolean downloadLibraryListInitiated;
 
 	private boolean install = false;
-
 
 	public AddResourceDialog() {
 		super("net/rptools/maptool/client/ui/forms/addResourcesDialog.jfrm");
@@ -116,10 +113,17 @@ public class AddResourceDialog extends AbeillePanel<AddResourceDialog.Model> {
 		tabPane.getModel().addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				// Hmmm, this is fragile (breaks if the order changes) rethink this later
-				switch(tabPane.getSelectedIndex()) {
-				case 0: model.tab = Tab.LOCAL; break;
-				case 1: model.tab = Tab.WEB; break;
-				case 2: model.tab = Tab.RPTOOLS; downloadLibraryList(); break;
+				switch (tabPane.getSelectedIndex()) {
+				case 0:
+					model.tab = Tab.LOCAL;
+					break;
+				case 1:
+					model.tab = Tab.WEB;
+					break;
+				case 2:
+					model.tab = Tab.RPTOOLS;
+					downloadLibraryList();
+					break;
 				}
 			}
 		});
@@ -132,15 +136,15 @@ public class AddResourceDialog extends AbeillePanel<AddResourceDialog.Model> {
 
 				FolderChooser folderChooser = new FolderChooser();
 				folderChooser.setCurrentDirectory(MapTool.getFrame().getLoadFileChooser().getCurrentDirectory());
-                folderChooser.setRecentListVisible(false);
-                folderChooser.setFileHidingEnabled(true);
-                folderChooser.setDialogTitle(I18N.getText("msg.title.loadAssetTree"));
+				folderChooser.setRecentListVisible(false);
+				folderChooser.setFileHidingEnabled(true);
+				folderChooser.setDialogTitle(I18N.getText("msg.title.loadAssetTree"));
 
-                int result = folderChooser.showOpenDialog(button.getTopLevelAncestor());
-                if (result == FolderChooser.APPROVE_OPTION) {
-                	File root = folderChooser.getSelectedFolder();
-    				getBrowseTextField().setText(root.getAbsolutePath());
-                }
+				int result = folderChooser.showOpenDialog(button.getTopLevelAncestor());
+				if (result == FolderChooser.APPROVE_OPTION) {
+					File root = folderChooser.getSelectedFolder();
+					getBrowseTextField().setText(root.getAbsolutePath());
+				}
 			}
 		});
 	}
@@ -175,12 +179,10 @@ public class AddResourceDialog extends AbeillePanel<AddResourceDialog.Model> {
 		downloadLibraryListInitiated = true;
 
 		new SwingWorker<Object, Object>() {
-
 			ListModel model;
 
 			@Override
 			protected Object doInBackground() throws Exception {
-
 				WebDownloader downloader = new WebDownloader(new URL(LIBRARY_LIST_URL));
 
 				String result = downloader.read();
@@ -188,7 +190,6 @@ public class AddResourceDialog extends AbeillePanel<AddResourceDialog.Model> {
 					model = new MessageListModel(I18N.getText("dialog.addresource.errorDownloading"));
 					return null;
 				}
-
 				DefaultListModel listModel = new DefaultListModel();
 
 				// Create a list to compare against for dups
@@ -196,7 +197,6 @@ public class AddResourceDialog extends AbeillePanel<AddResourceDialog.Model> {
 				for (File file : AppPreferences.getAssetRoots()) {
 					libraryNameList.add(file.getName());
 				}
-
 				// Generate the list
 				try {
 					BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.getBytes())));
@@ -208,10 +208,8 @@ public class AddResourceDialog extends AbeillePanel<AddResourceDialog.Model> {
 						if (libraryNameList.contains(row.name)) {
 							continue;
 						}
-
 						listModel.addElement(row);
 					}
-
 					model = listModel;
 				} catch (Throwable t) {
 					log.error("unable to parse library list", t);
@@ -251,7 +249,6 @@ public class AddResourceDialog extends AbeillePanel<AddResourceDialog.Model> {
 				MapTool.showMessage("dialog.addresource.warn.directoryrequired", "Error", JOptionPane.ERROR_MESSAGE, model.getLocalDirectory());
 				return false;
 			}
-
 			try {
 				AppSetup.installLibrary(FileUtil.getNameWithoutExtension(root), root);
 			} catch (MalformedURLException e) {
@@ -263,14 +260,13 @@ public class AddResourceDialog extends AbeillePanel<AddResourceDialog.Model> {
 				MapTool.showMessage("dialog.addresource.warn.badpath", "Error", JOptionPane.ERROR_MESSAGE, model.getLocalDirectory());
 				return false;
 			}
-
 			return true;
+
 		case WEB:
 			if (StringUtils.isEmpty(model.getUrlName())) {
 				MapTool.showMessage("dialog.addresource.warn.musthavename", "Error", JOptionPane.ERROR_MESSAGE, model.getLocalDirectory());
 				return false;
 			}
-
 			// validate the url format so that we don't hit it later
 			try {
 				new URL(model.getUrl());
@@ -278,18 +274,15 @@ public class AddResourceDialog extends AbeillePanel<AddResourceDialog.Model> {
 				MapTool.showMessage("dialog.addresource.warn.invalidurl", "Error", JOptionPane.ERROR_MESSAGE, model.getUrl());
 				return false;
 			}
-
 			rowList.add(new LibraryRow(model.getUrlName(), model.getUrl(), -1));
-
 			break;
-		case RPTOOLS:
 
+		case RPTOOLS:
 			Object[] selectedRows = getLibraryList().getSelectedValues();
 			if (selectedRows == null || selectedRows.length == 0) {
 				MapTool.showMessage("dialog.addresource.warn.mustselectone", "Error", JOptionPane.ERROR_MESSAGE);
 				return false;
 			}
-
 			for (Object obj : selectedRows) {
 				LibraryRow row = (LibraryRow) obj;
 
@@ -301,27 +294,19 @@ public class AddResourceDialog extends AbeillePanel<AddResourceDialog.Model> {
 					MapTool.showMessage("dialog.addresource.warn.invalidurl", "Error", JOptionPane.ERROR_MESSAGE, row.path);
 					return false;
 				}
-
 				rowList.add(row);
 			}
-
 			break;
 		}
 
 		new SwingWorker<Object, Object>() {
-
 			@Override
 			protected Object doInBackground() throws Exception {
-
 				for (LibraryRow row : rowList) {
-
 					try {
 						RemoteFileDownloader downloader = new RemoteFileDownloader(new URL(row.path));
-
 						File tmpFile = downloader.read();
-
 						AppSetup.installLibrary(row.name, tmpFile.toURL());
-
 						tmpFile.delete();
 					} catch (IOException e) {
 						log.error("Error downloading library: " + e, e);
@@ -331,7 +316,6 @@ public class AddResourceDialog extends AbeillePanel<AddResourceDialog.Model> {
 				return null;
 			}
 		}.execute();
-
 		return true;
 	}
 
@@ -341,28 +325,26 @@ public class AddResourceDialog extends AbeillePanel<AddResourceDialog.Model> {
 	}
 
 	private static class LibraryRow {
-
 		private final String name;
 		private String path;
 		private final int size;
 
 		public LibraryRow(String name, String path, int size) {
-			this.name = name;
-			this.path = path;
+			this.name = name.trim();
+			this.path = path.trim();
 			this.size = size;
 		}
 
 		public LibraryRow(String row) {
 			String[] data = row.split("\\|");
 
-			name = data[0];
-			path = data[1];
+			name = data[0].trim();
+			path = data[1].trim();
 			size = Integer.parseInt(data[2]);
 		}
 
 		@Override
 		public String toString() {
-
 			return "<html><b>" + name + "</b> <i>(" + getSizeString() + ")</i>";
 		}
 
@@ -371,53 +353,53 @@ public class AddResourceDialog extends AbeillePanel<AddResourceDialog.Model> {
 			if (size < 1000) {
 				return format.format(size) + " bytes";
 			}
-
 			if (size < 1000000) {
-				return format.format(size/1000) + " k";
+				return format.format(size / 1000) + " k";
 			}
-
-			return format.format(size/1000000) + " mb";
+			return format.format(size / 1000000) + " mb";
 		}
 	}
 
 	public static class Model {
-
 		private String localDirectory;
-
 		private String urlName;
 		private String url;
-
 		private Tab tab = Tab.LOCAL;
 
 		public String getLocalDirectory() {
 			return localDirectory;
 		}
+
 		public void setLocalDirectory(String localDirectory) {
 			this.localDirectory = localDirectory;
 		}
+
 		public String getUrl() {
 			return url;
 		}
+
 		public void setUrl(String url) {
 			this.url = url;
 		}
+
 		public Tab getTab() {
 			return tab;
 		}
+
 		public void setTab(Tab tab) {
 			this.tab = tab;
 		}
+
 		public String getUrlName() {
 			return urlName;
 		}
+
 		public void setUrlName(String urlName) {
 			this.urlName = urlName;
 		}
-
 	}
 
 	private class MessageListModel extends AbstractListModel {
-
 		private final String message;
 
 		public MessageListModel(String message) {

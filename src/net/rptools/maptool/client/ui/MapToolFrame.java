@@ -1122,9 +1122,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	}
 
 	public void addAssetRoot(File rootDir) {
-
 		assetPanel.addAssetRoot(new AssetDirectory(rootDir, AppConstants.IMAGE_FILE_FILTER));
-
 		// if (mainSplitPane.isLeftHidden()) {
 		// mainSplitPane.showLeft();
 		// }

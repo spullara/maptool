@@ -142,7 +142,6 @@ public class AppPreferences {
 	private static final String KEY_SHOW_INIT_GAIN_MESSAGE = "showInitGainMessage";
 	private static final boolean DEFAULT_SHOW_INIT_GAIN_MESSAGE = true;
 
-
 	public static void setFillSelectionBox(boolean fill) {
 		prefs.putBoolean(KEY_FILL_SELECTION_BOX, fill);
 	}
@@ -343,7 +342,6 @@ public class AppPreferences {
 	private static final String KEY_SUPPRESS_TOOLTIPS_FOR_MACROLINKS = "suppressToolTipsMacroLinks";
 	private static final boolean DEFAULT_SUPPRESS_TOOLTIPS_FOR_MACROLINKS = false;
 
-
 	// chat notification colors
 	private static final String KEY_CHAT_NOTIFICATION_COLOR_RED = "chatNotificationColorRed";
 	private static final int DEFAULT_CHAT_NOTIFICATION_COLOR_RED = 0xFF;
@@ -358,7 +356,6 @@ public class AppPreferences {
 
 	private static final String KEY_CHAT_NOTIFICATION_SHOW_BACKGROUND = "chatNotificationShowBackground";
 	private static final boolean DEFAULT_CHAT_NOTIFICATION_SHOW_BACKGROUND = true;
-
 
 	private static final String KEY_TRUSTED_PREFIX_BG_RED = "trustedPrefixBGRed";
 	private static final int DEFAULT_TRUSTED_PREFIX_BG_RED = 0xD8;
@@ -393,8 +390,6 @@ public class AppPreferences {
 		Integer value = Integer.valueOf(prefs.getInt(KEY_TYPING_NOTIFICATION_DURATION, DEFAULT_TYPING_NOTIFICATION_DURATION));
 		return value;
 	}
-
-
 
 	public static final void setUseToolTipForInlineRoll(boolean tooltip) {
 		prefs.putBoolean(KEY_TOOLTIP_FOR_INLINE_ROLLS, tooltip);
@@ -643,8 +638,6 @@ public class AppPreferences {
 		return prefs.getBoolean(KEY_TOKENS_WARN_WHEN_DELETED, DEFAULT_TOKENS_WARN_WHEN_DELETED);
 	}
 
-
-
 	public static void setTokensStartSnapToGrid(boolean flag) {
 		prefs.putBoolean(KEY_TOKENS_START_SNAP_TO_GRID, flag);
 	}
@@ -750,14 +743,11 @@ public class AppPreferences {
 		if (list.length() > 0) {
 			list += ";"; // FJE Probably should be File.path_separator ...
 		}
-
 		list += root.getPath();
-
 		prefs.put(KEY_ASSET_ROOTS, list);
 	}
 
 	public static Set<File> getAssetRoots() {
-
 		String list = prefs.get(KEY_ASSET_ROOTS, "");
 		String[] roots = list.split(";"); // FJE Probably should be File.path_separator ...
 
@@ -777,7 +767,6 @@ public class AppPreferences {
 	}
 
 	public static void removeAssetRoot(File root) {
-
 		Set<File> rootList = getAssetRoots();
 		rootList.remove(root);
 
@@ -789,7 +778,6 @@ public class AppPreferences {
 	}
 
 	public static void setMruCampaigns(List<File> mruCampaigns) {
-
 		StringBuilder combined = new StringBuilder("");
 		for (ListIterator<File> iter = mruCampaigns.listIterator(); iter.hasNext();) {
 			combined.append(iter.next().getPath());
@@ -799,7 +787,6 @@ public class AppPreferences {
 	}
 
 	public static List<File> getMruCampaigns() {
-
 		List<File> mruCampaigns = new ArrayList<File>();
 		String combined = prefs.get(KEY_MRU_CAMPAIGNS, null);
 		if (combined != null) {
@@ -811,7 +798,6 @@ public class AppPreferences {
 	}
 
 	public static void setSavedPaintTextures(List<File> savedTextures) {
-
 		StringBuilder combined = new StringBuilder("");
 		for (ListIterator<File> iter = savedTextures.listIterator(); iter.hasNext();) {
 			combined.append(iter.next().getPath());
@@ -821,7 +807,6 @@ public class AppPreferences {
 	}
 
 	public static List<File> getSavedPaintTextures() {
-
 		List<File> savedTextures = new ArrayList<File>();
 		String combined = prefs.get(KEY_SAVED_PAINT_TEXTURES, null);
 		if (combined != null) {
@@ -914,8 +899,7 @@ public class AppPreferences {
 		return prefs.getBoolean(KEY_CHAT_NOTIFICATION_SHOW_BACKGROUND, DEFAULT_CHAT_NOTIFICATION_SHOW_BACKGROUND);
 	}
 
-	public static void setChatNotificationShowBackground(boolean flag)
-	{
+	public static void setChatNotificationShowBackground(boolean flag) {
 		prefs.putBoolean(KEY_CHAT_NOTIFICATION_SHOW_BACKGROUND, flag);
 	}
 
