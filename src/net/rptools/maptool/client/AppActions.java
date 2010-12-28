@@ -2429,16 +2429,11 @@ public class AppActions {
 
 		@Override
 		public void execute(ActionEvent e) {
-
 			runBackground(new Runnable() {
-
 				public void run() {
-
 					AddResourceDialog dialog = new AddResourceDialog();
 					dialog.showDialog();
-
 				}
-
 			});
 		}
 	};

@@ -187,7 +187,7 @@ public class Token extends BaseModel {
 	// copy the elements into the new data type.  But because the name didn't
 	// change (that was the screw up) we have special code in readResolve() to
 	// help XStream move the data around.
-	private transient Map<String, Object> propertyMap; // 1.3b77
+	private Map<String, Object> propertyMap; // 1.3b77 and earlier
 	private CaseInsensitiveHashMap<Object> propertyMapCI;
 
 	private Map<String, String> macroMap;
