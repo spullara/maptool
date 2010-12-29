@@ -25,6 +25,7 @@ import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.DrawablePaint;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
+import net.rptools.maptool.util.StringUtil;
 
 public class MapToolUtil {
 
@@ -60,7 +61,7 @@ public class MapToolUtil {
 		// And the HTML colors as well...
 		COLOR_MAP.put("aqua", new Color(0x00, 0xFF, 0xFF));
 		COLOR_MAP.put("fuchsia", new Color(0xFF, 0x00, 0xFF));
-		COLOR_MAP.put("lime", new Color(0x00, 0xFF, 0x00));
+		COLOR_MAP.put("lime", new Color(0xBF, 0xFF, 0x00));
 		COLOR_MAP.put("maroon", new Color(0x80, 0x00, 0x00));
 		COLOR_MAP.put("navy", new Color(0x00, 0x00, 0x80));
 		COLOR_MAP.put("olive", new Color(0x80, 0x80, 0x00));
@@ -192,7 +193,7 @@ public class MapToolUtil {
 	}
 
 	private static Color convertStringToColor(String val) {
-		if (val.isEmpty() || val.charAt(0) != '#') {
+		if (StringUtil.isEmpty(val) || val.charAt(0) != '#') {
 //			MapTool.showWarning("Unknown color specifier: '" + val + "'");
 			return COLOR_MAP.get("black");
 		}
@@ -206,11 +207,9 @@ public class MapToolUtil {
 	}
 
 	public static void uploadTexture(DrawablePaint paint) {
-
 		if (paint == null) {
 			return;
 		}
-
 		if (paint instanceof DrawableTexturePaint) {
 			Asset asset = ((DrawableTexturePaint) paint).getAsset();
 			uploadAsset(asset);
@@ -221,14 +220,11 @@ public class MapToolUtil {
 		if (asset == null) {
 			return;
 		}
-
 		if (!AssetManager.hasAsset(asset.getId())) {
 			AssetManager.putAsset(asset);
 		}
-
 		if (!MapTool.isHostingServer() && !MapTool.getCampaign().containsAsset(asset.getId())) {
 			MapTool.serverCommand().putAsset(asset);
 		}
 	}
-
 }
