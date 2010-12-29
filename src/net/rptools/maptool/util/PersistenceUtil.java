@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.util;
 
@@ -62,6 +59,7 @@ import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.transform.campaign.AssetNameTransform;
 import net.rptools.maptool.model.transform.campaign.ExportInfoTransform;
 import net.rptools.maptool.model.transform.campaign.PCVisionTransform;
+import net.rptools.maptool.model.transform.campaign.TokenPropertyMapTransform;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -74,7 +72,6 @@ import com.thoughtworks.xstream.XStream;
  * @author trevor
  */
 public class PersistenceUtil {
-
 	private static final Logger log = Logger.getLogger(PersistenceUtil.class);
 
 	private static final String PROP_VERSION = "version";
@@ -116,6 +113,7 @@ public class PersistenceUtil {
 		//																					V								V
 		campaignVersionManager.registerTransformation("1.3.51", new PCVisionTransform());
 		campaignVersionManager.registerTransformation("1.3.75", new ExportInfoTransform());
+		campaignVersionManager.registerTransformation("1.3.78", new TokenPropertyMapTransform()); // FJE 2010-12-29
 
 		// For a short time, assets were stored separately in files ending with ".dat".  As of 1.3.64, they are
 		// stored in separate files using the correct filename extension for the image type.  This transform
@@ -191,7 +189,7 @@ public class PersistenceUtil {
 				n = "Import " + next + " of " + n;
 			}
 			z.setName(n);
-			z.imported();			// Resets creation timestamp and init panel, among other things
+			z.imported(); // Resets creation timestamp and init panel, among other things
 			z.optimize();
 			return persistedMap;
 		} catch (IOException ioe) {
@@ -203,10 +201,10 @@ public class PersistenceUtil {
 	}
 
 	public static void saveCampaign(Campaign campaign, File campaignFile) throws IOException {
-		CodeTimer saveTimer;		// FJE Previously this was 'private static' -- why?
+		CodeTimer saveTimer; // FJE Previously this was 'private static' -- why?
 		saveTimer = new CodeTimer("Save");
 		saveTimer.setThreshold(5);
-		saveTimer.setEnabled(log.isDebugEnabled());		// Don't bother keeping track if it won't be displayed...
+		saveTimer.setEnabled(log.isDebugEnabled()); // Don't bother keeping track if it won't be displayed...
 
 		// Strategy: save the file to a tmp location so that if there's a failure the original file
 		// won't be touched. Then once we're finished, replace the old with the new.
@@ -255,15 +253,13 @@ public class PersistenceUtil {
 				saveTimer.stop("Save");
 			} catch (OutOfMemoryError oom) {
 				/*
-				 * This error is normally because the heap space has been exceeded while trying to
-				 * save the campaign.  Since MapTool caches the images used by the current Zone,
-				 * and since the VersionManager must keep the XML for objects in memory in
-				 * order to apply transforms to them, the memory usage can spike very high
-				 * during the save() operation.  A common solution is to switch to an empty map
-				 * and perform the save from there; this causes MapTool to unload any images
-				 * that it may have had cached and this can frequently free up enough memory
-				 * for the save() to work.  We'll tell the user all this right here and then fail the
-				 * save and they can try again.
+				 * This error is normally because the heap space has been exceeded while trying to save the campaign.
+				 * Since MapTool caches the images used by the current Zone, and since the VersionManager must keep the
+				 * XML for objects in memory in order to apply transforms to them, the memory usage can spike very high
+				 * during the save() operation. A common solution is to switch to an empty map and perform the save from
+				 * there; this causes MapTool to unload any images that it may have had cached and this can frequently
+				 * free up enough memory for the save() to work. We'll tell the user all this right here and then fail
+				 * the save and they can try again.
 				 */
 				tmpFile.delete();
 				if (log.isDebugEnabled()) {
@@ -276,7 +272,8 @@ public class PersistenceUtil {
 			saveTimer.start("Close");
 			try {
 				pakFile.close();
-			} catch (Exception e) { }
+			} catch (Exception e) {
+			}
 			saveTimer.stop("Close");
 			pakFile = null;
 		}
@@ -311,13 +308,11 @@ public class PersistenceUtil {
 	}
 
 	/*
-	 * A public function because I think it should be called when a campaign is
-	 * opened as well so if it is opened then closed without saving, there is
-	 * still a preview created; however, the rendering of the campaign appears
-	 * to complete after AppActions.loadCampaign returns, causing the preview to
-	 * always appear as black if this method is called from within loadCampaign.
-	 * Either need to find another place to call saveCampaignThumbnail upon
-	 * opening, or code to delay it's call until the render is complete. =P
+	 * A public function because I think it should be called when a campaign is opened as well so if it is opened then
+	 * closed without saving, there is still a preview created; however, the rendering of the campaign appears to
+	 * complete after AppActions.loadCampaign returns, causing the preview to always appear as black if this method is
+	 * called from within loadCampaign. Either need to find another place to call saveCampaignThumbnail upon opening, or
+	 * code to delay it's call until the render is complete. =P
 	 */
 	static public void saveCampaignThumbnail(String fileName) {
 		BufferedImage screen = MapTool.takeMapScreenShot(new PlayerView(MapTool.getPlayer().getRole()));
@@ -343,7 +338,7 @@ public class PersistenceUtil {
 
 	/**
 	 * Gets a file pointing to where the campaign's thumbnail image should be.
-	 *
+	 * 
 	 * @param fileName
 	 *            The campaign's file name.
 	 */
@@ -361,8 +356,8 @@ public class PersistenceUtil {
 			pakfile.setModelVersionManager(campaignVersionManager);
 
 			// Sanity check
-			String progVersion = (String)pakfile.getProperty(PROP_VERSION);
-			String campaignVersion = (String)pakfile.getProperty(PROP_CAMPAIGN_VERSION);
+			String progVersion = (String) pakfile.getProperty(PROP_VERSION);
+			String campaignVersion = (String) pakfile.getProperty(PROP_CAMPAIGN_VERSION);
 			// This is where the campaignVersion was added
 			campaignVersion = campaignVersion == null ? "1.3.50" : campaignVersion;
 
@@ -439,7 +434,8 @@ public class PersistenceUtil {
 		} finally {
 			try {
 				his.close();
-			} catch (Exception e) { }
+			} catch (Exception e) {
+			}
 		}
 		return persistedCampaign;
 	}
@@ -515,8 +511,8 @@ public class PersistenceUtil {
 
 	private static void loadAssets(Collection<MD5Key> assetIds, PackedFile pakFile) throws IOException {
 		pakFile.getXStream().processAnnotations(Asset.class);
-		String campVersion = (String)pakFile.getProperty(PROP_CAMPAIGN_VERSION);
-		String mtVersion = (String)pakFile.getProperty(PROP_VERSION);
+		String campVersion = (String) pakFile.getProperty(PROP_CAMPAIGN_VERSION);
+		String mtVersion = (String) pakFile.getProperty(PROP_VERSION);
 		List<Asset> addToServer = new ArrayList<Asset>(assetIds.size());
 
 		// FJE: Ugly fix for a bug I introduced in b64. :(
@@ -533,14 +529,14 @@ public class PersistenceUtil {
 					InputStream is = null;
 					try {
 						is = pakFile.getFileAsInputStream(pathname);
-						asset = new Asset(key.toString(), IOUtils.toByteArray(is));	// Ugly bug fix :(
+						asset = new Asset(key.toString(), IOUtils.toByteArray(is)); // Ugly bug fix :(
 					} finally {
 						IOUtils.closeQuietly(is);
 					}
 				} else {
-					asset = (Asset) pakFile.getFileObject(pathname);			// XML deserialization
+					asset = (Asset) pakFile.getFileObject(pathname); // XML deserialization
 				}
-				if (asset == null) {	// Referenced asset not included in PackedFile??
+				if (asset == null) { // Referenced asset not included in PackedFile??
 					log.error("Referenced asset '" + pathname + "' not found while loading?!");
 					continue;
 				}
@@ -551,8 +547,7 @@ public class PersistenceUtil {
 					continue;
 				}
 				// pre 1.3b52 campaign files stored the image data directly in the asset serialization
-				if (asset.getImage() == null
-						|| asset.getImage().length < 4	// New XStreamConverter creates empty byte[] for image
+				if (asset.getImage() == null || asset.getImage().length < 4 // New XStreamConverter creates empty byte[] for image
 				) {
 					String ext = asset.getImageExtension();
 					pathname = pathname + "." + (StringUtil.isEmpty(ext) ? "dat" : ext);
@@ -603,7 +598,7 @@ public class PersistenceUtil {
 				continue;
 			}
 			pakFile.putFile(ASSET_DIR + assetId + "." + asset.getImageExtension(), asset.getImage());
-			pakFile.putFile(ASSET_DIR + assetId, asset);		// Does not write the image
+			pakFile.putFile(ASSET_DIR + assetId, asset); // Does not write the image
 //			pakFile.putFile(ASSET_DIR + assetId + ".dat", asset.getImage());
 		}
 	}
