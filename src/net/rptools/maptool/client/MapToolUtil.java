@@ -43,22 +43,24 @@ public class MapToolUtil {
 	 * Set up the color map
 	 */
 	static {
-		// Built-in Java colors...
+		// Built-in Java colors that happen to match the values used by HTML...
 		COLOR_MAP.put("black", Color.BLACK);
 		COLOR_MAP.put("blue", Color.BLUE);
 		COLOR_MAP.put("cyan", Color.CYAN);
-		COLOR_MAP.put("darkgray", Color.DARK_GRAY);
 		COLOR_MAP.put("gray", Color.GRAY);
 		COLOR_MAP.put("green", Color.GREEN);
-		COLOR_MAP.put("lightgray", Color.LIGHT_GRAY);
 		COLOR_MAP.put("magenta", Color.MAGENTA);
-		COLOR_MAP.put("orange", Color.ORANGE);
-		COLOR_MAP.put("pink", Color.PINK);
 		COLOR_MAP.put("red", Color.RED);
 		COLOR_MAP.put("white", Color.WHITE);
 		COLOR_MAP.put("yellow", Color.YELLOW);
 
-		// And the HTML colors as well...
+		// The built-in Java colors that DO NOT match the HTML colors...
+		COLOR_MAP.put("darkgray", new Color(0xA9, 0xA9, 0xA9)); // Color.DARK_GRAY
+		COLOR_MAP.put("lightgray", new Color(0xD3, 0xD3, 0xD3)); // Color.LIGHT_GRAY
+		COLOR_MAP.put("orange", new Color(0xFF, 0xA5, 0x00)); // Color.ORANGE
+		COLOR_MAP.put("pink", new Color(0xFF, 0xC0, 0xCB)); // Color.PINK
+
+		// And the HTML colors that don't exist at all as built-in Java values...
 		COLOR_MAP.put("aqua", new Color(0x00, 0xFF, 0xFF));
 		COLOR_MAP.put("fuchsia", new Color(0xFF, 0x00, 0xFF));
 		COLOR_MAP.put("lime", new Color(0xBF, 0xFF, 0x00));
@@ -193,12 +195,18 @@ public class MapToolUtil {
 	}
 
 	private static Color convertStringToColor(String val) {
+		val = val.trim();
 		if (StringUtil.isEmpty(val) || val.charAt(0) != '#') {
 //			MapTool.showWarning("Unknown color specifier: '" + val + "'");
 			return COLOR_MAP.get("black");
 		}
-		Color c = new Color(Integer.parseInt(val.substring(1), 16));
-		COLOR_MAP.put(val.toLowerCase(), c);
+		Color c;
+		try {
+			c = Color.decode(val);
+			COLOR_MAP.put(val.toLowerCase(), c);
+		} catch (NumberFormatException nfe) {
+			c = COLOR_MAP.get("black");
+		}
 		return c;
 	}
 
