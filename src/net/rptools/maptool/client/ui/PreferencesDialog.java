@@ -143,7 +143,7 @@ public class PreferencesDialog extends JDialog {
 
 	// Chat Notification
 	private final JETAColorWell chatNotificationColor;
-	private JCheckBox chatNotificationShowBackground;
+	private final JCheckBox chatNotificationShowBackground;
 
 	// Defaults
 	private final JComboBox defaultGridTypeCombo;
@@ -284,13 +284,13 @@ public class PreferencesDialog extends JDialog {
 				AppPreferences.setUseToolTipForInlineRoll(toolTipInlineRolls.isSelected());
 			}
 		});
-		
+
 		suppressToolTipsMacroLinks.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-			    AppPreferences.setSuppressToolTipsForMacroLinks(suppressToolTipsMacroLinks.isSelected());	
+				AppPreferences.setSuppressToolTipsForMacroLinks(suppressToolTipsMacroLinks.isSelected());
 			}
 		});
-		
+
 		toolTipInitialDelay.getDocument().addDocumentListener(new DocumentListenerProxy(toolTipInitialDelay) {
 			@Override
 			protected void storeNumericValue(int value) {
@@ -306,7 +306,6 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 
-		
 //		typingNotificationDuration.getDocument().addDocumentListener(new DocumentListenerProxy(typingNotificationDuration) {
 //			@Override
 //			protected void storeNumericValue(int value) {
@@ -346,7 +345,7 @@ public class PreferencesDialog extends JDialog {
 				AppPreferences.setTypingNotificationDuration(value);
 			}
 		});
-		
+
 		chatFilenameFormat.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
@@ -572,7 +571,8 @@ public class PreferencesDialog extends JDialog {
 		chatNotificationShowBackground.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setChatNotificationShowBackground(chatNotificationShowBackground.isSelected());
-			}	});
+			}
+		});
 
 		DefaultComboBoxModel gridTypeModel = new DefaultComboBoxModel();
 		gridTypeModel.addElement(GridFactory.SQUARE);
@@ -634,7 +634,7 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 		//showInitGainMessage
-		
+
 		add(panel);
 		pack();
 	}
@@ -653,7 +653,8 @@ public class PreferencesDialog extends JDialog {
 	 * anything and avoids having to track what grid types are being used.
 	 */
 	private void updateFacings() {
-		List<Zone> zlist = MapTool.getServer().getCampaign().getZones();
+//		List<Zone> zlist = MapTool.getServer().getCampaign().getZones();	// generated NPE http://forums.rptools.net/viewtopic.php?f=3&t=17334
+		List<Zone> zlist = MapTool.getCampaign().getZones();
 		boolean faceEdges = AppPreferences.getFaceEdge();
 		boolean faceVertices = AppPreferences.getFaceVertex();
 		for (Zone z : zlist) {
@@ -717,25 +718,21 @@ public class PreferencesDialog extends JDialog {
 		showInitGainMessage.setSelected(AppPreferences.isShowInitGainMessage());
 		Integer rawVal = AppPreferences.getTypingNotificationDuration();
 		Integer typingVal = null;
-		if(rawVal != null && rawVal > 99)
-		{
-			Double dbl = (double) (rawVal/1000);
-			if (dbl >= 1)
-			{
+		if (rawVal != null && rawVal > 99) {
+			Double dbl = (double) (rawVal / 1000);
+			if (dbl >= 1) {
 				long fixedUp = Math.round(dbl);
 				typingVal = (int) fixedUp;
-				typingVal = typingVal > 99? 99: typingVal;
-			}
-			else 
-			{
+				typingVal = typingVal > 99 ? 99 : typingVal;
+			} else {
 				typingVal = 1;
 			}
 		}
-		int value = Math.abs(( typingVal == null ||  typingVal > rawVal ) ? rawVal : typingVal);
+		int value = Math.abs((typingVal == null || typingVal > rawVal) ? rawVal : typingVal);
 		AppPreferences.setTypingNotificationDuration(value);
 
-		SpinnerNumberModel typingDurationModel = new SpinnerNumberModel((((int)AppPreferences.getTypingNotificationDuration())), 0, 99, 1);
-		typingNotificationDuration.setModel(typingDurationModel );
+		SpinnerNumberModel typingDurationModel = new SpinnerNumberModel((((int) AppPreferences.getTypingNotificationDuration())), 0, 99, 1);
+		typingNotificationDuration.setModel(typingDurationModel);
 		//typingNotificationDuration.setValue(typingVal);
 
 		chatNotificationColor.setColor(AppPreferences.getChatNotificationColor());
