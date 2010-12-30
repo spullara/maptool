@@ -116,6 +116,7 @@ import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.Zone.VisionType;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.DrawnElement;
@@ -1315,7 +1316,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		if (!view.isGMView()) {
 			Graphics2D g2 = (Graphics2D) g.create();
 			Area viewArea = new Area();
-			if (MapTool.getServerPolicy().isUseIndividualFOW()) {
+			if (zone.getVisionType() != VisionType.OFF && MapTool.getServerPolicy().isUseIndividualFOW()) {
 				if (view.getTokens() != null) {
 					for (Token tok : view.getTokens()) {
 						ExposedAreaMetaData exposedMeta = zone.getExposedAreaMetaData(tok.getExposedAreaGUID());
@@ -1325,7 +1326,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			}
 			if (zone.hasFog() && (exposedFogArea != null)) {
 				Area clip = new Area(new Rectangle(getSize().width, getSize().height));
-				if (MapTool.getServerPolicy().isUseIndividualFOW()) {
+				if (zone.getVisionType() != VisionType.OFF && MapTool.getServerPolicy().isUseIndividualFOW()) {
 					clip.intersect(viewArea);
 				} else {
 					clip.intersect(exposedFogArea);
@@ -1357,7 +1358,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			return;
 
 		ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tokenUnderMouse.getExposedAreaGUID());
-		if (MapTool.getServerPolicy().isUseIndividualFOW()) {
+		if (zone.getVisionType() != VisionType.OFF && MapTool.getServerPolicy().isUseIndividualFOW()) {
 			meta.getExposedAreaHistory();
 			currentTokenVisionArea.intersect(meta.getExposedAreaHistory());
 		}
@@ -1519,7 +1520,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			Area combined = zone.getExposedArea(view);
 			Area exposedArea = null;
 			Area tempArea = new Area();
-			boolean combinedView = MapTool.isPersonalServer() || (MapTool.getServerPolicy().isUseIndividualFOW() && view.isGMView()) || !MapTool.getServerPolicy().isUseIndividualFOW();
+			boolean combinedView =  zone.getVisionType() == VisionType.OFF ||  MapTool.isPersonalServer() || (MapTool.getServerPolicy().isUseIndividualFOW() && view.isGMView()) || !MapTool.getServerPolicy().isUseIndividualFOW();
 
 			if (view.getTokens() != null) {
 				// if there are tokens selected combine the areas,
@@ -1913,7 +1914,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 					bounds.width *= getScale();
 					bounds.height *= getScale();
 
-					Area theVisibleArea = MapTool.getServerPolicy().isUseIndividualFOW() ? zoneView.getVisibleArea(view) : new Area(exposedFogArea);
+					Area theVisibleArea = MapTool.getServerPolicy().isUseIndividualFOW() && zone.getVisionType() != VisionType.OFF ? zoneView.getVisibleArea(view) : new Area(exposedFogArea);
 					Grid grid = zone.getGrid();
 					boolean showLabels = view.isGMView() || set.getPlayerId().equals(MapTool.getPlayer().getName());
 					//System.out.println("Player: " +MapTool.getPlayer().getName());

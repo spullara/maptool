@@ -472,7 +472,7 @@ public class Zone extends BaseModel {
 		if (!hasFog() || view.getRole() == Player.Role.GM) {
 			return true;
 		}
-		if (MapTool.getServerPolicy().isUseIndividualFOW()) {
+		if (MapTool.getServerPolicy().isUseIndividualFOW() || getVisionType() == VisionType.OFF ) {
 			Area combined = new Area();
 			List<Token> toks = (view.getTokens() != null) ? view.getTokens() : this.getTokens();
 			for (Token tok : toks) {
@@ -616,7 +616,7 @@ public class Zone extends BaseModel {
 		if (area == null) {
 			return;
 		}
-		if (MapTool.getServerPolicy().isUseIndividualFOW()) {
+		if (getVisionType() != VisionType.OFF && MapTool.getServerPolicy().isUseIndividualFOW()) {
 			List<Token> allToks = new ArrayList<Token>();
 			if (selectedToks != null && selectedToks.size() > 0) {
 				for (GUID guid : selectedToks) {
@@ -702,7 +702,7 @@ public class Zone extends BaseModel {
 	public Area getExposedArea(PlayerView view) {
 		Area area = new Area();
 		List<Token> toks = null;
-		if (MapTool.isPersonalServer() || (MapTool.getServerPolicy().isUseIndividualFOW() && view.isGMView()) || !MapTool.getServerPolicy().isUseIndividualFOW()) {
+		if (getVisionType() == VisionType.OFF || MapTool.isPersonalServer() || (MapTool.getServerPolicy().isUseIndividualFOW() && view.isGMView()) || !MapTool.getServerPolicy().isUseIndividualFOW()) {
 			return getExposedArea();
 		} else {
 			toks = view.getTokens();
