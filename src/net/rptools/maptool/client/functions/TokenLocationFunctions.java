@@ -495,7 +495,9 @@ public class TokenLocationFunctions extends AbstractFunction {
 	}
 
 	/**
-	 * Moves a token to the specified x,y location.
+	 * Moves a token to the specified x,y location. If <code>units</code> is true, the incoming (x,y) is treated as a
+	 * <code>ZonePoint</code>. If <code>units</code> is false, the incoming (x,y) is treated as a <code>CellPoint</code>
+	 * and is converted to a ZonePoint by calling {@link Grid#convert(CellPoint)}.
 	 * 
 	 * @param token
 	 *            The token to move.
@@ -504,10 +506,9 @@ public class TokenLocationFunctions extends AbstractFunction {
 	 * @param y
 	 *            the y co-ordinate of the destination.
 	 * @param units
-	 *            whether or not to use map units.
+	 *            whether the (x,y) coordinate is a <code>ZonePoint</code> (true) or <code>CellPoint</code> (false)
 	 */
 	public void moveToken(Token token, int x, int y, boolean units) {
-
 		Grid grid = MapTool.getFrame().getCurrentZoneRenderer().getZone().getGrid();
 
 		if (units) {
@@ -538,7 +539,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "moveToken", 2, args.size()));
 		}
 
-		int x, y, z;
+		int x, y;
 
 		if (!(args.get(0) instanceof BigDecimal)) {
 			throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "moveToken", 1, args.get(0).toString()));
@@ -557,12 +558,10 @@ public class TokenLocationFunctions extends AbstractFunction {
 			BigDecimal val = (BigDecimal) args.get(2);
 			useDistance = val.equals(BigDecimal.ZERO) ? false : true;
 		}
-
 		moveToken(token, x, y, useDistance);
 		MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
 		MapTool.getFrame().getCurrentZoneRenderer().flushLight();
-
 		return "";
 	}
 

@@ -8,11 +8,13 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.language.I18N;
+import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
@@ -161,6 +163,9 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 			TokenPropertyFunctions.getInstance().setLayer(token, newVals.getString("layer"));
 		}
 
+		int x = token.getX();
+		int y = token.getY();
+
 		// Location...
 		boolean useDistance = false; // FALSE means to multiple x,y values by grid size
 		if (newVals.containsKey("useDistance")) {
@@ -168,13 +173,15 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 				useDistance = true;
 			}
 		}
-		Grid grid = zone.getGrid();
-		TokenFootprint tf = token.getFootprint(grid);
-		int x = token.getX();
-		int y = token.getY();
+		Grid grid = zone.getGrid(); // These won't change for a given execution; this could be more efficient
+		if (!useDistance) {
+			CellPoint cp = grid.convert(new ZonePoint(x, y));
+			x = cp.x;
+			y = cp.y;
+		}
+
 		boolean tokenMoved = false;
 		boolean delta = false;
-
 		if (newVals.containsKey("delta")) {
 			if (newVals.getInt("delta") != 0) {
 				delta = true;
@@ -183,19 +190,21 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 
 		// X
 		if (newVals.containsKey("x")) {
-			x = newVals.getInt("x") * (useDistance ? 1 : grid.getSize()) + (delta ? x : 0);
+			int tmpX = newVals.getInt("x");
+			x = tmpX + (delta ? x : 0);
 			tokenMoved = true;
 		}
 
 		// Y
 		if (newVals.containsKey("y")) {
-			y = newVals.getInt("y") * (useDistance ? 1 : grid.getSize()) + (delta ? y : 0);
+			int tmpY = newVals.getInt("y");
+			y = tmpY + (delta ? y : 0);
 			tokenMoved = true;
 		}
 
 		if (tokenMoved) {
-			System.err.println(newVals + " @ (" + x + ", " + y + ")");
-			TokenLocationFunctions.getInstance().moveToken(token, x, y, true); // Always using ZonePoint coords
+//			System.err.println(newVals + " @ (" + x + ", " + y + ")");
+			TokenLocationFunctions.getInstance().moveToken(token, x, y, useDistance);
 		}
 
 		// Facing
