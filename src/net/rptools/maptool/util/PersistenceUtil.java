@@ -85,6 +85,7 @@ public class PersistenceUtil {
 
 	private static final ModelVersionManager campaignVersionManager = new ModelVersionManager();
 	private static final ModelVersionManager assetnameVersionManager = new ModelVersionManager();
+	private static final ModelVersionManager tokenVersionManager = new ModelVersionManager();
 
 	static {
 		PackedFile.init(AppUtil.getAppHome("tmp"));
@@ -121,6 +122,10 @@ public class PersistenceUtil {
 		// text are still supported for reading by using an XStream custom Converter.  See the Asset
 		// class for the annotation used to reference the converter.
 		assetnameVersionManager.registerTransformation("1.3.51", new AssetNameTransform("^(.*)\\.(dat)?$", "$1"));
+
+		// This version manager is only for loading and saving tokens.  Note that many (all?) of its contents will
+		// be used by the campaign version manager since campaigns contain tokens...
+		tokenVersionManager.registerTransformation("1.3.78", new TokenPropertyMapTransform()); // FJE 2010-12-29
 	}
 
 	public static class PersistedMap {
@@ -487,9 +492,9 @@ public class PersistenceUtil {
 	public static Token loadToken(File file) throws IOException {
 		PackedFile pakFile = new PackedFile(file);
 
-		// TODO: Check version
-//		String mtVersion = (String)pakFile.getProperty(PROP_VERSION);
-		Token token = (Token) pakFile.getContent();
+		String mtVersion = (String) pakFile.getProperty(PROP_VERSION);
+		pakFile.setModelVersionManager(tokenVersionManager);
+		Token token = (Token) pakFile.getContent(mtVersion);
 		loadAssets(token.getAllImageAssets(), pakFile);
 		return token;
 	}
@@ -501,9 +506,9 @@ public class PersistenceUtil {
 
 		PackedFile pakFile = new PackedFile(newFile);
 
-		// TODO: Check version
-//		String mtVersion = (String)pakFile.getProperty(PROP_VERSION);
-		Token token = (Token) pakFile.getContent();
+		String mtVersion = (String) pakFile.getProperty(PROP_VERSION);
+		pakFile.setModelVersionManager(tokenVersionManager);
+		Token token = (Token) pakFile.getContent(mtVersion);
 		loadAssets(token.getAllImageAssets(), pakFile);
 		newFile.delete();
 		return token;
