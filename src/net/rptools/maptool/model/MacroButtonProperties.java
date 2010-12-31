@@ -10,6 +10,7 @@
  */
 package net.rptools.maptool.model;
 
+import java.awt.Color;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -547,8 +548,10 @@ public class MacroButtonProperties implements Comparable<Object> {
 	}
 
 	public String getFontColorKey() {
-		if (MapToolUtil.isValidColor(fontColorKey))
+		Color c = MapToolUtil.getColor(fontColorKey);
+		if (c != null) {
 			return fontColorKey;
+		}
 		return "black";
 	}
 

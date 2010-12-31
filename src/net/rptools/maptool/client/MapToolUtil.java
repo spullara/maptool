@@ -48,7 +48,6 @@ public class MapToolUtil {
 		COLOR_MAP.put("blue", Color.BLUE);
 		COLOR_MAP.put("cyan", Color.CYAN);
 		COLOR_MAP.put("gray", Color.GRAY);
-		COLOR_MAP.put("green", Color.GREEN);
 		COLOR_MAP.put("magenta", Color.MAGENTA);
 		COLOR_MAP.put("red", Color.RED);
 		COLOR_MAP.put("white", Color.WHITE);
@@ -56,13 +55,14 @@ public class MapToolUtil {
 
 		// The built-in Java colors that DO NOT match the HTML colors...
 		COLOR_MAP.put("darkgray", new Color(0xA9, 0xA9, 0xA9)); // Color.DARK_GRAY
+		COLOR_MAP.put("green", new Color(0x00, 0x80, 0x00)); // Color.GREEN
 		COLOR_MAP.put("lightgray", new Color(0xD3, 0xD3, 0xD3)); // Color.LIGHT_GRAY
 		COLOR_MAP.put("orange", new Color(0xFF, 0xA5, 0x00)); // Color.ORANGE
 		COLOR_MAP.put("pink", new Color(0xFF, 0xC0, 0xCB)); // Color.PINK
 
 		// And the HTML colors that don't exist at all as built-in Java values...
-		COLOR_MAP.put("aqua", new Color(0x00, 0xFF, 0xFF));
-		COLOR_MAP.put("fuchsia", new Color(0xFF, 0x00, 0xFF));
+		COLOR_MAP.put("aqua", new Color(0x00, 0xFF, 0xFF)); // same as Color.CYAN
+		COLOR_MAP.put("fuchsia", new Color(0xFF, 0x00, 0xFF)); // same as Color.MAGENTA
 		COLOR_MAP.put("lime", new Color(0xBF, 0xFF, 0x00));
 		COLOR_MAP.put("maroon", new Color(0x80, 0x00, 0x00));
 		COLOR_MAP.put("navy", new Color(0x00, 0x00, 0x80));
@@ -187,25 +187,25 @@ public class MapToolUtil {
 	}
 
 	public static Color getColor(String name) {
+		name = name.trim();
 		Color c = COLOR_MAP.get(name);
 		if (c != null)
 			return c;
-		c = convertStringToColor(name.trim());
+		c = convertStringToColor(name);
 		return c;
 	}
 
 	private static Color convertStringToColor(String val) {
-		val = val.trim();
-		if (StringUtil.isEmpty(val) || val.charAt(0) != '#') {
-//			MapTool.showWarning("Unknown color specifier: '" + val + "'");
-			return COLOR_MAP.get("black");
-		}
 		Color c;
-		try {
-			c = Color.decode(val);
-			COLOR_MAP.put(val.toLowerCase(), c);
-		} catch (NumberFormatException nfe) {
+		if (StringUtil.isEmpty(val) || val.charAt(0) != '#') {
 			c = COLOR_MAP.get("black");
+		} else {
+			try {
+				c = Color.decode(val);
+				COLOR_MAP.put(val.toLowerCase(), c);
+			} catch (NumberFormatException nfe) {
+				c = COLOR_MAP.get("black");
+			}
 		}
 		return c;
 	}
