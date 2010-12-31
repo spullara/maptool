@@ -615,8 +615,9 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			Token token = getTokenFromParam(resolver, functionName, parameters, 1);
 			// Remove current owners
 			token.clearAllOwners();
-			if (parameters.get(0).equals("")) {
-				token.setOwnedByAll(true);
+			String s = parameters.get(0).toString();
+			if (StringUtil.isEmpty(s)) {
+				// Do nothing, since all ownership should be turned off for an empty string
 			} else {
 				Object json = JSONMacroFunctions.asJSON(parameters.get(0));
 				if (json != null && json instanceof JSONArray) {
@@ -624,7 +625,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 						token.addOwner(o.toString());
 					}
 				} else {
-					token.addOwner(parameters.get(0).toString());
+					token.addOwner(s);
 				}
 			}
 			MapTool.serverCommand().putToken(zone.getId(), token);
