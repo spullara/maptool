@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.ui.macrobuttons.panels;
 
@@ -36,7 +33,6 @@ import net.rptools.maptool.model.Token;
 import com.jidesoft.docking.DockableFrame;
 
 public class SelectionPanel extends AbstractMacroPanel {
-
 	private final List<Token> tokenList = null;
 	private List<MacroButtonProperties> commonMacros = new ArrayList<MacroButtonProperties>();
 	private CodeTimer timer;
@@ -44,9 +40,7 @@ public class SelectionPanel extends AbstractMacroPanel {
 	public SelectionPanel() {
 		// TODO: refactoring reminder
 		setPanelClass("SelectionPanel");
-		init(new ArrayList<Token>()); // when initially loading MT, the
-		// CurrentZoneRenderer isn't ready yet;
-		// just send an empty list
+		init(new ArrayList<Token>()); // when initially loading MT, the CurrentZoneRenderer isn't ready yet; just send an empty list
 	}
 
 	public List<MacroButtonProperties> getCommonMacros() {
@@ -70,8 +64,7 @@ public class SelectionPanel extends AbstractMacroPanel {
 		if (MapTool.getFrame() != null) {
 			DockableFrame selectionPanel = MapTool.getFrame().getDockingManager().getFrame("SELECTION");
 			if (selectionPanel != null)
-				panelVisible = (selectionPanel.isVisible() && !selectionPanel.isAutohide()) || selectionPanel.isAutohideShowing()
-				? true : false;
+				panelVisible = (selectionPanel.isVisible() && !selectionPanel.isAutohide()) || selectionPanel.isAutohideShowing() ? true : false;
 		}
 		// Set up a code timer to get some performance data
 		timer = new CodeTimer("selectionpanel");
@@ -113,7 +106,6 @@ public class SelectionPanel extends AbstractMacroPanel {
 	}
 
 	private void populateCommonButtons(List<Token> tokenList) {
-
 		Map<Integer, MacroButtonProperties> uniqueMacros = new HashMap<Integer, MacroButtonProperties>();
 		Map<Integer, MacroButtonProperties> commonMacros = new HashMap<Integer, MacroButtonProperties>();
 		for (Token nextToken : tokenList) {
@@ -121,13 +113,10 @@ public class SelectionPanel extends AbstractMacroPanel {
 				continue;
 			}
 			for (MacroButtonProperties nextMacro : nextToken.getMacroList(true)) {
-				MacroButtonProperties copiedMacro = new MacroButtonProperties(
-						nextMacro.getIndex(), nextMacro);
+				MacroButtonProperties copiedMacro = new MacroButtonProperties(nextMacro.getIndex(), nextMacro);
 				int macroKey = copiedMacro.hashCodeForComparison();
-				Boolean macroIsInUnique = uniqueMacros.containsKey(copiedMacro
-						.hashCodeForComparison());
-				Boolean macroIsInCommon = commonMacros.containsKey(copiedMacro
-						.hashCodeForComparison());
+				Boolean macroIsInUnique = uniqueMacros.containsKey(copiedMacro.hashCodeForComparison());
+				Boolean macroIsInCommon = commonMacros.containsKey(copiedMacro.hashCodeForComparison());
 				if (!macroIsInUnique && !macroIsInCommon) {
 					uniqueMacros.put(macroKey, copiedMacro);
 				} else if (macroIsInUnique && !macroIsInCommon) {
@@ -144,8 +133,7 @@ public class SelectionPanel extends AbstractMacroPanel {
 				if (!AppUtil.playerOwns(nextToken)) {
 					continue;
 				}
-				for (MacroButtonProperties nextTokenMacro : nextToken
-						.getMacroList(true)) {
+				for (MacroButtonProperties nextTokenMacro : nextToken.getMacroList(true)) {
 					if (!nextTokenMacro.getAllowPlayerEdits()) {
 						nextMacro.setAllowPlayerEdits(false);
 					}
@@ -170,9 +158,7 @@ public class SelectionPanel extends AbstractMacroPanel {
 				nextMacro.setSortby("");
 			}
 		}
-
-		this.commonMacros = new ArrayList<MacroButtonProperties>(commonMacros
-				.values());
+		this.commonMacros = new ArrayList<MacroButtonProperties>(commonMacros.values());
 		int indexCount = 0;
 		for (MacroButtonProperties nextMacro : this.commonMacros) {
 			nextMacro.setIndex(indexCount);
@@ -184,11 +170,8 @@ public class SelectionPanel extends AbstractMacroPanel {
 	@Override
 	protected void clear() {
 		// reset the tab icon
-		MapTool.getFrame().getFrame(MTFrame.SELECTION).setFrameIcon(
-				new ImageIcon(AppStyle.selectionPanelImage));
-		removeAll();
-		revalidate();
-		repaint();
+		MapTool.getFrame().getFrame(MTFrame.SELECTION).setFrameIcon(new ImageIcon(AppStyle.selectionPanelImage));
+		super.clear();
 	}
 
 	@Override
