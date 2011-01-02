@@ -231,6 +231,7 @@ public class Token extends BaseModel {
 
 		snapToGrid = token.snapToGrid;
 		isVisible = token.isVisible;
+		visibleOnlyToOwner = token.visibleOnlyToOwner;
 		name = token.name;
 		notes = token.notes;
 		gmName = token.gmName;
