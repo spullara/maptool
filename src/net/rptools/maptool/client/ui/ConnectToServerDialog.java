@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.ui;
 
@@ -34,6 +31,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -50,10 +48,11 @@ import net.tsc.servicediscovery.ServiceFinder;
 import org.jdesktop.swingworker.SwingWorker;
 
 import yasb.Binder;
+
 /**
  * @author trevor
  */
-public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPreferences> implements AnnouncementListener{
+public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPreferences> implements AnnouncementListener {
 	private static ServiceFinder finder;
 	static {
 		finder = new ServiceFinder(AppConstants.SERVICE_GROUP);
@@ -68,7 +67,7 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 	 * This is the default constructor
 	 */
 	public ConnectToServerDialog() {
-		super("net/rptools/maptool/client/ui/forms/connectToServerDialog.jfrm");
+		super("net/rptools/maptool/client/ui/forms/connectToServerDialog.xml");
 		setPreferredSize(new Dimension(400, 400));
 		panelInit();
 	}
@@ -146,7 +145,7 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 	}
 
 	public void initRoleComboBox() {
-		getRoleComboBox().setModel(new DefaultComboBoxModel(new String[]{"Player", "GM"}));
+		getRoleComboBox().setModel(new DefaultComboBoxModel(new String[] { "Player", "GM" }));
 	}
 
 	public void initLocalServerList() {
@@ -154,15 +153,15 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 		getLocalServerList().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (e.getClickCount() == 2) {
+				if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
 					handleOK();
 				}
 			};
 		});
-
 	}
+
 	public JList getLocalServerList() {
-		return (JList)getComponent("localServerList");
+		return (JList) getComponent("localServerList");
 	}
 
 	private void updateLocalServerList() {
@@ -178,6 +177,7 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 				model = new RemoteServerTableModel(MapToolRegistry.findAllInstances());
 				return null;
 			}
+
 			@Override
 			protected void done() {
 				if (model != null) {
@@ -197,16 +197,18 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 
 	public void initRemoteServerTable() {
 		getRemoteServerTable().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		getRemoteServerTable().setModel(new RemoteServerTableModel(new ArrayList<String>()));
 		getRemoteServerTable().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (e.getClickCount() == 2) {
-					getServerNameTextField().setText(getRemoteServerTable().getModel().getValueAt(getRemoteServerTable().getSelectedRow(), 0).toString());
-					handleOK();
+				if (SwingUtilities.isLeftMouseButton(e)) {
+					JTable rem = getRemoteServerTable();
+					getServerNameTextField().setText(rem.getModel().getValueAt(rem.getSelectedRow(), 0).toString());
+					if (e.getClickCount() == 2)
+						handleOK();
 				}
 			};
 		});
-		getRemoteServerTable().setModel(new RemoteServerTableModel(new ArrayList<String>()));
 	}
 
 	public JTable getRemoteServerTable() {
@@ -224,7 +226,7 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 	public void initRescanButton() {
 		getRescanButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				((DefaultListModel)getLocalServerList().getModel()).clear();
+				((DefaultListModel) getLocalServerList().getModel()).clear();
 				finder.find();
 			}
 		});
@@ -351,7 +353,7 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 			for (String line : encodedData) {
 				String[] row = line.split(":");
 				if (row.length == 1) {
-					row = new String[]{row[0], "Pre 1.3"};
+					row = new String[] { row[0], "Pre 1.3" };
 				}
 				data.add(row);
 			}
@@ -359,9 +361,11 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 
 		@Override
 		public String getColumnName(int column) {
-			switch(column) {
-			case 0: return "Server Name";
-			case 1: return "Version";
+			switch (column) {
+			case 0:
+				return "Server Name";
+			case 1:
+				return "Version";
 			}
 			return "";
 		}
@@ -382,7 +386,7 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 
 	// ANNOUNCEMENT LISTENER
 	public void serviceAnnouncement(String type, InetAddress address, int port, byte[] data) {
-		((DefaultListModel)getLocalServerList().getModel()).addElement(new ServerInfo(new String(data), address, port));
+		((DefaultListModel) getLocalServerList().getModel()).addElement(new ServerInfo(new String(data), address, port));
 	}
 
 	private class ServerInfo {
@@ -390,7 +394,7 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 		InetAddress address;
 		int port;
 
-		public ServerInfo (String id, InetAddress address, int port) {
+		public ServerInfo(String id, InetAddress address, int port) {
 			this.id = id.trim();
 			this.address = address;
 			this.port = port;

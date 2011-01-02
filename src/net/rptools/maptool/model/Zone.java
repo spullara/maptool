@@ -468,13 +468,13 @@ public class Zone extends BaseModel {
 	}
 
 	public boolean isPointVisible(ZonePoint point, PlayerView view) {
-
-		if (!hasFog() || view.getRole() == Player.Role.GM) {
+		if (!hasFog() || view.isGMView()) {
 			return true;
 		}
-		if (MapTool.getServerPolicy().isUseIndividualFOW() || getVisionType() == VisionType.OFF ) {
+		if (MapTool.getServerPolicy().isUseIndividualFOW() || getVisionType() == VisionType.OFF) {
 			Area combined = new Area();
 			List<Token> toks = (view.getTokens() != null) ? view.getTokens() : this.getTokens();
+			// Should this use FindTokenFunctions.OwnedFilter and zone.getTokenList()?
 			for (Token tok : toks) {
 				if (!AppUtil.playerOwns(tok)) {
 					continue;
