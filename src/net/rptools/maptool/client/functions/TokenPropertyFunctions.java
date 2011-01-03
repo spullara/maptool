@@ -489,7 +489,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			token.setProperty(parameters.get(0).toString(), parameters.get(1).toString());
 			Zone z = MapTool.getParser().getTokenMacroLibZone(location);
 			MapTool.serverCommand().putToken(z.getId(), token);
-			zone.putToken(token);
+			z.putToken(token); // Note: not `zone' since we want only the zone this particular token came from
 			return "";
 		}
 

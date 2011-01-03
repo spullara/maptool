@@ -857,7 +857,7 @@ public class Zone extends BaseModel {
 	public void putToken(Token token) {
 		boolean newToken = !tokenMap.containsKey(token.getId());
 
-		this.tokenMap.put(token.getId(), token);
+		tokenMap.put(token.getId(), token);
 
 		// LATER: optimize this
 		tokenOrderedList.remove(token);
@@ -884,7 +884,7 @@ public class Zone extends BaseModel {
 	 * @param tokens
 	 *            List of Tokens to be added to this zone
 	 */
-	public void putToken(List<Token> tokens) {
+	public void putTokens(List<Token> tokens) {
 		// Create a couple of booleans to represent whether tokens were added and/or changed
 		List<Token> addedTokens = new LinkedList<Token>(tokens);
 		addedTokens.removeAll(tokenMap.values());
@@ -907,7 +907,7 @@ public class Zone extends BaseModel {
 	}
 
 	public void removeToken(GUID id) {
-		Token token = this.tokenMap.remove(id);
+		Token token = tokenMap.remove(id);
 		if (token != null) {
 			tokenOrderedList.remove(token);
 			fireModelChangeEvent(new ModelChangeEvent(this, Event.TOKEN_REMOVED, token));
