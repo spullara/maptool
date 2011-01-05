@@ -427,7 +427,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					}
 				}
 			}
-
 			return;
 		}
 
@@ -465,7 +464,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				}
 			}
 		} else {
-
 			if (SwingUtilities.isLeftMouseButton(e)) {
 				// Starting a bound box selection
 				isDrawingSelectionBox = true;
@@ -476,12 +474,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				}
 			}
 		}
-
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-
 		if (isShowingTokenStackPopup) {
 			if (tokenStackPanel.contains(e.getX(), e.getY())) {
 				tokenStackPanel.handleMouseReleased(e);
@@ -491,10 +487,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				repaint();
 			}
 		}
-
 		if (SwingUtilities.isLeftMouseButton(e)) {
 			try {
-
 				// MARKER
 				renderer.setCursor(Cursor.getPredefinedCursor(markerUnderMouse != null ? Cursor.HAND_CURSOR : Cursor.DEFAULT_CURSOR));
 				if (tokenUnderMouse == null && markerUnderMouse != null && !isShowingHover && !isDraggingToken) {
@@ -507,7 +501,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					}
 					repaint();
 				}
-
 				// SELECTION BOUND BOX
 				if (isDrawingSelectionBox) {
 					isDrawingSelectionBox = false;
@@ -515,7 +508,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					if (!SwingUtil.isShiftDown(e)) {
 						renderer.clearSelectedTokens();
 					}
-
 					renderer.selectTokens(selectionBoundBox);
 
 					selectionBoundBox = null;
@@ -532,7 +524,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				// SELECT SINGLE TOKEN
 				Token token = renderer.getTokenAt(e.getX(), e.getY());
 				if (token != null && SwingUtilities.isLeftMouseButton(e) && !isDraggingToken && !SwingUtil.isShiftDown(e)) {
-
 					// Only if it isn't already being moved
 					if (!renderer.isTokenMoving(token)) {
 						renderer.clearSelectedTokens();
@@ -543,7 +534,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				isDraggingToken = false;
 				isDrawingSelectionBox = false;
 			}
-
 			return;
 		}
 
@@ -554,7 +544,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 		// POPUP MENU
 		if (SwingUtilities.isRightMouseButton(e) && !isDraggingToken && !isDraggingMap()) {
-
 			if (tokenUnderMouse != null && !renderer.getSelectedTokenSet().contains(tokenUnderMouse.getId())) {
 				if (!SwingUtil.isShiftDown(e)) {
 					renderer.clearSelectedTokens();
@@ -564,17 +553,14 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			}
 
 			if (tokenUnderMouse != null && renderer.getSelectedTokenSet().size() > 0) {
-
 				if (tokenUnderMouse.isStamp()) {
 					new StampPopupMenu(renderer.getSelectedTokenSet(), e.getX(), e.getY(), renderer, tokenUnderMouse).showPopup(renderer);
 				} else if (AppUtil.playerOwns(tokenUnderMouse)) {
 					new TokenPopupMenu(renderer.getSelectedTokenSet(), e.getX(), e.getY(), renderer, tokenUnderMouse).showPopup(renderer);
 				}
-
 				return;
 			}
 		}
-
 		super.mouseReleased(e);
 	}
 
@@ -835,7 +821,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 						bounds.x = bx;
 						bounds.y = by;
 
-						if (!MapTool.getServerPolicy().isUseIndividualFOW() || zone.getVisionType() == VisionType.OFF ) {
+						if (!MapTool.getServerPolicy().isUseIndividualFOW() || zone.getVisionType() == VisionType.OFF) {
 							if (fow.contains(bounds)) {
 								isVisible = true;
 								break;
@@ -1273,11 +1259,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	}
 
 	private void setWaypoint() {
-
 		ZonePoint p = new ZonePoint(dragStartX, dragStartY);
-
 		renderer.toggleMoveSelectionSetWaypoint(tokenBeingDragged.getId(), p);
-
 		MapTool.serverCommand().toggleTokenMoveWaypoint(renderer.getZone().getId(), tokenBeingDragged.getId(), p);
 	}
 

@@ -37,7 +37,10 @@ public class Directory {
 	}
 
 	public Directory(File directory, FilenameFilter fileFilter) {
-		if (directory.exists() && !directory.isDirectory()) {
+		if (!directory.exists()) {
+			throw new IllegalArgumentException(directory + " does not exist");
+		}
+		if (!directory.isDirectory()) {
 			throw new IllegalArgumentException(directory + " is not a directory");
 		}
 		this.directory = directory;
@@ -87,7 +90,7 @@ public class Directory {
 
 	private void load() {
 		if (files == null && subdirs == null) {
-			if (!directory.exists()) {
+			if (!directory.exists() || !directory.isDirectory()) {
 				files = new ArrayList<File>();
 				subdirs = new ArrayList<Directory>();
 				return;
