@@ -547,6 +547,25 @@ public class MacroButtonProperties implements Comparable<Object> {
 		return array;
 	}
 
+	/**
+	 * Returns the font color of this button as an HTML string. It might be one of the 16 colors defined by the W3C as a
+	 * standard HTML color (see <code>COLOR_MAP_HTML</code> for a list), but if it's not then the color is converted to
+	 * CSS format <b>#FF00FF</b> format and that string is returned.
+	 * 
+	 * @return
+	 */
+	public String getFontColorAsHtml() {
+		Color c = null;
+		if (MapToolUtil.isHtmlColor(fontColorKey)) {
+			return fontColorKey;
+		}
+		c = MapToolUtil.getColor(fontColorKey);
+		if (c != null) {
+			return "#" + Integer.toHexString(c.getRGB()).substring(2);
+		}
+		return "black";
+	}
+
 	public String getFontColorKey() {
 		Color c = MapToolUtil.getColor(fontColorKey);
 		if (c != null) {

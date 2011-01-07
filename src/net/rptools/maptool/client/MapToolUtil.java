@@ -12,6 +12,8 @@ package net.rptools.maptool.client;
 
 import java.awt.Color;
 import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
@@ -37,7 +39,8 @@ public class MapToolUtil {
 	/**
 	 * The map of color names to color values
 	 */
-	private static final TreeMap<String, Color> COLOR_MAP = new TreeMap<String, Color>();
+	private static final Map<String, Color> COLOR_MAP = new TreeMap<String, Color>();
+	private static final Map<String, Color> COLOR_MAP_HTML = new HashMap<String, Color>();
 
 	/**
 	 * Set up the color map
@@ -70,6 +73,17 @@ public class MapToolUtil {
 		COLOR_MAP.put("purple", new Color(0x80, 0x00, 0x80));
 		COLOR_MAP.put("silver", new Color(0xC0, 0xC0, 0xC0));
 		COLOR_MAP.put("teal", new Color(0x00, 0x80, 0x80));
+
+		// These are valid HTML colors.  When getFontColor() is called, if one of these is
+		// selected then the name is returned.  When another value is selected, the Color
+		// is converted to the '#ff00ff' notation and returned instead -- even if it's a name
+		// in COLOR_MAP, above.
+		String[] html = { "black", "white", "fuchsia", "aqua", "silver", "red", "lime", "blue", "yellow", "gray", "purple", "maroon", "navy", "olive", "green", "teal" };
+		for (int i = 0; i < html.length; i++) {
+			Color c = COLOR_MAP.get(html[i]);
+			assert c != null : "HTML color not in predefined list?";
+			COLOR_MAP_HTML.put(html[i], c);
+		}
 	}
 
 	public static int getRandomNumber(int max) {
@@ -184,6 +198,10 @@ public class MapToolUtil {
 
 	public static boolean isValidColor(String name) {
 		return COLOR_MAP.containsKey(name);
+	}
+
+	public static boolean isHtmlColor(String name) {
+		return COLOR_MAP_HTML.containsKey(name);
 	}
 
 	public static Color getColor(String name) {

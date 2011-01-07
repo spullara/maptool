@@ -142,7 +142,7 @@ public class MacroButton extends JButton implements MouseListener {
 			buttonLabel = label;
 
 		String div = "<div style='font-size: " + properties.getFontSize() + "; text-align: center'>";
-		String formatButtonLabel = "<p style='color: " + properties.getFontColorKey() + "; " + getMinWidth() + getMaxWidth() + "'>" + buttonLabel;
+		String formatButtonLabel = "<p style='color: " + properties.getFontColorAsHtml() + "; " + getMinWidth() + getMaxWidth() + "'>" + buttonLabel;
 
 		// if there is no hotkey (HOTKEY[0]) then no need to add hint
 		String hotKey = properties.getHotKey();
