@@ -1,9 +1,9 @@
 /*
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
- *
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
@@ -102,7 +102,7 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 
 	/**
 	 * Create a new token notes dialog.
-	 *
+	 * 
 	 * @param token
 	 *            The token being displayed.
 	 */
@@ -219,36 +219,28 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		getCharSheetPanel().setImageId(token.getCharsheetImage());
 		getPortraitPanel().setImageId(token.getPortraitImage());
 		getTokenLayoutPanel().setToken(token);
-		
+
 		// we will disable the Owner only visible check box if the token is not
 		// visible to players to signify the relationship
-	    ActionListener tokenVisibleActionListener = new ActionListener() {
-	        public void actionPerformed(ActionEvent actionEvent) {
-	          AbstractButton abstractButton = (AbstractButton)actionEvent.getSource();
-	          boolean selected = abstractButton.getModel().isSelected();
-	          getVisibleOnlyToOwnerCheckBox().setEnabled(selected);
-	          getVisibleOnlyToOwnerLabel().setEnabled(selected);
-	        }
-	      };
+		ActionListener tokenVisibleActionListener = new ActionListener() {
+			public void actionPerformed(ActionEvent actionEvent) {
+				AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
+				boolean selected = abstractButton.getModel().isSelected();
+				getVisibleOnlyToOwnerCheckBox().setEnabled(selected);
+				getVisibleOnlyToOwnerLabel().setEnabled(selected);
+			}
+		};
 		getVisibleCheckBox().addActionListener(tokenVisibleActionListener);
 
 		// Character Sheets
-/*
- 		controller = null;
-		String form = MapTool.getCampaign().getCharacterSheets().get(token.getPropertyType());
-		if (form == null)
-			return;
-		URL formUrl = getClass().getClassLoader().getResource(form);
-		if (formUrl == null)
-			return;
-		controller = new CharSheetController(formUrl, null);
-		HashMap<String, Object> properties = new HashMap<String, Object>();
-		for (String prop : token.getPropertyNames())
-			properties.put(prop, token.getProperty(prop));
-		controller.setData(properties);
-		controller.getPanel().setName("characterSheet");
-		replaceComponent("sheetPanel", "characterSheet", controller.getPanel());
-*/
+		/*
+		 * controller = null; String form = MapTool.getCampaign().getCharacterSheets().get(token.getPropertyType()); if
+		 * (form == null) return; URL formUrl = getClass().getClassLoader().getResource(form); if (formUrl == null)
+		 * return; controller = new CharSheetController(formUrl, null); HashMap<String, Object> properties = new
+		 * HashMap<String, Object>(); for (String prop : token.getPropertyNames()) properties.put(prop,
+		 * token.getProperty(prop)); controller.setData(properties); controller.getPanel().setName("characterSheet");
+		 * replaceComponent("sheetPanel", "characterSheet", controller.getPanel());
+		 */
 		super.bind(token);
 	}
 
@@ -376,9 +368,8 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 	@Override
 	public boolean commit() {
 		Token token = getModel();
-		
-		
-		if (getNameField().getText().equals("")){
+
+		if (getNameField().getText().equals("")) {
 			MapTool.showError(I18N.getText("msg.error.emptyTokenName"));
 			return false;
 		}
@@ -651,14 +642,15 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 	private JLabel getVisibleLabel() {
 		return (JLabel) getComponent("visibleLabel");
 	}
-	
+
 	private JCheckBox getVisibleCheckBox() {
 		return (JCheckBox) getComponent("@visible");
 	}
-	
+
 	private JLabel getVisibleOnlyToOwnerLabel() {
 		return (JLabel) getComponent("visibleOnlyToOwnerLabel");
 	}
+
 	private JCheckBox getVisibleOnlyToOwnerCheckBox() {
 		return (JCheckBox) getComponent("@visibleOnlyToOwner");
 	}
@@ -666,7 +658,7 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 	private JPanel getGMNotesPanel() {
 		return (JPanel) getComponent("gmNotesPanel");
 	}
-	
+
 	private JTextField getNameField() {
 		return (JTextField) getComponent("@name");
 	}
@@ -926,23 +918,18 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		}
 
 		public void applyTo(Token token) {
-
 			for (net.rptools.maptool.model.TokenProperty property : getPropertyList()) {
 				String value = getPropertyMap().get(property.getName());
 				if (property.getDefaultValue() != null && property.getDefaultValue().equals(value)) {
-					token.setProperty(property.getName(), null); // Clear
-					// original
-					// value
+					token.setProperty(property.getName(), null); // Clear original value
 					continue;
 				}
-
 				token.setProperty(property.getName(), value);
 			}
 		}
 
 		@Override
 		public Property getProperty(int index) {
-
 			return new TokenProperty(getPropertyList().get(index).getName());
 		}
 

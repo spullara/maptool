@@ -1352,6 +1352,7 @@ public class Token extends BaseModel {
 		name = td.getName();
 		ownerList = td.getPlayers();
 		ownerType = getInt(td, TokenTransferData.OWNER_TYPE, ownerList == null ? OWNER_TYPE_ALL : OWNER_TYPE_LIST);
+		// FIXME Doesn't this need the VisibleToOwnerOnly property added?  What about ExposedFog area?
 		tokenShape = (String) td.get(TokenTransferData.TOKEN_TYPE);
 		facing = td.getFacing();
 		notes = (String) td.get(TokenTransferData.NOTES);
