@@ -2036,10 +2036,7 @@ public class AppActions {
 
 		@Override
 		public boolean isAvailable() {
-			if (AppPreferences.isEnabledMapExportImport()) {
-				return MapTool.isHostingServer() || (MapTool.getPlayer() != null && MapTool.getPlayer().isGM());
-			}
-			return false;
+			return MapTool.isHostingServer() || (MapTool.getPlayer() != null && MapTool.getPlayer().isGM());
 		}
 
 		@Override
@@ -2080,10 +2077,7 @@ public class AppActions {
 
 		@Override
 		public boolean isAvailable() {
-			if (AppPreferences.isEnabledMapExportImport()) {
-				return MapTool.isHostingServer() || (MapTool.getPlayer() != null && MapTool.getPlayer().isGM());
-			}
-			return false;
+			return MapTool.isHostingServer() || (MapTool.getPlayer() != null && MapTool.getPlayer().isGM());
 		}
 
 		@Override

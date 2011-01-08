@@ -43,8 +43,8 @@ public class AppPreferences {
 	private static final String KEY_AUTO_SAVE_INCREMENT = "autoSaveIncrement";
 	private static final int DEFAULT_AUTO_SAVE_INCREMENT = 5; // Minutes
 
-	private static final String KEY_ENABLE_MAP_EXPORT_IMPORT = "enableMapExportImport";
-	private static final boolean DEFAULT_ENABLE_MAP_EXPORT_IMPORT = false;
+//	private static final String KEY_ENABLE_MAP_EXPORT_IMPORT = "enableMapExportImport";
+//	private static final boolean DEFAULT_ENABLE_MAP_EXPORT_IMPORT = false;
 
 	private static final String KEY_CHAT_AUTOSAVE_TIME = "chatAutosaveTime";
 	private static final int DEFAULT_CHAT_AUTOSAVE_TIME = 0; // Minutes; zero=disabled
@@ -162,14 +162,14 @@ public class AppPreferences {
 		return prefs.getBoolean(KEY_SAVE_REMINDER, DEFAULT_SAVE_REMINDER);
 	}
 
-	public static void setEnabledMapExportImport(boolean reminder) {
-		prefs.putBoolean(KEY_ENABLE_MAP_EXPORT_IMPORT, reminder);
-		AppActions.updateActions();
-	}
+//	public static void setEnabledMapExportImport(boolean reminder) {
+//		prefs.putBoolean(KEY_ENABLE_MAP_EXPORT_IMPORT, reminder);
+//		AppActions.updateActions();
+//	}
 
-	public static boolean isEnabledMapExportImport() {
-		return prefs.getBoolean(KEY_ENABLE_MAP_EXPORT_IMPORT, DEFAULT_ENABLE_MAP_EXPORT_IMPORT);
-	}
+//	public static boolean isEnabledMapExportImport() {
+//		return prefs.getBoolean(KEY_ENABLE_MAP_EXPORT_IMPORT, DEFAULT_ENABLE_MAP_EXPORT_IMPORT);
+//	}
 
 	public static void setAutoSaveIncrement(int increment) {
 		prefs.putInt(KEY_AUTO_SAVE_INCREMENT, increment);
