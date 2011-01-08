@@ -71,6 +71,7 @@ import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenFootprint;
+import net.rptools.maptool.model.Zone.Layer;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -87,11 +88,8 @@ import com.jidesoft.swing.Selectable;
  * This dialog is used to display all of the token states and notes to the user.
  */
 public class EditTokenDialog extends AbeillePanel<Token> {
-
 	private boolean tokenSaved;
-
 	private GenericDialog dialog;
-
 	private ImageAssetPanel imagePanel;
 	// private CharSheetController controller;
 
@@ -108,7 +106,6 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 	 */
 	public EditTokenDialog() {
 		super("net/rptools/maptool/client/ui/forms/tokenPropertiesDialog.xml");
-
 		panelInit();
 	}
 
@@ -118,12 +115,10 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 
 	public void initGMNotesTextArea() {
 		getGMNotesTextArea().addMouseListener(new MouseHandler(getGMNotesTextArea()));
-
 		getComponent("@GMNotes").setEnabled(MapTool.getPlayer().isGM());
 	}
 
 	public void showDialog(Token token) {
-
 		dialog = new GenericDialog("Edit Token", MapTool.getFrame(), this) {
 			@Override
 			public void closeDialog() {
@@ -133,16 +128,13 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 				super.closeDialog();
 			}
 		};
-
 		bind(token);
-
 		getRootPane().setDefaultButton(getOKButton());
 		dialog.showDialog();
 	}
 
 	@Override
 	public void bind(final Token token) {
-
 		// ICON
 		getTokenIconPanel().setImageId(token.getImageAssetId());
 
@@ -201,11 +193,9 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 			}
 		});
 
-		// Player player = MapTool.getPlayer();
-		// boolean editable = player.isGM()
-		// || !MapTool.getServerPolicy().useStrictTokenManagement() ||
-		// token.isOwner(player.getName());
-		// getAllPlayersCheckBox().setSelected(token.isOwnedByAll());
+//		Player player = MapTool.getPlayer();
+//		boolean editable = player.isGM() || !MapTool.getServerPolicy().useStrictTokenManagement() || token.isOwner(player.getName());
+//		getAllPlayersCheckBox().setSelected(token.isOwnedByAll());
 
 		// OTHER
 		getShapeCombo().setSelectedItem(token.getShape());
@@ -214,6 +204,10 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		} else {
 			getSizeCombo().setSelectedIndex(0);
 		}
+		DefaultComboBoxModel model = (DefaultComboBoxModel) getSizeCombo().getModel();
+		model.removeElementAt(0);
+		model.insertElementAt(token.getLayer() == Layer.TOKEN ? "Native Size" : "Free Size", 0);
+
 		getPropertyTypeCombo().setSelectedItem(token.getPropertyType());
 		getSightTypeCombo().setSelectedItem(token.getSightType() != null ? token.getSightType() : MapTool.getCampaign().getCampaignProperties().getDefaultSightType());
 		getCharSheetPanel().setImageId(token.getCharsheetImage());
@@ -305,7 +299,7 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 
 	public void initSizeCombo() {
 		DefaultComboBoxModel model = new DefaultComboBoxModel(MapTool.getFrame().getCurrentZoneRenderer().getZone().getGrid().getFootprints().toArray());
-		model.insertElementAt("Free Size", 0);
+		model.insertElementAt("(Empty)", 0);
 		getSizeCombo().setModel(model);
 	}
 
