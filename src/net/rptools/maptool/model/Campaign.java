@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.model;
 
@@ -36,25 +33,27 @@ import net.rptools.maptool.client.ui.token.TwoImageBarTokenOverlay;
 
 /**
  * <p>
- * This object contains {@link Zone}s and {@link Asset}s that make up a campaign as well
- * as links to a variety of other campaign characteristics (campaign macros, properties,
- * lookup tables, and so on).
+ * This object contains {@link Zone}s and {@link Asset}s that make up a campaign as well as links to a variety of other
+ * campaign characteristics (campaign macros, properties, lookup tables, and so on).
  * </p>
  * <p>
- * Roughly this is equivalent to multiple tabs that will appear on the client and
- * all of the images that will appear on it (and also campaign macro buttons).
+ * Roughly this is equivalent to multiple tabs that will appear on the client and all of the images that will appear on
+ * it (and also campaign macro buttons).
  * </p>
  */
 public class Campaign {
 
 	/**
-	 * The only built-in property type is "Basic".  Any others are user-defined.
+	 * The only built-in property type is "Basic". Any others are user-defined.
 	 */
 	public static final String DEFAULT_TOKEN_PROPERTY_TYPE = "Basic";
 
 	private GUID id = new GUID();
 	private Map<GUID, Zone> zones = Collections.synchronizedMap(new LinkedHashMap<GUID, Zone>());
-	private transient static ExportDialog exportDialog = null; // transient so it is not serialized
+
+	@SuppressWarnings("unused")
+	private transient static ExportDialog exportInfo = null; // transient so it is not written out; entire element ignore when reading
+	private static ExportDialog exportDialog = null; // this is the new export dialog (different name for upward compatibility)
 
 	private CampaignProperties campaignProperties = new CampaignProperties();
 	private transient boolean isBeingSerialized;
@@ -114,11 +113,9 @@ public class Campaign {
 	public Campaign(Campaign campaign) {
 		zones = Collections.synchronizedMap(new LinkedHashMap<GUID, Zone>());
 
-		/* JFJ 2010-10-27
-		 * Don't forget that since these are new zones AND
-		 * new tokens created here from the old one, if you
-		 * have any data that needs to transfer over you will
-		 * need to manually copy it as is done below for the
+		/*
+		 * JFJ 2010-10-27 Don't forget that since these are new zones AND new tokens created here from the old one, if
+		 * you have any data that needs to transfer over you will need to manually copy it as is done below for the
 		 * campaign properties and macro buttons.
 		 */
 		for (Entry<GUID, Zone> entry : campaign.zones.entrySet()) {
@@ -169,7 +166,7 @@ public class Campaign {
 	}
 
 	public List<TokenProperty> getTokenPropertyList(String tokenType) {
-		return getTokenTypeMap().containsKey(tokenType)? getTokenTypeMap().get(tokenType): new ArrayList<TokenProperty>();
+		return getTokenTypeMap().containsKey(tokenType) ? getTokenTypeMap().get(tokenType) : new ArrayList<TokenProperty>();
 	}
 
 	public void putTokenType(String name, List<TokenProperty> propertyList) {
@@ -187,13 +184,12 @@ public class Campaign {
 	}
 
 	/**
-	 * Convenience method that calls {@link #getSightTypeMap()} and returns the value for
-	 * the key <code>type</code>.
+	 * Convenience method that calls {@link #getSightTypeMap()} and returns the value for the key <code>type</code>.
 	 * 
 	 * @return
 	 */
 	public SightType getSightType(String type) {
-		return getSightTypeMap().get((type != null && getSightTypeMap().containsKey(type))? type : campaignProperties.getDefaultSightType());
+		return getSightTypeMap().get((type != null && getSightTypeMap().containsKey(type)) ? type : campaignProperties.getDefaultSightType());
 	}
 
 	/**
@@ -217,8 +213,8 @@ public class Campaign {
 	}
 
 	/**
-	 * Convenience method that iterates through {@link #getLightSourcesMap()} and
-	 * returns the value for the key <code>lightSourceId</code>.
+	 * Convenience method that iterates through {@link #getLightSourcesMap()} and returns the value for the key
+	 * <code>lightSourceId</code>.
 	 * 
 	 * @return
 	 */
@@ -243,8 +239,7 @@ public class Campaign {
 	}
 
 	/**
-	 * Convenience method that calls {@link #getLightSourcesMap()} and
-	 * returns the value for the key <code>type</code>.
+	 * Convenience method that calls {@link #getLightSourcesMap()} and returns the value for the key <code>type</code>.
 	 * 
 	 * @return
 	 */
@@ -271,13 +266,9 @@ public class Campaign {
 	}
 
 	/*
-	public void setExportInfo(ExportInfo exportInfo) {
-		this.exportInfo = exportInfo;
-	}
-
-	public ExportInfo getExportInfo() {
-		return exportInfo;
-	}
+	 * public void setExportInfo(ExportInfo exportInfo) { this.exportInfo = exportInfo; }
+	 * 
+	 * public ExportInfo getExportInfo() { return exportInfo; }
 	 */
 
 	public void setId(GUID id) {
@@ -285,8 +276,9 @@ public class Campaign {
 	}
 
 	/**
-	 * Returns an <code>ArrayList</code> of all available <code>Zone</code>s from the
-	 * <code>zones</code> <code>LinkedHashMap</code>.
+	 * Returns an <code>ArrayList</code> of all available <code>Zone</code>s from the <code>zones</code>
+	 * <code>LinkedHashMap</code>.
+	 * 
 	 * @return
 	 */
 	public List<Zone> getZones() {
@@ -304,8 +296,8 @@ public class Campaign {
 	}
 
 	/**
-	 * Create an entry for the given <code>Zone</code> in the map, using <code>zone</code>'s
-	 * {@link Zone#getId()} method.
+	 * Create an entry for the given <code>Zone</code> in the map, using <code>zone</code>'s {@link Zone#getId()}
+	 * method.
 	 * 
 	 * @param zone
 	 */
@@ -347,8 +339,7 @@ public class Campaign {
 	}
 
 	/**
-	 * Get a copy of the properties.  This is for persistence.  Modification of the properties
-	 * do not affect this campaign
+	 * Get a copy of the properties. This is for persistence. Modification of the properties do not affect this campaign
 	 */
 	public CampaignProperties getCampaignProperties() {
 		return new CampaignProperties(campaignProperties);
@@ -403,15 +394,15 @@ public class Campaign {
 		return ++macroButtonLastIndex;
 	}
 
-	public void deleteMacroButton(MacroButtonProperties properties)	{
+	public void deleteMacroButton(MacroButtonProperties properties) {
 		macroButtonProperties.remove(properties);
 		MapTool.getFrame().getCampaignPanel().reset();
 	}
 
 	/**
 	 * <p>
-	 * This method iterates through all Zones, TokenStates, TokenBars, and LookupTables
-	 * and writes the keys into a new, empty set.  That set is the return value.
+	 * This method iterates through all Zones, TokenStates, TokenBars, and LookupTables and writes the keys into a new,
+	 * empty set. That set is the return value.
 	 * 
 	 * @return
 	 */
@@ -426,19 +417,19 @@ public class Campaign {
 		// States
 		for (BooleanTokenOverlay overlay : getCampaignProperties().getTokenStatesMap().values()) {
 			if (overlay instanceof ImageTokenOverlay) {
-				assetSet.add(((ImageTokenOverlay)overlay).getAssetId());
+				assetSet.add(((ImageTokenOverlay) overlay).getAssetId());
 			}
 		}
 
 		// Bars
 		for (BarTokenOverlay overlay : getCampaignProperties().getTokenBarsMap().values()) {
 			if (overlay instanceof SingleImageBarTokenOverlay) {
-				assetSet.add(((SingleImageBarTokenOverlay)overlay).getAssetId());
+				assetSet.add(((SingleImageBarTokenOverlay) overlay).getAssetId());
 			} else if (overlay instanceof TwoImageBarTokenOverlay) {
-				assetSet.add(((TwoImageBarTokenOverlay)overlay).getTopAssetId());
-				assetSet.add(((TwoImageBarTokenOverlay)overlay).getBottomAssetId());
+				assetSet.add(((TwoImageBarTokenOverlay) overlay).getTopAssetId());
+				assetSet.add(((TwoImageBarTokenOverlay) overlay).getBottomAssetId());
 			} else if (overlay instanceof MultipleImageBarTokenOverlay) {
-				assetSet.addAll(Arrays.asList(((MultipleImageBarTokenOverlay)overlay).getAssetIds()));
+				assetSet.addAll(Arrays.asList(((MultipleImageBarTokenOverlay) overlay).getAssetIds()));
 			} // endif
 		}
 
@@ -455,7 +446,10 @@ public class Campaign {
 		return campaignProperties != null ? campaignProperties.isInitiativeOwnerPermissions() : false;
 	}
 
-	/** @param initiativeOwnerPermissions Setter for initiativeOwnerPermissions */
+	/**
+	 * @param initiativeOwnerPermissions
+	 *            Setter for initiativeOwnerPermissions
+	 */
 	public void setInitiativeOwnerPermissions(boolean initiativeOwnerPermissions) {
 		campaignProperties.setInitiativeOwnerPermissions(initiativeOwnerPermissions);
 	}
@@ -465,7 +459,10 @@ public class Campaign {
 		return campaignProperties != null ? campaignProperties.isInitiativeMovementLock() : false;
 	}
 
-	/** @param initiativeMovementLock Setter for initiativeMovementLock */
+	/**
+	 * @param initiativeMovementLock
+	 *            Setter for initiativeMovementLock
+	 */
 	public void setInitiativeMovementLock(boolean initiativeMovementLock) {
 		campaignProperties.setInitiativeMovementLock(initiativeMovementLock);
 	}
