@@ -196,7 +196,7 @@ public class MapTool {
 	 * @param msgKey
 	 *            the string to use when calling {@link I18N#getText(String)}
 	 * @param t
-	 *            the exception currently being processed
+	 *            the exception to be processed
 	 * @return the <code>String</code> result
 	 */
 	public static String generateMessage(String msgKey, Throwable t) {
@@ -214,60 +214,159 @@ public class MapTool {
 	/**
 	 * This method is the base method for putting a dialog box up on the screen that might be an error, a warning, or
 	 * just an information message. Do not use this method if the desired result is a simple confirmation box (use
-	 * {@link #confirm(String)} instead).
+	 * {@link #confirm(String, Object...)} instead).
 	 * 
-	 * @param msgKey
-	 *            the string to put in the body of the dialog
+	 * @param message
+	 *            the key in the properties file to put in the body of the dialog (formatted using <code>params</code>)
 	 * @param titleKey
-	 *            the string to use when retrieving the title of the dialog window
+	 *            the key in the properties file to use when creating the title of the dialog window (formatted using
+	 *            <code>params</code>)
 	 * @param messageType
 	 *            JOptionPane.{ERROR|WARNING|INFORMATION}_MESSAGE
+	 * @param params
+	 *            optional parameters to use when formatting the data from the properties file
 	 */
 	public static void showMessage(String message, String titleKey, int messageType, Object... params) {
 		String title = I18N.getText(titleKey, params);
 		JOptionPane.showMessageDialog(clientFrame, "<html>" + I18N.getText(message, params), title, messageType);
 	}
 
+	/**
+	 * Same as {@link #showMessage(String, String, int, Object...)} except that <code>messages</code> is stored into a
+	 * JList and that component is then used as the content of the dialog box. This allows multiple strings to be
+	 * displayed in a manner consistent with other message dialogs.
+	 * 
+	 * @param messages
+	 *            the Objects (normally strings) to put in the body of the dialog; no properties file lookup is
+	 *            performed!
+	 * @param titleKey
+	 *            the key in the properties file to use when creating the title of the dialog window (formatted using
+	 *            <code>params</code>)
+	 * @param messageType
+	 *            one of <code>JOptionPane.ERROR_MESSAGE</code>, <code>JOptionPane.WARNING_MESSAGE</code>,
+	 *            <code>JOptionPane.INFORMATION_MESSAGE</code>
+	 * @param params
+	 *            optional parameters to use when formatting the data from the properties file
+	 */
 	public static void showMessage(Object[] messages, String titleKey, int messageType, Object... params) {
 		String title = I18N.getText(titleKey, params);
 		JList list = new JList(messages);
 		JOptionPane.showMessageDialog(clientFrame, list, title, messageType);
 	}
 
-	public static void showFeedback(Object[] msgs) {
-		showMessage(msgs, "msg.title.messageDialogFeedback", JOptionPane.ERROR_MESSAGE);
+	/**
+	 * Displays the messages provided as <code>messages</code> by calling
+	 * {@link #showMessage(Object[], String, int, Object...)} and passing <code>"msg.title.messageDialogFeedback"</code>
+	 * and <code>JOptionPane.ERROR_MESSAGE</code> as parameters.
+	 * 
+	 * @param messages
+	 *            the Objects (normally strings) to put in the body of the dialog; no properties file lookup is
+	 *            performed!
+	 */
+	public static void showFeedback(Object[] messages) {
+		showMessage(messages, "msg.title.messageDialogFeedback", JOptionPane.ERROR_MESSAGE);
 	}
 
+	/**
+	 * Displays a dialog box by calling {@link #showError(String, Throwable)} and passing <code>null</code> for the
+	 * second parameter.
+	 * 
+	 * @param msgKey
+	 *            the key to use when calling {@link I18N#getText(String)}
+	 */
 	public static void showError(String msgKey) {
 		showError(msgKey, null);
 	}
 
+	/**
+	 * Displays a dialog box with a predefined title and type, and a message crafted by calling
+	 * {@link #generateMessage(String, Throwable)} and passing it the two parameters. Also logs an entry using the
+	 * {@link Logger#error(Object, Throwable)} method.
+	 * <p>
+	 * The title is the property key <code>"msg.title.messageDialogError"</code>, and the dialog type is
+	 * <code>JOptionPane.ERROR_MESSAGE</code>.
+	 * 
+	 * @param msgKey
+	 *            the key to use when calling {@link I18N#getText(String)}
+	 * @param t
+	 *            the exception to be processed
+	 */
 	public static void showError(String msgKey, Throwable t) {
 		String msg = generateMessage(msgKey, t);
 		log.error(msg, t);
 		showMessage(msg, "msg.title.messageDialogError", JOptionPane.ERROR_MESSAGE);
 	}
 
+	/**
+	 * Displays a dialog box by calling {@link #showWarning(String, Throwable)} and passing <code>null</code> for the
+	 * second parameter.
+	 * 
+	 * @param msgKey
+	 *            the key to use when calling {@link I18N#getText(String)}
+	 */
 	public static void showWarning(String msgKey) {
 		showWarning(msgKey, null);
 	}
 
+	/**
+	 * Displays a dialog box with a predefined title and type, and a message crafted by calling
+	 * {@link #generateMessage(String, Throwable)} and passing it the two parameters. Also logs an entry using the
+	 * {@link Logger#warn(Object, Throwable)} method.
+	 * <p>
+	 * The title is the property key <code>"msg.title.messageDialogWarning"</code>, and the dialog type is
+	 * <code>JOptionPane.WARNING_MESSAGE</code>.
+	 * 
+	 * @param msgKey
+	 *            the key to use when calling {@link I18N#getText(String)}
+	 * @param t
+	 *            the exception to be processed
+	 */
 	public static void showWarning(String msgKey, Throwable t) {
 		String msg = generateMessage(msgKey, t);
 		log.warn(msg, t);
 		showMessage(msg, "msg.title.messageDialogWarning", JOptionPane.WARNING_MESSAGE);
 	}
 
+	/**
+	 * Displays a dialog box by calling {@link #showInformation(String, Throwable)} and passing <code>null</code> for
+	 * the second parameter.
+	 * 
+	 * @param msgKey
+	 *            the key to use when calling {@link I18N#getText(String)}
+	 */
 	public static void showInformation(String msgKey) {
 		showInformation(msgKey, null);
 	}
 
+	/**
+	 * Displays a dialog box with a predefined title and type, and a message crafted by calling
+	 * {@link #generateMessage(String, Throwable)} and passing it the two parameters. Also logs an entry using the
+	 * {@link Logger#info(Object, Throwable)} method.
+	 * <p>
+	 * The title is the property key <code>"msg.title.messageDialogInfo"</code>, and the dialog type is
+	 * <code>JOptionPane.INFORMATION_MESSAGE</code>.
+	 * 
+	 * @param msgKey
+	 *            the key to use when calling {@link I18N#getText(String)}
+	 * @param t
+	 *            the exception to be processed
+	 */
 	public static void showInformation(String msgKey, Throwable t) {
 		String msg = generateMessage(msgKey, t);
 		log.info(msg, t);
 		showMessage(msg, "msg.title.messageDialogInfo", JOptionPane.INFORMATION_MESSAGE);
 	}
 
+	/**
+	 * Displays a confirmation dialog that uses the message as a key to the properties file, and the additional values
+	 * as parameters to the formatting of the key lookup.
+	 * 
+	 * @param message
+	 *            key from the properties file (preferred) or hard-coded string to display
+	 * @param params
+	 *            optional arguments for the formatting of the property value
+	 * @return
+	 */
 	public static boolean confirm(String message, Object... params) {
 		String msg = I18N.getText(message, params);
 		log.debug(msg);
@@ -277,7 +376,7 @@ public class MapTool {
 
 	/**
 	 * This method is specific to deleting a token, but it can be used as a basis for any other method which wants to be
-	 * turned off via a property
+	 * turned off via a property.
 	 * 
 	 * @return true if the token should be deleted.
 	 */
@@ -322,6 +421,12 @@ public class MapTool {
 		return backupManager;
 	}
 
+	/**
+	 * Launch the platform's web browser and ask it to open the given URL. Note that this should not be called from any
+	 * uncontrolled macros as there are both security and denial-of-service attacks possible.
+	 * 
+	 * @param url
+	 */
 	public static void showDocument(String url) {
 		BareBonesBrowserLaunch.openURL(url);
 	}
