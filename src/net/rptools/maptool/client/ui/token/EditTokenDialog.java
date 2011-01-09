@@ -199,14 +199,7 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 
 		// OTHER
 		getShapeCombo().setSelectedItem(token.getShape());
-		if (token.isSnapToScale()) {
-			getSizeCombo().setSelectedItem(token.getFootprint(MapTool.getFrame().getCurrentZoneRenderer().getZone().getGrid()));
-		} else {
-			getSizeCombo().setSelectedIndex(0);
-		}
-		DefaultComboBoxModel model = (DefaultComboBoxModel) getSizeCombo().getModel();
-		model.removeElementAt(0);
-		model.insertElementAt(token.getLayer() == Layer.TOKEN ? "Native Size" : "Free Size", 0);
+		setSizeCombo(token);
 
 		getPropertyTypeCombo().setSelectedItem(token.getPropertyType());
 		getSightTypeCombo().setSelectedItem(token.getSightType() != null ? token.getSightType() : MapTool.getCampaign().getCampaignProperties().getDefaultSightType());
@@ -297,10 +290,17 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		return (JComboBox) getComponent("shape");
 	}
 
-	public void initSizeCombo() {
-		DefaultComboBoxModel model = new DefaultComboBoxModel(MapTool.getFrame().getCurrentZoneRenderer().getZone().getGrid().getFootprints().toArray());
-		model.insertElementAt("(Empty)", 0);
-		getSizeCombo().setModel(model);
+	public void setSizeCombo(Token token) {
+		JComboBox size = getSizeCombo();
+		Grid grid = MapTool.getFrame().getCurrentZoneRenderer().getZone().getGrid();
+		DefaultComboBoxModel model = new DefaultComboBoxModel(grid.getFootprints().toArray());
+		model.insertElementAt(token.getLayer() == Layer.TOKEN ? "Native Size" : "Free Size", 0);
+		if (token.isSnapToScale()) {
+			size.setSelectedItem(token.getFootprint(grid));
+		} else {
+			size.setSelectedIndex(0);
+		}
+		size.setModel(model);
 	}
 
 	public void initPropertyTypeCombo() {
