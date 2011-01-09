@@ -115,8 +115,8 @@ import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.Zone.VisionType;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.DrawnElement;
@@ -1399,20 +1399,16 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	}
 
 	private void renderLabels(Graphics2D g, PlayerView view) {
-
 		labelLocationList.clear();
 		for (Label label : zone.getLabels()) {
-
 			ZonePoint zp = new ZonePoint(label.getX(), label.getY());
 			if (!zone.isPointVisible(zp, view)) {
 				continue;
 			}
-
 			ScreenPoint sp = ScreenPoint.fromZonePointRnd(this, zp.x, zp.y);
 
 			Rectangle bounds = null;
 			if (label.isShowBackground()) {
-
 				bounds = GraphicsUtil.drawBoxedString(g, label.getLabel(), (int) sp.x, (int) sp.y, SwingUtilities.CENTER, GraphicsUtil.GREY_LABEL, label.getForegroundColor());
 			} else {
 				FontMetrics fm = g.getFontMetrics();
@@ -1426,7 +1422,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 				bounds = new Rectangle(x, y, strWidth, fm.getHeight());
 			}
-
 			labelLocationList.add(new LabelLocation(bounds, label));
 		}
 	}
@@ -1520,7 +1515,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			Area combined = zone.getExposedArea(view);
 			Area exposedArea = null;
 			Area tempArea = new Area();
-			boolean combinedView =  zone.getVisionType() == VisionType.OFF ||  MapTool.isPersonalServer() || (MapTool.getServerPolicy().isUseIndividualFOW() && view.isGMView()) || !MapTool.getServerPolicy().isUseIndividualFOW();
+			boolean combinedView = zone.getVisionType() == VisionType.OFF || MapTool.isPersonalServer() || (MapTool.getServerPolicy().isUseIndividualFOW() && view.isGMView())
+					|| !MapTool.getServerPolicy().isUseIndividualFOW();
 
 			if (view.getTokens() != null) {
 				// if there are tokens selected combine the areas,

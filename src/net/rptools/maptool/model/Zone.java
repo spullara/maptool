@@ -467,6 +467,22 @@ public class Zone extends BaseModel {
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
 
+	/**
+	 * Determines whether the given ZonePoint is visible when using the specified PlayerView. This currently includes
+	 * checking the following criteria:
+	 * <ol>
+	 * <li>If fog is turned off, return true.
+	 * <li>If the view is a GM view, return true.
+	 * <li>If Vision is <b>Day</b> or <b>Night</b> and we're not using IndividualFOW, return intersection of point with
+	 * exposedArea.
+	 * <li>If Vision is off or we ARE using IndividualFOW, combine exposed areas of all owned tokens and return
+	 * intersection of point with the combined area.
+	 * </ol>
+	 * 
+	 * @param point
+	 * @param view
+	 * @return
+	 */
 	public boolean isPointVisible(ZonePoint point, PlayerView view) {
 		if (!hasFog() || view.isGMView()) {
 			return true;
@@ -765,7 +781,6 @@ public class Zone extends BaseModel {
 	// labels
 	///////////////////////////////////////////////////////////////////////////
 	public void putLabel(Label label) {
-
 		boolean newLabel = labels.containsKey(label.getId());
 		labels.put(label.getId(), label);
 
@@ -781,7 +796,6 @@ public class Zone extends BaseModel {
 	}
 
 	public void removeLabel(GUID labelId) {
-
 		Label label = labels.remove(labelId);
 		if (label != null) {
 			fireModelChangeEvent(new ModelChangeEvent(this, Event.LABEL_REMOVED, label));
