@@ -235,7 +235,15 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 
 		// Keep the expanded branches consistent
 		Enumeration<TreePath> expandedPaths = tree.getExpandedDescendants(new TreePath(root));
-		fireStructureChangedEvent(new TreeModelEvent(this, new Object[] { getRoot() }, new int[] { currentViewList.size() - 1 }, new Object[] { View.TOKENS }));
+		// @formatter:off
+		fireStructureChangedEvent(
+				new TreeModelEvent(this,
+						new Object[] { getRoot() },
+						new int[] { currentViewList.size() - 1 },
+						new Object[] { View.TOKENS }
+				)
+		);
+		// @formatter:on
 		while (expandedPaths != null && expandedPaths.hasMoreElements()) {
 			tree.expandPath(expandedPaths.nextElement());
 		}
@@ -281,10 +289,6 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 	 * account).
 	 */
 	private class PlayerTokenFilter extends TokenFilter {
-		/**
-		 * Accepts only tokens that are PCs and are owned by the current player (takes useStrictTokenManagement() into
-		 * account).
-		 */
 		public PlayerTokenFilter() {
 			super(View.PLAYERS);
 		}
@@ -296,9 +300,8 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 			if (MapTool.getServerPolicy().isUseIndividualViews()) {
 				if (AppUtil.playerOwns(token)) {
 					return true;
-				} else if (token.isVisibleOnlyToOwner()) {
+				} else
 					return false;
-				}
 			}
 			return token.isVisible();
 		}
@@ -376,9 +379,6 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 	 * Accepts only NPC tokens or those owned by the current player (takes useStrictTokenManagement() into account).
 	 */
 	private class TokenTokenFilter extends TokenFilter {
-		/**
-		 * Accepts only NPC tokens or those owned by the current player (takes useStrictTokenManagement() into account).
-		 */
 		public TokenTokenFilter() {
 			super(View.TOKENS);
 		}
@@ -392,15 +392,9 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 			if (token.isStamp() || token.getType() == Token.Type.PC) {
 				return false;
 			}
-			// Check visibility
-//			Area visibleArea = renderer.getVisibleScreenArea();
-//			if (visibleArea != null) {
-//				Area tokenBounds = renderer.getTokenBounds(token);
-//				if (tokenBounds == null || !GraphicsUtil.intersects(visibleArea, tokenBounds)) {
-//					return false;
-//				}
-//			}
-			if (AppUtil.playerOwns(token)) { // Better than token.isOwner() since checks for useStrictOwnership()
+			if (MapTool.getPlayer().isGM())
+				return true;
+			if (AppUtil.playerOwns(token)) { // returns true if useStrictTokenManagement()==false
 				return true;
 			}
 			if (token.isVisibleOnlyToOwner())

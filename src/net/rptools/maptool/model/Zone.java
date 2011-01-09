@@ -491,11 +491,29 @@ public class Zone extends BaseModel {
 	}
 
 	public boolean isEmpty() {
-		// TODO: Is this a bug? Shouldn't it be (gmDrawables == null || gmDrawables.size() == 0) ... etc?
-		return (drawables == null || drawables.size() == 0) && (gmDrawables == null || drawables.size() == 0) && (objectDrawables == null || drawables.size() == 0)
-				&& (backgroundDrawables == null || drawables.size() == 0) && (tokenOrderedList == null || tokenOrderedList.size() == 0) && (labels != null && labels.size() == 0);
+		// @formatter:off
+		return	(drawables == null || drawables.size() == 0) &&
+					(gmDrawables == null || gmDrawables.size() == 0) &&
+					(objectDrawables == null || objectDrawables.size() == 0) &&
+					(backgroundDrawables == null || backgroundDrawables.size() == 0) &&
+					(tokenOrderedList == null || tokenOrderedList.size() == 0) &&
+					(labels == null || labels.size() == 0);
+		// @formatter:on
 	}
 
+	/**
+	 * Determines if the passed non-<code>null</code> parameter represents a visible token. The current criteria works
+	 * like this:
+	 * <ol>
+	 * <li>If the <i>Visible to Players</i> flag is off, return <code>false</code>.
+	 * <li>If the fog-of-war for the map is off, return <code>true</code>.
+	 * <li>If the player does not own the token and it's <i>Visible to Owner Only</i>, return <code>false</code>.
+	 * <li>If the token's bounds intersect the exposed area for this map, return <code>true</code>.
+	 * </ol>
+	 * 
+	 * @param token
+	 * @return
+	 */
 	public boolean isTokenVisible(Token token) {
 		if (token == null) {
 			return false;
