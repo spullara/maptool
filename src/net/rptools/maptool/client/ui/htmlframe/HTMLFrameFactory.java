@@ -151,7 +151,7 @@ public class HTMLFrameFactory {
 					selectedListChanged();
 				}
 				final CommandPanel cpanel = MapTool.getFrame().getCommandPanel();
-				if (cpanel.getIdentity().equals(token.getName()) || cpanel.getIdentityGUID().equals(token.getId())) {
+				if (token.getName().equals(cpanel.getIdentity()) || token.getId().equals(cpanel.getIdentityGUID())) {
 					impersonateToken();
 				}
 
