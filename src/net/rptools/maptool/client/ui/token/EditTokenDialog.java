@@ -295,12 +295,12 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		Grid grid = MapTool.getFrame().getCurrentZoneRenderer().getZone().getGrid();
 		DefaultComboBoxModel model = new DefaultComboBoxModel(grid.getFootprints().toArray());
 		model.insertElementAt(token.getLayer() == Layer.TOKEN ? "Native Size" : "Free Size", 0);
+		size.setModel(model);
 		if (token.isSnapToScale()) {
 			size.setSelectedItem(token.getFootprint(grid));
 		} else {
 			size.setSelectedIndex(0);
 		}
-		size.setModel(model);
 	}
 
 	public void initPropertyTypeCombo() {

@@ -841,7 +841,7 @@ public class MapTool {
 	public static void createConnection(String host, int port, Player player) throws UnknownHostException, IOException {
 
 		MapTool.player = player;
-		MapTool.getFrame().getCommandPanel().setIdentity(null);
+		MapTool.getFrame().getCommandPanel().setIdentityName(null);
 
 		ClientConnection clientConn = new MapToolConnection(host, port, player);
 

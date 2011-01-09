@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.macro;
 
@@ -58,6 +55,9 @@ import net.rptools.maptool.client.macro.impl.ToGMMacro;
 import net.rptools.maptool.client.macro.impl.UndefinedMacro;
 import net.rptools.maptool.client.macro.impl.WhisperMacro;
 import net.rptools.maptool.client.macro.impl.WhisperReplyMacro;
+import net.rptools.maptool.client.ui.MapToolFrame;
+import net.rptools.maptool.client.ui.commandpanel.CommandPanel;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.util.StringUtil;
@@ -68,8 +68,8 @@ import org.apache.log4j.Logger;
 /**
  * @author drice
  * 
- * TODO To change the template for this generated type comment go to Window -
- * Preferences - Java - Code Style - Code Templates
+ *         TODO To change the template for this generated type comment go to Window - Preferences - Java - Code Style -
+ *         Code Templates
  */
 public class MacroManager {
 
@@ -129,11 +129,11 @@ public class MacroManager {
 	public static void removeAllAliases() {
 		aliasMap.clear();
 	}
-	
+
 	public static Map<String, String> getAliasMap() {
 		return Collections.unmodifiableMap(aliasMap);
 	}
-	
+
 	public static Set<Macro> getRegisteredMacros() {
 		Set<Macro> ret = new HashSet<Macro>();
 		ret.addAll(MACROS.values());
@@ -148,8 +148,7 @@ public class MacroManager {
 	}
 
 	public static void registerMacro(Macro macro) {
-		MacroDefinition def = macro.getClass().getAnnotation(
-				MacroDefinition.class);
+		MacroDefinition def = macro.getClass().getAnnotation(MacroDefinition.class);
 
 		if (def == null)
 			return;
@@ -163,63 +162,60 @@ public class MacroManager {
 	public static void executeMacro(String command) {
 		executeMacro(command, null);
 	}
-	
-	public static void executeMacro(String command, MapToolMacroContext macroExecutionContext) {
 
+	public static void executeMacro(String command, MapToolMacroContext macroExecutionContext) {
 		MacroContext context = new MacroContext();
 		context.addTransform(command);
-		
+
 		try {
 			command = preprocess(command);
 			context.addTransform(command);
-	
+
 			int recurseCount = 0;
 			while (recurseCount < MAX_RECURSE_COUNT) {
-	
 				recurseCount++;
-	
+
 				command = command.trim();
 				if (command == null || command.length() == 0) {
 					return;
 				}
-				
 				if (command.charAt(0) == '/') {
 					command = command.substring(1);
 				} else {
 					// Default to a say
 					command = "s " + command;
 				}
-	
 
-				
 				// Macro name is the first word
 				List<String> cmd = StringUtil.splitNextWord(command);
 				String key = cmd.get(0);
 				String details = cmd.size() > 1 ? cmd.get(1) : "";
-	
+
 				Macro macro = getRegisteredMacro(key);
-				MacroDefinition def = macro.getClass().getAnnotation(
-						MacroDefinition.class);
+				MacroDefinition def = macro.getClass().getAnnotation(MacroDefinition.class);
 
 				boolean trustedPath = macroExecutionContext == null ? false : macroExecutionContext.isTrusted();
-				String macroButtonName = macroExecutionContext == null ? "<chat>" : 
-						macroExecutionContext.getName() + "@" + macroExecutionContext.getSouce();
-				
+				String macroButtonName = macroExecutionContext == null ? "<chat>" : macroExecutionContext.getName() + "@" + macroExecutionContext.getSouce();
+
 				// Preprocess line if required.
 				if (def == null || def.expandRolls()) {
 					// TODO: fix this, wow I really hate this, it's very, very ugly.
 					Token tokenInContext = null;
-					if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
-						tokenInContext = MapTool.getFrame().getCurrentZoneRenderer().getZone().resolveToken(MapTool.getFrame().getCommandPanel().getIdentity());
+					ZoneRenderer zr = MapTool.getFrame().getCurrentZoneRenderer();
+					if (zr != null) {
+						final MapToolFrame frame = MapTool.getFrame();
+						final CommandPanel cpanel = frame.getCommandPanel();
+						if (cpanel.getIdentityGUID() != null)
+							tokenInContext = zr.getZone().getToken(cpanel.getIdentityGUID());
+						else
+							tokenInContext = zr.getZone().resolveToken(cpanel.getIdentity());
 					}
-					
 					details = MapTool.getParser().parseLine(tokenInContext, details, macroExecutionContext);
 					trustedPath = MapTool.getParser().isMacroPathTrusted();
-					
 				}
 				context.addTransform(key + " " + details);
 				postprocess(details);
-				
+
 				context.addTransform(key + " " + details);
 				if (macro != UNDEFINED_MACRO) {
 					executeMacro(context, macro, details, macroExecutionContext);
@@ -229,14 +225,11 @@ public class MacroManager {
 				// Is it an alias ?
 				String alias = aliasMap.get(key);
 				if (alias == null) {
-
 					executeMacro(context, UNDEFINED_MACRO, command, macroExecutionContext);
 					return;
 				}
-				
 				command = resolveAlias(alias, details);
 				context.addTransform(command);
-				
 				continue;
 			}
 		} catch (AbortFunction.AbortFunctionException afe) {
@@ -248,46 +241,47 @@ public class MacroManager {
 		} catch (ParserException e) {
 			MapTool.addLocalMessage(e.getMessage());
 			// These are not errors to worry about as they are usually user input errors so no need to log them.
-			return;			
+			return;
 		} catch (Exception e) {
 			MapTool.addLocalMessage(I18N.getText("macromanager.couldNotExecute", command, e.getMessage()));
 			log.warn("Exception executing command: " + command);
 			log.warn(e.getStackTrace());
 			return;
 		}
-		
+
 		// We'll only get here if the recurseCount is exceeded
 		MapTool.addLocalMessage(I18N.getText("macromanager.tooManyResolves", command));
-		
+
 	}
 
 	static String postprocess(String command) {
 		command = command.replace("\n", "<br>");
-		
+
 		return command;
-		
+
 	}
-	
+
 	static String preprocess(String command) {
 		return command;
 	}
-	
+
 	// Package level for testing
 	static String resolveAlias(String aliasText, String details) {
-		
+
 		return performSubstitution(aliasText, details);
 	}
 
 	private static final Pattern SUBSTITUTION_PATTERN = Pattern.compile("\\$\\{([^\\}]+)\\}|\\$(\\w+)");
+
 	// Package level for testing
-	static String performSubstitution(String text, String details){
-		
+	static String performSubstitution(String text, String details) {
+
 		List<String> detailList = split(details);
 
 		StringBuffer buffer = new StringBuffer();
 		Matcher matcher = SUBSTITUTION_PATTERN.matcher(text);
 		while (matcher.find()) {
-			
+
 			String replacement = details;
 			String replIndexStr = matcher.group(1);
 			if (replIndexStr == null) {
@@ -300,10 +294,10 @@ public class MacroManager {
 						replacement = "";
 					} else {
 						// 1-based
-						replacement = detailList.get(replaceIndex-1);
+						replacement = detailList.get(replaceIndex - 1);
 					}
 				} catch (NumberFormatException nfe) {
-					
+
 					// Try an alias lookup
 					replacement = aliasMap.get(replIndexStr);
 					if (replacement == null) {
@@ -311,25 +305,25 @@ public class MacroManager {
 					}
 				}
 			}
-		    matcher.appendReplacement(buffer, replacement);
-		 }
-		 matcher.appendTail(buffer);	
-		 
+			matcher.appendReplacement(buffer, replacement);
+		}
+		matcher.appendTail(buffer);
+
 		return buffer.toString();
 	}
-	
+
 	// Package level for testing
 	// TODO: This should probably go in a util class in rplib
 	static List<String> split(String line) {
-		
+
 		List<String> list = new ArrayList<String>();
 		StringBuilder currentWord = new StringBuilder();
-		boolean isInQuote=false;
+		boolean isInQuote = false;
 		char previousChar = 0;
 		for (int i = 0; i < line.length(); i++) {
-			
+
 			char ch = line.charAt(i);
-			
+
 			try {
 				// Word boundaries
 				if (Character.isWhitespace(ch) && !isInQuote) {
@@ -339,10 +333,10 @@ public class MacroManager {
 					currentWord.setLength(0);
 					continue;
 				}
-				
+
 				// Quoted boundary
 				if (ch == '"' && previousChar != '\\') {
-					
+
 					if (isInQuote) {
 						isInQuote = false;
 						if (currentWord.length() > 0) {
@@ -352,28 +346,28 @@ public class MacroManager {
 					} else {
 						isInQuote = true;
 					}
-					
+
 					continue;
 				}
-				
+
 				if (ch == '\\') {
 					continue;
 				}
-				
+
 				currentWord.append(ch);
-				
-			} finally {				
+
+			} finally {
 				previousChar = ch;
 			}
 		}
-		
+
 		if (currentWord.length() > 0) {
 			list.add(currentWord.toString());
 		}
-		
+
 		return list;
 	}
-	
+
 	private static void executeMacro(MacroContext context, Macro macro, String parameter, MapToolMacroContext executionContext) {
 		if (log.isDebugEnabled()) {
 			log.debug("Starting macro: " + macro.getClass().getSimpleName() + "----------------------------------------------------------------------------------");

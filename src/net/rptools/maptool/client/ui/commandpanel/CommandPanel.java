@@ -69,6 +69,8 @@ import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.client.ui.chat.ChatProcessor;
 import net.rptools.maptool.client.ui.chat.SmileyChatTranslationRuleGroup;
 import net.rptools.maptool.client.ui.htmlframe.HTMLFrameFactory;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
@@ -95,7 +97,8 @@ public class CommandPanel extends JPanel implements Observer {
 
 	private ChatProcessor chatProcessor;
 
-	private String identity;
+	private String identityName;
+	private GUID identityGUID;
 
 	public CommandPanel() {
 		setLayout(new BorderLayout());
@@ -123,32 +126,80 @@ public class CommandPanel extends JPanel implements Observer {
 	 * Whether the player is currently impersonating a token
 	 */
 	public boolean isImpersonating() {
-		return identity != null;
+		return identityName != null;
 	}
 
 	/**
-	 * The identity currently in use, if the player is not impersonating a token, this will return the player's name
+	 * The name currently in use; if the user is not impersonating a token, this will return the player's name.
 	 */
 	public String getIdentity() {
-		return (identity == null ? MapTool.getPlayer().getName() : identity);
+		if (identityName == null) {
+			if (identityGUID == null)
+				return MapTool.getPlayer().getName();
+			else
+				return identityGUID.toString();
+		}
+		return identityName;
 	}
 
-	public void setIdentity(String identity) {
-		this.identity = identity;
-		if (identity == null) {
-			setCharacterLabel("");
-			avatarPanel.setImage(null);
-		} else {
-			setCharacterLabel("Speaking as: " + getIdentity());
+	/**
+	 * If the current impersonation was assigned using a GUID, that value is returned. This allows the calling code to
+	 * find a specific token even if there are duplicate names. If a GUID was not used (perhaps an arbitrary strings was
+	 * used via {@link #setIdentityName(String)}?) then <code>null</code> is returned.
+	 * 
+	 * @return
+	 */
+	public GUID getIdentityGUID() {
+		return identityGUID;
+	}
 
-			if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
-				Token token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getTokenByName(identity);
-				if (token != null) {
-					avatarPanel.setImage(ImageManager.getImageAndWait(token.getImageAssetId()));
-				} else {
-					avatarPanel.setImage(null);
-				}
-			}
+	private void setIdentityImpl(Token token) {
+		if (token != null) {
+			identityGUID = token.getId();
+			identityName = token.getName();
+			avatarPanel.setImage(ImageManager.getImageAndWait(token.getImageAssetId()));
+			setCharacterLabel("Speaking as: " + getIdentity());
+		} else {
+			identityGUID = null;
+			identityName = null;
+			avatarPanel.setImage(null);
+			setCharacterLabel("");
+		}
+	}
+
+	/**
+	 * Sets the impersonated identity to <code>guid</code> which is a token GUID. This allows {@link #getIdentity()} to
+	 * retrieve the token name and/or token GUID for reporting to the user. (Name is preferred.)
+	 * 
+	 * @param guid
+	 */
+	public void setIdentityGUID(GUID guid) {
+		Token token = null;
+		ZoneRenderer zr = MapTool.getFrame().getCurrentZoneRenderer();
+		if (zr != null)
+			token = zr.getZone().getToken(guid);
+		setIdentityImpl(token);
+		HTMLFrameFactory.impersonateToken();
+	}
+
+	/**
+	 * Sets the impersonated identity to <code>identity</code> which is a token name. This allows impersonation of a
+	 * token that doesn't exist; the name is stored with a <code>null</code> for the GUID.
+	 * 
+	 * @param identity
+	 */
+	public void setIdentityName(String identity) {
+		if (identity == null) {
+			setIdentityImpl(null);
+		} else {
+			Token token = null;
+			ZoneRenderer zr = MapTool.getFrame().getCurrentZoneRenderer();
+			if (zr != null)
+				token = zr.getZone().getTokenByName(identity);
+			setIdentityImpl(token);
+			// For the name to be used, even if there is no such token
+			identityName = identity;
+			setCharacterLabel("Speaking as: " + getIdentity());
 		}
 		HTMLFrameFactory.impersonateToken();
 	}

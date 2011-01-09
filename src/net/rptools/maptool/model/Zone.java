@@ -935,12 +935,18 @@ public class Zone extends BaseModel {
 		return null;
 	}
 
+	/**
+	 * Looks for the given identifier as a token name, token GM name, or GUID, in that order.
+	 * 
+	 * @param identifier
+	 * @return token that matches the identifier or <code>null</code>
+	 */
 	public Token resolveToken(String identifier) {
-
 		Token token = getTokenByName(identifier);
-		if (token == null) {
+
+		if (token == null)
 			token = getTokenByGMName(identifier);
-		}
+
 		if (token == null) {
 			try {
 				token = getToken(GUID.valueOf(identifier));

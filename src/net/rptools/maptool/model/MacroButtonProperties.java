@@ -307,8 +307,14 @@ public class MacroButtonProperties implements Comparable<Object> {
 		executeCommand(tokenId);
 	}
 
+	/**
+	 * The top level method for executing macros with the given list of tokens as context. In essence, this method calls
+	 * the macro once for each token, and the token becomes the "impersonated" token for the duration of the macro
+	 * barring any use of the <b>token()</b> or <b>switchToken()</b> roll options inside the macro itself.
+	 * 
+	 * @param tokenList
+	 */
 	public void executeMacro(Collection<Token> tokenList) {
-
 		if (tokenList == null || tokenList.size() == 0) {
 			executeCommand(null);
 		} else if (commonMacro) {

@@ -1883,7 +1883,7 @@ public class AppActions {
 							MapTool.getAutoSaveManager().tidy();
 
 							// UI related stuff
-							MapTool.getFrame().getCommandPanel().setIdentity(null);
+							MapTool.getFrame().getCommandPanel().setIdentityName(null);
 							MapTool.getFrame().resetPanels();
 						}
 					} finally {

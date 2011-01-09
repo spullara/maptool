@@ -350,6 +350,8 @@ public class MacroLinkFunction extends AbstractFunction {
 		runMacroLink(link, false);
 	}
 
+	private static final Pattern macroLink = Pattern.compile("(?s)([^:]*)://([^/]*)/([^/]*)/([^?]*)(?:\\?(.*))?");
+
 	/**
 	 * Runs the macro specified by the link.
 	 * 
@@ -362,8 +364,7 @@ public class MacroLinkFunction extends AbstractFunction {
 		if (link == null || link.length() == 0) {
 			return;
 		}
-
-		Matcher m = Pattern.compile("(?s)([^:]*)://([^/]*)/([^/]*)/([^?]*)(?:\\?(.*))?").matcher(link);
+		Matcher m = macroLink.matcher(link);
 
 		if (m.matches()) {
 			OutputTo outputTo;
@@ -397,7 +398,6 @@ public class MacroLinkFunction extends AbstractFunction {
 						Double.parseDouble(val);
 						// Do nothing as its a number
 					} catch (NumberFormatException e) {
-
 						try {
 							val = argsToStrPropList(val);
 						} catch (ParserException e1) {
@@ -413,7 +413,6 @@ public class MacroLinkFunction extends AbstractFunction {
 					} catch (Exception e) {
 						// Do nothing as we just dont populate the list.
 					}
-
 				}
 
 				String[] targets = m.group(4).split(",");
@@ -422,8 +421,12 @@ public class MacroLinkFunction extends AbstractFunction {
 				try {
 					for (String t : targets) {
 						if (t.equalsIgnoreCase("impersonated")) {
-							String identity = MapTool.getFrame().getCommandPanel().getIdentity();
-							Token token = zone.resolveToken(identity);
+							Token token;
+							GUID guid = MapTool.getFrame().getCommandPanel().getIdentityGUID();
+							if (guid != null)
+								token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(guid);
+							else
+								token = zone.resolveToken(MapTool.getFrame().getCommandPanel().getIdentity());
 							MapToolVariableResolver resolver = new MapToolVariableResolver(token);
 							String output = MapTool.getParser().runMacro(resolver, token, macroName, args);
 							doOutput(token, outputTo, output, outputToPlayers); // TODO
