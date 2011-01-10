@@ -487,7 +487,7 @@ public class Zone extends BaseModel {
 		if (!hasFog() || view.isGMView()) {
 			return true;
 		}
-		if (MapTool.getServerPolicy().isUseIndividualFOW() || getVisionType() == VisionType.OFF) {
+		if (MapTool.getServerPolicy().isUseIndividualFOW() && getVisionType() != VisionType.OFF) {
 			Area combined = new Area();
 			List<Token> toks = (view.getTokens() != null) ? view.getTokens() : this.getTokens();
 			// Should this use FindTokenFunctions.OwnedFilter and zone.getTokenList()?
