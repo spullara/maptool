@@ -42,6 +42,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolRegistry;
 import net.rptools.maptool.client.swing.AbeillePanel;
 import net.rptools.maptool.client.swing.GenericDialog;
+import net.rptools.maptool.language.I18N;
 import net.tsc.servicediscovery.AnnouncementListener;
 import net.tsc.servicediscovery.ServiceFinder;
 
@@ -86,7 +87,7 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 	}
 
 	public void showDialog() {
-		dialog = new GenericDialog("Connect to Server", MapTool.getFrame(), this);
+		dialog = new GenericDialog(I18N.getText("ConnectToServerDialog.msg.title"), MapTool.getFrame(), this);
 		bind(new ConnectToServerDialogPreferences());
 		getRootPane().setDefaultButton(getOKButton());
 		dialog.showDialog();
@@ -263,7 +264,7 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 	private void handleOK() {
 		String username = getUsernameTextField().getText().trim();
 		if (username.length() == 0) {
-			MapTool.showError("Must supply a username");
+			MapTool.showError("ServerDialog.error.username"); //$NON-NLS-1$
 			return;
 		}
 		getUsernameTextField().setText(username);
@@ -271,7 +272,7 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 		JComponent selectedPanel = (JComponent) getTabPane().getSelectedComponent();
 		if (SwingUtil.hasComponent(selectedPanel, "lanPanel")) {
 			if (getLocalServerList().getSelectedIndex() < 0) {
-				MapTool.showError("Must select a server");
+				MapTool.showError("ServerDialog.error.server"); //$NON-NLS-1$
 				return;
 			}
 			// OK
@@ -282,20 +283,20 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 		if (SwingUtil.hasComponent(selectedPanel, "directPanel")) {
 			// TODO: put these into a validation method
 			if (getPortTextField().getText().length() == 0) {
-				MapTool.showError("Must supply a port");
+				MapTool.showError("ServerDialog.error.port");
 				return;
 			}
 			int portTemp = -1;
 			try {
 				portTemp = Integer.parseInt(getPortTextField().getText());
 			} catch (NumberFormatException nfe) {
-				MapTool.showError("Port must be numeric");
+				MapTool.showError("ServerDialog.error.port");
 				return;
 			}
 
 			String host = getHostTextField().getText().trim();
 			if (host.length() == 0) {
-				MapTool.showError("Must supply a server name or address");
+				MapTool.showError("ServerDialog.error.server");
 				return;
 			}
 			getHostTextField().setText(host);
@@ -307,7 +308,7 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 		if (SwingUtil.hasComponent(selectedPanel, "rptoolsPanel")) {
 			String serverName = getServerNameTextField().getText().trim();
 			if (serverName.length() == 0) {
-				MapTool.showError("Must supply a server name");
+				MapTool.showError("ServerDialog.error.server");
 				return;
 			}
 			getServerNameTextField().setText(serverName);
@@ -315,7 +316,7 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 			// Do the lookup
 			String serverInfo = MapToolRegistry.findInstance(serverName);
 			if (serverInfo == null || serverInfo.length() == 0) {
-				MapTool.showError("Could not find server: " + serverName);
+				MapTool.showError(I18N.getText("ServerDialog.error.serverNotFound", serverName));
 				return;
 			}
 			String[] data = serverInfo.split(":");
@@ -323,7 +324,7 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 			try {
 				port = Integer.parseInt(data[1]);
 			} catch (NumberFormatException nfe) {
-				MapTool.showError("Port from RPTools registry is not numeric?!  Web server bug?");
+				MapTool.showError("ServerDialog.error.portNumberException");
 				return;
 			}
 		}
@@ -363,9 +364,9 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 		public String getColumnName(int column) {
 			switch (column) {
 			case 0:
-				return "Server Name";
+				return I18N.getText("ConnectToServerDialog.msg.headingServer");
 			case 1:
-				return "Version";
+				return I18N.getText("ConnectToServerDialog.msg.headingVersion");
 			}
 			return "";
 		}

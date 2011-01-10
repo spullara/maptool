@@ -44,7 +44,7 @@ public class GridlessGrid extends Grid {
 				footprintList = loadFootprints("net/rptools/maptool/model/gridlessGridFootprints.xml");
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
-				MapTool.showError("Could not load gridless grid footprints");
+				MapTool.showError("GridlessGrid.error.notLoaded");
 			}
 		}
 		return footprintList;

@@ -22,6 +22,7 @@ import javax.swing.JTextField;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Vision;
 import net.rptools.maptool.model.Zone;
@@ -32,7 +33,6 @@ import net.rptools.maptool.model.vision.RoundVision;
 import com.jeta.forms.components.panel.FormPanel;
 
 public class VisionDialog extends JDialog {
-
 	private JTextField nameTextField;
 	private JTextField distanceTextField;
 	private JCheckBox enabledCheckBox;
@@ -43,7 +43,7 @@ public class VisionDialog extends JDialog {
 	}
 
 	public VisionDialog(Zone zone, Token token, Vision vision) {
-		super(MapTool.getFrame(), "Vision", true);
+		super(MapTool.getFrame(), I18N.getText("VisionDialog.msg.title"), true);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
 		FormPanel panel = new FormPanel("net/rptools/maptool/client/ui/forms/visionDialog.jfrm");
@@ -127,22 +127,20 @@ public class VisionDialog extends JDialog {
 				close();
 			}
 		});
-
 	}
 
 	private boolean commit(Zone zone, Token token) {
 		Vision vision = (Vision) typeCombo.getSelectedItem();
 
 		if (distanceTextField.getText().trim().length() == 0) {
-			MapTool.showError("Distance Text Field is empty, enter a distance.");
+			MapTool.showError("VisionDialog.error.EmptyDistance");
 			return false;
 		}
-
 		int distance = 0;
 		try {
 			distance = Integer.parseInt(distanceTextField.getText());
 		} catch (NumberFormatException nfex) {
-			MapTool.showError("Distance must be numeric");
+			MapTool.showError("VisionDialog.error.numericDistanceOnly");
 			return false;
 		}
 		vision.setName(nameTextField.getText());
@@ -150,9 +148,7 @@ public class VisionDialog extends JDialog {
 		vision.setDistance(distance);
 
 //		token.addVision(vision);
-
 		MapTool.serverCommand().putToken(zone.getId(), token);
-
 		return true;
 	}
 

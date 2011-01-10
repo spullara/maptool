@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Player;
 
 import com.caucho.hessian.io.HessianInput;
@@ -57,17 +58,19 @@ public class Handshake {
 			
 			// PASSWORD
 			response.code = Code.ERROR;
-			response.message = "Wrong password";
+			response.message = I18N.getString("Handshake.msg.wrongPassword");
 		} else if (server.isPlayerConnected(request.name)) {
 			
 			// UNIQUE NAME
 			response.code = Code.ERROR;
-			response.message = "That name is already in use";
+			response.message = I18N.getString("Handshake.msg.duplicateName");
 		} else if (!MapTool.getVersion().equals(request.version)) {
 			
 			// CORRECT VERSION
 			response.code = Code.ERROR;
-			response.message = "Invalid version.  Client:" + request.version + " Server:" + MapTool.getVersion();
+			String clientUsed = request.version;
+			String serverUsed = MapTool.getVersion();
+			response.message = I18N.getText("Handshake.msg.wrongVersion", clientUsed, serverUsed);
 		}
 		
 		response.policy = server.getPolicy();

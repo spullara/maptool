@@ -169,7 +169,7 @@ public class SquareGrid extends Grid {
 			try {
 				footprintList = loadFootprints("net/rptools/maptool/model/squareGridFootprints.xml");
 			} catch (IOException ioe) {
-				MapTool.showError("Could not load square grid footprints", ioe);
+				MapTool.showError("SquareGrid.error.squareGridNotLoaded", ioe);
 			}
 
 		}

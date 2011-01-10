@@ -43,6 +43,7 @@ import net.rptools.maptool.client.functions.JSONMacroFunctions;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.StringUtil;
 import net.rptools.parser.ParserException;
+import net.rptools.maptool.language.I18N;
 
 import org.apache.log4j.Logger;
 
@@ -726,7 +727,7 @@ public class Token extends BaseModel {
 				String curTokenName = tokensList.get(i).getName();
 
 				if (curTokenName.equalsIgnoreCase(name)) {
-					MapTool.showError("Can not rename Token to " + name + " as there is already another token with this name on the Map.\nOnly the GM can create multiple Tokens with the same name!");
+					MapTool.showError(I18N.getText("Token.error.unableToRename", name));
 					return;
 				}
 			}

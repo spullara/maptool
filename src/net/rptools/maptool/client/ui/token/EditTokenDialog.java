@@ -666,7 +666,7 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		getSpeechClearAllButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				if (!MapTool.confirm("Are you sure you want to clear all speech for this token?")) {
+				if (!MapTool.confirm("EditTokenDialog.confirm.clearSpeech")) {
 					return;
 				}
 

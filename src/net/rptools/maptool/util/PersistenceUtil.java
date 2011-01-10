@@ -387,7 +387,7 @@ public class PersistenceUtil {
 				return persistedCampaign;
 			}
 		} catch (RuntimeException rte) {
-			MapTool.showError("Error while reading campaign file", rte);
+			MapTool.showError("PersistenceUtil.error.campaignRead", rte);
 		} catch (java.lang.Error e) {
 			// Probably an issue with XStream not being able to instantiate a given class
 			// The old legacy technique probably won't work, but we should at least try...
@@ -397,7 +397,7 @@ public class PersistenceUtil {
 		log.error("Could not load campaign in the current format, trying old format");
 		persistedCampaign = loadLegacyCampaign(campaignFile);
 		if (persistedCampaign == null)
-			MapTool.showWarning("Cannot determine campaign file format; not loaded");
+			MapTool.showWarning("PersistenceUtil.warn.campaignNotLoaded");
 		return persistedCampaign;
 	}
 

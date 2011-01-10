@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.ui;
 
@@ -40,6 +37,7 @@ import net.rptools.maptool.util.UPnPUtil;
 import yasb.Binder;
 
 import com.caucho.hessian.client.HessianRuntimeException;
+
 /**
  * @author trevor
  */
@@ -65,7 +63,7 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 	}
 
 	public void showDialog() {
-		dialog = new GenericDialog("Start Server", MapTool.getFrame(), this);
+		dialog = new GenericDialog(I18N.getText("ServerDialog.msg.title"), MapTool.getFrame(), this);
 		prefs = new StartServerDialogPreferences();
 
 		bind(prefs);
@@ -161,17 +159,17 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 		getOKButton().addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent e) {
 				if (getPortTextField().getText().length() == 0) {
-					MapTool.showError("Must supply a port");
+					MapTool.showError("ServerDialog.error.port");
 					return;
 				}
 				try {
 					Integer.parseInt(getPortTextField().getText());
 				} catch (NumberFormatException nfe) {
-					MapTool.showError("Port must be numeric");
+					MapTool.showError("ServerDialog.error.port");
 					return;
 				}
 				if (StringUtil.isEmpty(getUsernameTextField().getText())) {
-					MapTool.showError("Must supply a username");
+					MapTool.showError("ServerDialog.error.username");
 					return;
 				}
 				if (commit()) {
@@ -202,10 +200,11 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 				if (ok)
 					MapTool.showDocument(I18N.getString("msg.info.server.forumNFAQ_URL"));
 			}
+
 			public void actionPerformed_original(ActionEvent e) {
-				dialog.setVisible(false);			// FJE Added modal dialog to TestConnection button
-				final StaticMessageDialog smdSettingUp = new StaticMessageDialog("Setting Up For Connection Test...");
-				final StaticMessageDialog smdTesting = new StaticMessageDialog("Performing connection test.  Success is usually quick; failure often takes longer...");
+				dialog.setVisible(false); // FJE Added modal dialog to TestConnection button
+				final StaticMessageDialog smdSettingUp = new StaticMessageDialog("ServerDialog.msg.test1");
+				final StaticMessageDialog smdTesting = new StaticMessageDialog("ServerDialog.msg.test2");
 				MapTool.getFrame().showFilledGlassPane(smdSettingUp);
 				new Thread(new Runnable() {
 					public void run() {
@@ -214,7 +213,7 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 						try {
 							port = Integer.parseInt(getPortTextField().getText());
 						} catch (NumberFormatException nfe) {
-							MapTool.showError("Port must be a number.");
+							MapTool.showError("ServerDialog.error.port");
 							return;
 						}
 						try {
@@ -233,16 +232,16 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 							MapTool.getFrame().hideGlassPane();
 							MapTool.getFrame().showFilledGlassPane(smdTesting);
 							if (MapToolRegistry.testConnection(port)) {
-								MapTool.showInformation("Success!  I successfully connected to your computer from the Internet.");
+								MapTool.showInformation("ServerDialog.msg.test3");
 							} else {
-								MapTool.showError("Could not see your computer from the Internet.<br><br>It could be a port forwarding issue.  Visit the RPTools forum (<b>Tools -> MapTool -> HOWTO</b>) to find the Networking FAQ.");
+								MapTool.showError("ServerDialog.msg.test4");
 							}
 						} catch (ConnectException e) {
-							MapTool.showError("Unable to see your computer from the Internet.<br><br>It could be a port forwarding issue.  Visit the RPTools forum (<b>Tools -> MapTool -> HOWTO</b>) to find the Networking FAQ.");
+							MapTool.showError("ServerDialog.msg.test5");
 						} catch (HessianRuntimeException e) {
-							MapTool.showError("Communication error during test...", e);
+							MapTool.showError("ServerDialog.msg.test6", e);
 						} catch (IOException e) {
-							MapTool.showError("Unknown or unexpected exception during test.", e);
+							MapTool.showError("ServerDialog.msg.test7", e);
 						} finally {
 							if (getUseUPnPCheckbox().isSelected()) {
 								UPnPUtil.closePort(port);

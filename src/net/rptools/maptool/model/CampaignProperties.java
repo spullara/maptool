@@ -325,7 +325,7 @@ public class CampaignProperties implements Serializable {
 			// sightTypeMap.put("Darkvision & Lowlight", new SightType("Darkvision", 2,
 			// 		LightSource.getDefaultLightSources().get("Generic").get(4)));
 		} catch (IOException e) {
-			MapTool.showError("Can't get light source 'Generic : 5'?!", e);
+			MapTool.showError("CampaignProperties.error.noGenericLight", e);
 		}
 
 		defaultSightType = (String) starter[0][0];

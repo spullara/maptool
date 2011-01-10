@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client;
 
@@ -41,6 +38,7 @@ import net.rptools.lib.transferable.GroupTokenTransferData;
 import net.rptools.lib.transferable.ImageTransferableHandler;
 import net.rptools.lib.transferable.MapToolTokenTransferData;
 import net.rptools.lib.transferable.TokenTransferData;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
@@ -49,18 +47,15 @@ import net.rptools.maptool.util.PersistenceUtil;
 import org.apache.log4j.Logger;
 
 /**
- * A helper class for converting Transferable objects into their respective data types.
- * This class hides the details of drag/drop protocols as much as possible and therefore
- * contains platform-dependent checks (such as the URI_LIST_FLAVOR hack needed for
- * Linux).
+ * A helper class for converting Transferable objects into their respective data types. This class hides the details of
+ * drag/drop protocols as much as possible and therefore contains platform-dependent checks (such as the URI_LIST_FLAVOR
+ * hack needed for Linux).
  * <p>
- * <b>Note:</b> Drag-n-drop operations cannot be properly debugged by setting breakpoints
- * at random locations.  For example, once a drop operation occurs the code must run
- * to a point where getTransferData() has been called as the JRE is maintaining some
- * of the state internally and hitting a breakpoint disturbs that state.  (For instance
- * the JRE only allows a single drag operation at a time -- how could there be more? --
- * so a global structure is used to record drag information and some of the fields
- * are queried from the peer component which may be time-sensitive.)
+ * <b>Note:</b> Drag-n-drop operations cannot be properly debugged by setting breakpoints at random locations. For
+ * example, once a drop operation occurs the code must run to a point where getTransferData() has been called as the JRE
+ * is maintaining some of the state internally and hitting a breakpoint disturbs that state. (For instance the JRE only
+ * allows a single drag operation at a time -- how could there be more? -- so a global structure is used to record drag
+ * information and some of the fields are queried from the peer component which may be time-sensitive.)
  * 
  * @author tcroft
  */
@@ -68,12 +63,13 @@ public class TransferableHelper extends TransferHandler {
 	private static final Logger log = Logger.getLogger(TransferableHelper.class);
 
 	/** URL to an image */
-	private static final DataFlavor URI_LIST_FLAVOR = new DataFlavor("text/uri-list; class=java.lang.String", "Image");
-	private static final DataFlavor URL_FLAVOR = new DataFlavor("text/plain; class=java.lang.String", "Image");
+	private static final DataFlavor URI_LIST_FLAVOR = new DataFlavor("text/uri-list; class=java.lang.String", "Image"); //$NON-NLS-1$
+	private static final DataFlavor URL_FLAVOR = new DataFlavor("text/plain; class=java.lang.String", "Image"); //$NON-NLS-1$
 
 	/**
 	 * Data flavors that this handler will support.
 	 */
+	// @formatter:off
 	public static final DataFlavor[] SUPPORTED_FLAVORS = {
 		DataFlavor.javaFileListFlavor,
 		URI_LIST_FLAVOR,
@@ -84,10 +80,10 @@ public class TransferableHelper extends TransferHandler {
 		URL_FLAVOR,
 		TransferableToken.dataFlavor
 	};
+	// @formatter:on
 
 	/**
-	 * Takes a drop event and returns an asset
-	 * from it.  Returns null if an asset could not be obtained.
+	 * Takes a drop event and returns an asset from it. Returns null if an asset could not be obtained.
 	 */
 	public static List<Object> getAsset(Transferable transferable) {
 		List<Object> assets = new ArrayList<Object>();
@@ -119,8 +115,7 @@ public class TransferableHelper extends TransferHandler {
 				assets.add(handleImage(transferable));
 			}
 		} catch (Exception e) {
-			System.err.println ("Could not retrieve asset: " + e);
-			e.printStackTrace();
+			MapTool.showError("TransferableHelper.error.unrecognizedAsset", e); //$NON-NLS-1$
 			return null;
 		}
 		if (assets == null || assets.isEmpty()) {
@@ -140,10 +135,10 @@ public class TransferableHelper extends TransferHandler {
 
 	private static List<URL> textURIListToFileList(String data) {
 		List<URL> list = new ArrayList<URL>(4);
-		for (StringTokenizer st = new StringTokenizer(data, "\r\n"); st.hasMoreTokens();) {
+		for (StringTokenizer st = new StringTokenizer(data, "\r\n"); st.hasMoreTokens();) { //$NON-NLS-1$
 			String s = st.nextToken();
-			if (s.startsWith("#")) {
-				// the line is a comment (as per the RFC 2483)
+			if (s.startsWith("#")) { //$NON-NLS-1$
+				// the line is a comment (as per RFC 2483)
 				continue;
 			}
 			try {
@@ -161,40 +156,40 @@ public class TransferableHelper extends TransferHandler {
 		return list;
 	}
 
-	private static Asset handleImage (Transferable transferable) throws IOException, UnsupportedFlavorException {
+	private static Asset handleImage(Transferable transferable) throws IOException, UnsupportedFlavorException {
 		String name = null;
 		BufferedImage image = null;
 		if (transferable.isDataFlavorSupported(URL_FLAVOR)) {
 			try {
 				String fname = (String) transferable.getTransferData(URL_FLAVOR);
 				if (log.isDebugEnabled())
-					log.debug("Transferable " + fname);
+					log.debug("Transferable " + fname); //$NON-NLS-1$
 				name = FileUtil.getNameWithoutExtension(fname);
 
 				File file;
 				URL url = new URL(fname);
 				try {
-					URI uri = url.toURI();		// Should replace '%20' sequences and such
+					URI uri = url.toURI(); // Should replace '%20' sequences and such
 					file = new File(uri);
 				} catch (URISyntaxException e) {
 					file = new File(fname);
 				}
 				if (file.exists()) {
 					if (log.isDebugEnabled())
-						log.debug("Reading local file:  " + file);
+						log.debug("Reading local file:  " + file); //$NON-NLS-1$
 					image = ImageIO.read(file);
 				} else {
 					if (log.isDebugEnabled())
-						log.debug("Reading remote URL:  " + url);
+						log.debug("Reading remote URL:  " + url); //$NON-NLS-1$
 					image = ImageIO.read(url);
 				}
 			} catch (Exception e) {
-				MapTool.showError("Cannot read URL_FLAVOR", e);
+				MapTool.showError("TransferableHelper.error.urlFlavor", e); //$NON-NLS-1$
 			}
 		}
 		if (image == null) {
 			if (log.isDebugEnabled())
-				log.debug("URL_FLAVOR didn't work; trying ImageTransferableHandler().getTransferObject()");
+				log.debug("URL_FLAVOR didn't work; trying ImageTransferableHandler().getTransferObject()"); //$NON-NLS-1$
 			image = (BufferedImage) new ImageTransferableHandler().getTransferObject(transferable);
 		}
 		Asset asset = new Asset(name, ImageUtil.imageToBytes(image));
@@ -205,7 +200,7 @@ public class TransferableHelper extends TransferHandler {
 		List<Object> assets = new ArrayList<Object>();
 		for (URL url : list) {
 			// A JFileChooser (at least under Linux) sends a couple empty filenames that need to be ignored.
-			if (!url.getPath().equals("")) {
+			if (!url.getPath().equals("")) { //$NON-NLS-1$
 				if (Token.isTokenFile(url.getPath())) {
 					// Loading the token causes the assets to be added to the AssetManager
 					// so it doesn't need to be added to our List here.  In fact, getAsset()
@@ -214,7 +209,7 @@ public class TransferableHelper extends TransferHandler {
 					assets.add(token);
 				} else {
 					Asset temp = AssetManager.createAsset(url);
-					if (temp != null)			// `null' means some no image available
+					if (temp != null) // `null' means no image available
 						assets.add(temp);
 				}
 			}
@@ -235,8 +230,7 @@ public class TransferableHelper extends TransferHandler {
 	 * 
 	 * @param transferable
 	 *            The data that was dropped.
-	 * @return The tokens from the data or <code>null</code> if this isn't the
-	 *         proper data type.
+	 * @return The tokens from the data or <code>null</code> if this isn't the proper data type.
 	 */
 	@SuppressWarnings("unchecked")
 	public static List<Token> getTokens(Transferable transferable) {
@@ -254,9 +248,8 @@ public class TransferableHelper extends TransferHandler {
 				tokens.add(new Token(td));
 			} // endfor
 			if (tokens.size() != tokenMaps.size()) {
-				final String message = "Added " + tokens.size() + " tokens." +
-				"\nThere were " + (tokenMaps.size() - tokens.size()) + " tokens that could not be added " +
-				"because they were missing names or images.";
+				final int missingTokens = tokenMaps.size() - tokens.size();
+				final String message = I18N.getText("TransferableHelper.warning.tokensAddedAndExcluded", tokens.size(), missingTokens); //$NON-NLS-1$
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
 						MapTool.showWarning(message);
@@ -264,25 +257,20 @@ public class TransferableHelper extends TransferHandler {
 				});
 			} // endif
 		} catch (IOException e) {
-			MapTool.showError("Error during drag/drop operation", e);
-		}
-		catch (UnsupportedFlavorException e) {
-			MapTool.showError("Error during drag/drop operation", e);
+			MapTool.showError("TransferableHelper.error.ioException", e); //$NON-NLS-1$
+		} catch (UnsupportedFlavorException e) {
+			MapTool.showError("TransferableHelper.error.unsupportedFlavorException", e); //$NON-NLS-1$
 		}
 		return tokens;
 	}
 
 	public static boolean isSupportedAssetFlavor(Transferable transferable) {
-		return transferable.isDataFlavorSupported(TransferableAsset.dataFlavor)
-		|| transferable.isDataFlavorSupported(TransferableAssetReference.dataFlavor)
-		|| transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)
-		|| transferable.isDataFlavorSupported(URI_LIST_FLAVOR)
-		|| transferable.isDataFlavorSupported(URL_FLAVOR);
+		return transferable.isDataFlavorSupported(TransferableAsset.dataFlavor) || transferable.isDataFlavorSupported(TransferableAssetReference.dataFlavor)
+				|| transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor) || transferable.isDataFlavorSupported(URI_LIST_FLAVOR) || transferable.isDataFlavorSupported(URL_FLAVOR);
 	}
 
 	public static boolean isSupportedTokenFlavor(Transferable transferable) {
-		return transferable.isDataFlavorSupported(GroupTokenTransferData.GROUP_TOKEN_LIST_FLAVOR) ||
-		transferable.isDataFlavorSupported(TransferableToken.dataFlavor);
+		return transferable.isDataFlavorSupported(GroupTokenTransferData.GROUP_TOKEN_LIST_FLAVOR) || transferable.isDataFlavorSupported(TransferableToken.dataFlavor);
 	}
 
 	/**
@@ -306,11 +294,11 @@ public class TransferableHelper extends TransferHandler {
 	List<Boolean> configureTokens;
 
 	/**
-	 * Retrieves a list of DataFlavors from the passed in Transferable, then tries to actually
-	 * retrieve an object from the drop event using each one.  Theoretically at least one
-	 * should always work.
+	 * Retrieves a list of DataFlavors from the passed in Transferable, then tries to actually retrieve an object from
+	 * the drop event using each one. Theoretically at least one should always work.
 	 * 
-	 * @param t Transferable to check
+	 * @param t
+	 *            Transferable to check
 	 * @return a list of all DataFlavor objects that succeeded
 	 */
 	private static List<DataFlavor> whichOnesWork(Transferable t) {
@@ -320,11 +308,11 @@ public class TransferableHelper extends TransferHandler {
 			try {
 				Object result = t.getTransferData(flavor);
 				worked.add(flavor);
-				log.info(flavor.toString() + " -- " + result.toString());
+				log.info(flavor.toString() + " -- " + result.toString()); //$NON-NLS-1$
 			} catch (UnsupportedFlavorException ufe) {
-				log.debug("Failed (UFE):  " + flavor.toString());
+				log.debug("Failed (UFE):  " + flavor.toString()); //$NON-NLS-1$
 			} catch (IOException ioe) {
-				log.debug("Failed (IOE):  " + flavor.toString());
+				log.debug("Failed (IOE):  " + flavor.toString()); //$NON-NLS-1$
 			}
 		}
 		return worked;
@@ -376,9 +364,7 @@ public class TransferableHelper extends TransferHandler {
 					configureTokens.add(true);
 				}
 			} else {
-				MapTool.showWarning("<p><b>Unable to obtain data from dropped object.</b></p>" +
-						"<br><p>Likely causes are an empty object due to network error (such as proxy settings or missing authentication)<br/>" +
-				"or possibly an incompatible object was dropped (such as invalid file type).</p>");
+				MapTool.showWarning("TransferableHelper.warning.badObject"); //$NON-NLS-1$
 			}
 		}
 		return tokens != null;
@@ -397,7 +383,10 @@ public class TransferableHelper extends TransferHandler {
 		return tokens;
 	}
 
-	/** @param tokens Setter for tokens */
+	/**
+	 * @param tokens
+	 *            Setter for tokens
+	 */
 	public void setTokens(List<Token> tokens) {
 		this.tokens = tokens;
 	}
@@ -407,7 +396,10 @@ public class TransferableHelper extends TransferHandler {
 		return configureTokens;
 	}
 
-	/** @param configureTokens Setter for configureTokens */
+	/**
+	 * @param configureTokens
+	 *            Setter for configureTokens
+	 */
 	public void setConfigureTokens(List<Boolean> configureTokens) {
 		this.configureTokens = configureTokens;
 	}
