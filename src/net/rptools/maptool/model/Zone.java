@@ -495,9 +495,7 @@ public class Zone extends BaseModel {
 				if (!AppUtil.playerOwns(tok)) {
 					continue;
 				}
-				//ExposedAreaMetaData meta = tok.getExposedAreaMetaData();
-				if (exposedAreaMeta.containsKey(tok.getId())) {
-//					combined.add(new Area(exposedAreaMeta.get(tok.getId()).getExposedAreaHistory()));
+				if (exposedAreaMeta.containsKey(tok.getExposedAreaGUID())) {
 					combined.add(new Area(exposedAreaMeta.get(tok.getExposedAreaGUID()).getExposedAreaHistory()));
 				}
 			}
