@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.model;
 
@@ -38,11 +35,8 @@ import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.client.walker.astar.AStarSquareEuclideanWalker;
 
 public class SquareGrid extends Grid {
-
-	private static final String alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
+	private static final String alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; //$NON-NLS-1$
 	private static final Dimension CELL_OFFSET = new Dimension(0, 0);
-
 	private static BufferedImage pathHighlight;
 
 	private static List<TokenFootprint> footprintList;
@@ -50,23 +44,22 @@ public class SquareGrid extends Grid {
 	static {
 		try {
 			pathHighlight = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/whiteBorder.png");
-
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
+			MapTool.showError("SquareGrid.error.pathhighlightingNotLoaded", ioe);
 		}
 	}
 
+	// @formatter:off
 	private static final GridCapabilities CAPABILITIES = new GridCapabilities() {
-		public boolean isPathingSupported() {return true;}
-		public boolean isSnapToGridSupported() {return true;}
-		public boolean isPathLineSupported() {return true;}
-		public boolean isSecondDimensionAdjustmentSupported() {return false;}
-		public boolean isCoordinatesSupported() {return true;}
+		public boolean isPathingSupported() {									return true; }
+		public boolean isSnapToGridSupported() {							return true; }
+		public boolean isPathLineSupported() {									return true; }
+		public boolean isSecondDimensionAdjustmentSupported() {	return false; }
+		public boolean isCoordinatesSupported() {							return true; }
 	};
+	// @formatter:on
 
-	private static final int[] ALL_ANGLES = new int[] {
-		-135, -90, -45, 0, 45, 90, 135, 180
-	};
+	private static final int[] ALL_ANGLES = new int[] { -135, -90, -45, 0, 45, 90, 135, 180 };
 	private static int[] FACING_ANGLES;
 
 	public SquareGrid() {
@@ -84,22 +77,19 @@ public class SquareGrid extends Grid {
 
 	@Override
 	public void setFacings(boolean faceEdges, boolean faceVertices) {
-
 		if (faceEdges && faceVertices) {
 			FACING_ANGLES = ALL_ANGLES;
 		} else if (!faceEdges && faceVertices) {
-			FACING_ANGLES = new int[] {-135, -45, 45, 135};
+			FACING_ANGLES = new int[] { -135, -45, 45, 135 };
 		} else if (faceEdges && !faceVertices) {
-			FACING_ANGLES = new int[]{-90, 0, 90, 180};
+			FACING_ANGLES = new int[] { -90, 0, 90, 180 };
 		} else {
-			FACING_ANGLES = new int[] {90};
+			FACING_ANGLES = new int[] { 90 };
 		}
-
 	}
 
 	@Override
 	public void drawCoordinatesOverlay(Graphics2D g, ZoneRenderer renderer) {
-
 		Object oldAA = SwingUtil.useAntiAliasing(g);
 
 		Font oldFont = g.getFont();
@@ -110,55 +100,47 @@ public class SquareGrid extends Grid {
 		CellPoint topLeft = convert(new ScreenPoint(0, 0).convertToZone(renderer));
 		ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, convert(topLeft));
 
-
 		Dimension size = renderer.getSize();
 
 		int startX = SwingUtilities.computeStringWidth(fm, "MMM") + 10;
 
-		double x = sp.x + cellSize/2; // Start at middle of the cell that's on screen
+		double x = sp.x + cellSize / 2; // Start at middle of the cell that's on screen
 		int nextAvailableSpace = -1;
 		while (x < size.width) {
-
 			String coord = Integer.toString(topLeft.x);
 
 			int strWidth = SwingUtilities.computeStringWidth(fm, coord);
-			int strX = (int)x - strWidth/2;
+			int strX = (int) x - strWidth / 2;
 
 			if (x > startX && strX > nextAvailableSpace) {
 				g.setColor(Color.black);
 				g.drawString(coord, strX, fm.getHeight());
 				g.setColor(Color.orange);
-				g.drawString(coord, strX-1, fm.getHeight()-1);
+				g.drawString(coord, strX - 1, fm.getHeight() - 1);
 
 				nextAvailableSpace = strX + strWidth + 10;
 			}
-
 			x += cellSize;
-			topLeft.x ++;
+			topLeft.x++;
 		}
-
-		double y = sp.y + cellSize/2; // Start at middle of the cell that's on screen
+		double y = sp.y + cellSize / 2; // Start at middle of the cell that's on screen
 		nextAvailableSpace = -1;
 		while (y < size.height) {
-
 			String coord = decimalToAlphaCoord(topLeft.y);
 
-			int strY = (int)y + fm.getAscent()/2;
+			int strY = (int) y + fm.getAscent() / 2;
 
 			if (y > fm.getHeight() && strY > nextAvailableSpace) {
-
 				g.setColor(Color.black);
 				g.drawString(coord, 10, strY);
 				g.setColor(Color.yellow);
-				g.drawString(coord, 10-1, strY-1);
+				g.drawString(coord, 10 - 1, strY - 1);
 
-				nextAvailableSpace = strY + fm.getAscent()/2 + 10;
+				nextAvailableSpace = strY + fm.getAscent() / 2 + 10;
 			}
-
 			y += cellSize;
-			topLeft.y ++;
+			topLeft.y++;
 		}
-
 		g.setFont(oldFont);
 		SwingUtil.restoreAntiAliasing(g, oldAA);
 	}
@@ -171,14 +153,12 @@ public class SquareGrid extends Grid {
 			} catch (IOException ioe) {
 				MapTool.showError("SquareGrid.error.squareGridNotLoaded", ioe);
 			}
-
 		}
 		return footprintList;
 	}
 
 	@Override
 	public Rectangle getBounds(CellPoint cp) {
-
 		return new Rectangle(cp.x * getSize(), cp.y * getSize(), getSize(), getSize());
 	}
 
@@ -214,31 +194,28 @@ public class SquareGrid extends Grid {
 
 	@Override
 	public CellPoint convert(ZonePoint zp) {
+		double calcX = (zp.x - getOffsetX()) / (float) getSize();
+		double calcY = (zp.y - getOffsetY()) / (float) getSize();
 
-    	double calcX = (zp.x-getOffsetX()) / (float)getSize();
-    	double calcY = (zp.y-getOffsetY()) / (float)getSize();
+		boolean exactCalcX = (zp.x - getOffsetX()) % getSize() == 0;
+		boolean exactCalcY = (zp.y - getOffsetY()) % getSize() == 0;
 
-    	boolean exactCalcX = (zp.x-getOffsetX()) % getSize() == 0;
-    	boolean exactCalcY = (zp.y-getOffsetY()) % getSize() == 0;
+		int newX = (int) (zp.x < 0 && !exactCalcX ? calcX - 1 : calcX);
+		int newY = (int) (zp.y < 0 && !exactCalcY ? calcY - 1 : calcY);
 
-    	int newX = (int)(zp.x < 0 && !exactCalcX ? calcX-1 : calcX);
-    	int newY = (int)(zp.y < 0 && !exactCalcY ? calcY-1 : calcY);
-
-    	//System.out.format("%d / %d => %f, %f => %d, %d\n", zp.x, getSize(), calcX, calcY, newX, newY);
-        return new CellPoint(newX, newY);
+		//System.out.format("%d / %d => %f, %f => %d, %d\n", zp.x, getSize(), calcX, calcY, newX, newY);
+		return new CellPoint(newX, newY);
 	}
 
 	@Override
 	public ZoneWalker createZoneWalker() {
-		WalkerMetric metric = MapTool.isPersonalServer() ?  AppPreferences.getMovementMetric() : MapTool.getServerPolicy().getMovementMetric();
+		WalkerMetric metric = MapTool.isPersonalServer() ? AppPreferences.getMovementMetric() : MapTool.getServerPolicy().getMovementMetric();
 		return new AStarSquareEuclideanWalker(getZone(), metric);
 	}
 
 	@Override
 	public ZonePoint convert(CellPoint cp) {
-
-        return new ZonePoint((cp.x * getSize() + getOffsetX()),
-        		(cp.y * getSize() + getOffsetY()));
+		return new ZonePoint((cp.x * getSize() + getOffsetX()), (cp.y * getSize() + getOffsetY()));
 	}
 
 	@Override
@@ -248,41 +225,37 @@ public class SquareGrid extends Grid {
 
 	@Override
 	public void draw(ZoneRenderer renderer, Graphics2D g, Rectangle bounds) {
-
 		double scale = renderer.getScale();
-        double gridSize = getSize() * scale;
+		double gridSize = getSize() * scale;
 
-        g.setColor(new Color(getZone().getGridColor()));
+		g.setColor(new Color(getZone().getGridColor()));
 
-        int offX = (int)(renderer.getViewOffsetX() % gridSize + getOffsetX()*scale);
-        int offY = (int)(renderer.getViewOffsetY() % gridSize + getOffsetY()*scale);
+		int offX = (int) (renderer.getViewOffsetX() % gridSize + getOffsetX() * scale);
+		int offY = (int) (renderer.getViewOffsetY() % gridSize + getOffsetY() * scale);
 
-        int startCol = (int)((int)(bounds.x / gridSize) * gridSize);
-        int startRow = (int)((int)(bounds.y / gridSize) * gridSize);
+		int startCol = (int) ((int) (bounds.x / gridSize) * gridSize);
+		int startRow = (int) ((int) (bounds.y / gridSize) * gridSize);
 
-        for (double row = startRow; row < bounds.y + bounds.height + gridSize; row += gridSize) {
-
-            if (AppState.getGridSize() == 1) {
-                g.drawLine(bounds.x, (int)(row + offY), bounds.x+bounds.width, (int)(row + offY));
-            } else {
-            	g.fillRect(bounds.x, (int)(row + offY - (AppState.getGridSize()/2)), bounds.width, AppState.getGridSize());
-            }
-        }
-
-        for (double col = startCol; col < bounds.x + bounds.width + gridSize; col += gridSize) {
-
-            if (AppState.getGridSize() == 1) {
-                g.drawLine((int)(col + offX), bounds.y, (int)(col + offX), bounds.y + bounds.height);
-            } else {
-            	g.fillRect((int)(col + offX - (AppState.getGridSize()/2)), bounds.y, AppState.getGridSize(), bounds.height);
-            }
-        }
+		for (double row = startRow; row < bounds.y + bounds.height + gridSize; row += gridSize) {
+			if (AppState.getGridSize() == 1) {
+				g.drawLine(bounds.x, (int) (row + offY), bounds.x + bounds.width, (int) (row + offY));
+			} else {
+				g.fillRect(bounds.x, (int) (row + offY - (AppState.getGridSize() / 2)), bounds.width, AppState.getGridSize());
+			}
+		}
+		for (double col = startCol; col < bounds.x + bounds.width + gridSize; col += gridSize) {
+			if (AppState.getGridSize() == 1) {
+				g.drawLine((int) (col + offX), bounds.y, (int) (col + offX), bounds.y + bounds.height);
+			} else {
+				g.fillRect((int) (col + offX - (AppState.getGridSize() / 2)), bounds.y, AppState.getGridSize(), bounds.height);
+			}
+		}
 	}
 
 	public ZonePoint getCenterPoint(CellPoint cellPoint) {
 		ZonePoint zp = convert(cellPoint);
-		zp.x += getCellWidth()/2;
-		zp.y += getCellHeight()/2;
+		zp.x += getCellWidth() / 2;
+		zp.y += getCellHeight() / 2;
 		return zp;
 	}
 
@@ -296,19 +269,16 @@ public class SquareGrid extends Grid {
 			value--; // Shift down so -1 is -A instead of -B
 			isNegative = true;
 		}
-
-		while(value >= 26) {
+		while (value >= 26) {
 			temp = value % 26;
-			value = (value - temp)/26 - 1;
+			value = (value - temp) / 26 - 1;
 			result = alpha.charAt(temp) + result;
 		}
-
 		result = alpha.charAt(value) + result;
 
 		if (isNegative) {
 			result = "-" + result;
 		}
-
 		return result;
 	}
 }

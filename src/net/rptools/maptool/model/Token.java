@@ -40,10 +40,10 @@ import net.rptools.lib.transferable.TokenTransferData;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.functions.JSONMacroFunctions;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.StringUtil;
 import net.rptools.parser.ParserException;
-import net.rptools.maptool.language.I18N;
 
 import org.apache.log4j.Logger;
 
@@ -52,7 +52,6 @@ import org.apache.log4j.Logger;
  * an {@link Asset} (the image itself) and a location and scale.
  */
 public class Token extends BaseModel {
-
 	private static final Logger log = Logger.getLogger(Token.class);
 
 	private GUID id = new GUID();
@@ -325,9 +324,10 @@ public class Token extends BaseModel {
 	/**
 	 * This token object has just been imported on a map and needs to have most of its internal data wiped clean. This
 	 * prevents a token from being imported that makes use of the wrong property types, vision types, ownership, macros,
-	 * and so on. The only data retained is Notes, GM Notes, token type (PC|NPC), token shape {@link TokenShape},
-	 * Visible To Players, Visible to Owner Only, Snap-to-grid, HasSight, x/y coordinates, size, states, layer, facing,
-	 * and halo. Basically anything related to the presentation of the token on-screen + the two notes fields.
+	 * and so on. Basically anything related to the presentation of the token on-screen + the two notes fields is kept.
+	 * Note that the sightType is set to the campaign's default sight type, and the property type is not changed at all.
+	 * This will usually be correct since the default sight is what most tokens have and the property type is probably
+	 * specific to the campaign -- hopefully the properties were set up before the token/map was imported.
 	 */
 	public void imported() {
 		// anchorX, anchorY?
@@ -340,9 +340,8 @@ public class Token extends BaseModel {
 		macroMap = null;
 //		macroPropertiesMap = null;
 		ownerList = null;
-		// propertyMapCI = null;
-		// propertyType = "Basic";
-//		sightType = "Normal";
+//		propertyMapCI = null;
+//		propertyType = "Basic";
 		sightType = MapTool.getCampaign().getCampaignProperties().getDefaultSightType();
 //		state = null;
 		visionList = null;
@@ -413,7 +412,6 @@ public class Token extends BaseModel {
 		if (haloColor == null && haloColorValue != null) {
 			haloColor = new Color(haloColorValue);
 		}
-
 		return haloColor;
 	}
 
@@ -466,7 +464,6 @@ public class Token extends BaseModel {
 
 	public void setType(Type type) {
 		this.tokenType = type.name();
-
 		if (type == Type.PC) {
 			hasSight = true;
 		}
@@ -625,7 +622,7 @@ public class Token extends BaseModel {
 		lightSourceList = null;
 	}
 
-	//End My Addtion
+	//End My Addition
 
 	public boolean hasLightSource(LightSource source) {
 		if (lightSourceList == null) {
@@ -717,6 +714,14 @@ public class Token extends BaseModel {
 		return z;
 	}
 
+	/**
+	 * Set the name of this token to the provided string. There is a potential exposure of information to the player in
+	 * this method: through repeated attempts to name a token they own to another name, they could determine which token
+	 * names the GM is already using. Fortunately, the showError() call makes this extremely unlikely due to the
+	 * interactive nature of a failure.
+	 * 
+	 * @param name
+	 */
 	public void setName(String name) {
 		//Let's see if there is another Token with that name (only if Player is not GM)
 		if (!MapTool.getPlayer().isGM()) {
@@ -725,7 +730,6 @@ public class Token extends BaseModel {
 
 			for (int i = 0; i < tokensList.size(); i++) {
 				String curTokenName = tokensList.get(i).getName();
-
 				if (curTokenName.equalsIgnoreCase(name)) {
 					MapTool.showError(I18N.getText("Token.error.unableToRename", name));
 					return;
@@ -1021,7 +1025,6 @@ public class Token extends BaseModel {
 		if (val == null) {
 			return "";
 		}
-
 		// First we try convert it to a JSON object.
 		if (val.toString().trim().startsWith("[") || val.toString().trim().startsWith("{")) {
 			Object obj = JSONMacroFunctions.convertToJSON(val.toString());
@@ -1029,7 +1032,6 @@ public class Token extends BaseModel {
 				return obj;
 			}
 		}
-
 		try {
 			if (log.isDebugEnabled()) {
 				log.debug("Evaluating property: '" + key + "' for token " + getName() + "(" + getId() + ")----------------------------------------------------------------------------------");
@@ -1084,7 +1086,8 @@ public class Token extends BaseModel {
 			macroPropertiesMap.put(prop.getIndex(), prop);
 		}
 		macroMap = null;
-//		System.out.println("Token.loadOldMacros() set up "+macroPropertiesMap.size()+ " new macros.");
+		if (log.isDebugEnabled())
+			log.debug("Token.loadOldMacros() set up " + macroPropertiesMap.size() + " new macros.");
 	}
 
 	public int getMacroNextIndex() {
@@ -1148,7 +1151,7 @@ public class Token extends BaseModel {
 			}
 			macroPropertiesMap.put(macro.getIndex(), macro);
 
-			//Lets the token macro panels update only if a macro changes
+			// Allows the token macro panels to update only if a macro changes
 			fireModelChangeEvent(new ModelChangeEvent(this, ChangeEvent.MACRO_CHANGED, id));
 		}
 	}
@@ -1164,7 +1167,7 @@ public class Token extends BaseModel {
 	}
 
 	public boolean hasMacros(boolean secure) {
-		if (getMacroPropertiesMap(secure).size() > 0) {
+		if (!getMacroPropertiesMap(secure).isEmpty()) {
 			return true;
 		}
 		return false;
@@ -1311,6 +1314,7 @@ public class Token extends BaseModel {
 		td.put(TokenTransferData.HEIGHT, scaleY);
 		td.put(TokenTransferData.SNAP_TO_GRID, snapToGrid);
 		td.put(TokenTransferData.OWNER_TYPE, ownerType);
+		td.put(TokenTransferData.VISIBLE_OWNER_ONLY, visibleOnlyToOwner);
 		td.put(TokenTransferData.TOKEN_TYPE, tokenShape);
 		td.put(TokenTransferData.NOTES, notes);
 		td.put(TokenTransferData.GM_NOTES, gmNotes);
@@ -1513,8 +1517,7 @@ public class Token extends BaseModel {
 		//		a pre-1.3b66 token that contains a HashMap<?,?>, or
 		//		a pre-1.3b78 token that actually has the CaseInsensitiveHashMap<?>.
 		// Newer tokens will use propertyMapCI so we only need to make corrections
-		// if the old field has data in it.  And the old field will never contain data in newer
-		// tokens since the field is marked transient.  (Ugh.)
+		// if the old field has data in it.
 		if (propertyMap != null) {
 			if (propertyMap instanceof CaseInsensitiveHashMap) {
 				propertyMapCI = (CaseInsensitiveHashMap<Object>) propertyMap;

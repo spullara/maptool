@@ -353,7 +353,7 @@ public class EditLookupTablePanel extends AbeillePanel {
 	}
 
 	public void initToolTips() {
-		getVisibleCheckbox().setToolTipText(I18N.getString("editLookupTable.tooltip.visible"));
-		getAllowLookupCheckbox().setToolTipText(I18N.getString("editLookupTable.tooltip.allowLookup"));
+		getVisibleCheckbox().setToolTipText(I18N.getString("EditLookupTablePanel.tooltip.visible"));
+		getAllowLookupCheckbox().setToolTipText(I18N.getString("EditLookupTablePanel.tooltip.allowLookup"));
 	}
 }

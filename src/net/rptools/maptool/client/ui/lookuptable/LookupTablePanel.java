@@ -37,19 +37,16 @@ import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.util.PersistenceUtil;
 
 public class LookupTablePanel extends AbeillePanel {
-
 	private ImagePanel imagePanel;
 	private JDialog editorDialog;
 	private EditLookupTablePanel editorPanel;
 
 	public LookupTablePanel() {
 		super("net/rptools/maptool/client/ui/forms/lookupTablePanel.jfrm");
-
 		panelInit();
 	}
 
 	public void updateView() {
-
 		getButtonPanel().setVisible(MapTool.getPlayer().isGM());
 		revalidate();
 		repaint();
@@ -60,12 +57,9 @@ public class LookupTablePanel extends AbeillePanel {
 			editorDialog = new JDialog(MapTool.getFrame(), true);
 			editorDialog.setSize(500, 400);
 			editorDialog.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
-
 			editorDialog.add(editorPanel);
-
 			SwingUtil.centerOver(editorDialog, MapTool.getFrame());
 		}
-
 		return editorDialog;
 	}
 
@@ -77,25 +71,20 @@ public class LookupTablePanel extends AbeillePanel {
 		imagePanel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-
 				if (e.getClickCount() == 2) {
-
 					List<Object> ids = getImagePanel().getSelectedIds();
 					if (ids == null || ids.size() == 0) {
 						return;
 					}
-
 					LookupTable lookupTable = MapTool.getCampaign().getLookupTableMap().get(ids.get(0));
 					if (lookupTable == null) {
 						return;
 					}
-
 					MapTool.getFrame().getCommandPanel().getCommandTextArea().setText("/tbl \"" + lookupTable.getName() + "\"");
 					MapTool.getFrame().getCommandPanel().commitCommand();
 				}
 			}
 		});
-
 		replaceComponent("mainForm", "imagePanel", new JScrollPane(imagePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
 	}
 
@@ -143,18 +132,16 @@ public class LookupTablePanel extends AbeillePanel {
 		getDuplicateButton().setMargin(new Insets(0, 0, 0, 0));
 		getDuplicateButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
 				List<Object> ids = getImagePanel().getSelectedIds();
 				if (ids == null || ids.size() == 0) {
 					return;
 				}
-
 				LookupTable lookupTable = new LookupTable(MapTool.getCampaign().getLookupTableMap().get(ids.get(0)));
 				lookupTable.setName("Copy of " + lookupTable.getName());
 
 				editorPanel.attach(lookupTable);
 
-				getEditorDialog().setTitle("New Table");
+				getEditorDialog().setTitle(I18N.getString("LookupTablePanel.msg.titleNew"));
 				getEditorDialog().setVisible(true);
 
 				imagePanel.clearSelection();
@@ -167,17 +154,15 @@ public class LookupTablePanel extends AbeillePanel {
 		getEditButton().setMargin(new Insets(0, 0, 0, 0));
 		getEditButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
 				List<Object> ids = getImagePanel().getSelectedIds();
 				if (ids == null || ids.size() == 0) {
 					return;
 				}
-
 				LookupTable lookupTable = MapTool.getCampaign().getLookupTableMap().get(ids.get(0));
 
 				editorPanel.attach(lookupTable);
 
-				getEditorDialog().setTitle("Edit Table");
+				getEditorDialog().setTitle(I18N.getString("LookupTablePanel.msg.titleEdit"));
 				getEditorDialog().setVisible(true);
 
 			}
@@ -188,10 +173,9 @@ public class LookupTablePanel extends AbeillePanel {
 		getNewButton().setMargin(new Insets(0, 0, 0, 0));
 		getNewButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
 				editorPanel.attach(null);
 
-				getEditorDialog().setTitle("New Table");
+				getEditorDialog().setTitle(I18N.getString("LookupTablePanel.msg.titleNew"));
 				getEditorDialog().setVisible(true);
 
 				imagePanel.clearSelection();
@@ -204,12 +188,10 @@ public class LookupTablePanel extends AbeillePanel {
 		getDeleteButton().setMargin(new Insets(0, 0, 0, 0));
 		getDeleteButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
 				List<Object> ids = getImagePanel().getSelectedIds();
 				if (ids == null || ids.size() == 0) {
 					return;
 				}
-
 				LookupTable lookupTable = MapTool.getCampaign().getLookupTableMap().get(ids.get(0));
 
 				if (MapTool.confirm("LookupTablePanel.confirm.delete", lookupTable.getName())) {
@@ -219,7 +201,6 @@ public class LookupTablePanel extends AbeillePanel {
 					imagePanel.clearSelection();
 					repaint();
 				}
-
 			}
 		});
 	}
@@ -233,7 +214,6 @@ public class LookupTablePanel extends AbeillePanel {
 				if (chooser.showOpenDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
 					return;
 				}
-
 				final File selectedFile = chooser.getSelectedFile();
 				EventQueue.invokeLater(new Runnable() {
 					public void run() {
@@ -242,7 +222,7 @@ public class LookupTablePanel extends AbeillePanel {
 							LookupTable newTable = PersistenceUtil.loadTable(selectedFile);
 							Boolean alreadyExists = lookupTables.keySet().contains(newTable.getName());
 							if (alreadyExists) {
-								if (MapTool.confirm("LookUpTablePanel.confirm.import", newTable.getName())) {
+								if (MapTool.confirm("LookupTablePanel.confirm.import", newTable.getName())) {
 									lookupTables.remove(newTable.getName());
 								} else {
 									return;
@@ -253,8 +233,7 @@ public class LookupTablePanel extends AbeillePanel {
 							imagePanel.repaint();
 							MapTool.serverCommand().updateCampaign(MapTool.getCampaign().getCampaignProperties());
 						} catch (IOException ioe) {
-							ioe.printStackTrace();
-							MapTool.showError("Could not load table: " + ioe.getLocalizedMessage());
+							MapTool.showError("LookupTablePanel.error.loadFailed", ioe);
 						}
 					}
 				});
@@ -271,16 +250,15 @@ public class LookupTablePanel extends AbeillePanel {
 				if (chooser.showSaveDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
 					return;
 				}
-
 				final File selectedFile = chooser.getSelectedFile();
 				EventQueue.invokeLater(new Runnable() {
 					public void run() {
 						if (selectedFile.exists()) {
 							if (selectedFile.getName().endsWith(".mttable")) {
-								if (!MapTool.confirm("LookUpTablePanel.confirm.export", selectedFile.getName())) {
+								if (!MapTool.confirm("LookupTablePanel.confirm.export", selectedFile.getName())) {
 									return;
 								}
-							} else if (!MapTool.confirm("LookUpTablePanel.confirm.overwrite", selectedFile.getName())) {
+							} else if (!MapTool.confirm("LookupTablePanel.confirm.overwrite", selectedFile.getName())) {
 								return;
 							}
 						}
@@ -291,14 +269,13 @@ public class LookupTablePanel extends AbeillePanel {
 							}
 							LookupTable lookupTable = MapTool.getCampaign().getLookupTableMap().get(ids.get(0));
 							PersistenceUtil.saveTable(lookupTable, selectedFile);
-							MapTool.showInformation(I18N.getText("LookUpTablePanel.info.saved", selectedFile.getName()));
+							MapTool.showInformation(I18N.getText("LookupTablePanel.info.saved", selectedFile.getName()));
 						} catch (IOException ioe) {
 							ioe.printStackTrace();
-							MapTool.showError("LookUpTablePanel.error.saveFailed", ioe);
+							MapTool.showError("LookupTablePanel.error.saveFailed", ioe);
 						}
 					}
 				});
-
 			}
 		});
 	}

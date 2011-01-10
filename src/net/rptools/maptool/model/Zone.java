@@ -31,6 +31,7 @@ import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.PlayerView;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.InitiativeList.TokenInitiative;
 import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.DrawablePaint;
@@ -43,9 +44,11 @@ import org.apache.log4j.Logger;
 
 /**
  * This object represents the maps that will appear for placement of {@link Token}s.
+ * <p>
+ * Note: When adding new fields to this class, make sure to add functionality to the constructor, {@link #imported()},
+ * {@link #optimize()}, and {@link #readResolve()} to ensure they are properly initialized for maximum compatibility.
  */
 public class Zone extends BaseModel {
-
 	private static final Logger log = Logger.getLogger(Zone.class);
 
 	public enum VisionType {
@@ -92,7 +95,7 @@ public class Zone extends BaseModel {
 	// an incrementing number as new zones are created, but that would take a lot
 	// more elegance than we really need.  Instead, let's just keep track of the
 	// time when it was created.  This should give us sufficient granularity, because
-	// come on what's the likelihood of two GMs separately creating a new zone at exactly
+	// seriously -- what's the likelihood of two GMs separately creating a new zone at exactly
 	// the same millisecond since the epoch?
 	private long creationTime = System.currentTimeMillis();
 
@@ -147,9 +150,8 @@ public class Zone extends BaseModel {
 	private transient HashMap<String, Integer> tokenNumberCache;
 
 	/**
-	 * Note: When adding new fields to this Object, make sure to add functionality to <code>readResolved()</code> to
-	 * ensure they are properly initialized (in addition to the normal constructor) for backward compatibility of saved
-	 * files.
+	 * Note: When adding new fields to this class, make sure to update all constructors, {@link #imported()},
+	 * {@link #readResolve()}, and potentially {@link #optimize()}.
 	 */
 	public Zone() {
 		// TODO: Was this needed?
@@ -222,14 +224,12 @@ public class Zone extends BaseModel {
 	}
 
 	/**
-	 * Note: When adding new fields to this Object, make sure to add functionality to <code>readResolved()</code> to
-	 * ensure they are properly initialized (in addition to the normal constructor) for backward compatibility of saved
-	 * files.
+	 * Note: When adding new fields to this class, make sure to update all constructors, {@link #imported()},
+	 * {@link #readResolve()}, and potentially {@link #optimize()}.
 	 */
 	public Zone(Zone zone) {
-
 		/*
-		 * JFJ 2010-10-27 Don't forget that since these are new zones AND new tokens created here from the old one being
+		 * JFJ 2010-10-27 Don't forget that since there are new zones AND new tokens created here from the old one being
 		 * passed in, if you have any data that needs to transfer over, you will need to manually copy it as is done
 		 * below for various items.
 		 */
@@ -291,11 +291,11 @@ public class Zone extends BaseModel {
 			while (i.hasNext()) {
 				Token old = zone.tokenMap.get(i.next());
 				Token token = new Token(old);
-				//token.setZoneId(getId());
-				//ExposedAreaMetaData oldMeta = zone.getExposedAreaMetaData(old.getExposedAreaGUID());
-				//if(oldMeta!= null) {
-				//   exposedAreaMeta.put(old.getExposedAreaGUID(), new ExposedAreaMetaData(oldMeta.getExposedAreaHistory()));
-				//}
+//				token.setZoneId(getId());
+//				ExposedAreaMetaData oldMeta = zone.getExposedAreaMetaData(old.getExposedAreaGUID());
+//				if (oldMeta != null) {
+//					exposedAreaMeta.put(old.getExposedAreaGUID(), new ExposedAreaMetaData(oldMeta.getExposedAreaHistory()));
+//				}
 
 				this.putToken(token);
 				List<Integer> list = zone.initiativeList.indexOf(old);
@@ -373,7 +373,7 @@ public class Zone extends BaseModel {
 	public void setGrid(Grid grid) {
 		this.grid = grid;
 		grid.setZone(this);
-		// tokenVisionDistance = DEFAULT_TOKEN_VISION_DISTANCE * grid.getSize() / unitsPerCell;
+//		tokenVisionDistance = DEFAULT_TOKEN_VISION_DISTANCE * grid.getSize() / unitsPerCell;
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.GRID_CHANGED));
 	}
 
@@ -390,7 +390,7 @@ public class Zone extends BaseModel {
 	}
 
 	/**
-	 * Board psuedo-object. Not making full object since this will change when new layer model is created
+	 * Board pseudo-object. Not making full object since this will change when new layer model is created
 	 */
 	public boolean isBoardChanged() {
 		return boardChanged;
@@ -497,7 +497,8 @@ public class Zone extends BaseModel {
 				}
 				//ExposedAreaMetaData meta = tok.getExposedAreaMetaData();
 				if (exposedAreaMeta.containsKey(tok.getId())) {
-					combined.add(new Area(exposedAreaMeta.get(tok.getId()).getExposedAreaHistory()));
+//					combined.add(new Area(exposedAreaMeta.get(tok.getId()).getExposedAreaHistory()));
+					combined.add(new Area(exposedAreaMeta.get(tok.getExposedAreaGUID()).getExposedAreaHistory()));
 				}
 			}
 			return combined.contains(point.x, point.y);
@@ -577,10 +578,8 @@ public class Zone extends BaseModel {
 
 	public void clearExposedArea() {
 		exposedArea = new Area();
-		List<Token> allToks = getTokens();
-		for (Token tok : getTokens()) {
-			exposedAreaMeta.clear();
-		}
+		// There used to be a foreach loop here that iterated over getTokens() and called .clear() -- why?!
+		exposedAreaMeta.clear();
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
 
@@ -588,7 +587,6 @@ public class Zone extends BaseModel {
 		if (area == null) {
 			return;
 		}
-
 		if (token != null) {
 			if ((MapTool.getServerPolicy().isUseIndividualFOW() && AppUtil.playerOwns(token)) || MapTool.isPersonalServer()) {
 				if (exposedAreaMeta.containsKey(token.getExposedAreaGUID())) {
@@ -602,15 +600,12 @@ public class Zone extends BaseModel {
 					meta.addToExposedAreaHistory(MapTool.getFrame().getZoneRenderer(getId()).getZoneView().getVisibleArea(token));
 					exposedAreaMeta.put(token.getExposedAreaGUID(), meta);
 				}
-
 				MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush();
 				putToken(token);
 			}
-
 		}
 		exposedArea.add(area);
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
-
 	}
 
 	public void exposeArea(Area area, Set<GUID> selectedToks) {
@@ -695,7 +690,6 @@ public class Zone extends BaseModel {
 			} else {
 				allToks = getTokens();
 			}
-
 			for (Token tok : allToks) {
 				if (!tok.getHasSight()) {
 					continue;
@@ -711,7 +705,6 @@ public class Zone extends BaseModel {
 						exposedAreaMeta.put(tok.getExposedAreaGUID(), meta);
 					}
 				}
-
 				MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush(tok);
 				putToken(tok);
 			}
@@ -725,7 +718,6 @@ public class Zone extends BaseModel {
 	}
 
 	public ZonePoint getNearestVertex(ZonePoint point) {
-
 		int gridx = (int) Math.round((point.x - grid.getOffsetX()) / grid.getCellWidth());
 		int gridy = (int) Math.round((point.y - grid.getOffsetY()) / grid.getCellHeight());
 
@@ -741,7 +733,6 @@ public class Zone extends BaseModel {
 		} else {
 			toks = view.getTokens();
 		}
-
 		if (toks == null) {
 			toks = getTokens();
 		}
@@ -819,9 +810,7 @@ public class Zone extends BaseModel {
 			break;
 		default:
 			drawables.add(drawnElement);
-
 		}
-
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.DRAWABLE_ADDED, drawnElement));
 	}
 
@@ -912,10 +901,13 @@ public class Zone extends BaseModel {
 	 * <b>Note that this code is NOT ready for prime time</b> and shouldn't be used until all references to code that
 	 * handle token {add,change} events have been updated to accept an array as a parameter instead of a single token
 	 * reference.
+	 * <p>
+	 * Marked as "deprecated" to ensure no one calls it accidentally. At least until the updates are done.
 	 * 
 	 * @param tokens
 	 *            List of Tokens to be added to this zone
 	 */
+	@Deprecated
 	public void putTokens(List<Token> tokens) {
 		// Create a couple of booleans to represent whether tokens were added and/or changed
 		List<Token> addedTokens = new LinkedList<Token>(tokens);
@@ -958,12 +950,10 @@ public class Zone extends BaseModel {
 			if (StringUtil.isEmpty(token.getName())) {
 				continue;
 			}
-
 			if (token.getName().equalsIgnoreCase(name)) {
 				return token;
 			}
 		}
-
 		return null;
 	}
 
@@ -997,12 +987,10 @@ public class Zone extends BaseModel {
 			if (StringUtil.isEmpty(token.getGMName())) {
 				continue;
 			}
-
 			if (token.getGMName().equalsIgnoreCase(name)) {
 				return token;
 			}
 		}
-
 		return null;
 	}
 
@@ -1026,7 +1014,6 @@ public class Zone extends BaseModel {
 	}
 
 	public Set<MD5Key> getAllAssetIds() {
-
 		Set<MD5Key> idSet = new HashSet<MD5Key>();
 
 		// Zone
@@ -1049,13 +1036,11 @@ public class Zone extends BaseModel {
 			if (paint instanceof DrawableTexturePaint) {
 				idSet.add(((DrawableTexturePaint) paint).getAssetId());
 			}
-
 			paint = drawn.getPen().getBackgroundPaint();
 			if (paint instanceof DrawableTexturePaint) {
 				idSet.add(((DrawableTexturePaint) paint).getAssetId());
 			}
 		}
-
 		// It's easier to just remove null at the end than to do a is-null check on each asset
 		idSet.remove(null);
 
@@ -1101,13 +1086,11 @@ public class Zone extends BaseModel {
 	}
 
 	public List<Token> getBackgroundStamps() {
-
 		return getTokensFiltered(new Filter() {
 			public boolean matchToken(Token t) {
 				return t.isBackgroundStamp();
 			}
 		});
-
 	}
 
 	public List<Token> getGMStamps() {
@@ -1122,7 +1105,6 @@ public class Zone extends BaseModel {
 		if (tokenNumberCache == null) {
 			tokenNumberCache = new HashMap<String, Integer>();
 		}
-
 		Integer _lastUsed = tokenNumberCache.get(tokenBaseName);
 
 		int lastUsed;
@@ -1132,9 +1114,7 @@ public class Zone extends BaseModel {
 		} else {
 			lastUsed = _lastUsed;
 		}
-
 		boolean repeat = true;
-
 		while (repeat) {
 			lastUsed++;
 			repeat = false;
@@ -1144,7 +1124,6 @@ public class Zone extends BaseModel {
 					repeat = true;
 				}
 			}
-
 			if (!repeat && tokenBaseName != null) {
 				String name = tokenBaseName + " " + lastUsed;
 				Token token = getTokenByName(name);
@@ -1153,7 +1132,6 @@ public class Zone extends BaseModel {
 				}
 			}
 		}
-
 		tokenNumberCache.put(tokenBaseName, lastUsed);
 		return lastUsed;
 	}
@@ -1193,13 +1171,13 @@ public class Zone extends BaseModel {
 
 	public void optimize() {
 		log.debug("Optimizing Map " + getName());
-		MapTool.getFrame().setStatusMessage("Optimizing map " + getName());
+		MapTool.getFrame().setStatusMessage(I18N.getText("Zone.status.optimizing", getName()));
 		collapseDrawables();
 	}
 
 	/**
 	 * Clear out any drawables that are hidden/erased. This is an optimization step that should only happen when you
-	 * can't undo your changes and reexpose a drawable, typically at load.
+	 * can't undo your changes and re-expose a drawable, typically at load.
 	 */
 	private void collapseDrawables() {
 		collapseDrawableLayer(drawables);
@@ -1215,53 +1193,30 @@ public class Zone extends BaseModel {
 		Area area = new Area();
 		List<DrawnElement> list = new ArrayList<DrawnElement>(layer);
 		Collections.reverse(list);
-		int count = 0;
 		for (ListIterator<DrawnElement> drawnIter = list.listIterator(); drawnIter.hasNext();) {
-			if (count++ > 25) {
-//    			System.out.println("");
-				count = 0;
-			}
-			char statusChar = '.';
 			DrawnElement drawn = drawnIter.next();
-			try {
-				// Are we covered ourselves ?
-				Area drawnArea = drawn.getDrawable().getArea();
-				if (drawnArea == null) {
-					statusChar = '?';
-					continue;
-				}
-				// Does drawable cover area?  If not, get rid of it.
-				if (drawnArea.isEmpty()) {
-					statusChar = 'e';
-					drawnIter.remove();
-					continue;
-				}
-				//    		if (GraphicsUtil.contains(area, drawnArea)) {  // Too expensive
-				if (area.contains(drawnArea.getBounds())) { // Not as accurate, but faster
-					statusChar = '-';
-					drawnIter.remove();
-					continue;
-				}
-				// Are we possibly covering something up?
-				if (drawn.getPen().isEraser() && (drawn.getPen().getBackgroundMode() == Pen.MODE_SOLID)) {
-					statusChar = '/';
-					area.add(drawnArea);
-					continue;
-				}
-				// Should we check if we're covering anyone under us?
-//	    		if (drawn.getPen().getOpacity() == 1 && drawn.getPen().getForegroundMode() == Pen.MODE_SOLID) {
-//	    			statusChar = '+';
-//	    			area.add(drawnArea);
-//	    			continue;
-//	    		}
-			} finally {
-//        		System.out.print(statusChar);
-//    			System.out.println(statusChar + " " + drawn.getDrawable().getClass().getName());
-//        		System.out.flush();
+			// Are we covered ourselves ?
+			Area drawnArea = drawn.getDrawable().getArea();
+			if (drawnArea == null) {
+				continue;
+			}
+			// Does drawable cover area?  If not, get rid of it.
+			if (drawnArea.isEmpty()) {
+				drawnIter.remove();
+				continue;
+			}
+			//    		if (GraphicsUtil.contains(area, drawnArea)) {  // Too expensive
+			if (area.contains(drawnArea.getBounds())) { // Not as accurate, but faster
+				drawnIter.remove();
+				continue;
+			}
+			// Are we possibly covering something up?
+			if (drawn.getPen().isEraser() && (drawn.getPen().getBackgroundMode() == Pen.MODE_SOLID)) {
+				area.add(drawnArea);
+				continue;
 			}
 		}
 		// Now use the new list
-//    	System.out.println("\nBefore: " + layer.size() + " After: " + list.size());
 		layer.clear();
 		layer.addAll(list);
 		Collections.reverse(layer);
@@ -1348,6 +1303,5 @@ public class Zone extends BaseModel {
 		}
 		exposedAreaMeta.put(tokenGuid, meta);
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
-
 	}
 }

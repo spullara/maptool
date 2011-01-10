@@ -1,9 +1,9 @@
 /*
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
- *
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
@@ -43,23 +43,18 @@ import net.rptools.maptool.client.ui.token.XTokenOverlay;
 import net.rptools.maptool.client.ui.token.YieldTokenOverlay;
 
 public class CampaignProperties implements Serializable {
-
 	public static final String DEFAULT_TOKEN_PROPERTY_TYPE = "Basic";
 
 	private Map<String, List<TokenProperty>> tokenTypeMap;
 	private List<String> remoteRepositoryList;
-
 	private Map<String, Map<GUID, LightSource>> lightSourcesMap;
-
 	private Map<String, LookupTable> lookupTableMap;
-
 	private Map<String, SightType> sightTypeMap;
 
 	private String defaultSightType;
 
 	private Map<String, BooleanTokenOverlay> tokenStates;
 	private Map<String, BarTokenOverlay> tokenBars;
-
 	private Map<String, String> characterSheets;
 
 	/** Flag indicating that owners have special permissions */
@@ -75,26 +70,22 @@ public class CampaignProperties implements Serializable {
 	public CampaignProperties(CampaignProperties properties) {
 		tokenTypeMap = new HashMap<String, List<TokenProperty>>();
 		for (Entry<String, List<TokenProperty>> entry : properties.tokenTypeMap.entrySet()) {
-
 			List<TokenProperty> typeList = new ArrayList<TokenProperty>();
 			typeList.addAll(properties.tokenTypeMap.get(entry.getKey()));
 
 			tokenTypeMap.put(entry.getKey(), typeList);
 		}
-
 		remoteRepositoryList = new ArrayList<String>(properties.remoteRepositoryList);
 
 		lookupTableMap = new HashMap<String, LookupTable>();
 		if (properties.lookupTableMap != null) {
 			lookupTableMap.putAll(properties.lookupTableMap);
 		}
-
 		defaultSightType = properties.defaultSightType;
 		sightTypeMap = new HashMap<String, SightType>();
 		if (properties.sightTypeMap != null) {
 			sightTypeMap.putAll(properties.sightTypeMap);
 		}
-
 		// TODO: This doesn't feel right, should we deep copy, or does this do that automatically ?
 		lightSourcesMap = new HashMap<String, Map<GUID, LightSource>>(properties.lightSourcesMap);
 
@@ -130,12 +121,10 @@ public class CampaignProperties implements Serializable {
 	}
 
 	public void mergeInto(CampaignProperties properties) {
-
 		if (tokenTypeMap != null) {
 			// This will replace any dups
 			properties.tokenTypeMap.putAll(tokenTypeMap);
 		}
-
 		if (remoteRepositoryList != null) {
 			// Need to cull out dups
 			for (String repo : properties.remoteRepositoryList) {
@@ -144,19 +133,15 @@ public class CampaignProperties implements Serializable {
 				}
 			}
 		}
-
 		if (lightSourcesMap != null) {
 			properties.lightSourcesMap.putAll(lightSourcesMap);
 		}
-
 		if (lookupTableMap != null) {
 			properties.lookupTableMap.putAll(lookupTableMap);
 		}
-
 		if (sightTypeMap != null) {
 			properties.sightTypeMap.putAll(sightTypeMap);
 		}
-
 		if (tokenStates != null) {
 			properties.tokenStates.putAll(tokenStates);
 		}
@@ -277,7 +262,6 @@ public class CampaignProperties implements Serializable {
 		try {
 			Map<String, List<LightSource>> map = LightSource.getDefaultLightSources();
 			for (String key : map.keySet()) {
-
 				Map<GUID, LightSource> lightSourceMap = new LinkedHashMap<GUID, LightSource>();
 				for (LightSource source : map.get(key)) {
 					lightSourceMap.put(source.getId(), source);
@@ -285,9 +269,8 @@ public class CampaignProperties implements Serializable {
 				lightSourcesMap.put(key, lightSourceMap);
 			}
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
+			MapTool.showError("CampaignProperties.error.initLightSources", ioe);
 		}
-
 	}
 
 	private void initRemoteRepositoryList() {
@@ -301,15 +284,17 @@ public class CampaignProperties implements Serializable {
 		return defaultSightType;
 	}
 
+	// @formatter:off
 	private static final Object[][] starter = new Object[][] {
-		// Sight Type Name						Dist	Mult		Arc	LtSrc  Shape
-		{ "Normal",									  0.0, 1.0,		0,		null, null },
-		{ "Lowlight",									  0.0, 2.0,		0,		null, null },
-		{ "Square Vision",							  0.0, 1.0,		0,		null, ShapeType.SQUARE },
-		{ "Normal Vision - Short Range",	12.5, 1.0,		0,		null, ShapeType.CIRCLE },
-		{ "Conic Vision",							  0.0, 1.0,		120,	null, ShapeType.CONE },
-		{ "Darkvision",								62.5, 1.0,		0,		null, null },
+			// Sight Type Name						Dist		Mult		Arc	LtSrc		Shape
+			{ "Normal",									0.0,		1.0,		0,		null,		null },
+			{ "Lowlight",									0.0,		2.0,		0,		null,		null },
+			{ "Square Vision",							0.0,		1.0,		0,		null,		ShapeType.SQUARE },
+			{ "Normal Vision - Short Range",	12.5,		1.0,		0,		null,		ShapeType.CIRCLE },
+			{ "Conic Vision",							0.0,		1.0,		120,	null,		ShapeType.CONE },
+			{ "Darkvision",								62.5,		1.0,		0,		null,		null },
 	};
+	// @formatter:on
 
 	private void initSightTypeMap() {
 		sightTypeMap = new HashMap<String, SightType>();
@@ -318,7 +303,6 @@ public class CampaignProperties implements Serializable {
 			st.setDistance(((Double) row[1]).floatValue());
 			sightTypeMap.put((String) row[0], st);
 		}
-
 		SightType dv = sightTypeMap.get("Darkvision");
 		try {
 			dv.setPersonalLightSource(LightSource.getDefaultLightSources().get("Generic").get(5));
@@ -327,7 +311,6 @@ public class CampaignProperties implements Serializable {
 		} catch (IOException e) {
 			MapTool.showError("CampaignProperties.error.noGenericLight", e);
 		}
-
 		defaultSightType = (String) starter[0][0];
 	}
 
@@ -335,7 +318,6 @@ public class CampaignProperties implements Serializable {
 		if (tokenTypeMap != null) {
 			return;
 		}
-
 		tokenTypeMap = new HashMap<String, List<TokenProperty>>();
 
 		List<TokenProperty> list = new ArrayList<TokenProperty>();
@@ -384,6 +366,7 @@ public class CampaignProperties implements Serializable {
 			if (overlay instanceof ImageTokenOverlay)
 				set.add(((ImageTokenOverlay) overlay).getAssetId());
 		} // endfor
+
 		// Bars
 		for (BarTokenOverlay overlay : getTokenBarsMap().values()) {
 			if (overlay instanceof SingleImageBarTokenOverlay) {
@@ -424,7 +407,10 @@ public class CampaignProperties implements Serializable {
 		this.initiativeMovementLock = initiativeMovementLock;
 	}
 
-	/** @return Getter for characterSheets */
+	/**
+	 * Getter for characterSheets. Only called by {@link Campaign#getCharacterSheets()} and that function is never used
+	 * elsewhere within MapTool. Yet. ;-)
+	 */
 	public Map<String, String> getCharacterSheets() {
 		if (characterSheets == null)
 			initCharacterSheetsMap();

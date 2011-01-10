@@ -74,9 +74,9 @@ import com.thoughtworks.xstream.XStream;
 public class PersistenceUtil {
 	private static final Logger log = Logger.getLogger(PersistenceUtil.class);
 
-	private static final String PROP_VERSION = "version";
-	private static final String PROP_CAMPAIGN_VERSION = "campaignVersion";
-	private static final String ASSET_DIR = "assets/";
+	private static final String PROP_VERSION = "version"; //$NON-NLS-1$
+	private static final String PROP_CAMPAIGN_VERSION = "campaignVersion"; //$NON-NLS-1$
+	private static final String ASSET_DIR = "assets/"; //$NON-NLS-1$
 
 	private static final String CAMPAIGN_VERSION = "1.3.75";
 	// Please add a single note regarding why the campaign version number has been updated:
@@ -88,7 +88,7 @@ public class PersistenceUtil {
 	private static final ModelVersionManager tokenVersionManager = new ModelVersionManager();
 
 	static {
-		PackedFile.init(AppUtil.getAppHome("tmp"));
+		PackedFile.init(AppUtil.getAppHome("tmp")); //$NON-NLS-1$
 
 		// Whenever a new transformation needs to be added, put the version of MT into the CAMPAIGN_VERSION
 		// variable, and use that as the key to the following register call.
@@ -185,20 +185,20 @@ public class PersistenceUtil {
 			// is too much work right now. :-}
 			Zone z = persistedMap.zone;
 			String n = z.getName();
-			String count = n.replaceFirst("Import (\\d+) of.*", "$1");
+			String count = n.replaceFirst("Import (\\d+) of.*", "$1"); //$NON-NLS-1$
 			Integer next = 1;
 			try {
 				next = StringUtil.parseInteger(count) + 1;
-				n = n.replaceFirst("Import \\d+ of", "Import " + next + " of");
+				n = n.replaceFirst("Import \\d+ of", "Import " + next + " of"); //$NON-NLS-1$
 			} catch (ParseException e) {
-				n = "Import " + next + " of " + n;
+				n = "Import " + next + " of " + n; //$NON-NLS-1$
 			}
 			z.setName(n);
 			z.imported(); // Resets creation timestamp and init panel, among other things
 			z.optimize();
 			return persistedMap;
 		} catch (IOException ioe) {
-			MapTool.showError("While reading map data from file", ioe);
+			MapTool.showError("PersistenceUtil.error.mapRead", ioe);
 			throw ioe;
 		} finally {
 			pakfile.close();
@@ -285,7 +285,7 @@ public class PersistenceUtil {
 
 		// Copy to the new location
 		// Not the fastest solution in the world if renameTo() fails, but worth the safety net it provides
-		saveTimer.start("backup");
+		saveTimer.start("Backup");
 		File bakFile = new File(tmpDir.getAbsolutePath(), campaignFile.getName() + ".bak");
 		bakFile.delete();
 		if (campaignFile.exists()) {
@@ -300,12 +300,12 @@ public class PersistenceUtil {
 		}
 		if (bakFile.exists())
 			bakFile.delete();
-		saveTimer.stop("backup");
+		saveTimer.stop("Backup");
 
 		// Save the campaign thumbnail
-		saveTimer.start("thumbnail");
+		saveTimer.start("Thumbnail");
 		saveCampaignThumbnail(campaignFile.getName());
-		saveTimer.stop("thumbnail");
+		saveTimer.stop("Thumbnail");
 
 		if (log.isDebugEnabled()) {
 			log.debug(saveTimer);
@@ -430,11 +430,11 @@ public class PersistenceUtil {
 			}
 		} catch (FileNotFoundException fnfe) {
 			if (log.isInfoEnabled())
-				log.info("Campaign file not found (this can't happen?!)", fnfe);
+				log.info("Campaign file not found -- this can't happen?!", fnfe);
 			persistedCampaign = null;
 		} catch (IOException ioe) {
 			if (log.isInfoEnabled())
-				log.info("Campaign is not in legacy Hessian format", ioe);
+				log.info("Campaign is not in legacy Hessian format either.", ioe);
 			persistedCampaign = null;
 		} finally {
 			try {
@@ -604,7 +604,6 @@ public class PersistenceUtil {
 			}
 			pakFile.putFile(ASSET_DIR + assetId + "." + asset.getImageExtension(), asset.getImage());
 			pakFile.putFile(ASSET_DIR + assetId, asset); // Does not write the image
-//			pakFile.putFile(ASSET_DIR + assetId + ".dat", asset.getImage());
 		}
 	}
 
@@ -634,8 +633,7 @@ public class PersistenceUtil {
 	public static CampaignProperties loadCampaignProperties(File file) throws IOException {
 		try {
 			PackedFile pakFile = new PackedFile(file);
-			String version = (String) pakFile.getProperty(PROP_VERSION); // Sanity
-			// check
+			String version = (String) pakFile.getProperty(PROP_VERSION); // Sanity check
 			CampaignProperties props = (CampaignProperties) pakFile.getContent();
 			loadAssets(props.getAllImageAssets(), pakFile);
 			return props;
