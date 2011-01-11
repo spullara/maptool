@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.model.drawing;
 
@@ -31,7 +28,6 @@ import net.rptools.maptool.model.ZonePoint;
  * @version $Revision$ $Date$ $Author$
  */
 public abstract class AbstractTemplate extends AbstractDrawing {
-
 	/*---------------------------------------------------------------------------------------------
 	 * Instance Variables
 	 *-------------------------------------------------------------------------------------------*/
@@ -101,12 +97,17 @@ public abstract class AbstractTemplate extends AbstractDrawing {
 		SOUTH_WEST;
 
 		/**
-		 * Find the direction to draw a cone from two points. The first point would be the mouse location and the second would be the vertex of the cone.
+		 * Find the direction to draw a cone from two points. The first point would be the mouse location and the second
+		 * would be the vertex of the cone.
 		 * 
-		 * @param x1 Mouse X coordinate.
-		 * @param y1 Mouse Y coordinate.
-		 * @param x2 Vertex X coordinate.
-		 * @param y2 Vertex Y coordinate.
+		 * @param x1
+		 *            Mouse X coordinate.
+		 * @param y1
+		 *            Mouse Y coordinate.
+		 * @param x2
+		 *            Vertex X coordinate.
+		 * @param y2
+		 *            Vertex Y coordinate.
 		 * @return The direction from the vertex (point 2) to the mouse (point 1).
 		 */
 		public static Direction findDirection(int x1, int y1, int x2, int y2) {
@@ -141,7 +142,8 @@ public abstract class AbstractTemplate extends AbstractDrawing {
 	/**
 	 * Set the radius of the template in squares.
 	 * 
-	 * @param squares The number of squares in the radius for this template.
+	 * @param squares
+	 *            The number of squares in the radius for this template.
 	 */
 	public void setRadius(int squares) {
 		if (squares > MAX_RADIUS)
@@ -170,7 +172,8 @@ public abstract class AbstractTemplate extends AbstractDrawing {
 	/**
 	 * Set the value of vertex for this RadiusTemplate.
 	 * 
-	 * @param vertex The vertex to set.
+	 * @param vertex
+	 *            The vertex to set.
 	 */
 	public void setVertex(ZonePoint vertex) {
 		this.vertex = vertex;
@@ -188,7 +191,8 @@ public abstract class AbstractTemplate extends AbstractDrawing {
 	/**
 	 * Set the value of zoneId for this RadiusTemplate.
 	 * 
-	 * @param zoneId The zoneId to set.
+	 * @param zoneId
+	 *            The zoneId to set.
 	 */
 	public void setZoneId(GUID zoneId) {
 		this.zoneId = zoneId;
@@ -197,14 +201,19 @@ public abstract class AbstractTemplate extends AbstractDrawing {
 	/**
 	 * Paint the border or area of the template
 	 * 
-	 * @param g Where to paint
-	 * @param border Paint the border?
-	 * @param area Paint the area?
+	 * @param g
+	 *            Where to paint
+	 * @param border
+	 *            Paint the border?
+	 * @param area
+	 *            Paint the area?
 	 */
 	protected void paint(Graphics2D g, boolean border, boolean area) {
-		if (radius == 0) return;
+		if (radius == 0)
+			return;
 		Zone zone = MapTool.getCampaign().getZone(zoneId);
-		if (zone == null) return;
+		if (zone == null)
+			return;
 
 		// Find the proper distance
 		int gridSize = zone.getGrid().getSize();
@@ -227,11 +236,16 @@ public abstract class AbstractTemplate extends AbstractDrawing {
 	/**
 	 * Paint the close horizontal line of a cell's border. All directions are relevant to the vertex.
 	 * 
-	 * @param g The painter.
-	 * @param xOff X Offset to cell from vertex in screen coordinates.
-	 * @param yOff Y Offset to cell from vertex in screen coordinates.
-	 * @param gridSize Size of a cell in screen coordinates.
-	 * @param q The quadrant the cell is in relative to the vertex.
+	 * @param g
+	 *            The painter.
+	 * @param xOff
+	 *            X Offset to cell from vertex in screen coordinates.
+	 * @param yOff
+	 *            Y Offset to cell from vertex in screen coordinates.
+	 * @param gridSize
+	 *            Size of a cell in screen coordinates.
+	 * @param q
+	 *            The quadrant the cell is in relative to the vertex.
 	 */
 	protected void paintCloseHorizontalBorder(Graphics2D g, int xOff, int yOff, int gridSize, Quadrant q) {
 		int x = vertex.x + getXMult(q) * xOff;
@@ -243,11 +257,16 @@ public abstract class AbstractTemplate extends AbstractDrawing {
 	/**
 	 * Paint the close vertical line of a cell's border. All directions are relevant to the vertex.
 	 * 
-	 * @param g The painter.
-	 * @param xOff X Offset to cell from vertex in screen coordinates.
-	 * @param yOff Y Offset to cell from vertex in screen coordinates.
-	 * @param gridSize Size of a cell in screen coordinates.
-	 * @param q The quadrant the cell is in relative to the vertex.
+	 * @param g
+	 *            The painter.
+	 * @param xOff
+	 *            X Offset to cell from vertex in screen coordinates.
+	 * @param yOff
+	 *            Y Offset to cell from vertex in screen coordinates.
+	 * @param gridSize
+	 *            Size of a cell in screen coordinates.
+	 * @param q
+	 *            The quadrant the cell is in relative to the vertex.
 	 */
 	protected void paintCloseVerticalBorder(Graphics2D g, int xOff, int yOff, int gridSize, Quadrant q) {
 		int x = vertex.x + getXMult(q) * xOff;
@@ -259,11 +278,16 @@ public abstract class AbstractTemplate extends AbstractDrawing {
 	/**
 	 * Fill the area of a cell.
 	 * 
-	 * @param g The painter.
-	 * @param xOff X Offset to cell from vertex in screen coordinates.
-	 * @param yOff Y Offset to cell from vertex in screen coordinates.
-	 * @param gridSize Size of a cell in screen coordinates.
-	 * @param q The quadrant the cell is in relative to the vertex.
+	 * @param g
+	 *            The painter.
+	 * @param xOff
+	 *            X Offset to cell from vertex in screen coordinates.
+	 * @param yOff
+	 *            Y Offset to cell from vertex in screen coordinates.
+	 * @param gridSize
+	 *            Size of a cell in screen coordinates.
+	 * @param q
+	 *            The quadrant the cell is in relative to the vertex.
 	 */
 	protected void paintArea(Graphics2D g, int xOff, int yOff, int gridSize, Quadrant q) {
 		int x = vertex.x + getXMult(q) * xOff + ((getXMult(q) - 1) / 2) * gridSize;
@@ -274,11 +298,16 @@ public abstract class AbstractTemplate extends AbstractDrawing {
 	/**
 	 * Paint the far horizontal line of a cell's border. All directions are relevant to the vertex.
 	 * 
-	 * @param g The painter.
-	 * @param xOff X Offset to cell from vertex in screen coordinates.
-	 * @param yOff Y Offset to cell from vertex in screen coordinates.
-	 * @param gridSize Size of a cell in screen coordinates.
-	 * @param q The quadrant the cell is in relative to the vertex.
+	 * @param g
+	 *            The painter.
+	 * @param xOff
+	 *            X Offset to cell from vertex in screen coordinates.
+	 * @param yOff
+	 *            Y Offset to cell from vertex in screen coordinates.
+	 * @param gridSize
+	 *            Size of a cell in screen coordinates.
+	 * @param q
+	 *            The quadrant the cell is in relative to the vertex.
 	 */
 	protected void paintFarHorizontalBorder(Graphics2D g, int xOff, int yOff, int gridSize, Quadrant q) {
 		int x = vertex.x + getXMult(q) * xOff;
@@ -290,11 +319,16 @@ public abstract class AbstractTemplate extends AbstractDrawing {
 	/**
 	 * Paint the far vertical line of a cell's border. All directions are relevant to the vertex.
 	 * 
-	 * @param g The painter.
-	 * @param xOff X Offset to cell from vertex in screen coordinates.
-	 * @param yOff Y Offset to cell from vertex in screen coordinates.
-	 * @param gridSize Size of a cell in screen coordinates.
-	 * @param q The quadrant the cell is in relative to the vertex.
+	 * @param g
+	 *            The painter.
+	 * @param xOff
+	 *            X Offset to cell from vertex in screen coordinates.
+	 * @param yOff
+	 *            Y Offset to cell from vertex in screen coordinates.
+	 * @param gridSize
+	 *            Size of a cell in screen coordinates.
+	 * @param q
+	 *            The quadrant the cell is in relative to the vertex.
 	 */
 	protected void paintFarVerticalBorder(Graphics2D g, int xOff, int yOff, int gridSize, Quadrant q) {
 		int x = vertex.x + getXMult(q) * xOff + getXMult(q) * gridSize;
@@ -306,7 +340,8 @@ public abstract class AbstractTemplate extends AbstractDrawing {
 	/**
 	 * Get the multiplier in the X direction.
 	 * 
-	 * @param q Quadrant being accessed
+	 * @param q
+	 *            Quadrant being accessed
 	 * @return -1 for west and +1 for east
 	 */
 	protected int getXMult(Quadrant q) {
@@ -316,7 +351,8 @@ public abstract class AbstractTemplate extends AbstractDrawing {
 	/**
 	 * Get the multiplier in the X direction.
 	 * 
-	 * @param q Quadrant being accessed
+	 * @param q
+	 *            Quadrant being accessed
 	 * @return -1 for north and +1 for south
 	 */
 	protected int getYMult(Quadrant q) {
@@ -326,8 +362,10 @@ public abstract class AbstractTemplate extends AbstractDrawing {
 	/**
 	 * Get the distance to a specific coordinate.
 	 * 
-	 * @param x delta-X of the coordinate.
-	 * @param y delta-Y of the coordinate.
+	 * @param x
+	 *            delta-X of the coordinate.
+	 * @param y
+	 *            delta-Y of the coordinate.
 	 * @return Number of cells to the passed coordinate.
 	 */
 	public int getDistance(int x, int y) {
@@ -367,28 +405,46 @@ public abstract class AbstractTemplate extends AbstractDrawing {
 	 *-------------------------------------------------------------------------------------------*/
 
 	/**
-	 * Paint the border of the template. Note that all coordinates are for the south east quadrant, just change the signs of the x/y and xOff/yOff offsets to get to the other quadrants.
+	 * Paint the border of the template. Note that all coordinates are for the south east quadrant, just change the
+	 * signs of the x/y and xOff/yOff offsets to get to the other quadrants.
 	 * 
-	 * @param g Where to paint
-	 * @param x Distance from vertex along X axis in cell coordinates.
-	 * @param y Distance from vertex along Y axis in cell coordinates.
-	 * @param xOff Distance from vertex along X axis in screen coordinates.
-	 * @param yOff Distance from vertex along Y axis in screen coordinates.
-	 * @param gridSize The size of one side of the grid in screen coordinates.
-	 * @param distance The distance in cells from the vertex to the cell which is offset from the vertex by <code>x</code> & <code>y</code>.
+	 * @param g
+	 *            Where to paint
+	 * @param x
+	 *            Distance from vertex along X axis in cell coordinates.
+	 * @param y
+	 *            Distance from vertex along Y axis in cell coordinates.
+	 * @param xOff
+	 *            Distance from vertex along X axis in screen coordinates.
+	 * @param yOff
+	 *            Distance from vertex along Y axis in screen coordinates.
+	 * @param gridSize
+	 *            The size of one side of the grid in screen coordinates.
+	 * @param distance
+	 *            The distance in cells from the vertex to the cell which is offset from the vertex by <code>x</code> &
+	 *            <code>y</code>.
 	 */
 	protected abstract void paintBorder(Graphics2D g, int x, int y, int xOff, int yOff, int gridSize, int distance);
 
 	/**
-	 * Paint the border of the template. Note that all coordinates are for the south east quadrant, just change the signs of the x/y and xOff/yOff offsets to get to the other quadrants.
+	 * Paint the border of the template. Note that all coordinates are for the south east quadrant, just change the
+	 * signs of the x/y and xOff/yOff offsets to get to the other quadrants.
 	 * 
-	 * @param g Where to paint
-	 * @param x Distance from vertex along X axis in cell coordinates.
-	 * @param y Distance from vertex along Y axis in cell coordinates.
-	 * @param xOff Distance from vertex along X axis in screen coordinates.
-	 * @param yOff Distance from vertex along Y axis in screen coordinates.
-	 * @param gridSize The size of one side of the grid in screen coordinates.
-	 * @param distance The distance in cells from the vertex to the cell which is offset from the vertex by <code>x</code> & <code>y</code>.
+	 * @param g
+	 *            Where to paint
+	 * @param x
+	 *            Distance from vertex along X axis in cell coordinates.
+	 * @param y
+	 *            Distance from vertex along Y axis in cell coordinates.
+	 * @param xOff
+	 *            Distance from vertex along X axis in screen coordinates.
+	 * @param yOff
+	 *            Distance from vertex along Y axis in screen coordinates.
+	 * @param gridSize
+	 *            The size of one side of the grid in screen coordinates.
+	 * @param distance
+	 *            The distance in cells from the vertex to the cell which is offset from the vertex by <code>x</code> &
+	 *            <code>y</code>.
 	 */
 	protected abstract void paintArea(Graphics2D g, int x, int y, int xOff, int yOff, int gridSize, int distance);
 }

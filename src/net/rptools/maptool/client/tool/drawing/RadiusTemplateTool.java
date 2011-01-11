@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 
 package net.rptools.maptool.client.tool.drawing;
@@ -18,7 +15,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Paint;
-import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
@@ -28,6 +24,8 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
+import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -39,24 +37,20 @@ import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.model.drawing.RadiusTemplate;
 
 /**
- * Draw a template for an effect with a radius. Make the template show the
- * squares that are effected, not just draw a circle. Let the player choose the
- * vertex with the mouse and use the wheel to set the radius. This allows the
- * user to move the entire template where it is to be used before placing it
- * which is very important when casting a spell.
+ * Draw a template for an effect with a radius. Make the template show the squares that are effected, not just draw a
+ * circle. Let the player choose the vertex with the mouse and use the wheel to set the radius. This allows the user to
+ * move the entire template where it is to be used before placing it which is very important when casting a spell.
  * 
  * @author jgorrell
  * @version $Revision$ $Date$ $Author$
  */
 public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMotionListener {
-
 	/*---------------------------------------------------------------------------------------------
 	 * Instance Variables
 	 *-------------------------------------------------------------------------------------------*/
 
 	/**
-	 * The vertex that the effect is drawn on. It is the upper left corner of a
-	 * specific grid location.
+	 * The vertex that the effect is drawn on. It is the upper left corner of a specific grid location.
 	 */
 	protected AbstractTemplate template = createBaseTemplate();
 
@@ -66,15 +60,14 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
 	protected boolean painting;
 
 	/**
-	 * Has the anchoring point been set? When false, the anchor point is being
-	 * placed. When true, the area of effect is being drawn on the display.
+	 * Has the anchoring point been set? When false, the anchor point is being placed. When true, the area of effect is
+	 * being drawn on the display.
 	 */
 	protected boolean anchorSet;
 
 	/**
-	 * The offset used to move the vertex when the control key is pressed. If this value is
-	 * <code>null</code> then this would be the first time that the control key had been
-	 * reported in the mouse event.
+	 * The offset used to move the vertex when the control key is pressed. If this value is <code>null</code> then this
+	 * would be the first time that the control key had been reported in the mouse event.
 	 */
 	protected ZonePoint controlOffset;
 
@@ -83,9 +76,8 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
 	 *-------------------------------------------------------------------------------------------*/
 
 	/**
-	 * The width of the cursor. Since the cursor is a cross, this it the width of
-	 * the horizontal bar and the height of the vertical bar. Always make it an
-	 * odd number to keep it aligned on the grid properly.
+	 * The width of the cursor. Since the cursor is a cross, this is the width of the horizontal bar and the height of
+	 * the vertical bar. Always make it an odd number to keep it aligned on the grid properly.
 	 */
 	public static final int CURSOR_WIDTH = 25;
 
@@ -100,7 +92,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
 		try {
 			setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/temp-blue.png"))));
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
+			MapTool.showError("Can't find image resource 'temp-blue.png'", ioe);
 		} // endtry
 	}
 
@@ -118,11 +110,13 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
 	}
 
 	/**
-	 * Calculate the cell at the mouse point. If it is different from the current
-	 * point, make it the current point and repaint.
+	 * Calculate the cell at the mouse point. If it is different from the current point, make it the current point and
+	 * repaint.
 	 * 
-	 * @param e The event to be checked.
-	 * @param point The current point.
+	 * @param e
+	 *            The event to be checked.
+	 * @param point
+	 *            The current point.
 	 * @return Flag indicating that the value changed.
 	 */
 	protected boolean setCellAtMouse(MouseEvent e, ZonePoint point) {
@@ -137,22 +131,20 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
 	}
 
 	/**
-	 * Calculate the cell closest to a mouse point. Cell coordinates are the
-	 * upper left corner of the cell.
+	 * Calculate the cell closest to a mouse point. Cell coordinates are the upper left corner of the cell.
 	 * 
-	 * @param e The event to be checked.
+	 * @param e
+	 *            The event to be checked.
 	 * @return The cell at the mouse point in screen coordinates.
 	 */
 	protected ZonePoint getCellAtMouse(MouseEvent e) {
-
 		// Find the cell that the mouse is in.
 		ZonePoint mouse = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
 		CellPoint cp = renderer.getZone().getGrid().convert(mouse);
 		ZonePoint working = renderer.getZone().getGrid().convert(cp);
 
-		// If the mouse is over half way to the next vertex, move it there
-		// (both X & Y)
-		int grid = (int)(renderer.getZone().getGrid().getSize() * renderer.getScale());
+		// If the mouse is over half way to the next vertex, move it there (both X & Y)
+		int grid = (int) (renderer.getZone().getGrid().getSize() * renderer.getScale());
 		if (mouse.x - working.x >= grid / 2)
 			working.x += renderer.getZone().getGrid().getSize();
 		if (mouse.y - working.y >= grid / 2)
@@ -163,7 +155,8 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
 	/**
 	 * Calculate the radius between two cells based on a mouse event.
 	 * 
-	 * @param e Mouse event being checked
+	 * @param e
+	 *            Mouse event being checked
 	 * @return The radius between the current mouse location and the vertex location.
 	 */
 	protected int getRadiusAtMouse(MouseEvent e) {
@@ -177,10 +170,14 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
 	/**
 	 * Paint a cursor
 	 * 
-	 * @param g Where to paint.
-	 * @param paint Data to draw the cursor
-	 * @param thickness The thickness of the cursor.
-	 * @param vertex The vertex holding the cursor.
+	 * @param g
+	 *            Where to paint.
+	 * @param paint
+	 *            Data to draw the cursor
+	 * @param thickness
+	 *            The thickness of the cursor.
+	 * @param vertex
+	 *            The vertex holding the cursor.
 	 */
 	protected void paintCursor(Graphics2D g, Paint paint, float thickness, ZonePoint vertex) {
 		int halfCursor = CURSOR_WIDTH / 2;
@@ -211,22 +208,25 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
 	/**
 	 * Paint the radius value in feet.
 	 * 
-	 * @param g Where to paint.
-	 * @param p Vertex where radius is painted.
+	 * @param g
+	 *            Where to paint.
+	 * @param p
+	 *            Vertex where radius is painted.
 	 */
 	protected void paintRadius(Graphics2D g, ZonePoint p) {
 		if (template.getRadius() > 0 && anchorSet) {
 			ScreenPoint centerText = ScreenPoint.fromZonePoint(renderer, p);
 			centerText.translate(CURSOR_WIDTH, -CURSOR_WIDTH);
-			ToolHelper.drawMeasurement(g, template.getRadius() * renderer.getZone().getUnitsPerCell(), (int)centerText.x, (int)centerText.y);
+			ToolHelper.drawMeasurement(g, template.getRadius() * renderer.getZone().getUnitsPerCell(), (int) centerText.x, (int) centerText.y);
 		} // endif
 	}
 
 	/**
 	 * New instance of the template, at the passed vertex
 	 * 
-	 * @param vertex The starting vertex for the new template or
-	 * <code>null</code> if we should use the current template's vertex.
+	 * @param vertex
+	 *            The starting vertex for the new template or <code>null</code> if we should use the current template's
+	 *            vertex.
 	 */
 	protected void resetTool(ZonePoint vertex) {
 		anchorSet = false;
@@ -242,12 +242,13 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
 	}
 
 	/**
-	 * Handles setting the vertex when the control key is pressed during
-	 * mouse movement. A change in the passed vertex causes the template
-	 * to repaint the zone.
+	 * Handles setting the vertex when the control key is pressed during mouse movement. A change in the passed vertex
+	 * causes the template to repaint the zone.
 	 * 
-	 * @param e The mouse movement event.
-	 * @param vertex The vertex being modified.
+	 * @param e
+	 *            The mouse movement event.
+	 * @param vertex
+	 *            The vertex being modified.
 	 */
 	protected void handleControlOffset(MouseEvent e, ZonePoint vertex) {
 		ZonePoint working = getCellAtMouse(e);
@@ -273,20 +274,21 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
 	/**
 	 * Set the radius on a mouse move after the anchor has been set.
 	 * 
-	 * @param e Current mouse locations
+	 * @param e
+	 *            Current mouse locations
 	 */
 	protected void setRadiusFromAnchor(MouseEvent e) {
 		template.setRadius(getRadiusAtMouse(e));
 	}
 
 	/**
-	 * Handle mouse movement. Done here so that subclasses can still benefit from the code in
-	 * DefaultTool w/o rewriting it.
+	 * Handle mouse movement. Done here so that subclasses can still benefit from the code in DefaultTool w/o rewriting
+	 * it.
 	 * 
-	 * @param e Current mouse location
+	 * @param e
+	 *            Current mouse location
 	 */
 	protected void handleMouseMovement(MouseEvent e) {
-
 		// Set the anchor
 		ZonePoint vertex = template.getVertex();
 		if (!anchorSet) {
@@ -294,7 +296,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
 			controlOffset = null;
 
 			// Move the anchor if control pressed.
-		} else if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) {
+		} else if (SwingUtil.isControlDown(e)) {
 			handleControlOffset(e, vertex);
 
 			// Set the radius and repaint
@@ -327,8 +329,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
 	 *      java.awt.Graphics2D)
 	 */
 	@Override
-	public void paintOverlay(ZoneRenderer renderer, Graphics2D g)
-	{
+	public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
 		if (painting && renderer != null) {
 			Pen pen = getPenForOverlay();
 			AffineTransform old = g.getTransform();
@@ -362,7 +363,6 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
 	 */
 	@Override
 	protected Pen getPen() {
-
 		// Just paint the foreground
 		Pen pen = super.getPen();
 		pen.setBackgroundMode(Pen.MODE_SOLID);

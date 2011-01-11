@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 
 package net.rptools.maptool.model.drawing;
@@ -23,15 +20,12 @@ import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 
 /**
- * The radius template draws a highlight over all the squares effected from a
- * specific spine.
+ * The radius template draws a highlight over all the squares effected from a specific spine.
  * 
  * @author jgorrell
- * @version $Revision$ $Date: 2008-09-03 00:09:22 -0500 (Wed, 03 Sep
- *          2008) $ $Author$
+ * @version $Revision$ $Date$ $Author$
  */
 public class RadiusTemplate extends AbstractTemplate {
-
 	/**
 	 * Paint the border at a specific radius.
 	 * 
@@ -48,15 +42,14 @@ public class RadiusTemplate extends AbstractTemplate {
 	 * @param gridSize
 	 *            The size of one side of the grid in screen coordinates.
 	 * @param distance
-	 *            The distance in cells from the vertex to the cell which is
-	 *            offset from the vertex by <code>x</code> & <code>y</code>.
+	 *            The distance in cells from the vertex to the cell which is offset from the vertex by <code>x</code> &
+	 *            <code>y</code>.
 	 * @param radius
 	 *            The radius where the border is painted.
-	 * @see net.rptools.maptool.model.drawing.AbstractTemplate#paintBorder(java.awt.Graphics2D,
-	 *      int, int, int, int, int, int)
+	 * @see net.rptools.maptool.model.drawing.AbstractTemplate#paintBorder(java.awt.Graphics2D, int, int, int, int, int,
+	 *      int)
 	 */
 	protected void paintBorderAtRadius(Graphics2D g, int x, int y, int xOff, int yOff, int gridSize, int distance, int radius) {
-
 		// At the border?
 		if (distance == radius) {
 
@@ -83,28 +76,28 @@ public class RadiusTemplate extends AbstractTemplate {
 	 *-------------------------------------------------------------------------------------------*/
 
 	/**
-	 * @see net.rptools.maptool.model.drawing.AbstractTemplate#paintBorder(java.awt.Graphics2D,
-	 *      int, int, int, int, int, int)
+	 * @see net.rptools.maptool.model.drawing.AbstractTemplate#paintBorder(java.awt.Graphics2D, int, int, int, int, int,
+	 *      int)
 	 */
 	@Override
 	protected void paintBorder(Graphics2D g, int x, int y, int xOff, int yOff, int gridSize, int distance) {
 		paintBorderAtRadius(g, x, y, xOff, yOff, gridSize, distance, getRadius());
 
 		// At the center?
+		// FIXME This is wrong because it draws the filled rectangle at CellPoint(0,0) and it should be at the
+		// origin of the radius template.  Perhaps the transform is missing a call to translate()?
 		if (x == 0 && y == 0)
-			g.fillRect(xOff - 4, yOff - 4, 7, 7);
+			g.fillRect(getVertex().x + xOff - 4, getVertex().y + yOff - 4, 7, 7);
 	}
 
 	/**
-	 * @see net.rptools.maptool.model.drawing.AbstractTemplate#paintArea(java.awt.Graphics2D,
-	 *      int, int, int, int, int, int)
+	 * @see net.rptools.maptool.model.drawing.AbstractTemplate#paintArea(java.awt.Graphics2D, int, int, int, int, int,
+	 *      int)
 	 */
 	@Override
 	protected void paintArea(Graphics2D g, int x, int y, int xOff, int yOff, int gridSize, int distance) {
-
 		// Only squares w/in the radius
 		if (distance <= getRadius()) {
-
 			// Paint the squares
 			paintArea(g, xOff, yOff, gridSize, Quadrant.NORTH_EAST);
 			paintArea(g, xOff, yOff, gridSize, Quadrant.SOUTH_EAST);
@@ -129,7 +122,6 @@ public class RadiusTemplate extends AbstractTemplate {
 		if (zone == null) {
 			return new Rectangle();
 		}
-
 		int gridSize = zone.getGrid().getSize();
 		int quadrantSize = getRadius() * gridSize + BOUNDS_PADDING;
 		ZonePoint vertex = getVertex();
@@ -140,5 +132,4 @@ public class RadiusTemplate extends AbstractTemplate {
 		// I don't feel like figuring out the exact shape of this right now
 		return null;
 	}
-
 }
