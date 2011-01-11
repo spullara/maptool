@@ -2490,7 +2490,6 @@ public class AppActions {
 	};
 
 	public static class ToggleWindowAction extends ClientAction {
-
 		private final MTFrame mtFrame;
 
 		public ToggleWindowAction(MTFrame mtFrame) {
@@ -2525,21 +2524,17 @@ public class AppActions {
 		if (actionList == null) {
 			actionList = new ArrayList<ClientAction>();
 		}
-
 		return actionList;
 	}
 
 	public static void updateActions() {
-
 		for (ClientAction action : actionList) {
 			action.setEnabled(action.isAvailable());
 		}
-
 		MapTool.getFrame().getToolbox().updateTools();
 	}
 
 	public static abstract class ClientAction extends AbstractAction {
-
 		public void init(String key) {
 			init(key, true);
 		}
@@ -2591,7 +2586,6 @@ public class AppActions {
 	 * current player is a GM.
 	 */
 	public static abstract class AdminClientAction extends ClientAction {
-
 		@Override
 		public boolean isAvailable() {
 			return MapTool.getPlayer().isGM();
@@ -2603,7 +2597,6 @@ public class AppActions {
 	 * current player is a GM and there is a ZoneRenderer current.
 	 */
 	public static abstract class ZoneAdminClientAction extends AdminClientAction {
-
 		@Override
 		public boolean isAvailable() {
 			return super.isAvailable() && MapTool.getFrame().getCurrentZoneRenderer() != null;
@@ -2629,7 +2622,6 @@ public class AppActions {
 	 */
 	@SuppressWarnings("serial")
 	public static abstract class DeveloperClientAction extends ClientAction {
-
 		@Override
 		public boolean isAvailable() {
 			return System.getProperty("MAPTOOL_DEV") != null && !"false".equals(System.getProperty("MAPTOOL_DEV"));

@@ -34,6 +34,7 @@ import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.server.ServerPolicy;
 
 public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 	private static final String _TOKENS = "panel.MapExplorer.View.TOKENS";
@@ -376,7 +377,18 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 	}
 
 	/**
-	 * Accepts only NPC tokens or those owned by the current player (takes useStrictTokenManagement() into account).
+	 * Accepts only NPC tokens (for GM) or tokens owned by the current player (takes
+	 * {@link ServerPolicy#useStrictTokenManagement()} into account). Here's the selection process:
+	 * <ol>
+	 * <li>If the token is not on the Token layer, return <code>false</code>.
+	 * <li>If the token has type PC, return <code>false</code>.
+	 * <li>If the current player is the GM, return <code>true</code>.
+	 * <li>If the token is owned by the current player, return <code>true</code>. (Takes into account
+	 * StrictTokenManagement and the AllPlayers ownership flag).
+	 * <li>If the token is visible only to the owner, return <code>false</code>. (It's already been determined that
+	 * we're not an owner.)
+	 * <li>Otherwise, return true.
+	 * </ol>
 	 */
 	private class TokenTokenFilter extends TokenFilter {
 		public TokenTokenFilter() {
@@ -399,7 +411,7 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 			}
 			if (token.isVisibleOnlyToOwner())
 				return false;
-			return zone.isTokenVisible(token);
+			return true;
 		}
 	}
 
