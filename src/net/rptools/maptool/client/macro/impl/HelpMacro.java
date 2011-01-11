@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.macro.impl;
 
@@ -26,22 +23,21 @@ import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.language.I18N;
 
-@MacroDefinition(name = "help", aliases = { "h" }, description = "help.desc")
+@MacroDefinition(
+		name = "help",
+		aliases = { "h" },
+		description = "help.description")
 public class HelpMacro implements Macro {
-
 	private static Comparator<Macro> MACRO_NAME_COMPARATOR = new Comparator<Macro>() {
 		public int compare(Macro macro1, Macro macro2) {
-			MacroDefinition def1 = macro1.getClass().getAnnotation(
-					MacroDefinition.class);
-			MacroDefinition def2 = macro2.getClass().getAnnotation(
-					MacroDefinition.class);
+			MacroDefinition def1 = macro1.getClass().getAnnotation(MacroDefinition.class);
+			MacroDefinition def2 = macro2.getClass().getAnnotation(MacroDefinition.class);
 
 			return def1.name().compareTo(def2.name());
 		}
 	};
 
 	public void execute(MacroContext context, String parameter, MapToolMacroContext executionContext) {
-		
 		StringBuilder builder = new StringBuilder();
 
 		List<Macro> macros = new ArrayList<Macro>(MacroManager.getRegisteredMacros());
@@ -51,8 +47,7 @@ public class HelpMacro implements Macro {
 		builder.append("<tr><td><b>").append(I18N.getText("help.header.command")).append("</b></td><td><b>").append(I18N.getText("help.header.aliases"));
 		builder.append("</b></td><td><b>").append(I18N.getText("help.header.description")).append("</b></td></tr>");
 		for (Macro macro : macros) {
-			MacroDefinition def = macro.getClass().getAnnotation(
-					MacroDefinition.class);
+			MacroDefinition def = macro.getClass().getAnnotation(MacroDefinition.class);
 			if (!def.hidden()) {
 				builder.append("<TR>");
 
@@ -65,7 +60,6 @@ public class HelpMacro implements Macro {
 						if (i > 0) {
 							builder.append(", ");
 						}
-						
 						builder.append(aliases[i]);
 					}
 				}
@@ -73,13 +67,10 @@ public class HelpMacro implements Macro {
 
 				// Escape HTML from the desciption
 				String description = I18N.getText(def.description()).replace("<", "&lt;").replace(">", "&gt;");
-				
 				builder.append("<TD>").append(description).append("</td>");
-				
 			}
 		}
 		builder.append("</table>");
-		
 		MapTool.addLocalMessage(builder.toString());
 	}
 }

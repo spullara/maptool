@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 
 package net.rptools.maptool.client.macro.impl;
@@ -39,48 +36,46 @@ import net.rptools.maptool.language.I18N;
  * @version $Revision$ $Date$ $Author$
  */
 @MacroDefinition(
-    name = "savetokenstates",
-    aliases = { "tss" },
-    description = "savetokenstates.desc"
-)
+		name = "savetokenstates",
+		aliases = { "tss" },
+		description = "savetokenstates.description")
 public class SaveTokenStatesMacro implements Macro {
+	/**
+	 * @see net.rptools.maptool.client.macro.Macro#execute(java.lang.String)
+	 */
+	public void execute(MacroContext context, String macro, MapToolMacroContext executionContext) {
+		// Read the file from the command line
+		File aliasFile = null;
+		if (macro.length() > 0) {
+			aliasFile = new File(macro);
+		} else {
+			// Not on the command line, ask the user for a file.
+			JFileChooser chooser = MapTool.getFrame().getSaveFileChooser();
+			chooser.setDialogTitle(I18N.getText("savetokenstates.dialogTitle"));
+			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			if (chooser.showOpenDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION)
+				return;
+			aliasFile = chooser.getSelectedFile();
+		} // endif
 
-  /**
-   * @see net.rptools.maptool.client.macro.Macro#execute(java.lang.String)
-   */
-  public void execute(MacroContext context, String macro, MapToolMacroContext executionContext) {
-    
-    // Read the file from the command line
-    File aliasFile = null;
-    if (macro.length() > 0) {
-      aliasFile = new File(macro);
-    } else {
-      
-      // Not on the command line, ask the user for a file.
-      JFileChooser chooser = MapTool.getFrame().getSaveFileChooser();
-      chooser.setDialogTitle(I18N.getText("savetokenstates.dialogTitle"));
-      chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-      if (chooser.showOpenDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) return;
-      aliasFile = chooser.getSelectedFile();
-    } // endif
-    
-    // Make it an XML file if type isn't set, check for overwrite
-    if (aliasFile.getName().indexOf(".") < 0)
-      aliasFile = new File(aliasFile.getAbsolutePath() + "-tokenStates.xml");
-    if (aliasFile.exists() && !MapTool.confirm(I18N.getText("msg.confirm.fileExists"))) return;
-    
-    // Save the file using a decoder
-    try {
-      XMLEncoder encoder = new XMLEncoder(new BufferedOutputStream(new FileOutputStream(aliasFile)));
-      List<BooleanTokenOverlay> overlays = new ArrayList<BooleanTokenOverlay>();
-      for (String overlay : MapTool.getCampaign().getTokenStatesMap().keySet()) {
-        overlays.add(MapTool.getCampaign().getTokenStatesMap().get(overlay));
-      } // endfor
-      encoder.writeObject(overlays);
-      encoder.close();
-      MapTool.addLocalMessage(I18N.getText("savetokenstates.saved", overlays.size()));
-    } catch (FileNotFoundException fnfe) {
-      MapTool.addLocalMessage(I18N.getText("savetokenstates.couldNotSave", I18N.getText("msg.error.fileNotFound")));
-    } // endif
-  }
+		// Make it an XML file if type isn't set, check for overwrite
+		if (aliasFile.getName().indexOf(".") < 0)
+			aliasFile = new File(aliasFile.getAbsolutePath() + "-tokenStates.xml");
+		if (aliasFile.exists() && !MapTool.confirm(I18N.getText("msg.confirm.fileExists")))
+			return;
+
+		// Save the file using a decoder
+		try {
+			XMLEncoder encoder = new XMLEncoder(new BufferedOutputStream(new FileOutputStream(aliasFile)));
+			List<BooleanTokenOverlay> overlays = new ArrayList<BooleanTokenOverlay>();
+			for (String overlay : MapTool.getCampaign().getTokenStatesMap().keySet()) {
+				overlays.add(MapTool.getCampaign().getTokenStatesMap().get(overlay));
+			} // endfor
+			encoder.writeObject(overlays);
+			encoder.close();
+			MapTool.addLocalMessage(I18N.getText("savetokenstates.saved", overlays.size()));
+		} catch (FileNotFoundException fnfe) {
+			MapTool.addLocalMessage(I18N.getText("savetokenstates.couldNotSave", I18N.getText("msg.error.fileNotFound")));
+		} // endif
+	}
 }

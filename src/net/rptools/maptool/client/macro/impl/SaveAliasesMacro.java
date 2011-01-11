@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.macro.impl;
 
@@ -37,18 +34,14 @@ import org.apache.commons.io.FileUtils;
 
 @MacroDefinition(
 		name = "savealiases",
-		aliases = { },
-		description = "savealiases.desc"
-)
+		aliases = {},
+		description = "savealiases.description")
 public class SaveAliasesMacro implements Macro {
-
 	public void execute(MacroContext context, String macro, MapToolMacroContext executionContext) {
-
 		File aliasFile = null;
 		if (macro.length() > 0) {
 			aliasFile = new File(macro);
 		} else {
-
 			JFileChooser chooser = MapTool.getFrame().getSaveFileChooser();
 			chooser.setDialogTitle("savealiases.dialogTitle");
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -56,19 +49,16 @@ public class SaveAliasesMacro implements Macro {
 			if (chooser.showOpenDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
 				return;
 			}
-
 			aliasFile = chooser.getSelectedFile();
 		}
-
 		if (aliasFile.getName().indexOf(".") < 0) {
-			aliasFile = new File(aliasFile.getAbsolutePath()+".alias");
+			aliasFile = new File(aliasFile.getAbsolutePath() + ".alias");
 		}
 		if (aliasFile.exists() && !MapTool.confirm(I18N.getText("msg.confirm.fileExists"))) {
 			return;
 		}
 
 		try {
-
 			StringBuilder builder = new StringBuilder();
 			builder.append("# ").append(I18N.getText("savealiases.created")).append(" ").append(new SimpleDateFormat().format(new Date())).append("\n\n");
 
@@ -78,10 +68,8 @@ public class SaveAliasesMacro implements Macro {
 			Collections.sort(aliasList);
 			for (String key : aliasList) {
 				String value = aliasMap.get(key);
-
 				builder.append(key).append(":").append(value).append("\n"); // LATER: this character should be externalized and shared with the load alias macro
 			}
-
 			FileUtils.writeByteArrayToFile(aliasFile, builder.toString().getBytes("UTF-8"));
 
 			MapTool.addLocalMessage(I18N.getText("aliases.saved"));

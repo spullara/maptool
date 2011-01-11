@@ -18,7 +18,10 @@ import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.model.TextMessage;
 
-@MacroDefinition(name = "ooc", aliases = { "ooc" }, description = "ooc.desc")
+@MacroDefinition(
+		name = "ooc",
+		aliases = { "ooc" },
+		description = "ooc.description")
 public class OOCMacro extends AbstractMacro {
 	public void execute(MacroContext context, String macro, MapToolMacroContext executionContext) {
 		macro = processText(macro);

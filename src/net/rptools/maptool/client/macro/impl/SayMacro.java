@@ -22,7 +22,10 @@ import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 
-@MacroDefinition(name = "say", aliases = { "s" }, description = "say.desc")
+@MacroDefinition(
+		name = "say",
+		aliases = { "s" },
+		description = "say.description")
 public class SayMacro extends AbstractMacro {
 	public void execute(MacroContext context, String macro, MapToolMacroContext executionContext) {
 		macro = processText(macro);
@@ -45,7 +48,6 @@ public class SayMacro extends AbstractMacro {
 				sb.append("<td valign='top' width='40' style=\"padding-right:5px\"><img src=\"asset://").append(imageId).append("-40\" ></td>");
 			}
 		}
-
 		sb.append("<td valign=top style=\"margin-right: 5px\">");
 		if (executionContext != null && MapTool.getParser().isMacroPathTrusted() && !MapTool.getPlayer().isGM()) {
 			sb.append("<span class='trustedPrefix' ").append("title='").append(executionContext.getName());
@@ -55,7 +57,6 @@ public class SayMacro extends AbstractMacro {
 		if (executionContext != null && MapTool.getParser().isMacroPathTrusted() && !MapTool.getPlayer().isGM()) {
 			sb.append("</span>");
 		}
-
 		sb.append("</td><td valign=top>");
 
 		Color color = MapTool.getFrame().getCommandPanel().getTextColorWell().getColor();
@@ -67,9 +68,7 @@ public class SayMacro extends AbstractMacro {
 			sb.append("</span>");
 		}
 		sb.append("</td>");
-
 		sb.append("</tr></table>");
-
 		MapTool.addMessage(TextMessage.say(context.getTransformationHistory(), sb.toString()));
 	}
 }

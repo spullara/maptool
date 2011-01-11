@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.macro.impl;
 
@@ -35,10 +32,8 @@ import net.rptools.maptool.model.Zone;
 @MacroDefinition(
 		name = "settokenstate",
 		aliases = { "sts" },
-		description = "settokenstate.desc"
-)
+		description = "settokenstate.description")
 public class SetTokenStateMacro implements Macro {
-
 	/**
 	 * The element that contains the token name
 	 */
@@ -55,12 +50,13 @@ public class SetTokenStateMacro implements Macro {
 	public static final int VALUE = 2;
 
 	/**
-	 * @see net.rptools.maptool.client.macro.Macro#execute(net.rptools.maptool.client.macro.MacroContext, java.lang.String, net.rptools.maptool.client.MapToolMacroContext)
+	 * @see net.rptools.maptool.client.macro.Macro#execute(net.rptools.maptool.client.macro.MacroContext,
+	 *      java.lang.String, net.rptools.maptool.client.MapToolMacroContext)
 	 */
 	public void execute(MacroContext context, String aMacro, MapToolMacroContext executionContext) {
 		Set<GUID> selectedTokenSet; // The tokens to set the state of
-		String stateName;           // The name of the state to set
-		String value;				  // The value to set
+		String stateName; // The name of the state to set
+		String value; // The value to set
 
 		// Get the strings
 		if (aMacro.length() == 0) {
@@ -88,13 +84,12 @@ public class SetTokenStateMacro implements Macro {
 			if (!MapTool.getPlayer().isGM() && (!zone.isTokenVisible(token) || token.getLayer() == Zone.Layer.GM)) {
 				token = null;
 			}
-
 			if (token == null) { // Doesn't match a token? No problem lets grab selected tokens and see if it matches a state.
 				selectedTokenSet = MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokenSet();
 				if (selectedTokenSet.size() == 0) {
 					MapTool.addLocalMessage(I18N.getText("settokenstate.param"));
 					return;
-				}  else {
+				} else {
 					stateName = args[0];
 					value = args[1];
 				}
@@ -109,16 +104,13 @@ public class SetTokenStateMacro implements Macro {
 					value = null;
 				}
 			}
-
 		}
-
 		// Ok now that we have figured out the target of our manipulations its time to figure out exactly what we are trying to do to it
 		String state = getState(stateName);
 		if (state == null) {
 			MapTool.addLocalMessage(I18N.getText("settokenstate.unknownState", stateName));
 			return;
 		}
-
 		// Set the state for all the tokens
 		if (MapTool.getCampaign().getTokenStatesMap().containsKey(state)) {
 			for (GUID tokenId : selectedTokenSet) {
@@ -126,24 +118,24 @@ public class SetTokenStateMacro implements Macro {
 				handleBooleanValue(tok, state, value);
 			}
 		}
-
 	}
-
 
 	/**
 	 * Handle setting a boolean value.
 	 * 
-	 * @param token The token having its state modified
-	 * @param state The state being set.
-	 * @param value The value to set, or <code>null</code> to toggle value.
+	 * @param token
+	 *            The token having its state modified
+	 * @param state
+	 *            The state being set.
+	 * @param value
+	 *            The value to set, or <code>null</code> to toggle value.
 	 */
 	private void handleBooleanValue(Token token, String state, String value) {
-
 		Object baseValue = token.getState(state);
 		assert baseValue == null || baseValue instanceof Boolean : "The current value of token sate '" + state
-		+ "' is not a Boolean value but a " + baseValue.getClass().getName();
+				+ "' is not a Boolean value but a " + baseValue.getClass().getName();
 
-		Boolean oldValue = (Boolean)baseValue;
+		Boolean oldValue = (Boolean) baseValue;
 		Boolean newValue;
 
 		if (value == null) {
@@ -155,7 +147,6 @@ public class SetTokenStateMacro implements Macro {
 		} else {
 			newValue = Boolean.valueOf(value);
 		}
-
 		token.setState(state, newValue);
 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
 
@@ -164,16 +155,15 @@ public class SetTokenStateMacro implements Macro {
 		} else {
 			MapTool.addLocalMessage(I18N.getText("settokenstate.unmarked", token.getName(), state));
 		}
-
 	}
-
 
 	/**
 	 * Find a state name by ignoring case
 	 * 
-	 * @param state Name entered on command line
-	 * @return The valid state name w/ correct case or <code>null</code> if
-	 * no state with the passed name could be found.
+	 * @param state
+	 *            Name entered on command line
+	 * @return The valid state name w/ correct case or <code>null</code> if no state with the passed name could be
+	 *         found.
 	 */
 	public String getState(String state) {
 		if (MapTool.getCampaign().getTokenStatesMap().get(state) != null)
@@ -183,7 +173,7 @@ public class SetTokenStateMacro implements Macro {
 			if (name.equalsIgnoreCase(state)) {
 				if (newState != null) {
 					MapTool.addLocalMessage("The name '" + state
-							+ "' can be the state " + newState + " or " + name	+ ".");
+							+ "' can be the state " + newState + " or " + name + ".");
 					return null;
 				} // endif
 				newState = name;

@@ -24,9 +24,11 @@ import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.util.StringUtil;
 import net.rptools.parser.ParserException;
 
-@MacroDefinition(name = "table", aliases = { "tbl" }, description = "lookuptable.desc")
+@MacroDefinition(
+		name = "table",
+		aliases = { "tbl" },
+		description = "lookuptable.description")
 public class LookupTableMacro extends AbstractMacro {
-
 	public void execute(MacroContext context, String macro, MapToolMacroContext executionContext) {
 		StringBuilder sb = new StringBuilder();
 
@@ -34,7 +36,6 @@ public class LookupTableMacro extends AbstractMacro {
 			MapTool.addLocalMessage("lookuptable.specifyTable");
 			return;
 		}
-
 		List<String> words = StringUtil.splitNextWord(macro);
 		String tableName = words.get(0);
 		String value = null;
@@ -45,7 +46,6 @@ public class LookupTableMacro extends AbstractMacro {
 				value = null;
 			}
 		}
-
 		LookupTable lookupTable = MapTool.getCampaign().getLookupTableMap().get(tableName);
 		if (!MapTool.getPlayer().isGM() && !lookupTable.getAllowLookup()) {
 			if (lookupTable.getVisible()) {
@@ -69,7 +69,6 @@ public class LookupTableMacro extends AbstractMacro {
 				MacroManager.executeMacro(lookupValue);
 				return;
 			}
-
 			sb.append("Table ").append(tableName).append(" (");
 			sb.append(MapTool.getFrame().getCommandPanel().getIdentity());
 			sb.append("): ");
@@ -78,11 +77,9 @@ public class LookupTableMacro extends AbstractMacro {
 				sb.append("<img src=\"asset://").append(result.getImageId()).append("\" alt=\"").append(result.getValue()).append("\">");
 			} else {
 				sb.append("<span style='color:red'>");
-
 				sb.append(lookupValue);
 				sb.append("</span>");
 			}
-
 			MapTool.addMessage(TextMessage.say(context.getTransformationHistory(), sb.toString()));
 		} catch (ParserException pe) {
 			MapTool.addLocalMessage("lookuptable.couldNotPerform" + pe.getMessage());

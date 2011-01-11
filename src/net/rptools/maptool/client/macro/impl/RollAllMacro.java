@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.macro.impl;
 
@@ -21,18 +18,15 @@ import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.TextMessage;
 
 @MacroDefinition(
-        name = "roll",
-        aliases = { "r" },
-        description = "roll.desc"
-    )
+		name = "roll",
+		aliases = { "r" },
+		description = "roll.description")
 public class RollAllMacro extends AbstractRollMacro {
-
-    public void execute(MacroContext context, String macro, MapToolMacroContext executionContext) {
-        String result = roll(macro);
-        if (result != null) {
-        	
-            MapTool.addMessage(new TextMessage(TextMessage.Channel.ALL, null, MapTool.getPlayer().getName(), "* " + 
-            		I18N.getText("roll.string", MapTool.getPlayer().getName() , result), context.getTransformationHistory()));
-        }
-    }
+	public void execute(MacroContext context, String macro, MapToolMacroContext executionContext) {
+		String result = roll(macro);
+		if (result != null) {
+			MapTool.addMessage(new TextMessage(TextMessage.Channel.ALL, null, MapTool.getPlayer().getName(), "* " +
+					I18N.getText("roll.string", MapTool.getPlayer().getName(), result), context.getTransformationHistory()));
+		}
+	}
 }

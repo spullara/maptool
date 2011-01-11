@@ -22,7 +22,11 @@ import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 
-@MacroDefinition(name = "impersonate", aliases = { "im" }, description = "impersonate.desc", expandRolls = false)
+@MacroDefinition(
+		name = "impersonate",
+		aliases = { "im" },
+		description = "impersonate.description",
+		expandRolls = false)
 public class ImpersonateMacro implements Macro {
 	public void execute(MacroContext context, String macro, MapToolMacroContext executionContext) {
 		final MapToolFrame frame = MapTool.getFrame(); // cached for quicker access
@@ -84,19 +88,15 @@ public class ImpersonateMacro implements Macro {
 
 	private boolean canImpersonate(Token token) {
 		//my addition
-
 		if (!MapTool.getServerPolicy().isRestrictedImpersonation()) {
 			return true;
 		}
-
 		if (MapTool.getPlayer().isGM()) {
 			return true;
 		}
-
 		if (token == null) {
 			return false;
 		}
-
 		return token.isOwner(MapTool.getPlayer().getName());
 	}
 
@@ -104,7 +104,6 @@ public class ImpersonateMacro implements Macro {
 		if (MapTool.getPlayer().isGM()) {
 			return true;
 		}
-
 		return token.isOwner(MapTool.getPlayer().getName());
 	}
 }
