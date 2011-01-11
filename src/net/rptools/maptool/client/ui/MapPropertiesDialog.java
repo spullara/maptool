@@ -115,7 +115,7 @@ public class MapPropertiesDialog extends JDialog {
 	private void initialize() {
 
 		setLayout(new GridLayout());
-		formPanel = new FormPanel("net/rptools/maptool/client/ui/forms/mapPropertiesDialog.jfrm");
+		formPanel = new FormPanel("net/rptools/maptool/client/ui/forms/mapPropertiesDialog.xml");
 
 		initDistanceTextField();
 

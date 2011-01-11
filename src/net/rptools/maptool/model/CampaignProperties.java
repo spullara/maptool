@@ -357,7 +357,7 @@ public class CampaignProperties implements Serializable {
 
 	private void initCharacterSheetsMap() {
 		characterSheets = new HashMap<String, String>();
-		characterSheets.put("Basic", "net/rptools/maptool/client/ui/forms/BasicCharacterSheet.jfrm");
+		characterSheets.put("Basic", "net/rptools/maptool/client/ui/forms/basicCharacterSheet.xml");
 	}
 
 	public Set<MD5Key> getAllImageAssets() {

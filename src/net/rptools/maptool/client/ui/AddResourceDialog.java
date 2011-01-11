@@ -60,7 +60,7 @@ public class AddResourceDialog extends AbeillePanel<AddResourceDialog.Model> {
 	private boolean install = false;
 
 	public AddResourceDialog() {
-		super("net/rptools/maptool/client/ui/forms/addResourcesDialog.jfrm");
+		super("net/rptools/maptool/client/ui/forms/addResourcesDialog.xml");
 
 		setPreferredSize(new Dimension(550, 300));
 

@@ -35,12 +35,12 @@ import com.jidesoft.swing.CheckBoxListWithSelectable;
 
 /**
  * @author crash
- *
+ * 
  */
 @SuppressWarnings("serial")
 public class UpdateRepoDialog extends JDialog {
 	private static final Logger log = Logger.getLogger(FTPClient.class);
-	private static final String UPDATE_REPO_DIALOG = "net/rptools/maptool/client/ui/forms/updateRepoDialog.jfrm";
+	private static final String UPDATE_REPO_DIALOG = "net/rptools/maptool/client/ui/forms/updateRepoDialog.xml";
 	private static final FormPanel form = new FormPanel(UPDATE_REPO_DIALOG);
 
 	private int status = -1;
@@ -63,16 +63,17 @@ public class UpdateRepoDialog extends JDialog {
 		list.setListData(repos.toArray());
 		list.selectAll();
 		MouseListener mouseListener = new MouseAdapter() {
+			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
 					int index = list.locationToIndex(e.getPoint());
 					Object o = list.getModel().getElementAt(index);
-					saveTo.setText( o.toString() );
+					saveTo.setText(o.toString());
 					URL url = null;
 					try {
 						url = new URL(o.toString());
 //						System.out.println("URL object contains: " + url);
-						hostname.setText( url.getHost() );
+						hostname.setText(url.getHost());
 					} catch (MalformedURLException e1) {
 						e1.printStackTrace();
 					}
@@ -178,6 +179,7 @@ public class UpdateRepoDialog extends JDialog {
 		status = s;
 	}
 
+	@Override
 	public void setVisible(boolean b) {
 		if (b) {
 			SwingUtil.centerOver(this, MapTool.getFrame());

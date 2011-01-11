@@ -42,7 +42,7 @@ public class LookupTablePanel extends AbeillePanel {
 	private EditLookupTablePanel editorPanel;
 
 	public LookupTablePanel() {
-		super("net/rptools/maptool/client/ui/forms/lookupTablePanel.jfrm");
+		super("net/rptools/maptool/client/ui/forms/lookupTablePanel.xml");
 		panelInit();
 	}
 

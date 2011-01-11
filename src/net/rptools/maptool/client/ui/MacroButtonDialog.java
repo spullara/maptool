@@ -54,7 +54,7 @@ public class MacroButtonDialog extends JDialog {
 	public MacroButtonDialog() {
 
 		super(MapTool.getFrame(), "", true);
-		panel = new FormPanel("net/rptools/maptool/client/ui/forms/macroButtonDialog.jfrm");
+		panel = new FormPanel("net/rptools/maptool/client/ui/forms/macroButtonDialog.xml");
 		setContentPane(panel);
 		setSize(700, 400);
 		SwingUtil.centerOver(this, MapTool.getFrame());

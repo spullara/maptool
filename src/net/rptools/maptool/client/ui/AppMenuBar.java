@@ -78,7 +78,7 @@ public class AppMenuBar extends JMenuBar {
 		fileMenu.add(new JMenuItem(AppActions.START_SERVER));
 		fileMenu.add(new JMenuItem(AppActions.CONNECT_TO_SERVER));
 		fileMenu.add(new JMenuItem(AppActions.DISCONNECT_FROM_SERVER));
-		fileMenu.add(new JMenuItem(AppActions.SHOW_SERVER_INFO));
+		fileMenu.add(new JMenuItem(AppActions.SHOW_CONNECTION_INFO));
 		fileMenu.addSeparator();
 		fileMenu.add(createRecentCampaignMenu());
 		if (!MapTool.MAC_OS_X) {

@@ -39,9 +39,9 @@ import com.jidesoft.swing.CheckBoxTreeSelectionModel;
  */
 @SuppressWarnings("serial")
 public class UIBuilder extends JDialog {
-	
+
 	private static final Logger log = Logger.getLogger(UIBuilder.class);
-	
+
 	/**
 	 * @author crash
 	 * 
@@ -51,10 +51,8 @@ public class UIBuilder extends JDialog {
 		 * @param root
 		 *            the top-level node for the tree
 		 * @param asksAllowsChildren
-		 *            <code>false</code> means all nodes are leaf nodes unless
-		 *            they have children; <code>true</code> means all nodes are
-		 *            depicted as folders until the user actually tries to
-		 *            expand them
+		 *            <code>false</code> means all nodes are leaf nodes unless they have children; <code>true</code>
+		 *            means all nodes are depicted as folders until the user actually tries to expand them
 		 */
 		public TreeModel(TreeNode root, boolean asksAllowsChildren) {
 			super(root, asksAllowsChildren);
@@ -67,26 +65,22 @@ public class UIBuilder extends JDialog {
 
 		/**
 		 * <p>
-		 * This method accepts three parameters and inserts a node into a tree
-		 * at a given path.
+		 * This method accepts three parameters and inserts a node into a tree at a given path.
 		 * </p>
 		 * <p>
-		 * The first parameter identifies the root of the tree which should be
-		 * searched. This node may be the actual root of the tree or some node
-		 * within the tree.
+		 * The first parameter identifies the root of the tree which should be searched. This node may be the actual
+		 * root of the tree or some node within the tree.
 		 * </p>
 		 * <p>
-		 * The second parameter is a string in the style of a Unix pathname that
-		 * specifies where in the tree the new node should be inserted, relative
-		 * to the provided root. Any non-existent intervening nodes are created
-		 * as needed on the fly.
+		 * The second parameter is a string in the style of a Unix pathname that specifies where in the tree the new
+		 * node should be inserted, relative to the provided root. Any non-existent intervening nodes are created as
+		 * needed on the fly.
 		 * </p>
 		 * <p>
 		 * The third parameter is the new node to be added.
 		 * </p>
 		 * <p>
-		 * An example of how to use this method to add a sequence of three
-		 * nodes:
+		 * An example of how to use this method to add a sequence of three nodes:
 		 * </p>
 		 * <p>
 		 * 
@@ -108,13 +102,12 @@ public class UIBuilder extends JDialog {
 		 * @param node
 		 *            the new node to be added to the tree
 		 * @param start
-		 *            where to begin when traversing the path (<code>null</code>
-		 *            means the top of the tree)
+		 *            where to begin when traversing the path (<code>null</code> means the top of the tree)
 		 */
 		private MutableTreeNode last_start = null, last_root = null;
 		private String last_dir = null;
 
-		@SuppressWarnings( { "unchecked", "unused" })
+		@SuppressWarnings({ "unchecked", "unused" })
 		public void addNode(String dir, MaptoolNode node, MutableTreeNode start) {
 			MutableTreeNode firstChangedNode = null;
 			if (start == null)
@@ -134,12 +127,12 @@ public class UIBuilder extends JDialog {
 						_Checking(next);
 						MaptoolNode tmp = (MaptoolNode) next.getUserObject();
 						if (elems[i].equals(tmp.getName())) {
-							start = (DefaultMutableTreeNode) next;
+							start = next;
 							_Found(start);
 							continue OuterLoop;
 						}
-					} 
-					
+					}
+
 					log.debug("Warning: adding element \"" + elems[i] + "\" of \"" + dir + "\".");
 					// Since the element doesn't exist, create one... It must be
 					// a folder, so create it that way.
@@ -152,15 +145,12 @@ public class UIBuilder extends JDialog {
 				last_root = start;
 			}
 			/*
-			 * When we reach here, "root" is the last node from the dir search;
-			 * this is the container to which the new node should be added. The
-			 * obvious way would be: root.add(new DefaultMutableTreeNode(node));
-			 * which is obviously wrong. ;)
+			 * When we reach here, "root" is the last node from the dir search; this is the container to which the new
+			 * node should be added. The obvious way would be: root.add(new DefaultMutableTreeNode(node)); which is
+			 * obviously wrong. ;)
 			 * 
-			 * It's wrong because the TreeNodes don't send change messages to
-			 * any model listeners, so the tree wouldn't know to update itself.
-			 * Much better to use the TreeModel API so that the messages are
-			 * sent...
+			 * It's wrong because the TreeNodes don't send change messages to any model listeners, so the tree wouldn't
+			 * know to update itself. Much better to use the TreeModel API so that the messages are sent...
 			 */
 			if (node.getObject() != null) {
 				insertNodeInto(new DefaultMutableTreeNode(node), start, start.getChildCount());
@@ -193,12 +183,13 @@ public class UIBuilder extends JDialog {
 		}
 
 		private DefaultMutableTreeNode last_search;
+
 		public DefaultMutableTreeNode findNearestNode(String dir, MutableTreeNode start) {
 			if (start == null || dir.charAt(0) == '/')
 				start = (MutableTreeNode) this.root;
 			String[] elems = dir.split("/");
 			OuterLoop: for (int i = 0; i < elems.length; i++) {
-				if (elems[i].length() == 0)	// Skip empty elements, such as "//" or leading "/"
+				if (elems[i].length() == 0) // Skip empty elements, such as "//" or leading "/"
 					continue;
 				if (MapTool.isDevelopment())
 					_Searching(start);
@@ -208,34 +199,33 @@ public class UIBuilder extends JDialog {
 					if (MapTool.isDevelopment())
 						_Checking(next);
 					if (((MaptoolNode) next.getUserObject()).hashCode() == elems[i].hashCode()) {
-						start = (DefaultMutableTreeNode) next;
+						start = next;
 						_Found(start);
 						continue OuterLoop;
 					}
 				}
 				/*
-				 * If we get here it means we've searched the current node and not found any
-				 * children that match the next element in the path.  Return the node that
-				 * is as deep as we could go before the search failed.  The caller will need
-				 * to verify that we found what they were looking for.
+				 * If we get here it means we've searched the current node and not found any children that match the
+				 * next element in the path. Return the node that is as deep as we could go before the search failed.
+				 * The caller will need to verify that we found what they were looking for.
 				 */
 				break OuterLoop;
 			} // OuterLoop
 			last_search = (DefaultMutableTreeNode) start;
 			return last_search;
 		}
-		
+
 		public TreePath findPathToNearestNode(String dir, MutableTreeNode start) {
 			DefaultMutableTreeNode result = findNearestNode(dir, start);
 			return new TreePath(getPathToRoot(result));
 		}
 	}
 
-	private static final String LOAD_SAVE_DIALOG = "net/rptools/maptool/client/ui/forms/campaignItemList.jfrm";
+	private static final String LOAD_SAVE_DIALOG = "net/rptools/maptool/client/ui/forms/campaignItemList.xml";
 	private static final FormPanel form = new FormPanel(LOAD_SAVE_DIALOG);
 
-	private CheckBoxTree tree;
-	private TreeModel dtm;
+	private final CheckBoxTree tree;
+	private final TreeModel dtm;
 	private int status = -1;
 
 	public UIBuilder(Frame frame) {
@@ -330,12 +320,10 @@ public class UIBuilder extends JDialog {
 		}
 	}
 
-    /**
+	/**
 	 * <p>
-	 * This method populates the JTree with the basic components. This includes
-	 * the root of the tree, <b>Campaign</b>, as well as all of the top-level
-	 * children: <b>Properties</b>, <b>Maps</b>, <b>Macros</b>, and
-	 * <b>Images</b>.
+	 * This method populates the JTree with the basic components. This includes the root of the tree, <b>Campaign</b>,
+	 * as well as all of the top-level children: <b>Properties</b>, <b>Maps</b>, <b>Macros</b>, and <b>Images</b>.
 	 * </p>
 	 * <p>
 	 * The resulting tree will look something like:
@@ -366,17 +354,13 @@ public class UIBuilder extends JDialog {
 	 * </code>
 	 * </p>
 	 * <p>
-	 * The file format used allows for a quick scan upon loading to generate the
-	 * same list of data as existed when the components were saved. <i>(Can we
-	 * just use XStream to save the TreeModel data? That would make it super
-	 * simple when reading it back in.)</i> The goal is for each component in
-	 * the application to register with us when it is loaded. When the user
-	 * makes a request to save the campaign, the callbacks provided by each
-	 * subsystem will be invoked. They will be passed the current root of the
-	 * tree and should return an integer indicating the number of immediate
-	 * children they added. (I'm thinking this can be used to display the tree
-	 * right away while allowing the tree to continue to populate in the
-	 * background.)
+	 * The file format used allows for a quick scan upon loading to generate the same list of data as existed when the
+	 * components were saved. <i>(Can we just use XStream to save the TreeModel data? That would make it super simple
+	 * when reading it back in.)</i> The goal is for each component in the application to register with us when it is
+	 * loaded. When the user makes a request to save the campaign, the callbacks provided by each subsystem will be
+	 * invoked. They will be passed the current root of the tree and should return an integer indicating the number of
+	 * immediate children they added. (I'm thinking this can be used to display the tree right away while allowing the
+	 * tree to continue to populate in the background.)
 	 * </p>
 	 * 
 	 * @param tree

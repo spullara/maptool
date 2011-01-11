@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.ui.adjustgrid;
 
@@ -85,7 +82,7 @@ public class AdjustGridDialog extends JDialog {
 	private void initialize() {
 		this.setSize(500, 500);
 
-		FormPanel panel = new FormPanel("net/rptools/maptool/client/ui/forms/adjustGridDialog.jfrm");
+		FormPanel panel = new FormPanel("net/rptools/maptool/client/ui/forms/adjustGridDialog.xml");
 
 		panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"), "cancel");
 		panel.getActionMap().put("cancel", new CancelAction());
@@ -127,11 +124,11 @@ public class AdjustGridDialog extends JDialog {
 		setLayout(new GridLayout());
 		add(panel);
 
-		getRootPane().setDefaultButton((JButton)okButton);
+		getRootPane().setDefaultButton((JButton) okButton);
 	}
 
 	public void initialize(final int gridSize, final int gridOffsetX, final int gridOffsetY, final Color gridColor) {
-		EventQueue.invokeLater(new Runnable(){
+		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				gridSizeTextField.setText(Integer.toString(gridSize));
 				offsetXTextField.setText(Integer.toString(gridOffsetX));
@@ -199,7 +196,7 @@ public class AdjustGridDialog extends JDialog {
 				gridSizeTextField.setText(value.toString());
 			}
 			if (AdjustGridPanel.PROPERTY_ZOOM.equals(name)) {
-				zoomSlider.setValue((Integer)value);
+				zoomSlider.setValue((Integer) value);
 			}
 		}
 	}
@@ -256,28 +253,33 @@ public class AdjustGridDialog extends JDialog {
 		public OKAction() {
 			putValue(Action.NAME, "OK");
 		}
+
 		public void actionPerformed(ActionEvent e) {
 			isOK = true;
 			setVisible(false);
 			dispose();
 		}
 	}
+
 	private class CancelAction extends AbstractAction {
 		public CancelAction() {
 			putValue(Action.NAME, "Cancel");
 		}
+
 		public void actionPerformed(ActionEvent e) {
 			isOK = false;
 			setVisible(false);
 			dispose();
 		}
 	}
+
 	private class ColorChangeAction extends AbstractAction {
 		public void actionPerformed(ActionEvent e) {
 			Color color = colorWell.getColor();
 			setGridColor(color);
 		}
 	}
+
 	private class ZoomChangeListener implements ChangeListener {
 		public void stateChanged(ChangeEvent e) {
 			adjustGridPanel.setZoomIndex(zoomSlider.getValue());

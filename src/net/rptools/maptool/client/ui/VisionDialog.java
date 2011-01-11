@@ -46,7 +46,7 @@ public class VisionDialog extends JDialog {
 		super(MapTool.getFrame(), I18N.getText("VisionDialog.msg.title"), true);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-		FormPanel panel = new FormPanel("net/rptools/maptool/client/ui/forms/visionDialog.jfrm");
+		FormPanel panel = new FormPanel("net/rptools/maptool/client/ui/forms/visionDialog.xml");
 
 		initNameTextField(panel, vision);
 		initEnabledCheckBox(panel, vision);

@@ -53,7 +53,7 @@ public class EditLookupTablePanel extends AbeillePanel {
 	private boolean newTable = false;
 
 	public EditLookupTablePanel() {
-		super("net/rptools/maptool/client/ui/forms/editLookuptablePanel.jfrm");
+		super("net/rptools/maptool/client/ui/forms/editLookupTablePanel.xml");
 
 		panelInit();
 	}

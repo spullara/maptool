@@ -65,7 +65,7 @@ import net.rptools.maptool.client.ui.MapPropertiesDialog;
 import net.rptools.maptool.client.ui.MapToolFrame.MTFrame;
 import net.rptools.maptool.client.ui.PreferencesDialog;
 import net.rptools.maptool.client.ui.PreviewPanelFileChooser;
-import net.rptools.maptool.client.ui.ServerInfoDialog;
+import net.rptools.maptool.client.ui.ConnectionInfoDialog;
 import net.rptools.maptool.client.ui.StartServerDialog;
 import net.rptools.maptool.client.ui.StartServerDialogPreferences;
 import net.rptools.maptool.client.ui.StaticMessageDialog;
@@ -541,7 +541,7 @@ public class AppActions {
 		}
 	};
 
-	public static final Action SHOW_SERVER_INFO = new DefaultClientAction() {
+	public static final Action SHOW_CONNECTION_INFO = new DefaultClientAction() {
 		{
 			init("action.showServerInfo");
 		}
@@ -558,7 +558,7 @@ public class AppActions {
 				return;
 			}
 
-			ServerInfoDialog dialog = new ServerInfoDialog(MapTool.getServer());
+			ConnectionInfoDialog dialog = new ConnectionInfoDialog(MapTool.getServer());
 			dialog.setVisible(true);
 		}
 	};

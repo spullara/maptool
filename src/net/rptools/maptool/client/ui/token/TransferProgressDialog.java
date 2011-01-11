@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 
 package net.rptools.maptool.client.ui.token;
@@ -24,7 +21,6 @@ import java.text.NumberFormat;
 import java.util.List;
 
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumnModel;
@@ -42,121 +38,132 @@ import net.rptools.maptool.transfer.ConsumerListener;
 public class TransferProgressDialog extends AbeillePanel<Token> implements ConsumerListener {
 
 	private GenericDialog dialog;
-	
+
 	public TransferProgressDialog() {
-		super("net/rptools/maptool/client/ui/forms/transferProgressDialog.jfrm");
+		super("net/rptools/maptool/client/ui/forms/transferProgressDialog.xml");
 
 		panelInit();
 	}
-	
+
 	public void showDialog() {
-		dialog = new GenericDialog("Assets in Transit", MapTool.getFrame(), this, false){
+		dialog = new GenericDialog("Assets in Transit", MapTool.getFrame(), this, false) {
 			@Override
 			public void showDialog() {
 				MapTool.getAssetTransferManager().addConsumerListener(TransferProgressDialog.this);
 				super.showDialog();
 			}
+
 			@Override
 			public void closeDialog() {
 				MapTool.getAssetTransferManager().removeConsumerListener(TransferProgressDialog.this);
 				super.closeDialog();
 			}
 		};
-		
+
 		getRootPane().setDefaultButton(getCloseButton());
 		dialog.showDialog();
 	}
-	
+
 	public JButton getCloseButton() {
 		return (JButton) getComponent("closeButton");
 	}
-	
+
 	public JTable getTransferTable() {
 		return (JTable) getComponent("transferTable");
 	}
 
 	public void initCloseButton() {
-		getCloseButton().addActionListener(new ActionListener(){
+		getCloseButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				dialog.closeDialog();
 			}
 		});
 	}
-	
+
 	private void updateTransferTable() {
-		
+
 		final TransferTableModel model = new TransferTableModel();
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				getTransferTable().setModel(model);
-				
+
 				TableColumnModel colModel = getTransferTable().getColumnModel();
 				colModel.getColumn(1).setMaxWidth(100);
 				colModel.getColumn(2).setMaxWidth(75);
 			}
 		});
 	}
-	
+
 	public void initTransferTable() {
 		getTransferTable().setBackground(Color.white);
 		updateTransferTable();
 	}
-	
+
 	private static class TransferTableModel extends AbstractTableModel {
 
-		private List<AssetConsumer> consumerList;
-		
+		private final List<AssetConsumer> consumerList;
+
 		public TransferTableModel() {
 			consumerList = MapTool.getAssetTransferManager().getAssetConsumers();
 		}
-		
+
 		public int getColumnCount() {
 			return 3;
 		}
+
 		public int getRowCount() {
 			return Math.max(consumerList.size(), 1);
 		}
+
 		public Object getValueAt(int rowIndex, int columnIndex) {
 
 			if (consumerList.size() == 0) {
 				return columnIndex == 0 ? "None" : "";
 			}
-			
+
 			AssetConsumer consumer = consumerList.get(rowIndex);
-			
-			switch(columnIndex) {
-			case 0: return consumer.getId();
-			case 1: return formatSize(consumer.getSize());
-			case 2: return NumberFormat.getPercentInstance().format(consumer.getPercentComplete());
+
+			switch (columnIndex) {
+			case 0:
+				return consumer.getId();
+			case 1:
+				return formatSize(consumer.getSize());
+			case 2:
+				return NumberFormat.getPercentInstance().format(consumer.getPercentComplete());
 			}
-			
+
 			return null;
 		}
-		
+
 		private String formatSize(long size) {
-			
-			return NumberFormat.getIntegerInstance().format(size/1024) + "k";
+
+			return NumberFormat.getIntegerInstance().format(size / 1024) + "k";
 		}
-		
+
 		@Override
 		public String getColumnName(int column) {
-			switch(column) {
-			case 0: return "ID";
-			case 1: return "Size";
-			case 2: return "Progress";
+			switch (column) {
+			case 0:
+				return "ID";
+			case 1:
+				return "Size";
+			case 2:
+				return "Progress";
 			}
 			return "";
 		}
 	}
-	
+
 	////
 	// CONSUMER LISTENER
 	public void assetComplete(Serializable id, String name, File data) {
 		updateTransferTable();
 	}
+
 	public void assetUpdated(Serializable id) {
 		getTransferTable().repaint();
 	}
+
 	public void assetAdded(Serializable id) {
 		updateTransferTable();
 	}
