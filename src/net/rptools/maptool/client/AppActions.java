@@ -59,13 +59,13 @@ import net.rptools.maptool.client.ui.AppMenuBar;
 import net.rptools.maptool.client.ui.ClientConnectionPanel;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
 import net.rptools.maptool.client.ui.ConnectToServerDialogPreferences;
+import net.rptools.maptool.client.ui.ConnectionInfoDialog;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.ExportDialog;
 import net.rptools.maptool.client.ui.MapPropertiesDialog;
 import net.rptools.maptool.client.ui.MapToolFrame.MTFrame;
 import net.rptools.maptool.client.ui.PreferencesDialog;
 import net.rptools.maptool.client.ui.PreviewPanelFileChooser;
-import net.rptools.maptool.client.ui.ConnectionInfoDialog;
 import net.rptools.maptool.client.ui.StartServerDialog;
 import net.rptools.maptool.client.ui.StartServerDialogPreferences;
 import net.rptools.maptool.client.ui.StaticMessageDialog;
@@ -543,7 +543,7 @@ public class AppActions {
 
 	public static final Action SHOW_CONNECTION_INFO = new DefaultClientAction() {
 		{
-			init("action.showServerInfo");
+			init("action.showConnectionInfo");
 		}
 
 		@Override
@@ -2453,7 +2453,7 @@ public class AppActions {
 	 */
 	public static final Action TOGGLE_DRAW_MEASUREMENTS = new DefaultClientAction() {
 		{
-			init("action.toggleDrawMeasuements");
+			init("action.toggleDrawMeasurements");
 		}
 
 		@Override
