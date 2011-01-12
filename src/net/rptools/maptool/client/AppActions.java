@@ -1263,9 +1263,7 @@ public class AppActions {
 
 		@Override
 		public void execute(ActionEvent e) {
-
 			AppState.setShowGrid(!AppState.isShowGrid());
-
 			if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
 				MapTool.getFrame().getCurrentZoneRenderer().repaint();
 			}

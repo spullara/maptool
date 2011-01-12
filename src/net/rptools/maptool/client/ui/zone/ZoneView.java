@@ -33,13 +33,11 @@ import net.rptools.maptool.model.Light;
 import net.rptools.maptool.model.LightSource;
 import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
-import net.rptools.maptool.model.Player.Role;
 import net.rptools.maptool.model.SightType;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 
 public class ZoneView implements ModelChangeListener {
-
 	private final Zone zone;
 
 	// VISION
@@ -54,11 +52,8 @@ public class ZoneView implements ModelChangeListener {
 	private AreaTree topology;
 
 	public ZoneView(Zone zone) {
-
 		this.zone = zone;
-
 		findLightSources();
-
 		zone.addModelChangeListener(this);
 	}
 
@@ -87,11 +82,9 @@ public class ZoneView implements ModelChangeListener {
 	}
 
 	public Area getLightSourceArea(Token token, Token lightSourceToken) {
-
 		// Cached ?
 		Map<String, Area> areaBySightMap = lightSourceCache.get(lightSourceToken.getId());
 		if (areaBySightMap != null) {
-
 			Area lightSourceArea = areaBySightMap.get(token.getSightType());
 			if (lightSourceArea != null) {
 				return lightSourceArea;
@@ -100,16 +93,13 @@ public class ZoneView implements ModelChangeListener {
 			areaBySightMap = new HashMap<String, Area>();
 			lightSourceCache.put(lightSourceToken.getId(), areaBySightMap);
 		}
-
 		// Calculate
 		Area area = new Area();
 		for (AttachedLightSource attachedLightSource : lightSourceToken.getLightSources()) {
-
 			LightSource lightSource = MapTool.getCampaign().getLightSource(attachedLightSource.getLightSourceId());
 			if (lightSource == null) {
 				continue;
 			}
-
 			SightType sight = MapTool.getCampaign().getSightType(token.getSightType());
 			Area visibleArea = calculateLightSourceArea(lightSource, lightSourceToken, sight, attachedLightSource.getDirection());
 
@@ -119,10 +109,8 @@ public class ZoneView implements ModelChangeListener {
 				area.add(visibleArea);
 			}
 		}
-
 		// Cache
 		areaBySightMap.put(token.getSightType(), area);
-
 		return area;
 	}
 
@@ -135,11 +123,9 @@ public class ZoneView implements ModelChangeListener {
 	}
 
 	private Area calculateLightSourceArea(LightSource lightSource, Token lightSourceToken, SightType sight, Direction direction, boolean isPersonalLight) {
-
 		if (sight == null) {
 			return null;
 		}
-
 		Point p = FogUtil.calculateVisionCenter(lightSourceToken, zone);
 		Area lightSourceArea = lightSource.getArea(lightSourceToken, zone, direction);
 
@@ -148,27 +134,22 @@ public class ZoneView implements ModelChangeListener {
 		if (sight.getMultiplier() != 1) {
 			lightSourceArea.transform(AffineTransform.getScaleInstance(sight.getMultiplier(), sight.getMultiplier()));
 		}
-
 		Area visibleArea = FogUtil.calculateVisibility(p.x, p.y, lightSourceArea, getTopology());
 
 		if (visibleArea == null) {
 			return null;
 		}
-
 		if (lightSource.getType() != LightSource.Type.NORMAL) {
 			return visibleArea;
 		}
-
 		// Keep track of colored light
 		Set<DrawableLight> lightSet = new HashSet<DrawableLight>();
 		Set<Area> brightLightSet = new HashSet<Area>();
 		for (Light light : lightSource.getLightList()) {
-
 			Area lightArea = lightSource.getArea(lightSourceToken, zone, direction, light);
 			if (sight.getMultiplier() != 1) {
 				lightArea.transform(AffineTransform.getScaleInstance(sight.getMultiplier(), sight.getMultiplier()));
 			}
-
 			lightArea.transform(AffineTransform.getTranslateInstance(p.x, p.y));
 			lightArea.intersect(visibleArea);
 
@@ -178,7 +159,6 @@ public class ZoneView implements ModelChangeListener {
 				brightLightSet.add(lightArea);
 			}
 		}
-
 		Map<String, Set<DrawableLight>> lightMap = drawableLightCache.get(lightSourceToken.getId());
 		if (lightMap == null) {
 			lightMap = new HashMap<String, Set<DrawableLight>>();
@@ -189,7 +169,6 @@ public class ZoneView implements ModelChangeListener {
 		} else {
 			lightMap.put(sight.getName(), lightSet);
 		}
-
 		Map<String, Set<Area>> brightLightMap = brightLightCache.get(lightSourceToken.getId());
 		if (brightLightMap == null) {
 			brightLightMap = new HashMap<String, Set<Area>>();
@@ -200,12 +179,10 @@ public class ZoneView implements ModelChangeListener {
 		} else {
 			brightLightMap.put(sight.getName(), brightLightSet);
 		}
-
 		return visibleArea;
 	}
 
 	public Area getVisibleArea(Token token) {
-
 		// Sanity
 		if (token == null || !token.getHasSight()) {
 			return null;
@@ -215,7 +192,6 @@ public class ZoneView implements ModelChangeListener {
 		if (tokenVisibleArea != null) {
 			return tokenVisibleArea;
 		}
-
 		SightType sight = MapTool.getCampaign().getSightType(token.getSightType());
 		// More sanity checks; maybe sight type removed from campaign after token set?
 		if (sight == null) {
@@ -224,17 +200,14 @@ public class ZoneView implements ModelChangeListener {
 		// Combine the player visible area with the available light sources
 		tokenVisibleArea = tokenVisibleAreaCache.get(token.getId());
 		if (tokenVisibleArea == null) {
-
 			Point p = FogUtil.calculateVisionCenter(token, zone);
 			Area visibleArea = sight.getVisionShape(token, zone);
 			tokenVisibleArea = FogUtil.calculateVisibility(p.x, p.y, visibleArea, getTopology());
 
 			tokenVisibleAreaCache.put(token.getId(), tokenVisibleArea);
 		}
-
 		// Combine in the visible light areas
 		if (tokenVisibleArea != null && zone.getVisionType() == Zone.VisionType.NIGHT) {
-
 			Rectangle2D origBounds = tokenVisibleArea.getBounds();
 
 			// Combine all light sources that might intersect our vision
@@ -243,7 +216,6 @@ public class ZoneView implements ModelChangeListener {
 
 			if (lightSourceMap.get(LightSource.Type.NORMAL) != null) {
 				for (GUID lightSourceTokenId : lightSourceMap.get(LightSource.Type.NORMAL)) {
-
 					Token lightSourceToken = zone.getToken(lightSourceTokenId);
 					if (lightSourceToken != null) {
 						lightSourceTokens.add(lightSourceToken);
@@ -255,7 +227,6 @@ public class ZoneView implements ModelChangeListener {
 				lightSourceTokens.add(token);
 			}
 			for (Token lightSourceToken : lightSourceTokens) {
-
 				Area lightArea = getLightSourceArea(token, lightSourceToken);
 
 				if (origBounds.intersects(lightArea.getBounds2D())) {
@@ -264,9 +235,7 @@ public class ZoneView implements ModelChangeListener {
 					intersects.add(intersection);
 				}
 			}
-
 			// Check for personal vision
-
 			if (sight.hasPersonalLightSource()) {
 				Area lightArea = calculatePersonalLightSourceArea(sight.getPersonalLightSource(), token, sight, Direction.CENTER);
 				if (lightArea != null) {
@@ -275,21 +244,16 @@ public class ZoneView implements ModelChangeListener {
 					intersects.add(intersection);
 				}
 			}
-
 			while (intersects.size() > 1) {
-
 				Area a1 = intersects.remove(0);
 				Area a2 = intersects.remove(0);
 
 				a1.add(a2);
 				intersects.add(a1);
 			}
-
 			tokenVisibleArea = intersects.size() > 0 ? intersects.get(0) : new Area();
 		}
-
 		tokenVisionCache.put(token.getId(), tokenVisibleArea);
-
 		return tokenVisibleArea;
 	}
 
@@ -370,7 +334,6 @@ public class ZoneView implements ModelChangeListener {
 				lightSet.addAll(set);
 			}
 		}
-
 		return lightSet;
 	}
 
@@ -382,7 +345,6 @@ public class ZoneView implements ModelChangeListener {
 				lightSet.addAll(set);
 			}
 		}
-
 		return lightSet;
 	}
 
@@ -421,7 +383,6 @@ public class ZoneView implements ModelChangeListener {
 		if (visibleAreaMap.get(view) != null && visibleAreaMap.get(view).visibleArea.getBounds().getCenterX() != 0.0d) {
 			return;
 		}
-
 		// Cache it
 		VisibleAreaMeta meta = new VisibleAreaMeta();
 		meta.visibleArea = new Area();
@@ -434,12 +395,10 @@ public class ZoneView implements ModelChangeListener {
 			if (!token.getHasSight()) {
 				continue;
 			}
-
 			// Don't bother if it's not visible
 			if (!view.isGMView() && !token.isVisible()) {
 				continue;
 			}
-
 			// Permission
 			if (MapTool.getServerPolicy().isUseIndividualViews() || MapTool.isPersonalServer()) {
 				if (!AppUtil.playerOwns(token)) {
@@ -447,7 +406,9 @@ public class ZoneView implements ModelChangeListener {
 				}
 			} else {
 				// Party members only, unless you are the GM
-				if ((token.getType() != Token.Type.PC && !view.isGMView() || (!view.isGMView() && MapTool.getPlayer().getRole() == Role.GM))) {
+				// This used to be the code:
+//				if ((token.getType() != Token.Type.PC && !view.isGMView() || (!view.isGMView() && MapTool.getPlayer().getRole() == Role.GM))) {
+				if (!view.isGMView() && (token.getType() != Token.Type.PC || MapTool.getPlayer().isGM())) {
 					continue;
 				}
 			}
@@ -455,7 +416,6 @@ public class ZoneView implements ModelChangeListener {
 			if (!AppUtil.playerOwns(token) && token.isVisibleOnlyToOwner()) {
 				continue;
 			}
-
 			Area tokenVision = getVisibleArea(token);
 			if (tokenVision != null) {
 				meta.visibleArea.add(tokenVision);
@@ -466,10 +426,8 @@ public class ZoneView implements ModelChangeListener {
 	////
 	// MODEL CHANGE LISTENER
 	public void modelChanged(ModelChangeEvent event) {
-
 		Object evt = event.getEvent();
 		if (event.getModel() instanceof Zone) {
-
 			if (evt == Zone.Event.TOPOLOGY_CHANGED) {
 				tokenVisionCache.clear();
 				lightSourceCache.clear();
@@ -504,7 +462,6 @@ public class ZoneView implements ModelChangeListener {
 					}
 				}
 			}
-
 		}
 	}
 

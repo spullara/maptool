@@ -131,9 +131,10 @@ import org.apache.log4j.Logger;
 /**
  */
 public class ZoneRenderer extends JComponent implements DropTargetListener, Comparable {
-
 	private static final long serialVersionUID = 3832897780066104884L;
+
 	private static final Logger log = Logger.getLogger(ZoneRenderer.class);
+
 	public static final int MIN_GRID_SIZE = 10;
 	private static LightSourceIconOverlay lightSourceIconOverlay = new LightSourceIconOverlay();
 	protected Zone zone;
