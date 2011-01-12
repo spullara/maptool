@@ -430,7 +430,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 		Token keyToken = zone.getToken(keyTokenId);
 		CellPoint originPoint = zone.getGrid().convert(new ZonePoint(keyToken.getX(), keyToken.getY()));
-		Path<AbstractPoint> path = set.getWalker() != null ? set.getWalker().getPath() : set.gridlessPath;
+		Path<? extends AbstractPoint> path = set.getWalker() != null ? set.getWalker().getPath() : set.gridlessPath;
 
 		Set<GUID> selectionSet = set.getTokens();
 		List<GUID> filteredTokens = new ArrayList<GUID>();
@@ -883,6 +883,16 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		}
 	}
 
+	/**
+	 * This is the top-level method of the rendering pipeline that coordinates all other calls.
+	 * {@link #paintComponent(Graphics)} calls this method, then adds the two optional strings,
+	 * "Map not visible to players" and "Player View" as appropriate.
+	 * 
+	 * @param g2d
+	 *            Graphics2D object normally passed in by {@link #paintComponent(Graphics)}
+	 * @param view
+	 *            PlayerView object that describes whether the view is a Player or GM view
+	 */
 	public void renderZone(Graphics2D g2d, PlayerView view) {
 		timer = new CodeTimer("zonerenderer");
 		timer.setEnabled(AppState.isCollectProfilingData());
@@ -997,9 +1007,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		}
 
 		/**
-		 * XXX The following sections handle rendering of the Hidden (i.e. "GM") layer followed by the Token layer. The
-		 * problem is that we want all drawables to appear below all tokens, and the existing configuration performs the
-		 * rendering in the following order:
+		 * The following sections used to handle rendering of the Hidden (i.e. "GM") layer followed by the Token layer.
+		 * The problem was that we want all drawables to appear below all tokens, and the old configuration performed
+		 * the rendering in the following order:
 		 * <ol>
 		 * <li>Render Hidden-layer tokens
 		 * <li>Render Hidden-layer drawables
@@ -1031,6 +1041,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			timer.start("tokens");
 			renderTokens(g2d, zone.getTokens(), view);
 			timer.stop("tokens");
+
 			timer.start("unowned movement");
 			renderMoveSelectionSets(g2d, view, getUnOwnedMovementSet(view));
 			timer.stop("unowned movement");
@@ -1039,6 +1050,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			renderMoveSelectionSets(g2d, view, getOwnedMovementSet(view));
 			timer.stop("owned movement");
 
+			// Text associated with tokens being moved is added to a list to be drawn after, i.e. on top of, the tokens themselves.
+			// So if one moving token is on top of another moving token, at least the textual identifiers will be visible.
 			timer.start("token name/labels");
 			renderRenderables(g2d);
 			timer.stop("token name/labels");
@@ -1776,12 +1789,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				selectionSetMap.remove(set.getKeyToken());
 				continue;
 			}
-			ZoneWalker walker = set.getWalker();
-
 			// Hide the hidden layer
 			if (keyToken.getLayer() == Zone.Layer.GM && !view.isGMView()) {
 				continue;
 			}
+			ZoneWalker walker = set.getWalker();
+
 			for (GUID tokenGUID : set.getTokens()) {
 				Token token = zone.getToken(tokenGUID);
 
@@ -1833,9 +1846,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				// Show path only on the key token
 				if (token == keyToken) {
 					if (!token.isStamp()) {
-						if (!token.isObjectStamp()) {
-							renderPath(g, walker != null ? walker.getPath() : set.gridlessPath, token.getFootprint(zone.getGrid()));
-						}
+						renderPath(g, walker != null ? walker.getPath() : set.gridlessPath, token.getFootprint(zone.getGrid()));
 					}
 				}
 				// handle flipping
@@ -1885,19 +1896,20 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 					bounds.width *= getScale();
 					bounds.height *= getScale();
 
-					Area theVisibleArea = MapTool.getServerPolicy().isUseIndividualFOW() && zone.getVisionType() != VisionType.OFF ? zoneView.getVisibleArea(view) : new Area(exposedFogArea);
 					Grid grid = zone.getGrid();
+					Area theVisibleArea = MapTool.getServerPolicy().isUseIndividualFOW() && zone.getVisionType() != VisionType.OFF ? zoneView.getVisibleArea(view) : new Area(exposedFogArea);
 					boolean showLabels = view.isGMView() || set.getPlayerId().equals(MapTool.getPlayer().getName());
-					//System.out.println("Player: " +MapTool.getPlayer().getName());
-					//System.out.println("showLabels: " +showLabels);
+//					System.out.println("Player: " + MapTool.getPlayer().getName());
+//					System.out.println("showLabels: " + showLabels);
 					if (MapTool.getServerPolicy().isUseIndividualFOW()) {
-						Path<AbstractPoint> path = set.getWalker() != null ? set.getWalker().getPath() : set.gridlessPath;
-						List<AbstractPoint> thePoints = path.getCellPath();
-						// now that we have the last point, we can
-						// check to see if if's gridless or not.
-						// if not gridless, get the lastpoint the token
-						// was at and see if the token's footprint is inside
-						// the visible area to show the label.
+						@SuppressWarnings("unchecked")
+						Path<? extends AbstractPoint> path = set.getWalker() != null ? set.getWalker().getPath() : set.gridlessPath;
+						List<? extends AbstractPoint> thePoints = path.getCellPath();
+						/*
+						 * now that we have the last point, we can check to see if it's gridless or not. If not
+						 * gridless, get the last point the token was at and see if the token's footprint is inside the
+						 * visible area to show the label.
+						 */
 						if (thePoints.size() > 0) {
 							AbstractPoint lastPoint = thePoints.get(thePoints.size() - 1);
 

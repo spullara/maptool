@@ -806,7 +806,7 @@ public class Token extends BaseModel {
 		this.y = y;
 	}
 
-	public void applyMove(int xOffset, int yOffset, Path<AbstractPoint> path) {
+	public void applyMove(int xOffset, int yOffset, Path<? extends AbstractPoint> path) {
 		setX(x + xOffset);
 		setY(y + yOffset);
 		lastPath = path;

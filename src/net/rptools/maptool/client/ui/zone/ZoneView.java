@@ -413,12 +413,11 @@ public class ZoneView implements ModelChangeListener {
 			visibleAreaMap.clear();
 		}
 
-//        // TODO: This fixes a bug with changing vision type, I don't like it though, it needs to be optimized back out
-//        lightSourceCache.clear();
+		// TODO: This fixes a bug with changing vision type, I don't like it though, it needs to be optimized back out
+//		lightSourceCache.clear();
 	}
 
 	private void calculateVisibleArea(PlayerView view) {
-
 		if (visibleAreaMap.get(view) != null && visibleAreaMap.get(view).visibleArea.getBounds().getCenterX() != 0.0d) {
 			return;
 		}
@@ -432,7 +431,6 @@ public class ZoneView implements ModelChangeListener {
 		// Calculate it
 		List<Token> tokenList = view.isUsingTokenView() ? view.getTokens() : zone.getAllTokens();
 		for (Token token : tokenList) {
-
 			if (!token.getHasSight()) {
 				continue;
 			}
