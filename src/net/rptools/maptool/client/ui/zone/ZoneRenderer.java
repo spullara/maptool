@@ -325,22 +325,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	}
 
 	public void addMoveSelectionSet(String playerId, GUID keyToken, Set<GUID> tokenList, boolean clearLocalSelected) {
-
-		// I'm not supposed to be moving a token when someone else is already
-		// moving it
+		// I'm not supposed to be moving a token when someone else is already moving it
 		if (clearLocalSelected) {
 			for (GUID guid : tokenList) {
-
 				selectedTokenSet.remove(guid);
 			}
 		}
-
 		selectionSetMap.put(keyToken, new SelectionSet(playerId, keyToken, tokenList));
 		repaint();
 	}
 
 	public boolean hasMoveSelectionSetMoved(GUID keyToken, ZonePoint point) {
-
 		SelectionSet set = selectionSetMap.get(keyToken);
 		if (set == null) {
 			return false;
@@ -669,7 +664,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			// Our aspect ratio is shorter than server's, so fit to height
 			scale = scale * height / gmHeight;
 		}
-
 		setScale(scale);
 		centerOn(new ZonePoint(x, y));
 	}
@@ -695,13 +689,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		// g.fillRect(0, 0, size, size);
 		// g.dispose();
 		// }
-
 		return miniImage;
 	}
 
 	@Override
 	public void paintComponent(Graphics g) {
-
 		Graphics2D g2d = (Graphics2D) g;
 
 		renderZone(g2d, getPlayerView());
@@ -716,12 +708,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	}
 
 	public PlayerView getPlayerView() {
-
 		Player.Role role = MapTool.getPlayer().getRole();
 		if (role == Player.Role.GM && AppState.isShowAsPlayer()) {
 			role = Player.Role.PLAYER;
 		}
-
 		List<Token> selectedTokens = null;
 		if (getSelectedTokenSet() != null && getSelectedTokenSet().size() > 0) {
 			selectedTokens = getSelectedTokensList();
@@ -732,7 +722,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				}
 			}
 		}
-
 		return new PlayerView(role, selectedTokens);
 	}
 
@@ -917,7 +906,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			g2d.fillRect(0, 0, size.width, size.height);
 
 			GraphicsUtil.drawBoxedString(g2d, loadingProgress, size.width / 2, size.height / 2);
-
 			return;
 		}
 
@@ -927,12 +915,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			g2d.fillRect(0, 0, size.width, size.height);
 
 			GraphicsUtil.drawBoxedString(g2d, "    Please Wait    ", size.width / 2, size.height / 2);
-
 			return;
 		}
 
-		if (zone == null) { // FJE Shouldn't this be part of the 'isLoading()'
-			// true block?
+		if (zone == null) {
 			return;
 		}
 
@@ -967,7 +953,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			// fully exposed (screen area)
 			exposedFogArea = new Area(new Rectangle(0, 0, getSize().width, getSize().height));
 		}
-
 		timer.stop("calcs");
 
 		// Rendering pipeline
@@ -1021,7 +1006,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		 * <li>Render Token-layer drawables
 		 * <li>Render Token-layer tokens
 		 * </ol>
-		 * That's fine for players, but clearly wrong if the view is for the GM. How about:
+		 * That's fine for players, but clearly wrong if the view is for the GM. We now use:
 		 * <ol>
 		 * <li>Render Token-layer drawables // Player-drawn images shouldn't obscure GM's images?
 		 * <li>Render Hidden-layer drawables // GM could always use "View As Player" if needed?
@@ -1049,6 +1034,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			timer.start("unowned movement");
 			renderMoveSelectionSets(g2d, view, getUnOwnedMovementSet(view));
 			timer.stop("unowned movement");
+
+			timer.start("owned movement");
+			renderMoveSelectionSets(g2d, view, getOwnedMovementSet(view));
+			timer.stop("owned movement");
+
+			timer.start("token name/labels");
+			renderRenderables(g2d);
+			timer.stop("token name/labels");
 		}
 
 		/**
@@ -1066,14 +1059,16 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			timer.stop("fog");
 		}
 
-		// if (zone.visionType ...) // this is handled in the subroutines
-		timer.start("visionOverlay");
-		renderPlayerVisionOverlay(g2d, view);
-		timer.stop("visionOverlay");
-
-		timer.start("visionOverlayGM");
-		renderGMVisionOverlay(g2d, view);
-		timer.stop("visionOverlayGM");
+		// if (zone.visionType ...)
+		if (view.isGMView()) {
+			timer.start("visionOverlayGM");
+			renderGMVisionOverlay(g2d, view);
+			timer.stop("visionOverlayGM");
+		} else {
+			timer.start("visionOverlayPlayer");
+			renderPlayerVisionOverlay(g2d, view);
+			timer.stop("visionOverlayPlayer");
+		}
 
 		timer.start("overlays");
 		for (int i = 0; i < overlayList.size(); i++) {
@@ -1088,41 +1083,33 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			if (view.isGMView() && AppState.isShowLightSources()) {
 				lightSourceIconOverlay.paintOverlay(this, g2d);
 			}
-
-			timer.start("owned movement");
-			renderMoveSelectionSets(g2d, view, getOwnedMovementSet(view));
-			timer.stop("owned movement");
-
-			timer.start("labels");
-			renderRenderables(g2d);
-			timer.stop("labels");
+//			timer.start("owned movement");
+//			renderMoveSelectionSets(g2d, view, getOwnedMovementSet(view));
+//			timer.stop("owned movement");
+//
+//			timer.start("token name/labels");
+//			renderRenderables(g2d);
+//			timer.stop("token name/labels");
 		}
 
-		// if (lightSourceArea != null) {
-		// g2d.setColor(Color.yellow);
-		// g2d.fill(lightSourceArea.createTransformedArea(AffineTransform.getScaleInstance
-		// (getScale(), getScale())));
-		// }
-		//
+//		if (lightSourceArea != null) {
+//			g2d.setColor(Color.yellow);
+//			g2d.fill(lightSourceArea.createTransformedArea(AffineTransform.getScaleInstance
+//					(getScale(), getScale())));
+//		}
 
-		// g2d.setColor(Color.red);
-		// for (AreaMeta meta : getTopologyAreaData().getAreaList()) {
-		//
-		// Area area = new
-		// Area(meta.getArea().getBounds()).createTransformedArea(AffineTransform.getScaleInstance
-		// (getScale(), getScale()));
-		// area =
-		// area.createTransformedArea(AffineTransform.getTranslateInstance(zoneScale.getOffsetX(),
-		// zoneScale.getOffsetY()));
-		// g2d.draw(area);
-		// }
+//		g2d.setColor(Color.red);
+//		for (AreaMeta meta : getTopologyAreaData().getAreaList()) {
+//			Area area = new Area(meta.getArea().getBounds()).createTransformedArea(AffineTransform.getScaleInstance(getScale(), getScale()));
+//			area = area.createTransformedArea(AffineTransform.getTranslateInstance(zoneScale.getOffsetX(), zoneScale.getOffsetY()));
+//			g2d.draw(area);
+//		}
 
 		SwingUtil.restoreAntiAliasing(g2d, oldAA);
 
 		if (AppState.isCollectProfilingData()) {
 			MapTool.getProfilingNoteFrame().addText(timer.toString());
 		}
-
 		if (resetClip) {
 			g2d.setClip(null);
 		}
@@ -1310,42 +1297,42 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	}
 
 	/**
-	 * This outlines the area visible to the token under the cursor, clipped to the current fog-of-war.
+	 * This outlines the area visible to the token under the cursor, clipped to the current fog-of-war. This is
+	 * appropriate for the player view, but the GM sees everything.
 	 */
 	private void renderPlayerVisionOverlay(Graphics2D g, PlayerView view) {
-		if (!view.isGMView()) {
-			Graphics2D g2 = (Graphics2D) g.create();
-			Area viewArea = new Area();
-			if (zone.getVisionType() != VisionType.OFF && MapTool.getServerPolicy().isUseIndividualFOW()) {
-				if (view.getTokens() != null) {
-					for (Token tok : view.getTokens()) {
-						ExposedAreaMetaData exposedMeta = zone.getExposedAreaMetaData(tok.getExposedAreaGUID());
-						viewArea.add(new Area(exposedMeta.getExposedAreaHistory()));
-					}
+		Graphics2D g2 = (Graphics2D) g.create();
+		Area viewArea = new Area();
+		if (zone.getVisionType() != VisionType.OFF && MapTool.getServerPolicy().isUseIndividualFOW()) {
+			if (view.getTokens() != null) {
+				for (Token tok : view.getTokens()) {
+					ExposedAreaMetaData exposedMeta = zone.getExposedAreaMetaData(tok.getExposedAreaGUID());
+					viewArea.add(new Area(exposedMeta.getExposedAreaHistory()));
 				}
 			}
-			if (zone.hasFog() && (exposedFogArea != null)) {
-				Area clip = new Area(new Rectangle(getSize().width, getSize().height));
-				if (zone.getVisionType() != VisionType.OFF && MapTool.getServerPolicy().isUseIndividualFOW()) {
-					clip.intersect(viewArea);
-				} else {
-					clip.intersect(exposedFogArea);
-				}
-				AffineTransform af = new AffineTransform();
-				//af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
-				af.scale(+1, +1);
-				Area newClip = clip.createTransformedArea(af);
-				g2.setClip(newClip);
-			}
-			renderVisionOverlay(g2, view);
-			g2.dispose();
 		}
+		if (zone.hasFog() && (exposedFogArea != null)) {
+			Area clip = new Area(new Rectangle(getSize().width, getSize().height));
+			if (zone.getVisionType() != VisionType.OFF && MapTool.getServerPolicy().isUseIndividualFOW()) {
+				clip.intersect(viewArea);
+			} else {
+				clip.intersect(exposedFogArea);
+			}
+			AffineTransform af = new AffineTransform();
+			//af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
+			af.scale(+1, +1);
+			Area newClip = clip.createTransformedArea(af);
+			g2.setClip(newClip);
+		}
+		renderVisionOverlay(g2, view);
+		g2.dispose();
 	}
 
+	/**
+	 * Render the vision overlay as though the view were the GM.
+	 */
 	private void renderGMVisionOverlay(Graphics2D g, PlayerView view) {
-		if (view.isGMView()) {
-			renderVisionOverlay(g, view);
-		}
+		renderVisionOverlay(g, view);
 	}
 
 	/**
@@ -1759,24 +1746,20 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	private Set<SelectionSet> getOwnedMovementSet(PlayerView view) {
 		Set<SelectionSet> movementSet = new HashSet<SelectionSet>();
 		for (SelectionSet selection : selectionSetMap.values()) {
-
 			if (selection.getPlayerId().equals(MapTool.getPlayer().getName())) {
 				movementSet.add(selection);
 			}
 		}
-
 		return movementSet;
 	}
 
 	private Set<SelectionSet> getUnOwnedMovementSet(PlayerView view) {
 		Set<SelectionSet> movementSet = new HashSet<SelectionSet>();
 		for (SelectionSet selection : selectionSetMap.values()) {
-
 			if (!selection.getPlayerId().equals(MapTool.getPlayer().getName())) {
 				movementSet.add(selection);
 			}
 		}
-
 		return movementSet;
 	}
 
@@ -1806,23 +1789,19 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				if (token == null) {
 					continue;
 				}
-
 				// Don't bother if it's not visible
 				if (!token.isVisible() && !view.isGMView()) {
 					continue;
 				}
-
 				// ... or if it's visible only to the owner and that's not us!
 				if (token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token)) {
 					continue;
 				}
-
 				// ... or if it doesn't have an image to display.  (Hm, should still show *something*?)
 				Asset asset = AssetManager.getAsset(token.getImageAssetId());
 				if (asset == null) {
 					continue;
 				}
-
 				// OPTIMIZE: combine this with the code in renderTokens()
 				Rectangle footprintBounds = token.getBounds(zone);
 				ScreenPoint newScreenPoint = ScreenPoint.fromZonePoint(this, footprintBounds.x + set.getOffsetX(), footprintBounds.y + set.getOffsetY());
@@ -1851,7 +1830,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 						//System.out.println("Adding Clip: " + MapTool.getPlayer().getName());
 					}
 				}
-
 				// Show path only on the key token
 				if (token == keyToken) {
 					if (!token.isStamp()) {
@@ -1860,7 +1838,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 						}
 					}
 				}
-
 				// handle flipping
 				BufferedImage workImage = image;
 				if (token.isFlippedX() || token.isFlippedY()) {
@@ -1875,7 +1852,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 					wig.drawImage(image, workX, workY, workW, workH, null);
 					wig.dispose();
 				}
-
 				// Draw token
 				Dimension imgSize = new Dimension(workImage.getWidth(), workImage.getHeight());
 				SwingUtil.constrainTo(imgSize, footprintBounds.width, footprintBounds.height);
@@ -1895,7 +1871,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
 					at.rotate(Math.toRadians(-token.getFacing() - 90), scaledWidth / 2 - token.getAnchor().x * scale - offsetx, scaledHeight / 2 - token.getAnchor().y * scale - offsety); // facing defaults to down, or -90 degrees
 				}
-
 				if (token.isSnapToScale()) {
 					at.scale((double) imgSize.width / workImage.getWidth(), (double) imgSize.height / workImage.getHeight());
 					at.scale(getScale(), getScale());
@@ -1916,7 +1891,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 					//System.out.println("Player: " +MapTool.getPlayer().getName());
 					//System.out.println("showLabels: " +showLabels);
 					if (MapTool.getServerPolicy().isUseIndividualFOW()) {
-
 						Path<AbstractPoint> path = set.getWalker() != null ? set.getWalker().getPath() : set.gridlessPath;
 						List<AbstractPoint> thePoints = path.getCellPath();
 						// now that we have the last point, we can
@@ -1935,7 +1909,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 								tokenRectangle = new Rectangle();
 								tokenRectangle.setBounds(lastPoint.x, lastPoint.y, (int) tokBounds.getWidth(), (int) tokBounds.getHeight());
 							}
-
 							/*
 							 * if(MapTool.getPlayer().getName().equals("Jim")){ System.out.println(
 							 * "  Jim's Is Visible: " + (theVisibleArea.contains(tokenRectangle) ||
