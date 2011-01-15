@@ -438,7 +438,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		BigDecimal tmc = null;
 		for (GUID tokenGUID : selectionSet) {
 			Token token = zone.getToken(tokenGUID);
-
+			// If the token has been deleted, the GUID will still be in the set but getToken() will return null.
+			if (token == null)
+				continue;
 			CellPoint tokenCell = zone.getGrid().convert(new ZonePoint(token.getX(), token.getY()));
 
 			int cellOffX = originPoint.x - tokenCell.x;
