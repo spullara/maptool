@@ -96,18 +96,18 @@ public class TransferableHelper extends TransferHandler {
 				assets.add(handleTransferableAssetReference(transferable));
 
 				// LOCAL FILESYSTEM
+				// Used by OSX (and Windows?) when files are dragged from the desktop.
+			} else if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+				List<URL> list = new FileTransferableHandler().getTransferObject(transferable);
+				assets = handleURLList(list);
+
+				// LOCAL FILESYSTEM
 				// Used by Linux when files are dragged from the desktop.
 				// Note that "text/uri-list" is considered a JRE bug and it should be
 				// converting the event into "text/x-java-file-list", but until it does...
 			} else if (transferable.isDataFlavorSupported(URI_LIST_FLAVOR)) {
 				String data = (String) transferable.getTransferData(URI_LIST_FLAVOR);
 				List<URL> list = textURIListToFileList(data);
-				assets = handleURLList(list);
-
-				// LOCAL FILESYSTEM
-				// Used by OSX (and Windows?) when files are dragged from the desktop.
-			} else if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-				List<URL> list = new FileTransferableHandler().getTransferObject(transferable);
 				assets = handleURLList(list);
 
 				// DIRECT/BROWSER
