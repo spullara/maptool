@@ -178,11 +178,8 @@ public class AppActions {
 		public void execute(ActionEvent e) {
 			try {
 				ExportDialog d = MapTool.getCampaign().getExportDialog();
-				if (d == null) {
-					d = new ExportDialog();
-				}
-				MapTool.getCampaign().setExportDialog(d);
 				d.setVisible(true);
+				MapTool.getCampaign().setExportDialog(d);
 			} catch (Exception ex) {
 				MapTool.showError(I18N.getString("Cannot create the ExportDialog object"), ex);
 			}
@@ -204,7 +201,7 @@ public class AppActions {
 				try {
 					d.screenCapture();
 				} catch (Exception ex) {
-					MapTool.showError(I18N.getString("msg.error.failedExportingImage"), ex);
+					MapTool.showError("msg.error.failedExportingImage", ex);
 				}
 
 			}

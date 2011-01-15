@@ -293,7 +293,7 @@ public class MapTool {
 	 */
 	public static void showError(String msgKey, Throwable t) {
 		String msg = generateMessage(msgKey, t);
-		log.error(msg, t);
+		log.error(msgKey, t);
 		showMessage(msg, "msg.title.messageDialogError", JOptionPane.ERROR_MESSAGE);
 	}
 
@@ -323,7 +323,7 @@ public class MapTool {
 	 */
 	public static void showWarning(String msgKey, Throwable t) {
 		String msg = generateMessage(msgKey, t);
-		log.warn(msg, t);
+		log.warn(msgKey, t);
 		showMessage(msg, "msg.title.messageDialogWarning", JOptionPane.WARNING_MESSAGE);
 	}
 
@@ -353,7 +353,7 @@ public class MapTool {
 	 */
 	public static void showInformation(String msgKey, Throwable t) {
 		String msg = generateMessage(msgKey, t);
-		log.info(msg, t);
+		log.info(msgKey, t);
 		showMessage(msg, "msg.title.messageDialogInfo", JOptionPane.INFORMATION_MESSAGE);
 	}
 
@@ -369,7 +369,7 @@ public class MapTool {
 	 */
 	public static boolean confirm(String message, Object... params) {
 		String msg = I18N.getText(message, params);
-		log.debug(msg);
+		log.debug(message);
 		String title = I18N.getText("msg.title.messageDialogConfirm");
 		return JOptionPane.showConfirmDialog(clientFrame, msg, title, JOptionPane.OK_OPTION) == JOptionPane.OK_OPTION;
 	}

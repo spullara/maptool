@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 
 package net.rptools.maptool.client.ui;
@@ -26,6 +23,9 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
@@ -35,6 +35,7 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JToggleButton;
 
 import net.rptools.lib.net.FTPLocation;
 import net.rptools.lib.net.LocalLocation;
@@ -53,15 +54,15 @@ import net.rptools.maptool.util.ImageManager;
 import org.apache.log4j.Logger;
 
 import com.jeta.forms.components.panel.FormPanel;
+import com.jeta.forms.gui.form.FormAccessor;
 
 /**
  * Creates a dialog for performing a screen capture to a PNG file.
  * <p>
- * This uses a modal dialog based on an Abeille form.
- * It creates a PNG file at the resolution of the 'board' image/tile.
+ * This uses a modal dialog based on an Abeille form. It creates a PNG file at the resolution of the 'board' image/tile.
  * The file can be saved to disk or sent to an FTP location.
- *
- * @return      a dialog box
+ * 
+ * @return a dialog box
  */
 @SuppressWarnings("serial")
 public class ExportDialog extends JDialog implements IIOWriteProgressListener {
@@ -78,14 +79,14 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 	private static JLabel progressLabel;
 
 	/** The place the image will be sent to (file/FTP) */
-	private static Location  exportLocation;
+	private Location exportLocation;
 
 	// These are convenience variables, which should be set
 	// each time the dialog is shown. It is safe to
 	// cache them like this since the dialog is modal.
 	// If this dialog is ever not modal, these need to be
 	// factored out.
-	private static Zone         zone;
+	private static Zone zone;
 	private static ZoneRenderer renderer;
 
 	// These are used to preserve zone settings because
@@ -93,18 +94,18 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 	// These are static because we don't expect more than
 	// a single ExportDialog to ever be instanced.
 
-	// psuedo-layers
+	// Pseudo-layers
 	private static Zone.VisionType savedVision;
-	private static boolean         savedFog;
-	private static boolean         savedBoard;
+	private static boolean savedFog;
+	private static boolean savedBoard;
 	// real layers
-	private static boolean         savedToken;
-	private static boolean         savedHidden;
-	private static boolean         savedObject;
-	private static boolean         savedBackground;
+	private static boolean savedToken;
+	private static boolean savedHidden;
+	private static boolean savedObject;
+	private static boolean savedBackground;
 	// for ZoneRenderer preservation
-	private static Rectangle  origBounds;
-	private static Scale      origScale;
+	private static Rectangle origBounds;
+	private static Scale origScale;
 
 	/** set by preScreenshot, cleared by postScreenshot */
 	private boolean waitingForPostScreenshot = false;
@@ -167,13 +168,13 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 					}
 					button.addActionListener(
 							new ActionListener() {
-								public void actionPerformed(ActionEvent evt ) {
+								public void actionPerformed(ActionEvent evt) {
 									enforceButtonRules();
 								}
 							}
-					);
+							);
 				} catch (Exception ex) {
-					MapTool.showError(I18N.getString("dialog.screenshot.radio.button.uiImplementationError"), ex);
+					MapTool.showError("dialog.screenshot.radio.button.uiImplementationError", ex);
 				}
 			}
 		}
@@ -197,7 +198,7 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 		/**
 		 * Shortcut to allow clean code and type-checking of invocations of specific buttons
 		 */
-		public void addActionListener (ActionListener listener) {
+		public void addActionListener(ActionListener listener) {
 			form.getRadioButton(this.toString()).addActionListener(listener);
 		}
 
@@ -245,33 +246,32 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 	 */
 	private static enum ExportLayers {
 		// enum_val (fieldName as per Abeille Forms Designer, playerCanModify)
-		LAYER_TOKEN      (true),
-		LAYER_HIDDEN     (false),
-		LAYER_OBJECT     (false),
-		LAYER_BACKGROUND (false),
-		LAYER_BOARD      (false),
-		LAYER_FOG        (false),
-		LAYER_VISIBILITY (true);
+		LAYER_TOKEN(true),
+		LAYER_HIDDEN(false),
+		LAYER_OBJECT(false),
+		LAYER_BACKGROUND(false),
+		LAYER_BOARD(false),
+		LAYER_FOG(false),
+		LAYER_VISIBILITY(true);
 
 		private static FormPanel form;
 
 		private final boolean playerCanModify;
 
 		/**
-		 * Constructor, sets rules for export of this layer.
-		 * 'Player' is in reference to the Role type (Player vs. GM).
+		 * Constructor, sets rules for export of this layer. 'Player' is in reference to the Role type (Player vs. GM).
 		 */
-		ExportLayers (boolean playerCanModify) {
+		ExportLayers(boolean playerCanModify) {
 			this.playerCanModify = playerCanModify;
 		}
 
 		/**
-		 * Stores the form this is attached to, so we don't have to store
-		 * duplicate data locally (like selected and enabled).
-		 * Also perform some error checking, since we _are_ duplicating the
-		 * description of the form itself (like what buttons it has).
-		 *
-		 * @param form  The FormPanel this dialog is part of.
+		 * Stores the form this is attached to, so we don't have to store duplicate data locally (like selected and
+		 * enabled). Also perform some error checking, since we _are_ duplicating the description of the form itself
+		 * (like what buttons it has).
+		 * 
+		 * @param form
+		 *            The FormPanel this dialog is part of.
 		 */
 		public static void setForm(FormPanel form) {
 			ExportLayers.form = form;
@@ -336,18 +336,14 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 	}
 
 	/**
-	 * Ensures that the user can only check/uncheck boxes as appropriate.
-	 * For example, if "fog" is not enabled on the map, it cannot be
-	 * enabled for export.
+	 * Ensures that the user can only check/uncheck boxes as appropriate. For example, if "fog" is not enabled on the
+	 * map, it cannot be enabled for export.
 	 * <p>
-	 * This should get called during initialization and whenever
-	 * the radio buttons change.
+	 * This should get called during initialization and whenever the radio buttons change.
 	 * <p>
-	 * The GM and Players have different rules,
-	 * to prevent players from gaining knowledge they should not have
-	 * using the screenshot (such as revealing things under other things
-	 * by disabling layers). Players can basically only turn off tokens,
-	 * to get an 'empty' version of the map.
+	 * The GM and Players have different rules, to prevent players from gaining knowledge they should not have using the
+	 * screenshot (such as revealing things under other things by disabling layers). Players can basically only turn off
+	 * tokens, to get an 'empty' version of the map.
 	 */
 	public static void enforceButtonRules() {
 		if (!MapTool.getPlayer().isGM()) {
@@ -361,7 +357,7 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 			interactPanel.getLabel("LAYERS_LABEL").setEnabled(false);
 			ExportLayers.setDefaultChecked();
 			ExportLayers.setDisabled();
-		} else /* if (ExportRadioButtons.LAYERS_AS_SELECTED.isChecked()) */ {
+		} else /* if (ExportRadioButtons.LAYERS_AS_SELECTED.isChecked()) */{
 			interactPanel.getLabel("LAYERS_LABEL").setEnabled(true);
 			boolean isGM = ExportRadioButtons.VIEW_GM.isChecked();
 			final Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
@@ -389,10 +385,9 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 
 	public ExportDialog() throws Exception {
 		super(MapTool.getFrame(), "Export Screenshot", true);
-		if (instanceCount ==  0) {
+		if (instanceCount == 0) {
 			instanceCount++;
-		}
-		else {
+		} else {
 			throw new Exception("Only one instance of ExportDialog allowed!");
 		}
 
@@ -423,7 +418,7 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 						exportButtonAction();
 					}
 				}
-		);
+				);
 
 		interactPanel.getButton("cancelButton").addActionListener(
 				new ActionListener() {
@@ -431,7 +426,7 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 						dispose();
 					}
 				}
-		);
+				);
 
 		interactPanel.getButton("browseButton").addActionListener(
 				new ActionListener() {
@@ -439,7 +434,7 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 						browseButtonAction();
 					}
 				}
-		);
+				);
 
 		// Run this once to make sure the dialog is in a good starting state.
 		ExportLayers.setDefaultChecked();
@@ -460,16 +455,13 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 			enforceButtonRules();
 
 			SwingUtil.centerOver(this, MapTool.getFrame());
-		}
-		else
-		{
+		} else {
 			if (waitingForPostScreenshot) {
 				postScreenshot();
 			}
 		}
 		super.setVisible(b);
 	}
-
 
 	//
 	// These get/set the convenience variables zone and renderer
@@ -499,37 +491,32 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 			MapTool.showError(I18N.getString("dialog.screenshot.error.mustSelectView"), null);
 			return;
 		}
-
 		// LOCATION
 		// TODO: Show a progress dialog
 		// TODO: Make this less fragile
 		switch (interactPanel.getTabbedPane("tabs").getSelectedIndex()) {
 		case 0:
-
 			File file = new File(interactPanel.getText("locationTextField"));
 
 			// PNG only supported for now
 			if (!file.getName().toLowerCase().endsWith(".png")) {
 				file = new File(file.getAbsolutePath() + ".png");
 			}
-
 			exportLocation = new LocalLocation(file);
 			break;
 		case 1:
 			String username = interactPanel.getText("username");
 			String password = interactPanel.getText("password");
-			String host     = interactPanel.getText("host");
-			String path     = interactPanel.getText("path");
+			String host = interactPanel.getText("host");
+			String path = interactPanel.getText("path");
 
 			// PNG only supported for now
 			if (!path.toLowerCase().endsWith(".png")) {
 				path += ".png";
 			}
-
 			exportLocation = new FTPLocation(username, password, host, path);
 			break;
 		}
-
 		try {
 			screenCapture();
 		} catch (Exception ex) {
@@ -551,11 +538,9 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 	}
 
 	/**
-	 * This is the top-level screen-capture routine. It sends the resulting
-	 * PNG image to the location previously selected by the user.
-	 * TODO: It currently calls {@link MapTool.takeMapScreenShot()} for
-	 * "normal" screenshots, but that's just until this code is considered
-	 * stable enough.
+	 * This is the top-level screen-capture routine. It sends the resulting PNG image to the location previously
+	 * selected by the user. TODO: It currently calls {@link MapTool.takeMapScreenShot()} for "normal" screenshots, but
+	 * that's just until this code is considered stable enough.
 	 * 
 	 * @throws Exception
 	 */
@@ -563,7 +548,7 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 
 		MapTool.getFrame().setStatusMessage(I18N.getString("dialog.screenshot.msg.GeneratingScreenshot"));
 		ExportRadioButtons type = ExportRadioButtons.getType();
-		Player.Role   role;
+		Player.Role role;
 		try {
 			switch (type) {
 			case TYPE_CURRENT_VIEW:
@@ -579,11 +564,10 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 				ByteArrayOutputStream imageOut = new ByteArrayOutputStream();
 				try {
 					ImageIO.write(screenCap, "png", imageOut);
-					screenCap = null;		// Free up the memory as soon as possible
+					screenCap = null; // Free up the memory as soon as possible
 					MapTool.getFrame().setStatusMessage(I18N.getString("dialog.screenshot.msg.screenshotSaving"));
 					exportLocation.putContent(new BufferedInputStream(new ByteArrayInputStream(imageOut.toByteArray())));
-				}
-				finally {
+				} finally {
 					if (imageOut != null) {
 						imageOut.close();
 					}
@@ -606,8 +590,7 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 //							g.setClip(0, 0, renderer.getWidth(), renderer.getHeight());
 							renderer.renderZone(g, view);
 							g.dispose();
-						}
-						else {
+						} else {
 							image = new ZoneImageGenerator(renderer, view);
 						}
 						// putContent() can consume quite a bit of time; really should have a progress
@@ -619,13 +602,11 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 						MapTool.getFrame().setStatusMessage(I18N.getString("dialog.screenshot.msg.screenshotSaving"));
 					} catch (Exception e) {
 						MapTool.getFrame().setStatusMessage(I18N.getString("dialog.screenshot.error.failedImageGeneration"));
-					}
-					finally {
+					} finally {
 						postScreenshot();
 						MapTool.getFrame().setStatusMessage(I18N.getString("dialog.screenshot.msg.screenshotSaved"));
 					}
-				}
-				else if (interactPanel.isSelected("METHOD_BACKGROUND")) {
+				} else if (interactPanel.isSelected("METHOD_BACKGROUND")) {
 					// We must call preScreenshot before creating the ZoneImageGenerator, because
 					// ZoneImageGenerator uses the ZoneRenderer's bounds to set itself up
 
@@ -647,7 +628,6 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 						// Swing uses.
 						//
 						class backscreenRender implements Runnable {
-
 							public void run() {
 								try {
 									PlayerView view = preScreenshot();
@@ -655,19 +635,16 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 									final ImageWriter pngWriter = ImageIO.getImageWritersByFormatName("png").next();
 									exportLocation.putContent(pngWriter, zoneImageGenerator);
 									// postScreenshot is called by the callback imageComplete()
-								}
-								catch (Exception e) {
-									assert false: "Unhandled Exception in renderOffScreen: '" + e.getMessage() +"'";
+								} catch (Exception e) {
+									assert false : "Unhandled Exception in renderOffScreen: '" + e.getMessage() + "'";
 								}
 							}
 						}
-
 						backscreenRender p = new backscreenRender();
 						new Thread(p).start();
 						repaint();
 					}
-				}
-				else {
+				} else {
 					throw new Exception("Unknown rendering method!");
 				}
 				break;
@@ -681,17 +658,59 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 		}
 	}
 
-	public static Location getExportLocation() {
+	public Map<String, Boolean> getExportSettings() {
+		Map<String, Boolean> settings = new HashMap<String, Boolean>(16);
+		FormAccessor fa = interactPanel.getFormAccessor();
+		Iterator iter = fa.beanIterator(true);
+		while (iter.hasNext()) {
+			Object obj = iter.next();
+			if (obj instanceof JToggleButton) {
+				JToggleButton jtb = (JToggleButton) obj;
+				settings.put(jtb.getName(), jtb.isSelected());
+			}
+		}
+		return settings;
+	}
+
+	/**
+	 * Turn off all JToggleButtons on the form. We don't care if we turn off fields that are normally turned on, since
+	 * {@link #enforceButtonRules()} will turn them back on as appropriate.
+	 */
+	private void resetExportSettings() {
+		FormAccessor fa = interactPanel.getFormAccessor();
+		Iterator iter = fa.beanIterator(true);
+		while (iter.hasNext()) {
+			Object obj = iter.next();
+			if (obj instanceof JToggleButton) {
+				JToggleButton jtb = (JToggleButton) obj;
+				jtb.setSelected(false);
+			}
+		}
+	}
+
+	public void setExportSettings(Map<String, Boolean> settings) {
+		resetExportSettings();
+		if (settings != null) {
+			for (String iter : settings.keySet()) {
+				JToggleButton jtb = (JToggleButton) interactPanel.getComponentByName(iter);
+				if (jtb == null) {
+					log.warn("GUI component for export setting '" + iter + "' not found.");
+				} else
+					jtb.setSelected(settings.get(iter));
+			}
+		}
+	}
+
+	public Location getExportLocation() {
 		return exportLocation;
 	}
 
-	public static void setExportLocation(Location loc) {
+	public void setExportLocation(Location loc) {
 		exportLocation = loc;
 	}
 
 	/**
-	 * This is a preserves the layer settings on the Zone object.
-	 * It should be followed by restoreZone()
+	 * This is a preserves the layer settings on the Zone object. It should be followed by restoreZone()
 	 * 
 	 * @return the image to be saved to a file
 	 */
@@ -702,13 +721,13 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 		// Preserve settings
 		//
 		// psuedo-layers
-		savedVision     = zone.getVisionType();
-		savedFog        = zone.hasFog();
-		savedBoard      = zone.drawBoard();
+		savedVision = zone.getVisionType();
+		savedFog = zone.hasFog();
+		savedBoard = zone.drawBoard();
 		// real layers
-		savedToken      = Zone.Layer.TOKEN.isEnabled();
-		savedHidden     = Zone.Layer.GM.isEnabled();
-		savedObject     = Zone.Layer.OBJECT.isEnabled();
+		savedToken = Zone.Layer.TOKEN.isEnabled();
+		savedHidden = Zone.Layer.GM.isEnabled();
+		savedObject = Zone.Layer.OBJECT.isEnabled();
 		savedBackground = Zone.Layer.BACKGROUND.isEnabled();
 
 		//
@@ -725,8 +744,7 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 	}
 
 	/**
-	 * This restores the layer settings on the Zone object.
-	 * It should be followed by restoreZone()
+	 * This restores the layer settings on the Zone object. It should be followed by restoreZone()
 	 * 
 	 * @return the image to be saved to a file
 	 */
@@ -741,23 +759,20 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 	}
 
 	/**
-	 * Finds the extents of the map, sets up zone to be captured.
-	 * If the user is the GM, the extents include every object and everything
-	 * that has any area, such as 'fog' and 'visibility' objects.
+	 * Finds the extents of the map, sets up zone to be captured. If the user is the GM, the extents include every
+	 * object and everything that has any area, such as 'fog' and 'visibility' objects.
 	 * <p>
-	 * If a background tiling texture is used, the image is aligned to it, so
-	 * that it can be used on re-import as a new base map image.
+	 * If a background tiling texture is used, the image is aligned to it, so that it can be used on re-import as a new
+	 * base map image.
 	 * <p>
-	 * If the user is a player (or GM posing as a player), the extents only
-	 * go as far as the revealed fog-of-war.
+	 * If the user is a player (or GM posing as a player), the extents only go as far as the revealed fog-of-war.
 	 * <p>
-	 * Must be followed by postScreenshot at some point, or the Zone will
-	 * be messed up.
+	 * Must be followed by postScreenshot at some point, or the Zone will be messed up.
 	 * 
 	 * @return the image to be saved
 	 */
 	private PlayerView preScreenshot() throws Exception, OutOfMemoryError {
-		assert(!waitingForPostScreenshot) : "preScreenshot() called twice in a row!";
+		assert (!waitingForPostScreenshot) : "preScreenshot() called twice in a row!";
 
 		setupZoneLayers();
 		boolean viewAsPlayer = ExportRadioButtons.VIEW_PLAYER.isChecked();
@@ -777,17 +792,17 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 			if (viewAsPlayer) {
 				Rectangle fogE = renderer.fogExtents();
 				// MapTool.showError(fogE.x + " " + fogE.y + " " + fogE.width + " " + fogE.height);
-				if ((fogE.width < 0) || (fogE.height< 0)) {
+				if ((fogE.width < 0) || (fogE.height < 0)) {
 					MapTool.showError(I18N.getString("dialog.screenshot.error.negativeFogExtents")); // Image is not clipped to show only fog-revealed areas!"));
 				} else {
 					extents = extents.intersection(fogE);
 				}
 			}
 		} catch (Exception ex) {
-			throw(new Exception(I18N.getString("dialog.screenshot.error.noArea"), ex));
+			throw (new Exception(I18N.getString("dialog.screenshot.error.noArea"), ex));
 		}
 		if ((extents == null) || (extents.width == 0) || (extents.height == 0)) {
-			throw(new Exception(I18N.getString("dialog.screenshot.error.noArea")));
+			throw (new Exception(I18N.getString("dialog.screenshot.error.noArea")));
 		}
 
 		// If output includes the tiling 'board' texture, move the upper-left corner
@@ -807,7 +822,7 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 				tileY = bgTexture.getHeight(null);
 				Integer x = ((int) Math.floor((float) extents.x / tileX)) * tileX;
 				Integer y = ((int) Math.floor((float) extents.y / tileY)) * tileY;
-				extents.width  = extents.width  + (extents.x - x);
+				extents.width = extents.width + (extents.x - x);
 				extents.height = extents.height + (extents.y - y);
 				extents.x = x;
 				extents.y = y;
@@ -819,7 +834,7 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 		// set up the renderer to encompass the whole extents of the map.
 
 		origBounds = renderer.getBounds();
-		origScale  = renderer.getZoneScale();
+		origScale = renderer.getZoneScale();
 
 		// Setup the renderer to use the new extents
 		Scale s = new Scale();
@@ -834,10 +849,10 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 	private void postScreenshot() {
 		assert waitingForPostScreenshot : "postScrenshot called withot preScreenshot";
 
-	renderer.setBounds(origBounds);
-	renderer.setZoneScale(origScale);
-	restoreZoneLayers();
-	waitingForPostScreenshot = false;
+		renderer.setBounds(origBounds);
+		renderer.setZoneScale(origScale);
+		restoreZoneLayers();
+		waitingForPostScreenshot = false;
 	}
 
 	//

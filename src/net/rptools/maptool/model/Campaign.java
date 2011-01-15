@@ -22,6 +22,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.lib.net.Location;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.ExportDialog;
 import net.rptools.maptool.client.ui.token.BarTokenOverlay;
@@ -42,7 +43,6 @@ import net.rptools.maptool.client.ui.token.TwoImageBarTokenOverlay;
  * </p>
  */
 public class Campaign {
-
 	/**
 	 * The only built-in property type is "Basic". Any others are user-defined.
 	 */
@@ -53,7 +53,12 @@ public class Campaign {
 
 	@SuppressWarnings("unused")
 	private transient static ExportDialog exportInfo = null; // transient so it is not written out; entire element ignore when reading
-	private static ExportDialog exportDialog = null; // this is the new export dialog (different name for upward compatibility)
+	private static ExportDialog exportDialog; // this is the new export dialog (different name for upward compatibility)
+
+	// Static data isn't written to the campaign file when saved; these two fields hold the output location and type, and the
+	// settings of all JToggleButton objects (JRadioButtons and JCheckBoxes).
+	private Location exportLocation; // FJE 2011-01-14
+	private Map<String, Boolean> exportSettings; // the state of each checkbox/radiobutton for the Export>ScreenshotAs dialog
 
 	private CampaignProperties campaignProperties = new CampaignProperties();
 	private transient boolean isBeingSerialized;
@@ -473,10 +478,24 @@ public class Campaign {
 	}
 
 	public ExportDialog getExportDialog() {
-		return this.exportDialog;
+		if (exportDialog == null) {
+			try {
+				exportDialog = new ExportDialog();
+			} catch (Exception e) {
+				return null;
+			}
+		}
+//		 TODO:  Ugh, what a kludge.  This needs to be refactored so that the settings are separate from the dialog
+//		 and easily accessible from elsewhere.  I want separate XML files in the .cmpgn file eventually so that
+//		 will be a good time to do this.
+		exportDialog.setExportSettings(exportSettings);
+		exportDialog.setExportLocation(exportLocation);
+		return exportDialog;
 	}
 
 	public void setExportDialog(ExportDialog d) {
 		exportDialog = d;
+		exportSettings = d.getExportSettings();
+		exportLocation = d.getExportLocation();
 	}
 }
