@@ -521,7 +521,6 @@ public class MapTool {
 	}
 
 	private static void initialize() {
-
 		configuration = new AppConfiguration(CONFIGURATION_PROPERTIES);
 
 		// First time
@@ -533,7 +532,6 @@ public class MapTool {
 		} catch (IOException ioe) {
 			MapTool.showError("While initializing (cleaning tmpdir)", ioe);
 		}
-
 		// We'll manage our own images
 		ImageIO.setUseCache(false);
 
@@ -906,7 +904,6 @@ public class MapTool {
 	}
 
 	public static void addZone(Zone zone) {
-
 		if (getCampaign().getZones().size() == 1) {
 			// Remove the default map
 			Zone singleZone = getCampaign().getZones().get(0);
@@ -914,11 +911,8 @@ public class MapTool {
 				removeZone(singleZone);
 			}
 		}
-
 		getCampaign().putZone(zone);
-
 		serverCommand().putZone(zone);
-
 		eventDispatcher.fireEvent(ZoneEvent.Added, getCampaign(), null, zone);
 
 		// Show the new zone
@@ -930,7 +924,6 @@ public class MapTool {
 	}
 
 	public static void startPersonalServer(Campaign campaign) throws IOException {
-
 		ServerConfig config = ServerConfig.createPersonalServerConfig();
 		MapTool.startServer(null, config, new ServerPolicy(), campaign);
 
@@ -944,7 +937,6 @@ public class MapTool {
 	}
 
 	public static void createConnection(String host, int port, Player player) throws UnknownHostException, IOException {
-
 		MapTool.player = player;
 		MapTool.getFrame().getCommandPanel().setIdentityName(null);
 
@@ -960,7 +952,6 @@ public class MapTool {
 		if (clientConn.isAlive()) {
 			conn = clientConn;
 		}
-
 		clientFrame.getLookupTablePanel().updateView();
 		clientFrame.getInitiativePanel().updateView();
 	}
@@ -984,26 +975,21 @@ public class MapTool {
 	}
 
 	public static void disconnect() {
-
 		// Close UPnP port mapping if used
 		StartServerDialogPreferences serverProps = new StartServerDialogPreferences();
 		if (serverProps.getUseUPnP()) {
-
 			int port = serverProps.getPort();
 			UPnPUtil.closePort(port);
 		}
-
 		boolean isPersonalServer = server != null && server.getConfig().isPersonalServer();
 
 		if (announcer != null) {
 			announcer.stop();
 			announcer = null;
 		}
-
 		if (conn == null || !conn.isAlive()) {
 			return;
 		}
-
 		// Unregister ourselves
 		if (server != null && server.getConfig().isServerRegistered() && !isPersonalServer) {
 			try {
@@ -1017,7 +1003,6 @@ public class MapTool {
 			conn.close();
 			conn = null;
 			playerList.clear();
-
 		} catch (IOException ioe) {
 			// This isn't critical, we're closing it anyway
 			log.debug("While closing connection", ioe);
@@ -1041,7 +1026,6 @@ public class MapTool {
 			System.err.println("Could not load logging configuration file: " + ioe);
 			return;
 		}
-
 		File localLoggingConfigFile = new File(AppUtil.getAppHome() + "/logging.xml");
 		String localConfig = "";
 		if (localLoggingConfigFile.exists()) {
@@ -1051,7 +1035,6 @@ public class MapTool {
 				e.printStackTrace();
 			}
 		}
-
 		logging = logging.replace("INSERT_LOCAL_CONFIG_HERE", localConfig);
 		logging = logging.replace("${appHome}", AppUtil.getAppHome().getAbsolutePath().replace('\\', '/'));
 
@@ -1089,7 +1072,6 @@ public class MapTool {
 	}
 
 	public static void main(String[] args) {
-
 		// Before anything else, create a place to store all the data
 		try {
 			AppUtil.getAppHome();
@@ -1106,7 +1088,6 @@ public class MapTool {
 			JOptionPane.showMessageDialog(frame, t.getMessage(), errorCreatingDir, JOptionPane.ERROR_MESSAGE);
 			System.exit(1);
 		}
-
 		configureLogging();
 
 		// System properties
@@ -1138,8 +1119,8 @@ public class MapTool {
 				UIManager.setLookAndFeel("net.rptools.maptool.client.TinyLookAndFeelMac");
 				macOSXicon();
 			}
-//			// On running on Windows based OS, CJK font is broken when using TinyLAF.
-//			else if (WINDOWS){
+			// If running on Windows based OS, CJK font is broken when using TinyLAF.
+//			else if (WINDOWS) {
 //				UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 //				menuBar = new AppMenuBar();
 //			}
@@ -1166,8 +1147,13 @@ public class MapTool {
 			System.exit(1);
 		}
 
-		// This is a tweak that makes the Chinese version work better
-		// Consider reviewing http://en.wikipedia.org/wiki/CJK_characters before making changes
+		/**
+		 * This is a tweak that makes the Chinese version work better.
+		 * <p>
+		 * Consider reviewing <a
+		 * href="http://en.wikipedia.org/wiki/CJK_characters">http://en.wikipedia.org/wiki/CJK_characters</a> before
+		 * making changes.
+		 */
 		if (Locale.CHINA.equals(Locale.getDefault())) {
 			Font f = new Font("����宋体", Font.PLAIN, 12);
 			FontUIResource fontRes = new FontUIResource(f);
@@ -1259,17 +1245,11 @@ public class MapTool {
 	}
 
 	private static void postInitialize() {
-		// Check to see if there is an autosave file from mt crashing
+		// Check to see if there is an autosave file from MT crashing
 		getAutoSaveManager().check();
 		getAutoSaveManager().restart();
 
-		// FJE This is where an autosave of the chat log would go.  Trevor has said he wants
-		// a generalized timer for use throughout MapTool but that's not practical if this is
-		// going to make it into 1.3 (which seems unlikely now).
-
 		taskbarFlasher = new TaskBarFlasher(clientFrame);
-
-//		showWarning("WARNING!!! This is an experimental version. <p><p>It's possible that this version will hit a fringe case that will cause MT to lockup, without the ability to save.<p><p>Please test this build, but don't rely on it yet while we work out the kinks over the next build or two.<p><p><b>Please report any problems to the forums, or email to submit@rptools.net with the subject 'b57 Bug'</b>.<p><p>Happy Mapping :)<p><p>-Trev");
 	}
 
 	/**
@@ -1278,7 +1258,6 @@ public class MapTool {
 	 * campaign property changes as well, including campaign macros...
 	 */
 	public static boolean isCampaignDirty() {
-
 		// TODO: This is a very naive check, but it's better than nothing
 		if (getCampaign().getZones().size() == 1) {
 			Zone singleZone = MapTool.getCampaign().getZones().get(0);
