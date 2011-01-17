@@ -28,6 +28,7 @@ import net.rptools.maptool.client.ui.MacroButtonHotKeyManager;
 import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButton;
 import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButtonPrefs;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.util.StringUtil;
 import net.rptools.parser.ParserException;
 
 import org.apache.log4j.Logger;
@@ -562,10 +563,11 @@ public class MacroButtonProperties implements Comparable<Object> {
 	 */
 	public String getFontColorAsHtml() {
 		Color c = null;
-		if (MapToolUtil.isHtmlColor(fontColorKey)) {
-			return fontColorKey;
+		String font = getFontColorKey();
+		if (MapToolUtil.isHtmlColor(font)) {
+			return font;
 		}
-		c = MapToolUtil.getColor(fontColorKey);
+		c = MapToolUtil.getColor(font);
 		if (c != null) {
 			return "#" + Integer.toHexString(c.getRGB()).substring(2);
 		}
@@ -573,6 +575,10 @@ public class MacroButtonProperties implements Comparable<Object> {
 	}
 
 	public String getFontColorKey() {
+		if (fontColorKey == null || StringUtil.isEmpty(fontColorKey)) {
+			fontColorKey = "black";
+			return fontColorKey;
+		}
 		Color c = MapToolUtil.getColor(fontColorKey);
 		if (c != null) {
 			return fontColorKey;
@@ -950,7 +956,6 @@ public class MacroButtonProperties implements Comparable<Object> {
 	}
 
 	public Object readResolve() {
-
 		if (commonMacro == null)
 			commonMacro = false;
 		if (compareGroup == null)
@@ -967,7 +972,6 @@ public class MacroButtonProperties implements Comparable<Object> {
 			compareApplyToSelectedTokens = true;
 		if (allowPlayerEdits == null)
 			allowPlayerEdits = true;
-
 		return this;
 	}
 }
