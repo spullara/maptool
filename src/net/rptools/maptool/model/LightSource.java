@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.model;
 
@@ -24,8 +21,7 @@ import java.util.Map;
 
 import net.rptools.lib.FileUtil;
 
-public class LightSource  {
-
+public class LightSource {
 	public enum Type {
 		NORMAL,
 		AURA
@@ -51,17 +47,14 @@ public class LightSource  {
 		if (!(obj instanceof LightSource)) {
 			return false;
 		}
-
-		return ((LightSource)obj).id.equals(id);
+		return ((LightSource) obj).id.equals(id);
 	}
 
 	public double getMaxRange() {
 		double range = 0;
-
 		for (Light light : getLightList()) {
 			range = Math.max(range, light.getRadius());
 		}
-
 		return range;
 	}
 
@@ -109,8 +102,7 @@ public class LightSource  {
 		this.type = type;
 	}
 
-	public void setShapeType (ShapeType type)
-	{
+	public void setShapeType(ShapeType type) {
 		this.shapeType = type;
 	}
 
@@ -125,7 +117,7 @@ public class LightSource  {
 		Area area = light.getArea(token, zone);
 		// TODO: This seems horribly inefficient
 		// Subtract out the lights that are previously defined
-		for (int i = getLightList().indexOf(light) -1; i >= 0; i--) {
+		for (int i = getLightList().indexOf(light) - 1; i >= 0; i--) {
 			Light lessLight = getLightList().get(i);
 			area.subtract(getArea(token, zone, position, lessLight.getArea(token, zone)));
 		}
@@ -140,12 +132,10 @@ public class LightSource  {
 		for (Light light : getLightList()) {
 			area.add(light.getArea(token, zone));
 		}
-
 		return getArea(token, zone, position, area);
 	}
 
 	private Area getArea(Token token, Zone zone, Direction position, Area area) {
-
 		Grid grid = zone.getGrid();
 		Rectangle footprintBounds = token.getFootprint(grid).getBounds(grid, grid.convert(new ZonePoint(token.getX(), token.getY())));
 
@@ -153,43 +143,41 @@ public class LightSource  {
 		int ty = 0;
 		switch (position) {
 		case NW:
-			tx -= footprintBounds.width/2;
-			ty -= footprintBounds.height/2;
+			tx -= footprintBounds.width / 2;
+			ty -= footprintBounds.height / 2;
 			break;
 		case N:
-			ty -= footprintBounds.height/2;
+			ty -= footprintBounds.height / 2;
 			break;
 		case NE:
-			tx += footprintBounds.width/2;
-			ty -= footprintBounds.height/2;
+			tx += footprintBounds.width / 2;
+			ty -= footprintBounds.height / 2;
 			break;
 		case W:
-			tx -= footprintBounds.width/2;
+			tx -= footprintBounds.width / 2;
 			break;
 		case CENTER:
 			break;
 		case E:
-			tx += footprintBounds.width/2;
+			tx += footprintBounds.width / 2;
 			break;
 		case SW:
-			tx -= footprintBounds.width/2;
-			ty += footprintBounds.height/2;
+			tx -= footprintBounds.width / 2;
+			ty += footprintBounds.height / 2;
 			break;
 		case S:
-			ty += footprintBounds.height/2;
+			ty += footprintBounds.height / 2;
 			break;
 		case SE:
-			tx += footprintBounds.width/2;
-			ty += footprintBounds.height/2;
+			tx += footprintBounds.width / 2;
+			ty += footprintBounds.height / 2;
 			break;
 		}
-
 		area.transform(AffineTransform.getTranslateInstance(tx, ty));
 		return area;
 	}
 
 	public void render(Graphics2D g, Token token, Grid grid) {
-
 	}
 
 	@SuppressWarnings("unchecked")

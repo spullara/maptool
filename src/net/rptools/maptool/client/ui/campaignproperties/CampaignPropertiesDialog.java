@@ -204,16 +204,24 @@ public class CampaignPropertiesDialog extends JDialog {
 		epane.setCaretPosition(0);
 		tokenPropertiesPanel.copyCampaignToUI(campaignProperties);
 		updateRepositoryList(campaignProperties);
-		updateSightPanel(campaignProperties);
-		updateLightPanel(campaignProperties);
+
+		String text;
+		text = updateSightPanel(campaignProperties.getSightTypeMap());
+		getSightPanel().setText(text);
+		getSightPanel().setCaretPosition(0);
+
+		text = updateLightPanel(campaignProperties.getLightSourcesMap());
+		getLightPanel().setText(text);
+		getLightPanel().setCaretPosition(0);
+
 		tokenStatesController.copyCampaignToUI(campaignProperties);
 		tokenBarController.copyCampaignToUI(campaignProperties);
 //		updateTableList();
 	}
 
-	private void updateSightPanel(CampaignProperties properties) {
+	private String updateSightPanel(Map<String, SightType> sightTypeMap) {
 		StringBuilder builder = new StringBuilder();
-		for (SightType sight : properties.getSightTypeMap().values()) {
+		for (SightType sight : sightTypeMap.values()) {
 			builder.append(sight.getName()).append(": ");
 
 			switch (sight.getShape()) {
@@ -252,57 +260,69 @@ public class CampaignPropertiesDialog extends JDialog {
 			}
 			builder.append('\n');
 		}
-		getSightPanel().setText(builder.toString());
-		getSightPanel().setCaretPosition(0);
+		return builder.toString();
 	}
 
-	private void updateLightPanel(CampaignProperties properties) {
+	private String updateLightPanel(Map<String, Map<GUID, LightSource>> lightSources) {
 		StringBuilder builder = new StringBuilder();
-		for (Entry<String, Map<GUID, LightSource>> entry : properties.getLightSourcesMap().entrySet()) {
+		for (Entry<String, Map<GUID, LightSource>> entry : lightSources.entrySet()) {
 			builder.append(entry.getKey());
 			builder.append("\n----\n");
 
 			for (LightSource lightSource : entry.getValue().values()) {
-				builder.append(lightSource.getName()).append(" : ");
+				builder.append(lightSource.getName()).append(":");
 
 				if (lightSource.getType() != LightSource.Type.NORMAL) {
-					builder.append(lightSource.getType().name().toLowerCase()).append(' ');
+					builder.append(' ').append(lightSource.getType().name().toLowerCase());
 				}
+				String lastShape = ""; // this forces 'circle' to be printed
+				double lastArc = 90;
+				boolean lastGM = false;
+				boolean lastOwner = false;
 				for (Light light : lightSource.getLightList()) {
+					String shape = null;
+					// TODO: This HAS to change, the lights need to be auto describing, this hard wiring sucks
+					if (lightSource.getType() == LightSource.Type.AURA) {
+						// Currently these are mutually exclusive but perhaps not in the future?
+						if (light.isGM() && light.isGM() != lastGM)
+							builder.append(" GM");
+						if (light.isOwnerOnly() && light.isOwnerOnly() != lastOwner)
+							builder.append(" OWNER");
+						lastGM = light.isGM();
+						lastOwner = light.isOwnerOnly();
+					}
 					if (light.getShape() != null) {
 						switch (light.getShape()) {
 						case SQUARE:
 						case CIRCLE:
 							// TODO: Make this a preference
-							builder.append(light.getShape().toString().toLowerCase()).append(' ');
+							shape = light.getShape().toString().toLowerCase();
 							break;
 						case CONE:
-							// TODO: This HAS to change, the lights need to be auto describing, this hard wiring sucks
-							if (light.getArcAngle() != 0 && light.getArcAngle() != 90)
-								builder.append("arc=").append(StringUtil.formatDecimal(light.getArcAngle())).append(' ');
+//							if (light.getArcAngle() != 0 && light.getArcAngle() != 90 && light.getArcAngle() != lastArc)
+						{
+							lastArc = light.getArcAngle();
+							shape = "cone arc=" + StringUtil.formatDecimal(lastArc);
+						}
+//							else
+//								shape = "cone";
 							break;
 						}
+						if (!lastShape.equals(shape))
+							builder.append(' ').append(shape);
+						lastShape = shape;
 					}
-					if (lightSource.getType() == LightSource.Type.AURA) {
-						if (light.isGM())
-							builder.append("GM ");
-						if (light.isOwnerOnly())
-							builder.append("OWNER ");
-					}
-					builder.append(StringUtil.formatDecimal(light.getRadius()));
-
+					builder.append(' ').append(StringUtil.formatDecimal(light.getRadius()));
 					if (light.getPaint() instanceof DrawableColorPaint) {
 						Color color = (Color) light.getPaint().getPaint();
 						builder.append(toHex(color));
 					}
-					builder.append(' ');
 				}
 				builder.append('\n');
 			}
 			builder.append('\n');
 		}
-		getLightPanel().setText(builder.toString());
-		getLightPanel().setCaretPosition(0);
+		return builder.toString();
 	}
 
 	private String toHex(Color color) {
@@ -342,8 +362,12 @@ public class CampaignPropertiesDialog extends JDialog {
 			String repo = (String) getRepositoryList().getModel().getElementAt(i);
 			campaign.getRemoteRepositoryList().add(repo);
 		}
-		commitLightMap();
-		commitSightMap();
+		Map<String, Map<GUID, LightSource>> lightMap;
+		lightMap = commitLightMap(getLightPanel().getText(), campaign.getLightSourcesMap());
+		campaign.getLightSourcesMap().clear();
+		campaign.getLightSourcesMap().putAll(lightMap);
+
+		commitSightMap(getSightPanel().getText());
 		tokenStatesController.copyUIToCampaign(campaign);
 		tokenBarController.copyUIToCampaign(campaign);
 
@@ -356,9 +380,9 @@ public class CampaignPropertiesDialog extends JDialog {
 		}
 	}
 
-	private void commitSightMap() {
+	private void commitSightMap(final String text) {
 		List<SightType> sightList = new LinkedList<SightType>();
-		LineNumberReader reader = new LineNumberReader(new BufferedReader(new StringReader(getSightPanel().getText())));
+		LineNumberReader reader = new LineNumberReader(new BufferedReader(new StringReader(text)));
 		String line = null;
 		String toBeParsed = null, errmsg = null;
 		List<String> errlog = new LinkedList<String>();
@@ -451,9 +475,33 @@ public class CampaignPropertiesDialog extends JDialog {
 		campaign.setSightTypes(sightList);
 	}
 
-	private void commitLightMap() {
+	/**
+	 * Converts the string stored in <code>getLightPanel().getText()</code> into a Map that relates a group of light
+	 * sources to a Map of GUID and LightSource.
+	 * <p>
+	 * The format for the text is as follows:
+	 * <ol>
+	 * <li>Any line starting with a dash ("-") is a comment and is ignored.
+	 * <li>Blank lines (those containing only zero or more spaces) are group separators.
+	 * <li>The first line of a sequence is the group name.
+	 * <li>Within a group, any line without a colon (":") is ignored.
+	 * <li>Remaining lines are of the following format:
+	 * <p>
+	 * <b><code>[Gm | Owner] [Circle+ | Square | Cone] [Normal+ | Aura] [Arc=angle] distance [#rrggbb]</code></b>
+	 * </p>
+	 * <p>
+	 * Brackets indicate optional components. A plus sign follows any default value for a given field. Fields starting
+	 * with an uppercase letter are literal text (although they are case-insensitive). Fields that do not start with an
+	 * uppercase letter represent user-supplied values, typically numbers (such as <code>angle</code>,
+	 * <code>distance</code>, and <code>#rrggbb</code>). The <code>GM</code>/<code>Owner</code> field is only valid for
+	 * Auras.
+	 * </p>
+	 * </ol>
+	 * </p>
+	 */
+	private Map<String, Map<GUID, LightSource>> commitLightMap(final String text, final Map<String, Map<GUID, LightSource>> originalLightSourcesMap) {
 		Map<String, Map<GUID, LightSource>> lightMap = new HashMap<String, Map<GUID, LightSource>>();
-		LineNumberReader reader = new LineNumberReader(new BufferedReader(new StringReader(getLightPanel().getText())));
+		LineNumberReader reader = new LineNumberReader(new BufferedReader(new StringReader(text)));
 		String line = null;
 		List<String> errlog = new LinkedList<String>();
 
@@ -468,7 +516,7 @@ public class CampaignPropertiesDialog extends JDialog {
 				if (line.length() > 0 && line.charAt(0) == '-') {
 					continue;
 				}
-				// Blanks
+				// Blank lines
 				if (line.length() == 0) {
 					if (currentGroupName != null) {
 						lightMap.put(currentGroupName, lightSourceMap);
@@ -502,11 +550,12 @@ public class CampaignPropertiesDialog extends JDialog {
 					}
 					if (arg.equalsIgnoreCase("GM")) {
 						gmOnly = true;
+						owner = false;
 						continue;
 					}
 					if (arg.equalsIgnoreCase("OWNER")) {
-						if (!gmOnly)
-							owner = true;
+						gmOnly = false;
+						owner = true;
 						continue;
 					}
 					// Shape designation ?
@@ -533,9 +582,10 @@ public class CampaignPropertiesDialog extends JDialog {
 						String value = arg.substring(split + 1);
 
 						// TODO: Make this a generic map to pass instead of 'arc'
-						if ("arc".equals(key)) {
+						if ("arc".equalsIgnoreCase(key)) {
 							try {
 								arc = StringUtil.parseDecimal(value);
+								shape = ShapeType.CONE; // If the user specifies an arc, force the shape to CONE
 							} catch (ParseException pe) {
 								errlog.add(I18N.getText("msg.error.mtprops.light.arc", reader.getLineNumber(), value));
 							}
@@ -550,18 +600,24 @@ public class CampaignPropertiesDialog extends JDialog {
 						distance = arg.substring(0, split);
 						color = Color.decode(colorString);
 					}
+					boolean isAura = lightSource.getType() == LightSource.Type.AURA;
+					if (!isAura && (gmOnly || owner)) {
+						errlog.add(I18N.getText("msg.error.mtprops.light.gmOrOwner", reader.getLineNumber()));
+						gmOnly = false;
+						owner = false;
+					}
 					owner = gmOnly == true ? false : owner;
 					try {
-						boolean isAura = lightSource.getType() == LightSource.Type.AURA;
-						Light t = new Light(shape, 0, StringUtil.parseDecimal(distance), arc, color != null ? new DrawableColorPaint(color) : null, !isAura ? false : gmOnly, !isAura ? false : owner);
+						Light t = new Light(shape, 0, StringUtil.parseDecimal(distance), arc, color != null ? new DrawableColorPaint(color) : null, gmOnly, owner);
 						lightSource.add(t);
 					} catch (ParseException pe) {
 						errlog.add(I18N.getText("msg.error.mtprops.light.distance", reader.getLineNumber(), distance));
 					}
 				}
 				// Keep ID the same if modifying existing light
-				if (campaign.getLightSourcesMap().containsKey(currentGroupName)) {
-					for (LightSource ls : campaign.getLightSourcesMap().get(currentGroupName).values()) {
+				// TODO FJE Why?  Is there some benefit to doing so?  Changes to light sources require the map to be re-rendered anyway, doesn't it?
+				if (originalLightSourcesMap.containsKey(currentGroupName)) {
+					for (LightSource ls : originalLightSourcesMap.get(currentGroupName).values()) {
 						if (ls.getName().equalsIgnoreCase(name)) {
 							lightSource.setId(ls.getId());
 							break;
@@ -582,8 +638,7 @@ public class CampaignPropertiesDialog extends JDialog {
 			errlog.clear();
 			throw new IllegalArgumentException(); // Don't save lights...
 		}
-		campaign.getLightSourcesMap().clear();
-		campaign.getLightSourcesMap().putAll(lightMap);
+		return lightMap;
 	}
 
 	public JEditorPane getLightPanel() {
@@ -686,5 +741,60 @@ public class CampaignPropertiesDialog extends JDialog {
 				}
 			}
 		});
+	}
+
+	public static void main(String[] args) {
+		JFrame frame = new JFrame("Testing campaign properties dialog syntax-specific fields");
+		CampaignPropertiesDialog cpd = new CampaignPropertiesDialog(frame);
+		String lights = "D20\n" +
+				"----\n" +
+				"Lantern, Bullseye - 60 : cone arc=60 60#f0f0f0 120#330000\n" +
+				"Lantern, Hooded - 30 : circle 30 60#330000 arc=60 120#f0f0f0\n" +
+				"Torch - 20 : circle 20 40#330000\n" +
+				"\n" +
+				"Aura\n" +
+				"----\n" +
+				"Arc 120deg OWNERonly - 20 : owner aura arc=120 22.5#115511\n" +
+				"Arc 60deg - 60 : aura cone arc=60 62.5#77ffaa\n" +
+				"Circle - 20 : aura circle 22.5#220000\n" +
+				"Circle GM+Owner : aura circle GM Owner 62.5#ff8080\n" +
+				"Circle GMonly : aura circle GM 62.5#ff8080\n" +
+				"Fancy - 30/60/120 : aura GM circle 30 60#330000 owner arc=60 120#f0f0f0\n" +
+				"\n";
+		System.out.print(lights);
+
+		Map<String, Map<GUID, LightSource>> originalLightSourcesMap = new HashMap<String, Map<GUID, LightSource>>();
+		Map<String, Map<GUID, LightSource>> lightMap = new HashMap<String, Map<GUID, LightSource>>();
+		try {
+			lightMap = cpd.commitLightMap(lights, originalLightSourcesMap);
+		} catch (Exception e) {
+		}
+
+		String text = cpd.updateLightPanel(lightMap);
+		System.out.print(text);
+
+		// keySet() might be empty if an exception occurred.
+		for (String string : lightMap.keySet()) {
+			System.out.println("\nGroup Name: " + string);
+			System.out.println("-------------");
+			for (GUID guid : lightMap.get(string).keySet()) {
+				LightSource ls = lightMap.get(string).get(guid);
+				System.out.println(ls.getType() + ", " + ls.getName() + ":");
+				for (Light light : ls.getLightList()) {
+					System.out.print("  [shape=" + light.getShape());
+					if (light.getShape() == ShapeType.CONE) {
+						System.out.print(", arc=" + light.getArcAngle());
+						System.out.print(", facing=" + light.getFacingOffset());
+					}
+					System.out.print(", gm=" + light.isGM());
+					System.out.print(", owner=" + light.isOwnerOnly());
+					System.out.print(", radius=" + light.getRadius());
+					System.out.print(", color=" + light.getPaint() + "]\n");
+				}
+			}
+		}
+//		String sights = "";
+//		cpd.commitSightMap(sights);
+		System.exit(1);
 	}
 }

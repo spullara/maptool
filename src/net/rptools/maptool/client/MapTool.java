@@ -520,6 +520,15 @@ public class MapTool {
 		return configuration;
 	}
 
+	/**
+	 * This was added to make it easier to set a breakpoint and locate when the frame was initialized.
+	 * 
+	 * @param frame
+	 */
+	private static void setClientFrame(MapToolFrame frame) {
+		clientFrame = frame;
+	}
+
 	private static void initialize() {
 		configuration = new AppConfiguration(CONFIGURATION_PROPERTIES);
 
@@ -553,7 +562,7 @@ public class MapTool {
 
 		handler = new ClientMethodHandler();
 
-		clientFrame = new MapToolFrame(menuBar);
+		setClientFrame(new MapToolFrame(menuBar));
 
 		serverCommand = new ServerCommandClientImpl();
 
