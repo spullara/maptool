@@ -1235,26 +1235,20 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	}
 
 	public ZoneRenderer getZoneRenderer(Zone zone) {
-
 		for (ZoneRenderer renderer : zoneRendererList) {
-
 			if (zone == renderer.getZone()) {
 				return renderer;
 			}
 		}
-
 		return null;
 	}
 
 	public ZoneRenderer getZoneRenderer(GUID zoneGUID) {
-
 		for (ZoneRenderer renderer : zoneRendererList) {
-
 			if (zoneGUID.equals(renderer.getZone().getId())) {
 				return renderer;
 			}
 		}
-
 		return null;
 	}
 

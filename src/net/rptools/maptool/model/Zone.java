@@ -587,17 +587,12 @@ public class Zone extends BaseModel {
 		}
 		if (token != null) {
 			if ((MapTool.getServerPolicy().isUseIndividualFOW() && AppUtil.playerOwns(token)) || MapTool.isPersonalServer()) {
-				if (exposedAreaMeta.containsKey(token.getExposedAreaGUID())) {
-					ExposedAreaMetaData meta = exposedAreaMeta.get(token.getExposedAreaGUID());
-					meta.addToExposedAreaHistory(new Area(area));
-					meta.addToExposedAreaHistory(MapTool.getFrame().getZoneRenderer(getId()).getZoneView().getVisibleArea(token));
-					exposedAreaMeta.put(token.getExposedAreaGUID(), meta);
-				} else {
-					ExposedAreaMetaData meta = new ExposedAreaMetaData();
-					meta.addToExposedAreaHistory(new Area(area));
-					meta.addToExposedAreaHistory(MapTool.getFrame().getZoneRenderer(getId()).getZoneView().getVisibleArea(token));
-					exposedAreaMeta.put(token.getExposedAreaGUID(), meta);
-				}
+				ExposedAreaMetaData meta = exposedAreaMeta.get(token.getExposedAreaGUID());
+				if (meta == null)
+					meta = new ExposedAreaMetaData();
+				meta.addToExposedAreaHistory(new Area(area));
+				meta.addToExposedAreaHistory(MapTool.getFrame().getZoneRenderer(getId()).getZoneView().getVisibleArea(token));
+				exposedAreaMeta.put(token.getExposedAreaGUID(), meta);
 				MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush();
 				putToken(token);
 			}
@@ -606,6 +601,13 @@ public class Zone extends BaseModel {
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
 
+	/**
+	 * Retrieves the selected tokens and adds the passed in area to their exposed area. (Why are we passing in a
+	 * <code>Set&lt;GUID></code> when <code>Set&lt;Token></code> would be much more efficient?)
+	 * 
+	 * @param area
+	 * @param selectedToks
+	 */
 	public void exposeArea(Area area, Set<GUID> selectedToks) {
 		if (area == null) {
 			return;
@@ -623,15 +625,11 @@ public class Zone extends BaseModel {
 				if (!tok.getHasSight()) {
 					continue;
 				}
-				if (exposedAreaMeta.containsKey(tok.getExposedAreaGUID())) {
-					ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getExposedAreaGUID());
-					meta.addToExposedAreaHistory(new Area(area));
-					exposedAreaMeta.put(tok.getExposedAreaGUID(), meta);
-				} else {
-					ExposedAreaMetaData meta = new ExposedAreaMetaData();
-					meta.addToExposedAreaHistory(new Area(area));
-					exposedAreaMeta.put(tok.getExposedAreaGUID(), meta);
-				}
+				ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getExposedAreaGUID());
+				if (meta == null)
+					meta = new ExposedAreaMetaData();
+				meta.addToExposedAreaHistory(new Area(area));
+				exposedAreaMeta.put(tok.getExposedAreaGUID(), meta);
 				MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush();
 			}
 		}
@@ -693,15 +691,11 @@ public class Zone extends BaseModel {
 					continue;
 				}
 				if (exposedAreaMeta != null) {
-					if (exposedAreaMeta.containsKey(tok.getExposedAreaGUID())) {
-						ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getExposedAreaGUID());
-						meta.removeExposedAreaHistory(new Area(area));
-						exposedAreaMeta.put(tok.getExposedAreaGUID(), meta);
-					} else {
-						ExposedAreaMetaData meta = new ExposedAreaMetaData();
-						meta.removeExposedAreaHistory(new Area(area));
-						exposedAreaMeta.put(tok.getExposedAreaGUID(), meta);
-					}
+					ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getExposedAreaGUID());
+					if (meta == null)
+						meta = new ExposedAreaMetaData();
+					meta.removeExposedAreaHistory(new Area(area));
+					exposedAreaMeta.put(tok.getExposedAreaGUID(), meta);
 				}
 				MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush(tok);
 				putToken(tok);
