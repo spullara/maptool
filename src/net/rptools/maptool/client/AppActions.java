@@ -17,6 +17,7 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.event.ActionEvent;
+import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -87,6 +88,7 @@ import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignFactory;
 import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.model.CellPoint;
+import net.rptools.maptool.model.ExposedAreaMetaData;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.Player;
@@ -762,14 +764,16 @@ public class AppActions {
 				Token newToken = new Token(originalToken);
 				//System.out.println("Cut Token(original): " + originalToken.getExposedAreaGUID());
 				//System.out.println("Cut Token(new): " + newToken.getExposedAreaGUID());
-				/*
-				 * newToken.setZoneId(zone.getId()); System.out.println("Cut Token(original): " +
-				 * originalToken.getId()); System.out.println("Cut Token(new): " + newToken.getId());
-				 * if(MapTool.getServerPolicy().isUseIndividualFOW() && newToken.getHasSight()) { ExposedAreaMetaData
-				 * meta = zone.getExposedAreaMetaData(originalToken.getId()); Map<GUID, ExposedAreaMetaData>
-				 * exposedAreaMetaData = zone.getExposedAreaMetaData(); exposedAreaMetaData.put(newToken.getId(), meta);
-				 * }
-				 */
+
+//				newToken.setZoneId(zone.getId());
+//				System.out.println("Cut Token(original): " + originalToken.getId());
+//				System.out.println("Cut Token(new): " + newToken.getId());
+//				if (MapTool.getServerPolicy().isUseIndividualFOW() && newToken.getHasSight()) {
+//					ExposedAreaMetaData meta = zone.getExposedAreaMetaData(originalToken.getId());
+//					Map<GUID, ExposedAreaMetaData> exposedAreaMetaData = zone.getExposedAreaMetaData();
+//					exposedAreaMetaData.put(newToken.getId(), meta);
+//				}
+
 				tokenCopySet.add(newToken);
 			}
 			// Normalize
@@ -821,35 +825,40 @@ public class AppActions {
 			for (Token origToken : tokenList) {
 				Token token = new Token(origToken);
 
-				// need this here to get around times when a 
-				// token is copied and pasted into the 
+				// need this here to get around times when a token is copied and pasted into the 
 				// same zone, such as a framework "template"
 				if (allTokens != null) {
 					for (Token tok : allTokens) {
 						if (tok.getExposedAreaGUID().equals(token.getExposedAreaGUID())) {
-							token.setExposedAreaGUID(new GUID());
+							GUID guid = new GUID();
+							token.setExposedAreaGUID(guid);
+							ExposedAreaMetaData meta = zone.getExposedAreaMetaData(guid);
+							// 'meta' references the object already stored in the zone's HashMap (that was created if necessary).
+							meta.addToExposedAreaHistory(new Area(meta.getExposedAreaHistory()));
+							MapTool.serverCommand().updateExposedAreaMeta(zone.getId(), token.getExposedAreaGUID(), meta);
 						}
 					}
 				}
 				//System.out.println("Paste Token(original): " + origToken.getExposedAreaGUID());
 				//System.out.println("Paste Token(new): " + token.getExposedAreaGUID());
 
-				/*
-				 * Old stuff.... get rid of once we know it's not needed.
-				 * 
-				 * GUID tokGUID = origToken.getZoneId(); Zone oldZone =
-				 * MapTool.getFrame().getZoneRenderer(tokGUID).getZone(); token.setZoneId(zone.getId());
-				 * 
-				 * System.out.println("Paste Token(original): " + origToken.getId());
-				 * System.out.println("Paste Token(new): " + token.getId());
-				 * if(MapTool.getServerPolicy().isUseIndividualFOW() && token.getHasSight()) {
-				 * if(tokGUID.equals(zone.getId())){ ExposedAreaMetaData meta =
-				 * oldZone.getExposedAreaMetaData(origToken.getId()); Map<GUID, ExposedAreaMetaData> exposedAreaMetaData
-				 * = zone.getExposedAreaMetaData(); ExposedAreaMetaData newMeta = new ExposedAreaMetaData();
-				 * newMeta.addToExposedAreaHistory(new Area(meta.getExposedAreaHistory()));
-				 * exposedAreaMetaData.put(token.getId(), newMeta);
-				 * MapTool.serverCommand().updateExposedAreaMeta(zone.getId(), token.getId(), newMeta); } }
-				 */
+				// Old stuff.... get rid of once we know it's not needed.
+//				GUID tokGUID = origToken.getZoneId();
+//				Zone oldZone = MapTool.getFrame().getZoneRenderer(tokGUID).getZone();
+//				token.setZoneId(zone.getId());
+//
+//				System.out.println("Paste Token(original): " + origToken.getId());
+//				System.out.println("Paste Token(new): " + token.getId());
+//				if (MapTool.getServerPolicy().isUseIndividualFOW() && token.getHasSight()) {
+//					if (tokGUID.equals(zone.getId())) {
+//						ExposedAreaMetaData meta = oldZone.getExposedAreaMetaData(origToken.getId());
+//						Map<GUID, ExposedAreaMetaData> exposedAreaMetaData = zone.getExposedAreaMetaData();
+//						ExposedAreaMetaData newMeta = new ExposedAreaMetaData();
+//						newMeta.addToExposedAreaHistory(new Area(meta.getExposedAreaHistory()));
+//						exposedAreaMetaData.put(token.getId(), newMeta);
+//						MapTool.serverCommand().updateExposedAreaMeta(zone.getId(), token.getId(), newMeta);
+//					}
+//				}
 
 				token.setX(token.getX() + zonePoint.x);
 				token.setY(token.getY() + zonePoint.y);

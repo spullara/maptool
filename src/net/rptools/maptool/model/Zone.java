@@ -1279,13 +1279,10 @@ public class Zone extends BaseModel {
 	}
 
 	public ExposedAreaMetaData getExposedAreaMetaData(GUID guid) {
-		if (exposedAreaMeta == null) {
-			return new ExposedAreaMetaData();
-		}
-		if (exposedAreaMeta.containsKey(guid)) {
+		if (getExposedAreaMetaData().containsKey(guid)) {
 			return exposedAreaMeta.get(guid);
 		} else {
-			return new ExposedAreaMetaData();
+			return exposedAreaMeta.put(guid, new ExposedAreaMetaData());
 		}
 	}
 

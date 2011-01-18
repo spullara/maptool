@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.server;
 
@@ -18,7 +15,6 @@ import java.util.List;
 import java.util.Set;
 
 import net.rptools.lib.MD5Key;
-import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignProperties;
@@ -31,13 +27,12 @@ import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.Zone.VisionType;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.Pen;
 
 public interface ServerCommand {
-
 	public static enum COMMAND {
 		bootPlayer,
 		setCampaign,
@@ -82,60 +77,107 @@ public interface ServerCommand {
 		updateTokenInitiative,
 		setVisionType,
 		updateCampaignMacros,
-		setTokenLocation,// NOTE: This is to support third party token placement and shouldn't be depended on for general purpose token movement
+		setTokenLocation, // NOTE: This is to support third party token placement and shouldn't be depended on for general purpose token movement
 		setLiveTypingLabel, // Experimental
 		enforceNotification, // Override toggle button to show typing notifications
 		exposePCArea,
-		setBoard, 
+		setBoard,
 		updateExposedAreaMeta
 	};
 
 	public void bootPlayer(String player);
+
 	public void setZoneHasFoW(GUID zoneGUID, boolean hasFog);
+
 	public void exposeFoW(GUID zoneGUID, Area area, Set<GUID> selectedToks);
-	public void hideFoW(GUID zoneGUID, Area area,Set<GUID> selectedToks);
+
+	public void hideFoW(GUID zoneGUID, Area area, Set<GUID> selectedToks);
+
 	public void setFoW(GUID zoneGUID, Area area, Set<GUID> selectedToks);
+
 	public void addTopology(GUID zoneGUID, Area area);
+
 	public void removeTopology(GUID zoneGUID, Area area);
+
 	public void enforceZoneView(GUID zoneGUID, int x, int y, double scale, int width, int height);
+
 	public void setCampaign(Campaign campaign);
+
 	public void getZone(GUID zoneGUID);
+
 	public void putZone(Zone zone);
+
 	public void removeZone(GUID zoneGUID);
+
 	public void setZoneVisibility(GUID zoneGUID, boolean visible);
+
 	public void putAsset(Asset asset);
+
 	public void getAsset(MD5Key assetID);
+
 	public void removeAsset(MD5Key assetID);
+
 	public void putToken(GUID zoneGUID, Token token);
+
 	public void removeToken(GUID zoneGUID, GUID tokenGUID);
+
 	public void putLabel(GUID zoneGUID, Label label);
+
 	public void removeLabel(GUID zoneGUID, GUID labelGUID);
+
 	public void draw(GUID zoneGUID, Pen pen, Drawable drawable);
+
 	public void undoDraw(GUID zoneGUID, GUID drawableGUID);
+
 	public void setZoneGridSize(GUID zoneGUID, int xOffset, int yOffset, int size, int color);
+
 	public void message(TextMessage message);
+
 	public void showPointer(String player, Pointer pointer);
+
 	public void hidePointer(String player);
+
 	public void movePointer(String player, int x, int y);
+
 	public void startTokenMove(String playerId, GUID zoneGUID, GUID tokenGUID, Set<GUID> tokenList);
+
 	public void updateTokenMove(GUID zoneGUID, GUID tokenGUID, int x, int y);
+
 	public void stopTokenMove(GUID zoneGUID, GUID tokenGUID);
+
 	public void toggleTokenMoveWaypoint(GUID zoneGUID, GUID tokenGUID, ZonePoint cp);
+
 	public void sendTokensToBack(GUID zoneGUID, Set<GUID> tokenSet);
+
 	public void bringTokensToFront(GUID zoneGUID, Set<GUID> tokenSet);
+
 	public void clearAllDrawings(GUID zoneGUID);
+
 	public void enforceZone(GUID zoneGUID);
+
 	public void setServerPolicy(ServerPolicy policy);
+
 	public void renameZone(GUID zoneGUID, String name);
+
 	public void heartbeat(String data);
+
 	public void updateCampaign(CampaignProperties properties);
+
 	public void updateInitiative(InitiativeList list, Boolean ownerPermission);
+
 	public void updateTokenInitiative(GUID zone, GUID token, Boolean hold, String state, Integer index);
+
 	public void setVisionType(GUID zoneGUID, VisionType visionType);
+
 	public void updateCampaignMacros(List<MacroButtonProperties> properties);
-    public void setBoard(GUID zoneGUID, MD5Key mapAsset, int X, int Y);
+
+	public void setBoard(GUID zoneGUID, MD5Key mapAsset, int X, int Y);
+
 	public void setLiveTypingLabel(String name, boolean show);
+
 	public void enforceNotification(Boolean enforce);
+
 	public void exposePCArea(GUID zoneGUID);
-	public void updateExposedAreaMeta(GUID zoneGUID, GUID tokenGUID, ExposedAreaMetaData meta);
+
+	public void updateExposedAreaMeta(GUID zoneGUID, GUID tokenExposedAreaGUID, ExposedAreaMetaData meta);
 }
