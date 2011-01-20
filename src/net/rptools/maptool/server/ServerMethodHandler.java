@@ -599,7 +599,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 	 * @see net.rptools.maptool.server.ServerCommand#updateExposedAreaMeta(net.rptools.maptool.model.GUID,
 	 * net.rptools.maptool.model.GUID, net.rptools.maptool.model.ExposedAreaMetaData)
 	 */
-	public void updateExposedAreaMeta(GUID zoneGUID, GUID tokenGUID, ExposedAreaMetaData meta) {
+	public void updateExposedAreaMeta(GUID zoneGUID, GUID tokenExposedAreaGUID, ExposedAreaMetaData meta) {
 		forwardToClients();
 	}
 

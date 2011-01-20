@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client;
 
@@ -164,11 +161,11 @@ public class ServerCommandClientImpl implements ServerCommand {
 		makeServerCall(COMMAND.hidePointer, player);
 	}
 
-	public void setLiveTypingLabel(String label, boolean show){
+	public void setLiveTypingLabel(String label, boolean show) {
 		makeServerCall(COMMAND.setLiveTypingLabel, label, show);
 	}
 
-	public void enforceNotification(Boolean enforce){
+	public void enforceNotification(Boolean enforce) {
 		// MapTool.showInformation(enforce.toString());
 		makeServerCall(COMMAND.enforceNotification, enforce);
 	}
@@ -199,19 +196,19 @@ public class ServerCommandClientImpl implements ServerCommand {
 		makeServerCall(COMMAND.removeTopology, zoneGUID, area);
 	}
 
-	public void exposePCArea(GUID zoneGUID){
+	public void exposePCArea(GUID zoneGUID) {
 		makeServerCall(COMMAND.exposePCArea, zoneGUID);
 	}
 
 	public void exposeFoW(GUID zoneGUID, Area area, Set<GUID> selectedToks) {
-		makeServerCall(COMMAND.exposeFoW, zoneGUID, area,  selectedToks);
+		makeServerCall(COMMAND.exposeFoW, zoneGUID, area, selectedToks);
 	}
 
-	public void setFoW(GUID zoneGUID, Area area,  Set<GUID> selectedToks) {
+	public void setFoW(GUID zoneGUID, Area area, Set<GUID> selectedToks) {
 		makeServerCall(COMMAND.setFoW, zoneGUID, area, selectedToks);
 	}
 
-	public void hideFoW(GUID zoneGUID, Area area,  Set<GUID> selectedToks) {
+	public void hideFoW(GUID zoneGUID, Area area, Set<GUID> selectedToks) {
 		makeServerCall(COMMAND.hideFoW, zoneGUID, area, selectedToks);
 	}
 
@@ -264,20 +261,21 @@ public class ServerCommandClientImpl implements ServerCommand {
 		makeServerCall(COMMAND.setBoard, zoneGUID, mapAssetId, x, y);
 	}
 
-
-	/* (non-Javadoc)
-	 * @see net.rptools.maptool.server.ServerCommand#updateExposedAreaMeta(net.rptools.maptool.model.GUID, net.rptools.maptool.model.GUID, net.rptools.maptool.model.ExposedAreaMetaData)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see net.rptools.maptool.server.ServerCommand#updateExposedAreaMeta(net.rptools.maptool.model.GUID,
+	 * net.rptools.maptool.model.GUID, net.rptools.maptool.model.ExposedAreaMetaData)
 	 */
-	public void updateExposedAreaMeta(GUID zoneGUID, GUID tokenGUID, ExposedAreaMetaData meta) {
-	    makeServerCall(COMMAND.updateExposedAreaMeta,  zoneGUID,tokenGUID, meta);
+	public void updateExposedAreaMeta(GUID zoneGUID, GUID tokenExposedAreaGUID, ExposedAreaMetaData meta) {
+		makeServerCall(COMMAND.updateExposedAreaMeta, zoneGUID, tokenExposedAreaGUID, meta);
 	}
 
 	/**
-	 * Some events become obsolete very quickly, such as dragging a token
-	 * around.  This queue always has exactly one element, the more current
-	 * version of the event.  The event is then dispatched at some time interval.
-	 * If a new event arrives before the time interval elapses, it is replaced.
-	 * In this way, only the most current version of the event is released.
+	 * Some events become obsolete very quickly, such as dragging a token around. This queue always has exactly one
+	 * element, the more current version of the event. The event is then dispatched at some time interval. If a new
+	 * event arrives before the time interval elapses, it is replaced. In this way, only the most current version of the
+	 * event is released.
 	 */
 	private static class TimedEventQueue extends Thread {
 
@@ -292,7 +290,7 @@ public class ServerCommandClientImpl implements ServerCommand {
 			delay = millidelay;
 		}
 
-		public synchronized void enqueue (ServerCommand.COMMAND command, Object... params) {
+		public synchronized void enqueue(ServerCommand.COMMAND command, Object... params) {
 
 			this.command = command;
 			this.params = params;
@@ -310,7 +308,7 @@ public class ServerCommandClientImpl implements ServerCommand {
 		@Override
 		public void run() {
 
-			while(true) {
+			while (true) {
 
 				flush();
 				synchronized (sleepSemaphore) {
