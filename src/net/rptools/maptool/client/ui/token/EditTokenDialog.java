@@ -337,8 +337,9 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 	private void updatePropertiesTable(final String propertyType) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				getPropertyTable().setModel(new TokenPropertyTableModel());
-				getPropertyTable().expandAll();
+				PropertyTable pp = getPropertyTable();
+				pp.setModel(new TokenPropertyTableModel());
+				pp.expandAll();
 			}
 		});
 	}
@@ -729,10 +730,11 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 
 	public void initPropertiesPanel() {
 		PropertyTable propertyTable = new PropertyTable();
+		propertyTable.setFillsViewportHeight(true);
 		propertyTable.setName("propertiesTable");
 
 		PropertyPane pane = new PropertyPane(propertyTable);
-		pane.setPreferredSize(new Dimension(100, 300));
+//		pane.setPreferredSize(new Dimension(100, 300));
 
 		replaceComponent("propertiesPanel", "propertiesTable", pane);
 	}
