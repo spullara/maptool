@@ -1278,19 +1278,21 @@ public class Zone extends BaseModel {
 		return exposedAreaMeta;
 	}
 
-	public ExposedAreaMetaData getExposedAreaMetaData(GUID guid) {
-		if (getExposedAreaMetaData().containsKey(guid)) {
-			return exposedAreaMeta.get(guid);
+	public ExposedAreaMetaData getExposedAreaMetaData(GUID tokenExposedAreaGUID) {
+		if (getExposedAreaMetaData().containsKey(tokenExposedAreaGUID)) {
+			return exposedAreaMeta.get(tokenExposedAreaGUID);
 		} else {
-			return exposedAreaMeta.put(guid, new ExposedAreaMetaData());
+			ExposedAreaMetaData meta = new ExposedAreaMetaData();
+			exposedAreaMeta.put(tokenExposedAreaGUID, meta);
+			return meta;
 		}
 	}
 
-	public void setExposedAreaMetaData(GUID tokenGuid, ExposedAreaMetaData meta) {
+	public void setExposedAreaMetaData(GUID tokenExposedAreaGUID, ExposedAreaMetaData meta) {
 		if (exposedAreaMeta == null) {
 			exposedAreaMeta = new HashMap<GUID, ExposedAreaMetaData>();
 		}
-		exposedAreaMeta.put(tokenGuid, meta);
+		exposedAreaMeta.put(tokenExposedAreaGUID, meta);
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
 }

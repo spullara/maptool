@@ -129,6 +129,7 @@ public class MapTool {
 	 * <b>Clink</b>.
 	 */
 	private static final String SOUND_PROPERTIES = "net/rptools/maptool/client/sounds.properties";
+	public static final String SND_INVALID_OPERATION = "invalidOperation";
 
 	/**
 	 * Returns true if currently running on a Mac OS X based operating system.
@@ -550,6 +551,7 @@ public class MapTool {
 		soundManager = new SoundManager();
 		try {
 			soundManager.configure(SOUND_PROPERTIES);
+			soundManager.registerSoundEvent(SND_INVALID_OPERATION, soundManager.getRegisteredSound("Dink"));
 		} catch (IOException ioe) {
 			MapTool.showError("While initializing (configuring sound)", ioe);
 		}

@@ -90,10 +90,12 @@ import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.ExposedAreaMetaData;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.Zone.Layer;
 import net.rptools.maptool.model.Zone.VisionType;
 import net.rptools.maptool.model.ZoneFactory;
 import net.rptools.maptool.model.ZonePoint;
@@ -709,7 +711,7 @@ public class AppActions {
 	public static final void cutTokens(Zone zone, Set<GUID> tokenSet) {
 		// Only cut if some tokens are selected.  Don't want to accidentally
 		// lose what might already be in the clipboard.
-		if (tokenSet.size() > 0) {
+		if (!tokenSet.isEmpty()) {
 			copyTokens(tokenSet);
 
 			// delete tokens
@@ -721,13 +723,23 @@ public class AppActions {
 				}
 			}
 			MapTool.getFrame().getCurrentZoneRenderer().clearSelectedTokens();
+		} else {
+			MapTool.playSound(MapTool.SND_INVALID_OPERATION);
 		}
 	}
 
+	/**
+	 * Copies the given set of tokens to a holding area (not really the "clipboard") so that they can be pasted back in
+	 * again later. This is the highest level function in that it determines token ownership (only owners can copy/cut
+	 * tokens).
+	 * 
+	 * @param tokenSet
+	 *            the set of tokens to copy; if empty, plays the {@link MapTool#SND_INVALID_OPERATION} sound.
+	 */
 	public static final void copyTokens(Set<GUID> tokenSet) {
 		// Only cut if some tokens are selected.  Don't want to accidentally
 		// lose what might already be in the clipboard.
-		if (tokenSet.size() > 0) {
+		if (!tokenSet.isEmpty()) {
 			List<Token> tokenList = new ArrayList<Token>();
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			Zone zone = renderer.getZone();
@@ -743,44 +755,166 @@ public class AppActions {
 				}
 			}
 			copyTokens(tokenList);
+		} else {
+			MapTool.playSound(MapTool.SND_INVALID_OPERATION);
 		}
 	}
 
+	private static Grid gridCopiedFrom = null;
+
+	/**
+	 * Copies the given set of tokens to a holding area (not really the "clipboard") so that they can be pasted back in
+	 * again later. This method ignores token ownership and operates on the entire list. A token's (x,y) offset from the
+	 * first token in the set is preserved so that relative positions are preserved when they are pasted back in later.
+	 * <p>
+	 * Here are the criteria for how copy/paste of tokens should work:
+	 * <ol>
+	 * <li><b>Both maps are gridless.</b><br>
+	 * This case is very simple since there's no need to convert anything to cell coordinates and back again.
+	 * <ul>
+	 * <li>All tokens have their relative pixel offsets saved and reproduced when pasted back in.
+	 * </ul>
+	 * 
+	 * <li><b>Both maps have grids.</b><br>
+	 * This scheme will preserve proper spacing on the Token layer (for tokens) and on the Object and Background layers
+	 * (for stamps). The spacing will NOT be correct when there's a mix of snapToGrid tokens and non-snapToGrid tokens,
+	 * but I don't see any way to correct that. (Well, we could calculate a percentage distance from the token in the
+	 * extreme corners of the pasted set and use that percentage to calculate a pixel location. Seems like a lot of work
+	 * for not much payoff.)
+	 * <ul>
+	 * <li>For all tokens that are snapToGrid, the relative distances between tokens should be kept in "cell" units when
+	 * copied. That way they can be pasted back in with the relative cell spacing reproduced.
+	 * <li>For all tokens that are not snapToGrid, their relative pixel offsets should be saved and reproduced when the
+	 * tokens are pasted.
+	 * </ul>
+	 * 
+	 * <li><b>The source map is gridless and the destination has a grid.</b><br>
+	 * This one is essentially identical to the first case.
+	 * <ul>
+	 * <li>All tokens are copied with relative pixel offsets. When pasted, those relative offsets are used for all
+	 * non-snapToGrid tokens, but snapToGrid tokens have the relative pixel offsets applied and then are "snapped" into
+	 * the correct cell location.
+	 * </ul>
+	 * 
+	 * <li><b>The source map has a grid and the destination is gridless.</b><br>
+	 * This one is essentially identical to the first case.
+	 * <ul>
+	 * <li>All tokens have their relative pixel distances saved and those offsets are reproduced when pasted.
+	 * </ul>
+	 * </ol>
+	 * 
+	 * @param tokenList
+	 *            the list of tokens to copy; if empty, plays the {@link MapTool#SND_INVALID_OPERATION} sound.
+	 */
 	public static final void copyTokens(List<Token> tokenList) {
 		// Only cut if some tokens are selected.  Don't want to accidentally
 		// lose what might already be in the clipboard.
-		if (tokenList.size() > 0) {
-			Integer top = null;
-			Integer left = null;
+		if (!tokenList.isEmpty()) {
+			if (tokenCopySet != null)
+				tokenCopySet.clear(); // Just to help out the garbage collector a little bit
+
+			Token topLeft = tokenList.get(0);
 			tokenCopySet = new HashSet<Token>();
-			Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 			for (Token originalToken : tokenList) {
-				if (top == null || originalToken.getY() < top) {
-					top = originalToken.getY();
-				}
-				if (left == null || originalToken.getX() < left) {
-					left = originalToken.getX();
+				if (originalToken.getY() < topLeft.getY() || originalToken.getX() < topLeft.getX()) {
+					topLeft = originalToken;
 				}
 				Token newToken = new Token(originalToken);
-				//System.out.println("Cut Token(original): " + originalToken.getExposedAreaGUID());
-				//System.out.println("Cut Token(new): " + newToken.getExposedAreaGUID());
-
-//				newToken.setZoneId(zone.getId());
-//				System.out.println("Cut Token(original): " + originalToken.getId());
-//				System.out.println("Cut Token(new): " + newToken.getId());
-//				if (MapTool.getServerPolicy().isUseIndividualFOW() && newToken.getHasSight()) {
-//					ExposedAreaMetaData meta = zone.getExposedAreaMetaData(originalToken.getId());
-//					Map<GUID, ExposedAreaMetaData> exposedAreaMetaData = zone.getExposedAreaMetaData();
-//					exposedAreaMetaData.put(newToken.getId(), meta);
-//				}
-
+				// The exposed area is updated during PASTE_TOKEN
+//				System.out.println("Cut Token(original): " + originalToken.getExposedAreaGUID());
+//				System.out.println("Cut Token(new): " + newToken.getExposedAreaGUID());
 				tokenCopySet.add(newToken);
 			}
-			// Normalize
-			for (Token token : tokenCopySet) {
-				token.setX(token.getX() - left);
-				token.setY(token.getY() - top);
+			/*
+			 * Normalize. For gridless maps, keep relative pixel distances. For gridded maps, keep relative cell
+			 * spacing. Since we're going to keep relative positions, we can just modify the (x,y) coordinates of all
+			 * tokens by subtracting the position of the one in 'topLeft'.
+			 */
+			Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
+			try {
+				gridCopiedFrom = (Grid) zone.getGrid().clone();
+			} catch (CloneNotSupportedException e) {
+				MapTool.showError("This can't happen as all grids MUST implement Cloneable!", e);
 			}
+			int x = topLeft.getX();
+			int y = topLeft.getY();
+			for (Token token : tokenCopySet) {
+				// Save all token locations as relative pixel offsets.  They'll be made absolute when pasting them back in.
+				token.setX(token.getX() - x);
+				token.setY(token.getY() - y);
+			}
+		} else {
+			MapTool.playSound(MapTool.SND_INVALID_OPERATION);
+		}
+	}
+
+	private static void pasteTokens(ZonePoint destination, Layer layer) {
+		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
+		Grid grid = zone.getGrid();
+
+		boolean snapToGrid = false;
+		Token topLeft = null;
+
+		for (Token origToken : tokenCopySet) {
+			if (topLeft == null || origToken.getY() < topLeft.getY() || origToken.getX() < topLeft.getX()) {
+				topLeft = origToken;
+			}
+			snapToGrid |= origToken.isSnapToGrid();
+		}
+		boolean newZoneSupportsSnapToGrid = grid.getCapabilities().isSnapToGridSupported();
+		boolean gridCopiedFromSupportsSnapToGrid = gridCopiedFrom.getCapabilities().isSnapToGridSupported();
+		if (snapToGrid && newZoneSupportsSnapToGrid) {
+			CellPoint cellPoint = grid.convert(destination);
+			destination = grid.convert(cellPoint);
+		}
+
+		// Create a set of all tokenExposedAreaGUID's to make searching by GUID much faster.
+		Set<GUID> allTokensSet = null;
+		{
+			List<Token> allTokensList = zone.getTokens();
+			if (!allTokensList.isEmpty()) {
+				allTokensSet = new HashSet<GUID>(allTokensList.size());
+				for (Token token : allTokensList) {
+					allTokensSet.add(token.getExposedAreaGUID());
+				}
+			}
+		}
+
+		List<Token> tokenList = new ArrayList<Token>(tokenCopySet);
+		Collections.sort(tokenList, Token.COMPARE_BY_ZORDER);
+		for (Token origToken : tokenList) {
+			Token token = new Token(origToken);
+
+			// need this here to get around times when a token is copied and pasted into the 
+			// same zone, such as a framework "template"
+			if (allTokensSet != null && allTokensSet.contains(token.getExposedAreaGUID())) {
+				GUID guid = new GUID();
+				token.setExposedAreaGUID(guid);
+				ExposedAreaMetaData meta = zone.getExposedAreaMetaData(guid);
+				// 'meta' references the object already stored in the zone's HashMap (it was created if necessary).
+				meta.addToExposedAreaHistory(new Area(meta.getExposedAreaHistory()));
+				MapTool.serverCommand().updateExposedAreaMeta(zone.getId(), token.getExposedAreaGUID(), meta);
+			}
+			if (newZoneSupportsSnapToGrid && gridCopiedFromSupportsSnapToGrid && token.isSnapToGrid()) {
+				// Convert (x,y) offset to a cell offset using the grid from the zone where the tokens were copied from
+				CellPoint cp = gridCopiedFrom.convert(new ZonePoint(token.getX(), token.getY()));
+				ZonePoint zp = grid.convert(cp);
+				token.setX(zp.x + destination.x);
+				token.setY(zp.y + destination.y);
+			} else {
+				// For gridless sources, gridless destinations, or tokens that are not SnapToGrid:  just use the pixel offsets
+				token.setX(token.getX() + destination.x);
+				token.setY(token.getY() + destination.y);
+			}
+			// paste into correct layer
+			token.setLayer(layer);
+
+			// check the token's name, don't change PC token names ... ever
+			if (token.getType() != Token.Type.PC) {
+				token.setName(MapToolUtil.nextTokenId(zone, token));
+			}
+			zone.putToken(token);
+			MapTool.serverCommand().putToken(zone.getId(), token);
 		}
 	}
 
@@ -800,80 +934,13 @@ public class AppActions {
 			if (renderer == null) {
 				return;
 			}
-			Zone zone = renderer.getZone();
-
 			ScreenPoint screenPoint = renderer.getPointUnderMouse();
 			if (screenPoint == null) {
 				// Pick the middle of the map
 				screenPoint = ScreenPoint.fromZonePoint(renderer, renderer.getCenterPoint());
 			}
-			boolean snapToGrid = false;
-			for (Token origToken : tokenCopySet) {
-				if (origToken.isSnapToGrid()) {
-					snapToGrid = true;
-				}
-			}
 			ZonePoint zonePoint = screenPoint.convertToZone(renderer);
-			if (snapToGrid) {
-				CellPoint cellPoint = zone.getGrid().convert(zonePoint);
-				zonePoint = renderer.getZone().getGrid().convert(cellPoint);
-			}
-			List<Token> tokenList = new ArrayList<Token>(tokenCopySet);
-			Collections.sort(tokenList, Token.COMPARE_BY_ZORDER);
-
-			List<Token> allTokens = zone.getTokens();
-			for (Token origToken : tokenList) {
-				Token token = new Token(origToken);
-
-				// need this here to get around times when a token is copied and pasted into the 
-				// same zone, such as a framework "template"
-				if (allTokens != null) {
-					for (Token tok : allTokens) {
-						if (tok.getExposedAreaGUID().equals(token.getExposedAreaGUID())) {
-							GUID guid = new GUID();
-							token.setExposedAreaGUID(guid);
-							ExposedAreaMetaData meta = zone.getExposedAreaMetaData(guid);
-							// 'meta' references the object already stored in the zone's HashMap (that was created if necessary).
-							meta.addToExposedAreaHistory(new Area(meta.getExposedAreaHistory()));
-							MapTool.serverCommand().updateExposedAreaMeta(zone.getId(), token.getExposedAreaGUID(), meta);
-						}
-					}
-				}
-				//System.out.println("Paste Token(original): " + origToken.getExposedAreaGUID());
-				//System.out.println("Paste Token(new): " + token.getExposedAreaGUID());
-
-				// Old stuff.... get rid of once we know it's not needed.
-//				GUID tokGUID = origToken.getZoneId();
-//				Zone oldZone = MapTool.getFrame().getZoneRenderer(tokGUID).getZone();
-//				token.setZoneId(zone.getId());
-//
-//				System.out.println("Paste Token(original): " + origToken.getId());
-//				System.out.println("Paste Token(new): " + token.getId());
-//				if (MapTool.getServerPolicy().isUseIndividualFOW() && token.getHasSight()) {
-//					if (tokGUID.equals(zone.getId())) {
-//						ExposedAreaMetaData meta = oldZone.getExposedAreaMetaData(origToken.getId());
-//						Map<GUID, ExposedAreaMetaData> exposedAreaMetaData = zone.getExposedAreaMetaData();
-//						ExposedAreaMetaData newMeta = new ExposedAreaMetaData();
-//						newMeta.addToExposedAreaHistory(new Area(meta.getExposedAreaHistory()));
-//						exposedAreaMetaData.put(token.getId(), newMeta);
-//						MapTool.serverCommand().updateExposedAreaMeta(zone.getId(), token.getId(), newMeta);
-//					}
-//				}
-
-				token.setX(token.getX() + zonePoint.x);
-				token.setY(token.getY() + zonePoint.y);
-
-				// paste into correct layer
-				token.setLayer(renderer.getActiveLayer());
-
-				// check the token's name, don't change PC token names ... ever
-				if (origToken.getType() != Token.Type.PC) {
-					token.setName(MapToolUtil.nextTokenId(zone, token));
-				}
-				zone.putToken(token);
-				MapTool.serverCommand().putToken(zone.getId(), token);
-
-			}
+			pasteTokens(zonePoint, renderer.getActiveLayer());
 			renderer.repaint();
 		}
 	};
