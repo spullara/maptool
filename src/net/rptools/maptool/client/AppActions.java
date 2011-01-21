@@ -691,6 +691,42 @@ public class AppActions {
 		}
 	};
 
+	/**
+	 * Cut tokens in the set from the given zone.
+	 * <p>
+	 * If no tokens are deleted (because the incoming set is empty, because none of the tokens in the set exist in the
+	 * zone, or because the user doesn't have permission to delete the tokens) then the
+	 * {@link MapTool#SND_INVALID_OPERATION} sound is played.
+	 * <p>
+	 * If any tokens<i>are</i> deleted, then the selection set for the zone is cleared.
+	 * 
+	 * @param zone
+	 * @param tokenSet
+	 */
+	public static final void cutTokens(Zone zone, Set<GUID> tokenSet) {
+		// Only cut if some tokens are selected.  Don't want to accidentally
+		// lose what might already be in the clipboard.
+		boolean anythingDeleted = false;
+		if (!tokenSet.isEmpty()) {
+			copyTokens(tokenSet);
+
+			// delete tokens
+			for (GUID tokenGUID : tokenSet) {
+				Token token = zone.getToken(tokenGUID);
+				if (AppUtil.playerOwns(token)) {
+					anythingDeleted = true;
+					zone.removeToken(tokenGUID);
+					MapTool.serverCommand().removeToken(zone.getId(), tokenGUID);
+				}
+			}
+		}
+		if (anythingDeleted) {
+			MapTool.getFrame().getCurrentZoneRenderer().clearSelectedTokens();
+		} else {
+			MapTool.playSound(MapTool.SND_INVALID_OPERATION);
+		}
+	}
+
 	public static final DefaultClientAction COPY_TOKENS = new DefaultClientAction() {
 		{
 			init("action.copyTokens");
@@ -708,26 +744,6 @@ public class AppActions {
 		}
 	};
 
-	public static final void cutTokens(Zone zone, Set<GUID> tokenSet) {
-		// Only cut if some tokens are selected.  Don't want to accidentally
-		// lose what might already be in the clipboard.
-		if (!tokenSet.isEmpty()) {
-			copyTokens(tokenSet);
-
-			// delete tokens
-			for (GUID tokenGUID : tokenSet) {
-				Token token = zone.getToken(tokenGUID);
-				if (AppUtil.playerOwns(token)) {
-					zone.removeToken(tokenGUID);
-					MapTool.serverCommand().removeToken(zone.getId(), tokenGUID);
-				}
-			}
-			MapTool.getFrame().getCurrentZoneRenderer().clearSelectedTokens();
-		} else {
-			MapTool.playSound(MapTool.SND_INVALID_OPERATION);
-		}
-	}
-
 	/**
 	 * Copies the given set of tokens to a holding area (not really the "clipboard") so that they can be pasted back in
 	 * again later. This is the highest level function in that it determines token ownership (only owners can copy/cut
@@ -737,23 +753,25 @@ public class AppActions {
 	 *            the set of tokens to copy; if empty, plays the {@link MapTool#SND_INVALID_OPERATION} sound.
 	 */
 	public static final void copyTokens(Set<GUID> tokenSet) {
-		// Only cut if some tokens are selected.  Don't want to accidentally
-		// lose what might already be in the clipboard.
+		List<Token> tokenList = null;
+		boolean anythingCopied = false;
 		if (!tokenSet.isEmpty()) {
-			List<Token> tokenList = new ArrayList<Token>();
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			Zone zone = renderer.getZone();
 			tokenCopySet = new HashSet<Token>();
+			tokenList = new ArrayList<Token>();
 
 			for (GUID guid : tokenSet) {
 				Token token = zone.getToken(guid);
-				if (token != null) {
-					if (!AppUtil.playerOwns(token)) {
-						continue;
-					}
+				if (token != null && AppUtil.playerOwns(token)) {
+					anythingCopied = true;
 					tokenList.add(token);
 				}
 			}
+		}
+		// Only cut if some tokens are selected.  Don't want to accidentally
+		// lose what might already be in the clipboard.
+		if (anythingCopied) {
 			copyTokens(tokenList);
 		} else {
 			MapTool.playSound(MapTool.SND_INVALID_OPERATION);
@@ -820,15 +838,13 @@ public class AppActions {
 					topLeft = originalToken;
 				}
 				Token newToken = new Token(originalToken);
-				// The exposed area is updated during PASTE_TOKEN
-//				System.out.println("Cut Token(original): " + originalToken.getExposedAreaGUID());
-//				System.out.println("Cut Token(new): " + newToken.getExposedAreaGUID());
 				tokenCopySet.add(newToken);
 			}
 			/*
 			 * Normalize. For gridless maps, keep relative pixel distances. For gridded maps, keep relative cell
 			 * spacing. Since we're going to keep relative positions, we can just modify the (x,y) coordinates of all
-			 * tokens by subtracting the position of the one in 'topLeft'.
+			 * tokens by subtracting the position of the one in 'topLeft'. On paste we can use the saved
+			 * 'gridCopiedFrom' to determine whether to use pixel distances or convert to cell distances.
 			 */
 			Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 			try {
@@ -848,6 +864,43 @@ public class AppActions {
 		}
 	}
 
+	public static final DefaultClientAction PASTE_TOKENS = new DefaultClientAction() {
+		{
+			init("action.pasteTokens");
+		}
+
+		@Override
+		public boolean isAvailable() {
+			return super.isAvailable() && tokenCopySet != null;
+		}
+
+		@Override
+		public void execute(ActionEvent e) {
+			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+			if (renderer == null) {
+				return;
+			}
+			ScreenPoint screenPoint = renderer.getPointUnderMouse();
+			if (screenPoint == null) {
+				// Pick the middle of the map
+				screenPoint = ScreenPoint.fromZonePoint(renderer, renderer.getCenterPoint());
+			}
+			ZonePoint zonePoint = screenPoint.convertToZone(renderer);
+			pasteTokens(zonePoint, renderer.getActiveLayer());
+			renderer.repaint();
+		}
+	};
+
+	/**
+	 * Pastes tokens from {@link #tokenCopySet} into the current zone at the specified location on the given layer. See
+	 * {@link #copyTokens(List)} for details of how the copy/paste operations work with respect to grid type on the
+	 * source and destination zones.
+	 * 
+	 * @param destination
+	 *            ZonePoint specifying where to paste; normally this is unchanged from the MouseEvent
+	 * @param layer
+	 *            the Zone.Layer that specifies which layer to paste onto
+	 */
 	private static void pasteTokens(ZonePoint destination, Layer layer) {
 		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 		Grid grid = zone.getGrid();
@@ -867,7 +920,6 @@ public class AppActions {
 			CellPoint cellPoint = grid.convert(destination);
 			destination = grid.convert(cellPoint);
 		}
-
 		// Create a set of all tokenExposedAreaGUID's to make searching by GUID much faster.
 		Set<GUID> allTokensSet = null;
 		{
@@ -879,7 +931,6 @@ public class AppActions {
 				}
 			}
 		}
-
 		List<Token> tokenList = new ArrayList<Token>(tokenCopySet);
 		Collections.sort(tokenList, Token.COMPARE_BY_ZORDER);
 		for (Token origToken : tokenList) {
@@ -917,33 +968,6 @@ public class AppActions {
 			MapTool.serverCommand().putToken(zone.getId(), token);
 		}
 	}
-
-	public static final DefaultClientAction PASTE_TOKENS = new DefaultClientAction() {
-		{
-			init("action.pasteTokens");
-		}
-
-		@Override
-		public boolean isAvailable() {
-			return super.isAvailable() && tokenCopySet != null;
-		}
-
-		@Override
-		public void execute(ActionEvent e) {
-			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-			if (renderer == null) {
-				return;
-			}
-			ScreenPoint screenPoint = renderer.getPointUnderMouse();
-			if (screenPoint == null) {
-				// Pick the middle of the map
-				screenPoint = ScreenPoint.fromZonePoint(renderer, renderer.getCenterPoint());
-			}
-			ZonePoint zonePoint = screenPoint.convertToZone(renderer);
-			pasteTokens(zonePoint, renderer.getActiveLayer());
-			renderer.repaint();
-		}
-	};
 
 	public static final Action REMOVE_ASSET_ROOT = new DefaultClientAction() {
 		{
@@ -987,12 +1011,10 @@ public class AppActions {
 				MapTool.showError("msg.error.mustSelectPlayerFirst");
 				return;
 			}
-
 			if (MapTool.getPlayer().equals(selectedPlayer)) {
 				MapTool.showError("msg.error.cantBootSelf");
 				return;
 			}
-
 			if (MapTool.isPlayerConnected(selectedPlayer.getName())) {
 				String msg = I18N.getText("msg.confirm.bootPlayer", selectedPlayer.getName());
 				if (MapTool.confirm(msg)) {
@@ -1002,16 +1024,13 @@ public class AppActions {
 					return;
 				}
 			}
-
 			MapTool.showError("msg.error.failedToBoot");
-
 		}
 	};
 
 	/**
 	 * This is the menu item that lets the GM override the typing notification toggle on the clients
 	 */
-
 	public static final Action TOGGLE_ENFORCE_NOTIFICATION = new AdminClientAction() {
 		{
 			init("action.enforceNotification");
