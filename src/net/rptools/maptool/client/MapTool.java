@@ -654,7 +654,6 @@ public class MapTool {
 	}
 
 	public Player getPlayer(String name) {
-
 		for (int i = 0; i < playerList.size(); i++) {
 			if (playerList.get(i).getName().equals(name)) {
 				return playerList.get(i);
@@ -664,11 +663,9 @@ public class MapTool {
 	}
 
 	public static void removePlayer(Player player) {
-
 		if (player == null) {
 			return;
 		}
-
 		playerList.remove(player);
 
 		if (MapTool.getPlayer() != null && !player.equals(MapTool.getPlayer())) {
@@ -898,7 +895,6 @@ public class MapTool {
 	 * Whether a specific player is connected to the game
 	 */
 	public static boolean isPlayerConnected(String player) {
-
 		for (int i = 0; i < playerList.size(); i++) {
 			Player p = playerList.get(i);
 			if (p.getName().equalsIgnoreCase(player)) {

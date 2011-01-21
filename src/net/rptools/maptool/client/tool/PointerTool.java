@@ -89,7 +89,6 @@ import net.rptools.maptool.util.TokenUtil;
 /**
  */
 public class PointerTool extends DefaultTool implements ZoneOverlay {
-
 	private boolean isShowingTokenStackPopup;
 	private boolean isShowingPointer;
 	private boolean isDraggingToken;
@@ -133,7 +132,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
-
 		htmlRenderer.setBackground(new Color(0, 0, 0, 200));
 		htmlRenderer.setForeground(Color.black);
 		htmlRenderer.setOpaque(false);
@@ -161,9 +159,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		if (MapTool.getPlayer().isGM()) {
 			MapTool.getFrame().showControlPanel(layerSelectionDialog);
 		}
-
 		htmlRenderer.attach(renderer);
-
 		layerSelectionDialog.updateViewList();
 	}
 
@@ -191,12 +187,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			// Not allowed
 			return;
 		}
-
 		renderer.addMoveSelectionSet(MapTool.getPlayer().getName(), tokenBeingDragged.getId(), renderer.getOwnedTokens(renderer.getSelectedTokenSet()), false);
 		MapTool.serverCommand().startTokenMove(MapTool.getPlayer().getName(), renderer.getZone().getId(), tokenBeingDragged.getId(), renderer.getOwnedTokens(renderer.getSelectedTokenSet()));
 
 		isDraggingToken = true;
-
 	}
 
 	public void stopTokenDrag() {
@@ -210,7 +204,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		// if has fog(required) 
 		// and ((isGM with pref set) OR serverPolicy allows auto reveal by players)
 		if (renderer.getZone().hasFog() && ((AppPreferences.getAutoRevealVisionOnGMMovement() && MapTool.getPlayer().isGM()) || MapTool.getServerPolicy().isAutoRevealOnMovement())) {
-
 			Set<GUID> exposeSet = new HashSet<GUID>();
 			for (GUID tokenGUID : renderer.getOwnedTokens(renderer.getSelectedTokenSet())) {
 				Token token = renderer.getZone().getToken(tokenGUID);
@@ -226,14 +219,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	}
 
 	private void showTokenStackPopup(List<Token> tokenList, int x, int y) {
-
 		tokenStackPanel.show(tokenList, x, y);
 		isShowingTokenStackPopup = true;
 		repaint();
 	}
 
 	private class TokenStackPanel {
-
 		private static final int PADDING = 4;
 
 		private List<Token> tokenList;
@@ -255,7 +246,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		}
 
 		public void handleMouseReleased(MouseEvent event) {
-
 		}
 
 		public void handleMousePressed(MouseEvent event) {
@@ -270,11 +260,11 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				tokenPropertiesDialog.showDialog(tokenUnderMouse);
 
 				if (tokenPropertiesDialog.isTokenSaved()) {
-					renderer.repaint();
-					renderer.flush(token);
 					MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 					renderer.getZone().putToken(token);
 					MapTool.getFrame().resetTokenPanels();
+					renderer.repaint();
+					renderer.flush(token);
 				}
 			}
 			if (SwingUtilities.isRightMouseButton(event)) {
@@ -290,16 +280,13 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		}
 
 		public void handleMouseMotionEvent(MouseEvent event) {
-
 			Token token = getTokenAt(event.getX(), event.getY());
 			if (token == null) {
 				return;
 			}
-
 			if (!AppUtil.playerOwns(token)) {
 				return;
 			}
-
 			renderer.clearSelectedTokens();
 			boolean selected = renderer.selectToken(token.getId());
 
@@ -308,14 +295,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				if (!(tool instanceof PointerTool)) {
 					return;
 				}
-
 				tokenUnderMouse = token;
 				((PointerTool) tool).startTokenDrag(token);
 			}
 		}
 
 		public void paint(Graphics g) {
-
 			Dimension size = getSize();
 			int gridSize = (int) renderer.getScaledGridSize();
 
@@ -331,7 +316,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			// Images
 			tokenLocationList.clear();
 			for (int i = 0; i < tokenList.size(); i++) {
-
 				Token token = tokenList.get(i);
 
 				BufferedImage image = ImageManager.getImage(token.getImageAssetId(), renderer);
@@ -375,7 +359,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			markerUnderMouse = renderer.getMarkerAt(e.getX(), e.getY());
 			repaint();
 		}
-
 		if (isShowingTokenStackPopup) {
 			if (tokenStackPanel.contains(e.getX(), e.getY())) {
 				tokenStackPanel.handleMousePressed(e);
@@ -385,17 +368,14 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				repaint();
 			}
 		}
-
 		// So that keystrokes end up in the right place
 		renderer.requestFocusInWindow();
 		if (isDraggingMap()) {
 			return;
 		}
-
 		if (isDraggingToken) {
 			return;
 		}
-
 		dragStartX = e.getX();
 		dragStartY = e.getY();
 
@@ -410,11 +390,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				// Single
 				Token token = renderer.getTokenAt(e.getX(), e.getY());
 				if (token != null) {
-
 					if (!AppUtil.playerOwns(token)) {
 						return;
 					}
-
 					EditTokenDialog tokenPropertiesDialog = MapTool.getFrame().getTokenPropertiesDialog();
 					tokenPropertiesDialog.showDialog(token);
 
@@ -429,11 +407,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			}
 			return;
 		}
-
 		// SELECTION
 		Token token = renderer.getTokenAt(e.getX(), e.getY());
 		if (token != null && !isDraggingToken && SwingUtilities.isLeftMouseButton(e)) {
-
 			// Don't select if it's already being moved by someone
 			isNewTokenSelected = false;
 			if (!renderer.isTokenMoving(token)) {
@@ -441,7 +417,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					isNewTokenSelected = true;
 					renderer.clearSelectedTokens();
 				}
-
 				// XXX Isn't Windows standard to use Ctrl-click to add one element and Shift-click to extend?
 				// XXX Similarly, OSX uses Cmd-click to add one element and Shift-click to extend...
 				if (SwingUtil.isShiftDown(e) && renderer.getSelectedTokenSet().contains(token.getId())) {
@@ -450,7 +425,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					renderer.selectToken(token.getId());
 
 				}
-
 				// Dragging offset for currently selected token
 				ZonePoint pos = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
 				Rectangle tokenBounds = token.getBounds(renderer.getZone());
@@ -514,13 +488,11 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					renderer.repaint();
 					return;
 				}
-
 				// DRAG TOKEN COMPLETE
 				if (isDraggingToken) {
 					SwingUtil.showPointer(renderer);
 					stopTokenDrag();
 				}
-
 				// SELECT SINGLE TOKEN
 				Token token = renderer.getTokenAt(e.getX(), e.getY());
 				if (token != null && SwingUtilities.isLeftMouseButton(e) && !isDraggingToken && !SwingUtil.isShiftDown(e)) {
@@ -536,12 +508,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			}
 			return;
 		}
-
 		// WAYPOINT
 		if (SwingUtilities.isMiddleMouseButton(e) && isDraggingToken) {
 			setWaypoint();
 		}
-
 		// POPUP MENU
 		if (SwingUtilities.isRightMouseButton(e) && !isDraggingToken && !isDraggingMap()) {
 			if (tokenUnderMouse != null && !renderer.getSelectedTokenSet().contains(tokenUnderMouse.getId())) {
@@ -551,7 +521,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				renderer.selectToken(tokenUnderMouse.getId());
 				isNewTokenSelected = false;
 			}
-
 			if (tokenUnderMouse != null && renderer.getSelectedTokenSet().size() > 0) {
 				if (tokenUnderMouse.isStamp()) {
 					new StampPopupMenu(renderer.getSelectedTokenSet(), e.getX(), e.getY(), renderer, tokenUnderMouse).showPopup(renderer);
@@ -587,18 +556,15 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			}
 			return;
 		}
-
 		if (isShowingTokenStackPopup) {
 			if (tokenStackPanel.contains(e.getX(), e.getY())) {
 				return;
 			}
-
 			// Turn it off
 			isShowingTokenStackPopup = false;
 			repaint();
 			return;
 		}
-
 		mouseX = e.getX();
 		mouseY = e.getY();
 
@@ -606,19 +572,16 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			if (isMovingWithKeys) {
 				return;
 			}
-
 			ZonePoint zonePoint = new ScreenPoint(mouseX, mouseY).convertToZone(renderer);
 			handleDragToken(zonePoint);
 			return;
 		}
-
 		tokenUnderMouse = renderer.getTokenAt(mouseX, mouseY);
 		renderer.setMouseOver(tokenUnderMouse);
 
 		if (tokenUnderMouse == null) {
 			statSheet = null;
 		}
-
 		Token marker = renderer.getMarkerAt(mouseX, mouseY);
 		if (!AppUtil.tokenIsVisible(renderer.getZone(), marker, renderer.getPlayerView())) {
 			marker = null;
@@ -636,7 +599,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-
 		mouseX = e.getX();
 		mouseY = e.getY();
 
@@ -649,16 +611,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				renderer.repaint();
 			}
 		}
-
 		CellPoint cellUnderMouse = renderer.getCellAt(new ScreenPoint(e.getX(), e.getY()));
 		if (cellUnderMouse != null) {
 			MapTool.getFrame().getCoordinateStatusBar().update(cellUnderMouse.x, cellUnderMouse.y);
 		}
-
 		if (SwingUtilities.isLeftMouseButton(e) && !SwingUtilities.isRightMouseButton(e)) {
-
 			if (isDrawingSelectionBox) {
-
 				int x1 = dragStartX;
 				int y1 = dragStartY;
 
@@ -680,7 +638,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				renderer.repaint();
 				return;
 			}
-
 			if (isDraggingToken) {
 				if (isMovingWithKeys) {
 					return;
@@ -689,15 +646,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				handleDragToken(zonePoint);
 				return;
 			}
-
 			if (tokenUnderMouse == null || !renderer.getSelectedTokenSet().contains(tokenUnderMouse.getId())) {
 				return;
 			}
-
 			if (!isDraggingToken && renderer.isTokenMoving(tokenUnderMouse)) {
 				return;
 			}
-
 			if (isNewTokenSelected) {
 				renderer.clearSelectedTokens();
 				renderer.selectToken(tokenUnderMouse.getId());
@@ -708,12 +662,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			if (!MapTool.getPlayer().isGM() && MapTool.getServerPolicy().isMovementLocked()) {
 				return;
 			}
-
 			// Might be dragging a token
 			String playerId = MapTool.getPlayer().getName();
 			Set<GUID> selectedTokenSet = renderer.getOwnedTokens(renderer.getSelectedTokenSet());
 			if (selectedTokenSet.size() > 0) {
-
 				// Make sure we can do this
 				// LATER: This might be able to be removed since you can't
 				// select an unowned token, check later
@@ -727,15 +679,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 						}
 					}
 				}
-
 				startTokenDrag(tokenUnderMouse);
 				isDraggingToken = true;
 				SwingUtil.hidePointer(renderer);
 			}
-
 			return;
 		}
-
 		super.mouseDragged(e);
 	}
 
@@ -750,7 +699,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	 * @return true if the move was successful
 	 */
 	public boolean handleDragToken(ZonePoint zonePoint) {
-
 		// TODO: Optimize this (combine with calling code)
 		zonePoint.translate(-dragOffsetX, -dragOffsetY);
 		if (tokenBeingDragged.isSnapToGrid()) {
@@ -763,17 +711,14 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			MapTool.getFrame().getCoordinateStatusBar().update(cellUnderMouse.x, cellUnderMouse.y);
 		} else {
 		}
-
 		// Don't bother if there isn't any movement
 		if (!renderer.hasMoveSelectionSetMoved(tokenBeingDragged.getId(), zonePoint)) {
 			return false;
 		}
-
 		// Make sure it's a valid move
 		if (!validateMove(tokenBeingDragged, renderer.getSelectedTokenSet(), zonePoint)) {
 			return false;
 		}
-
 		dragStartX = zonePoint.x;
 		dragStartY = zonePoint.y;
 
@@ -783,20 +728,16 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	}
 
 	private boolean validateMove(Token leadToken, Set<GUID> tokenSet, ZonePoint point) {
-
 		Zone zone = renderer.getZone();
 		if (MapTool.getPlayer().isGM()) {
 			return true;
 		}
-
 		if (zone.hasFog()) {
-
 			// Check that the new position for each token is within the exposed area
 			Area fow = zone.getExposedArea();
 			if (fow == null) {
 				return true;
 			}
-
 			int deltaX = point.x - leadToken.getX();
 			int deltaY = point.y - leadToken.getY();
 			boolean isVisible = false;
@@ -806,7 +747,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				if (token == null) {
 					continue;
 				}
-
 				int x = token.getX() + deltaX;
 				int y = token.getY() + deltaY;
 				Rectangle tokenSize = token.getBounds(zone);
@@ -836,12 +776,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					}
 				}
 			}
-
 			if (!isVisible) {
 				return false;
 			}
 		}
-
 		return true;
 	}
 
@@ -939,7 +877,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				if (renderer.getSelectedTokenSet().size() == 0) {
 					return;
 				}
-
 				Toolbox toolbox = MapTool.getFrame().getToolbox();
 
 				FacingTool tool = (FacingTool) toolbox.getTool(FacingTool.class);
@@ -951,20 +888,16 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 		// TODO: Optimize this by making it non anonymous
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), new AbstractAction() {
-
 			public void actionPerformed(java.awt.event.ActionEvent e) {
-
 				ZoneRenderer renderer = (ZoneRenderer) e.getSource();
 
 				// Check to see if this is the required action
 				if (!MapTool.confirmTokenDelete()) {
 					return;
 				}
-
 				Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
 
 				for (GUID tokenGUID : selectedTokenSet) {
-
 					Token token = renderer.getZone().getToken(tokenGUID);
 
 					if (AppUtil.playerOwns(token)) {
@@ -972,11 +905,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 						MapTool.serverCommand().removeToken(renderer.getZone().getId(), tokenGUID);
 					}
 				}
-
 				renderer.clearSelectedTokens();
 			}
 		});
-
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, true), new StopPointerActionListener());
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, ActionEvent.CTRL_MASK, true), new StopPointerActionListener());
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, ActionEvent.SHIFT_MASK, true), new StopPointerActionListener());
@@ -987,131 +918,109 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-
 				if (!isDraggingToken) {
 					return;
 				}
-
 				// Stop
 				stopTokenDrag();
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD5, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-
 				if (!isDraggingToken) {
 					return;
 				}
-
 				// Stop
 				stopTokenDrag();
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD6, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-
 				handleKeyMove(1, 0);
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD4, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-
 				handleKeyMove(-1, 0);
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD8, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-
 				handleKeyMove(0, -1);
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD2, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-
 				handleKeyMove(0, 1);
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD7, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-
 				handleKeyMove(-1, -1);
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD9, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-
 				handleKeyMove(1, -1);
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD1, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-
 				handleKeyMove(-1, 1);
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD3, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-
 				handleKeyMove(1, 1);
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-
 				handleKeyMove(0, 1);
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-
 				handleKeyMove(1, 0);
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, InputEvent.SHIFT_DOWN_MASK), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-
 				handleKeyRotate(-1, false); // clockwise
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-
 				handleKeyRotate(-1, true); // clockwise
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-
 				handleKeyMove(-1, 0);
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, InputEvent.SHIFT_DOWN_MASK), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-
 				handleKeyRotate(1, false); // counter-clockwise
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-
 				handleKeyRotate(1, true); // counter-clockwise
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-
 				handleKeyMove(0, -1);
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_T, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-
 				renderer.cycleSelectedToken(1);
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.SHIFT_DOWN_MASK), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-
 				renderer.cycleSelectedToken(-1);
 			}
 		});
@@ -1148,28 +1057,23 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	 *            -1 is cw & 1 is ccw
 	 */
 	private void handleKeyRotate(int direction, boolean freeRotate) {
-
 		Set<GUID> tokenGUIDSet = renderer.getSelectedTokenSet();
 		if (tokenGUIDSet.size() == 0) {
 			return;
 		}
-
 		for (GUID tokenGUID : tokenGUIDSet) {
 			Token token = renderer.getZone().getToken(tokenGUID);
 			if (token == null) {
 				continue;
 			}
-
 			if (!AppUtil.playerOwns(token)) {
 				continue;
 			}
-
 			Integer facing = token.getFacing();
 			// TODO: this should really be a per grid setting
 			if (facing == null) {
 				facing = -90; // natural alignment
 			}
-
 			if (freeRotate) {
 				facing += direction * 5;
 			} else {
@@ -1184,35 +1088,27 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				if (facingIndex == facingArray.length) {
 					facingIndex = 0;
 				}
-
 				facing = facingArray[facingIndex];
 			}
-
 			token.setFacing(facing);
 
 			renderer.flush(token);
 			MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 		}
-
 		renderer.repaint();
-
 	}
 
 	private void handleKeyMove(int dx, int dy) {
-
 		Token keyToken = null;
 		if (!isDraggingToken) {
-
 			// Start
 			Set<GUID> selectedTokenSet = renderer.getOwnedTokens(renderer.getSelectedTokenSet());
 
 			for (GUID tokenId : selectedTokenSet) {
-
 				Token token = renderer.getZone().getToken(tokenId);
 				if (token == null) {
 					return;
 				}
-
 				// Need a key token to orient the move from, just arbitraily
 				// pick the first one
 				if (keyToken == null) {

@@ -72,7 +72,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 
 		if (functionName.equals("setTokenDrawOrder")) {
 			Token token = getTokenFromParam(res, functionName, parameters, 1);
-			if (parameters.size() < 0) {
+			if (parameters.isEmpty()) {
 				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 1, 0));
 			}
 			if (!(parameters.get(0) instanceof BigDecimal)) {
@@ -127,7 +127,6 @@ public class TokenLocationFunctions extends AbstractFunction {
 		if (args.size() < 2) {
 			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 2, args.size()));
 		}
-
 		Object tokenString = args.get(0);
 		String map = (String) args.get(1);
 
@@ -139,7 +138,6 @@ public class TokenLocationFunctions extends AbstractFunction {
 		} else {
 			tokens.add((String) tokenString);
 		}
-
 		Zone zone = null;
 		List<ZoneRenderer> zrenderers = MapTool.getFrame().getZoneRenderers();
 		for (ZoneRenderer zr : zrenderers) {
@@ -149,11 +147,9 @@ public class TokenLocationFunctions extends AbstractFunction {
 				break;
 			}
 		}
-
 		if (zone == null) {
 			throw new ParserException(I18N.getText("macro.function.moveTokenMap.unknownMap", functionName, map));
 		}
-
 		Zone toZone;
 		Zone fromZone;
 
@@ -164,11 +160,9 @@ public class TokenLocationFunctions extends AbstractFunction {
 			toZone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 			fromZone = zone;
 		}
-
 		if (fromZone.equals(toZone)) {
 			throw new ParserException(I18N.getText("macro.function.moveTokenMap.alreadyThere", functionName));
 		}
-
 		int x = 0;
 		int y = 0;
 		int z = zone.getLargestZOrder() + 1;
@@ -180,7 +174,6 @@ public class TokenLocationFunctions extends AbstractFunction {
 				x = ((BigDecimal) args.get(2)).intValue();
 			}
 		}
-
 		if (args.size() > 3) {
 			if (!(args.get(3) instanceof BigDecimal)) {
 				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 3, args.get(3).toString()));
@@ -188,7 +181,6 @@ public class TokenLocationFunctions extends AbstractFunction {
 				y = ((BigDecimal) args.get(3)).intValue();
 			}
 		}
-
 		if (args.size() > 4) {
 			if (!(args.get(4) instanceof BigDecimal)) {
 				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 4, args.get(4).toString()));
@@ -196,7 +188,6 @@ public class TokenLocationFunctions extends AbstractFunction {
 				z = ((BigDecimal) args.get(4)).intValue();
 			}
 		}
-
 		StringBuilder sb = new StringBuilder();
 		for (String id : tokens) {
 			Token token = fromZone.resolveToken(id);

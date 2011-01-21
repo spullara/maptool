@@ -77,7 +77,6 @@ public class TokenVisibleFunction extends AbstractFunction {
 		if (!MapTool.getParser().isMacroTrusted()) {
 			throw new ParserException(I18N.getText("macro.function.general.noPerm", "setVisible"));
 		}
-
 		boolean set;
 		if (val instanceof Integer) {
 			set = ((Integer) val).intValue() != 0;
@@ -98,7 +97,6 @@ public class TokenVisibleFunction extends AbstractFunction {
 		if (!MapTool.getParser().isMacroTrusted()) {
 			throw new ParserException(I18N.getText("macro.function.general.noPerm", "setOwnerOnlyVisible"));
 		}
-
 		boolean set;
 		if (val instanceof Integer) {
 			set = ((Integer) val).intValue() != 0;

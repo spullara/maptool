@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client;
 
@@ -56,15 +53,14 @@ import net.rptools.maptool.transfer.AssetHeader;
 /**
  * @author drice
  * 
- *         TODO To change the template for this generated type comment go to
- *         Window - Preferences - Java - Code Style - Code Templates
+ *         TODO To change the template for this generated type comment go to Window - Preferences - Java - Code Style -
+ *         Code Templates
  */
 public class ClientMethodHandler extends AbstractMethodHandler {
-
 	public ClientMethodHandler() {
 	}
 
-	public void handleMethod(final String id, final String method, final Object ... parameters) {
+	public void handleMethod(final String id, final String method, final Object... parameters) {
 		final ClientCommand.COMMAND cmd = Enum.valueOf(ClientCommand.COMMAND.class, method);
 
 		// System.out.println("ClientMethodHandler#handleMethod: " +
@@ -79,8 +75,10 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 			MapTool.getFrame().getCurrentZoneRenderer().flushDrawableRenderer();
 			MapTool.getFrame().refresh();
 			return;
+
 		case removeAsset:
 			return;
+
 		case startAssetTransfer:
 			AssetHeader header = (AssetHeader) parameters[0];
 			MapTool.getAssetTransferManager().addConsumer(new AssetConsumer(AppUtil.getTmpDir(), header));
@@ -88,7 +86,6 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 
 		case updateAssetTransfer:
 			AssetChunk chunk = (AssetChunk) parameters[0];
-
 			try {
 				MapTool.getAssetTransferManager().update(chunk);
 			} catch (IOException ioe) {
@@ -98,9 +95,6 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 				ioe.printStackTrace();
 			}
 			return;
-
-
-
 		}
 
 		// Model events need to update on the EDT
@@ -119,28 +113,26 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 						AppActions.disconnectFromServer();
 						MapTool.showInformation("You have been booted from the server.");
 					}
-
 					return;
-				case enforceZone:
 
+				case enforceZone:
 					zoneGUID = (GUID) parameters[0];
 					ZoneRenderer renderer = MapTool.getFrame().getZoneRenderer(zoneGUID);
 
 					if (renderer != null && renderer != MapTool.getFrame().getCurrentZoneRenderer() && (renderer.getZone().isVisible() || MapTool.getPlayer().isGM())) {
 						MapTool.getFrame().setCurrentZoneRenderer(renderer);
 					}
-
 					return;
-				case clearAllDrawings:
 
+				case clearAllDrawings:
 					zoneGUID = (GUID) parameters[0];
 					zone = MapTool.getCampaign().getZone(zoneGUID);
 					zone.getDrawnElements().clear();
 
 					MapTool.getFrame().refresh();
 					return;
-				case setZoneHasFoW:
 
+				case setZoneHasFoW:
 					zoneGUID = (GUID) parameters[0];
 					boolean hasFog = (Boolean) parameters[1];
 
@@ -152,36 +144,28 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					return;
 
 				case exposeFoW:
-
 					zoneGUID = (GUID) parameters[0];
 					Area area = (Area) parameters[1];
 
-					if (parameters.length > 2)
-					{
-						if (parameters[2] != null)
-						{
+					if (parameters.length > 2) {
+						if (parameters[2] != null) {
 							selectedToks = (Set<GUID>) parameters[2];
 						}
 					}
-
 					zone = MapTool.getCampaign().getZone(zoneGUID);
 					zone.exposeArea(area, selectedToks);
 					MapTool.getFrame().refresh();
 					return;
 
 				case setFoW:
-
 					zoneGUID = (GUID) parameters[0];
 					area = (Area) parameters[1];
-					
-					if (parameters.length > 2)
-					{
-						if (parameters[2] != null)
-						{
+
+					if (parameters.length > 2) {
+						if (parameters[2] != null) {
 							selectedToks = (Set<GUID>) parameters[2];
 						}
 					}
-
 					zone = MapTool.getCampaign().getZone(zoneGUID);
 					zone.setFogArea(area, selectedToks);
 
@@ -189,13 +173,11 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					return;
 
 				case hideFoW:
-
 					zoneGUID = (GUID) parameters[0];
 					area = (Area) parameters[1];
-					if (parameters.length > 2)
-					{
-						if (parameters[2] != null)
-						{
+
+					if (parameters.length > 2) {
+						if (parameters[2] != null) {
 							selectedToks = (Set<GUID>) parameters[2];
 						}
 					}
@@ -223,14 +205,15 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					if (MapTool.getFrame().getCurrentZoneRenderer() == null && zone.isVisible()) {
 						MapTool.getFrame().setCurrentZoneRenderer(renderer);
 					}
-
 					MapTool.getEventDispatcher().fireEvent(MapTool.ZoneEvent.Added, MapTool.getCampaign(), null, zone);
 					return;
+
 				case removeZone:
 					zoneGUID = (GUID) parameters[0];
 					MapTool.getCampaign().removeZone(zoneGUID);
 					MapTool.getFrame().removeZoneRenderer(MapTool.getFrame().getZoneRenderer(zoneGUID));
 					return;
+
 				case putToken:
 					zoneGUID = (GUID) parameters[0];
 					zone = MapTool.getCampaign().getZone(zoneGUID);
@@ -250,6 +233,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 
 					MapTool.getFrame().refresh();
 					return;
+
 				case removeToken:
 					zoneGUID = (GUID) parameters[0];
 					zone = MapTool.getCampaign().getZone(zoneGUID);
@@ -259,6 +243,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 
 					MapTool.getFrame().refresh();
 					return;
+
 				case removeLabel:
 					zoneGUID = (GUID) parameters[0];
 					zone = MapTool.getCampaign().getZone(zoneGUID);
@@ -268,8 +253,8 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 
 					MapTool.getFrame().refresh();
 					return;
-				case enforceZoneView:
 
+				case enforceZoneView:
 					zoneGUID = (GUID) parameters[0];
 					int x = (Integer) parameters[1];
 					int y = (Integer) parameters[2];
@@ -281,17 +266,15 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					if (renderer == null) {
 						return;
 					}
-
 					if (AppPreferences.getFitGMView()) {
 						renderer.enforceView(x, y, scale, gmWidth, gmHeight);
 					} else {
 						renderer.setScale(scale);
 						renderer.centerOn(new ZonePoint(x, y));
 					}
-
 					return;
-				case draw:
 
+				case draw:
 					zoneGUID = (GUID) parameters[0];
 					Pen pen = (Pen) parameters[1];
 					Drawable drawable = (Drawable) parameters[2];
@@ -310,17 +293,14 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					if (zone == null) {
 						return;
 					}
-
 					zone.removeDrawable(drawableId);
 
 					if (MapTool.getFrame().getCurrentZoneRenderer().getZone().getId().equals(zoneGUID) && zoneGUID != null) {
 						MapTool.getFrame().refresh();
 					}
-
 					return;
 
 				case setZoneVisibility:
-
 					zoneGUID = (GUID) parameters[0];
 					boolean visible = (Boolean) parameters[1];
 
@@ -335,13 +315,11 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 						currentRenderer = MapTool.getFrame().getZoneRenderer(zoneGUID);
 						MapTool.getFrame().setCurrentZoneRenderer(currentRenderer);
 					}
-
 					MapTool.getFrame().getZoneMiniMapPanel().flush();
 					MapTool.getFrame().refresh();
 					return;
 
 				case setZoneGridSize:
-
 					zoneGUID = (GUID) parameters[0];
 					int xOffset = ((Integer) parameters[1]).intValue();
 					int yOffset = ((Integer) parameters[2]).intValue();
@@ -357,13 +335,11 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					return;
 
 				case playerConnected:
-
 					MapTool.addPlayer((Player) parameters[0]);
 					MapTool.getFrame().refresh();
 					return;
 
 				case playerDisconnected:
-
 					MapTool.removePlayer((Player) parameters[0]);
 					MapTool.getFrame().refresh();
 					return;
@@ -384,7 +360,6 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					return;
 
 				case startTokenMove:
-
 					String playerId = (String) parameters[0];
 					zoneGUID = (GUID) parameters[1];
 					GUID keyToken = (GUID) parameters[2];
@@ -392,19 +367,17 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 
 					renderer = MapTool.getFrame().getZoneRenderer(zoneGUID);
 					renderer.addMoveSelectionSet(playerId, keyToken, selectedSet, true);
-
 					return;
-				case stopTokenMove:
 
+				case stopTokenMove:
 					zoneGUID = (GUID) parameters[0];
 					keyToken = (GUID) parameters[1];
 
 					renderer = MapTool.getFrame().getZoneRenderer(zoneGUID);
 					renderer.removeMoveSelectionSet(keyToken);
-
 					return;
-				case updateTokenMove:
 
+				case updateTokenMove:
 					zoneGUID = (GUID) parameters[0];
 					keyToken = (GUID) parameters[1];
 
@@ -413,20 +386,17 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 
 					renderer = MapTool.getFrame().getZoneRenderer(zoneGUID);
 					renderer.updateMoveSelectionSet(keyToken, new ZonePoint(x, y));
-
 					return;
+
 				case setTokenLocation:
 					// Only the table should process this
 					if (MapTool.getPlayer().getName().equalsIgnoreCase("Table")) {
 						zoneGUID = (GUID) parameters[0];
 						keyToken = (GUID) parameters[1];
 
-						// This X,Y is the where the center of the token needs
-						// to be placed in
-						// relation to the screen. So 0,0 would be top left
-						// which means only 1/4
-						// of token would be drawn. 1024,768 would be lower
-						// right (on my table).
+						// This X,Y is the where the center of the token needs to be placed in
+						// relation to the screen. So 0,0 would be top left which means only 1/4
+						// of token would be drawn. 1024,768 would be lower right (on my table).
 						x = ((Integer) parameters[2]).intValue();
 						y = ((Integer) parameters[3]).intValue();
 
@@ -447,25 +417,22 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 						MapTool.serverCommand().putToken(zoneGUID, token);
 					}
 					return;
-				case toggleTokenMoveWaypoint:
 
+				case toggleTokenMoveWaypoint:
 					zoneGUID = (GUID) parameters[0];
 					keyToken = (GUID) parameters[1];
 					ZonePoint zp = (ZonePoint) parameters[2];
 
 					renderer = MapTool.getFrame().getZoneRenderer(zoneGUID);
 					renderer.toggleMoveSelectionSetWaypoint(keyToken, zp);
-
 					return;
 
 				case setServerPolicy:
-
 					ServerPolicy policy = (ServerPolicy) parameters[0];
 					MapTool.setServerPolicy(policy);
 					return;
 
 				case addTopology:
-
 					zoneGUID = (GUID) parameters[0];
 					area = (Area) parameters[1];
 
@@ -476,7 +443,6 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					return;
 
 				case removeTopology:
-
 					zoneGUID = (GUID) parameters[0];
 					area = (Area) parameters[1];
 
@@ -487,7 +453,6 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					return;
 
 				case renameZone:
-
 					zoneGUID = (GUID) parameters[0];
 					String name = (String) parameters[1];
 
@@ -495,8 +460,8 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					if (zone != null) {
 						zone.setName(name);
 					}
-
 					return;
+
 				case updateCampaign:
 					CampaignProperties properties = (CampaignProperties) parameters[0];
 
@@ -505,13 +470,13 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 						MapTool.getFrame().getCurrentZoneRenderer().getZoneView().flush();
 						MapTool.getFrame().getCurrentZoneRenderer().repaint();
 					}
-
 					AssetManager.updateRepositoryList();
 
 					MapTool.getFrame().getInitiativePanel().setOwnerPermissions(properties.isInitiativeOwnerPermissions());
 					MapTool.getFrame().getInitiativePanel().setMovementLock(properties.isInitiativeMovementLock());
 					MapTool.getFrame().getLookupTablePanel().updateView();
 					return;
+
 				case movePointer:
 					String player = (String) parameters[0];
 					x = (Integer) parameters[1];
@@ -548,7 +513,6 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					list = zone.getInitiativeList();
 					TokenInitiative ti = list.getTokenInitiative((Integer) parameters[4]);
 					if (!ti.getId().equals(tokenGUID)) {
-
 						// Index doesn't point to same token, try to find it
 						token = zone.getToken(tokenGUID);
 						List<Integer> tokenIndex = list.indexOf(token);
@@ -574,11 +538,12 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 						MapTool.getFrame().refresh();
 					}
 					return;
+
 				case setBoard:
 					zoneGUID = (GUID) parameters[0];
 					zone = MapTool.getCampaign().getZone(zoneGUID);
 
-					Point boardXY  = new Point((Integer) parameters[2], (Integer) parameters[3]);
+					Point boardXY = new Point((Integer) parameters[2], (Integer) parameters[3]);
 					zone.setBoard(boardXY, (MD5Key) parameters[1]);
 					return;
 
@@ -587,44 +552,40 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					MapTool.getFrame().getCampaignPanel().reset();
 					return;
 					// moved this down into the event queue section so that the threading works as expected
-					
+
 				case setLiveTypingLabel:
-					if((Boolean) parameters[1])
-					{
+					if ((Boolean) parameters[1]) {
 						// add a typer
-						MapTool.getFrame().getChatNotificationTimers().setChatTyper(parameters[0].toString() );
+						MapTool.getFrame().getChatNotificationTimers().setChatTyper(parameters[0].toString());
+						return;
+					} else {
+						// remove typer from list
+						MapTool.getFrame().getChatNotificationTimers().removeChatTyper(parameters[0].toString());
 						return;
 					}
-					else
-					{
-						// remove typer from list
-						MapTool.getFrame().getChatNotificationTimers().removeChatTyper(parameters[0].toString() );
-						return;
-					}					
 
 				case exposePCArea:
-					if (parameters[0] != null && parameters[0] instanceof GUID)
-					{
+					if (parameters[0] != null && parameters[0] instanceof GUID) {
 						ZoneRenderer currentRenderer1 = MapTool.getFrame().getZoneRenderer((GUID) parameters[0]);
 						FogUtil.exposePCArea(currentRenderer1);
-						return;
 					}
+					return;
+
 				case enforceNotification:
 					Boolean enforce = (Boolean) parameters[0];
 
 					MapTool.getFrame().getCommandPanel().disableNotifyButton(enforce);
 					return;
-					
+
 				case updateExposedAreaMeta:
-				    zoneGUID = (GUID) parameters[0];
-				    tokenGUID = (GUID) parameters[1];
-				    ExposedAreaMetaData meta = (ExposedAreaMetaData) parameters[2];
-				    zone = MapTool.getCampaign().getZone(zoneGUID);
-				    zone.setExposedAreaMetaData(tokenGUID, meta);
+					zoneGUID = (GUID) parameters[0];
+					tokenGUID = (GUID) parameters[1];
+					ExposedAreaMetaData meta = (ExposedAreaMetaData) parameters[2];
+					zone = MapTool.getCampaign().getZone(zoneGUID);
+					zone.setExposedAreaMetaData(tokenGUID, meta);
 					return;
 				}
 			}
 		});
 	}
-
 }

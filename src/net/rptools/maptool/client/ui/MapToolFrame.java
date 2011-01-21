@@ -1179,7 +1179,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	}
 
 	public void setCurrentZoneRenderer(ZoneRenderer renderer) {
-
 		// Flush first so that the new zone renderer can inject the newly needed images
 		if (renderer != null) {
 			ImageManager.flush(renderer.getZone().getAllAssetIds());
@@ -1192,17 +1191,14 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		if (renderer != null && !zoneRendererList.contains(renderer)) {
 			zoneRendererList.add(renderer);
 		}
-
 		if (currentRenderer != null) {
 			currentRenderer.flush();
 			zoneRendererPanel.remove(currentRenderer);
 		}
-
 		if (renderer != null) {
 			zoneRendererPanel.add(renderer, PositionalLayout.Position.CENTER);
 			zoneRendererPanel.doLayout();
 		}
-
 		currentRenderer = renderer;
 		initiativePanel.update();
 		toolbox.setTargetRenderer(renderer);
@@ -1211,7 +1207,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			MapTool.getEventDispatcher().fireEvent(MapTool.ZoneEvent.Activated, this, null, renderer.getZone());
 			renderer.requestFocusInWindow();
 		}
-
 		AppActions.updateActions();
 		repaint();
 
@@ -1220,14 +1215,14 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	}
 
 	public void setTitleViaRenderer(ZoneRenderer renderer) {
-		String campaignName = " - [Default] ";
+		String campaignName = " - [Default]";
 		if (AppState.getCampaignFile() != null) {
 			String s = AppState.getCampaignFile().getName();
 			// remove the file extension of the campaign file name
 			s = s.substring(0, s.length() - AppConstants.CAMPAIGN_FILE_EXTENSION.length());
 			campaignName = " - [" + s + "]";
 		}
-		setTitle(AppConstants.APP_NAME + campaignName + (renderer != null ? " - " + renderer.getZone().getName() : ""));
+		setTitle(AppConstants.APP_NAME + " - " + MapTool.getPlayer() + campaignName + (renderer != null ? " - " + renderer.getZone().getName() : ""));
 	}
 
 	public Toolbox getToolbox() {

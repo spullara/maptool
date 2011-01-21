@@ -730,7 +730,7 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 
 	public void initPropertiesPanel() {
 		PropertyTable propertyTable = new PropertyTable();
-		propertyTable.setFillsViewportHeight(true);
+		propertyTable.setFillsViewportHeight(true); // XXX This is Java6-only -- need Java5 solution
 		propertyTable.setName("propertiesTable");
 
 		PropertyPane pane = new PropertyPane(propertyTable);

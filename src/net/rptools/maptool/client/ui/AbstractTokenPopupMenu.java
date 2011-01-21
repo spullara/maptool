@@ -380,7 +380,6 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 	}
 
 	public class ChangeTypeAction extends AbstractAction {
-
 		private final Zone.Layer layer;
 
 		public ChangeTypeAction(Zone.Layer layer) {
@@ -389,13 +388,11 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-
 			for (GUID tokenGUID : selectedTokenSet) {
 				Token token = renderer.getZone().getToken(tokenGUID);
 				if (token == null) {
 					continue;
 				}
-
 				token.setLayer(layer);
 				switch (layer) {
 				case BACKGROUND:
@@ -411,11 +408,9 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 					}
 					break;
 				}
-
 				renderer.flush(token);
 				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 			}
-
 			renderer.repaint();
 			MapTool.getFrame().updateTokenTree();
 		}
@@ -576,41 +571,33 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			for (GUID tokenGUID : selectedTokenSet) {
-
 				Token token = renderer.getZone().getToken(tokenGUID);
 				token.setFacing(null);
 				renderer.flush(token);
 				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 			}
-
 			renderer.repaint();
 		}
 	}
 
 	public class ClearLightsOnlyAction extends AbstractAction {
-
 		public ClearLightsOnlyAction() {
 			super("Clear Lights Only");
 		}
 
 		public void actionPerformed(ActionEvent e) {
-
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			for (GUID tokenGUID : selectedTokenSet) {
-
 				Token token = renderer.getZone().getToken(tokenGUID);
 				if (token.hasLightSourceType(LightSource.Type.NORMAL)) {
 					token.removeLightSourceType(LightSource.Type.NORMAL);
 				}
-
 				renderer.flush(token);
 				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 				renderer.getZone().putToken(token);
 			}
-
 			renderer.repaint();
 		}
 	}
@@ -656,13 +643,11 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 	}
 
 	public class ClearOwnerAurasOnlyAction extends AbstractAction {
-
 		public ClearOwnerAurasOnlyAction() {
 			super("Clear Owner Auras Only");
 		}
 
 		public void actionPerformed(ActionEvent e) {
-
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			for (GUID tokenGUID : selectedTokenSet) {
 
@@ -780,22 +765,17 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 		public void actionPerformed(ActionEvent aE) {
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			for (GUID tokenGUID : selectedTokenSet) {
-
 				Token token = renderer.getZone().getToken(tokenGUID);
 				if (aE.getActionCommand().equals("clear")) {
-					// Wipe out the entire state HashMap, this is what the
-					// previous
-					// code attempted to do but was failing due to the Set
-					// returned
-					// by getStatePropertyNames being a non-static view into a
-					// set.
+					// Wipe out the entire state HashMap, this is what the previous
+					// code attempted to do but was failing due to the Set returned
+					// by getStatePropertyNames being a non-static view into a set.
 					// Removing items from the map was messing up the iteration.
 					// Here, clear all states, unfortunately, including light.
 					token.getStatePropertyNames().clear();
 				} else {
 					token.setState(aE.getActionCommand(), ((JCheckBoxMenuItem) aE.getSource()).isSelected() ? Boolean.TRUE : null);
 				}
-
 				renderer.flush(token);
 				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 			}
@@ -804,7 +784,6 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 	}
 
 	public class ChangeSizeAction extends AbstractAction {
-
 		private final TokenFootprint footprint;
 
 		public ChangeSizeAction(TokenFootprint footprint) {
@@ -818,17 +797,14 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 		 */
 		public void actionPerformed(ActionEvent e) {
-
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			for (GUID tokenGUID : selectedTokenSet) {
-
 				Token token = renderer.getZone().getToken(tokenGUID);
 				token.setFootprint(renderer.getZone().getGrid(), footprint);
 				token.setSnapToScale(true);
 				renderer.flush(token);
 				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 			}
-
 			renderer.repaint();
 		}
 

@@ -672,12 +672,10 @@ public class TokenPropertyFunctions extends AbstractFunction {
 				token.setFootprint(grid, footprint);
 				token.setSnapToScale(true);
 				renderer.flush(token);
-				// XXX Why is the putToken() called twice?
-//				MapTool.serverCommand().putToken(zone.getId(), token);
 				renderer.repaint();
-				MapTool.getFrame().updateTokenTree();
 				MapTool.serverCommand().putToken(zone.getId(), token);
 				zone.putToken(token);
+				MapTool.getFrame().updateTokenTree();
 				return getSize(token);
 			}
 		}

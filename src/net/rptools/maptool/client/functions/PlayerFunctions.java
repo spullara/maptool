@@ -12,37 +12,31 @@ import net.rptools.parser.function.AbstractFunction;
 import net.sf.json.JSONArray;
 
 public class PlayerFunctions extends AbstractFunction {
-	
 	private static final PlayerFunctions instance = new PlayerFunctions();
 
 	private PlayerFunctions() {
 		super(0, 1, "getPlayerName", "getAllPlayerNames");
 	}
-	
-	
+
 	public static PlayerFunctions getInstance() {
 		return instance;
 	}
-
 
 	@Override
 	public Object childEvaluate(Parser parser, String functionName,
 			List<Object> parameters) throws ParserException {
 		if (functionName.equals("getPlayerName")) {
-				return MapTool.getPlayer().getName(); 
+			return MapTool.getPlayer().getName();
 		} else {
 			ObservableList<Player> players = MapTool.getPlayerList();
-			
 			String[] playerArray = new String[players.size()];
-			
 			Iterator<Player> iter = players.iterator();
-			
+
 			int i = 0;
-			while(iter.hasNext()) {
+			while (iter.hasNext()) {
 				playerArray[i] = iter.next().getName();
 				i++;
 			}
-			
 			String delim = parameters.size() > 0 ? parameters.get(0).toString() : ",";
 			if ("json".equals(delim)) {
 				return JSONArray.fromObject(playerArray).toString();
@@ -51,6 +45,4 @@ public class PlayerFunctions extends AbstractFunction {
 			}
 		}
 	}
-
-
 }

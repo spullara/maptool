@@ -76,7 +76,7 @@ public class MapToolUtil {
 
 		// These are valid HTML colors.  When getFontColor() is called, if one of these is
 		// selected then the name is returned.  When another value is selected, the Color
-		// is converted to the '#ff00ff' notation and returned instead -- even if it's a name
+		// is converted to the '#112233f' notation and returned instead -- even if it's a name
 		// in COLOR_MAP, above.
 		String[] html = { "black", "white", "fuchsia", "aqua", "silver", "red", "lime", "blue", "yellow", "gray", "purple", "maroon", "navy", "olive", "green", "teal" };
 		for (int i = 0; i < html.length; i++) {
@@ -204,8 +204,19 @@ public class MapToolUtil {
 		return COLOR_MAP_HTML.containsKey(name);
 	}
 
+	/**
+	 * Returns a {@link Color} object if the parameter can be evaluated as a color. This includes a text search against
+	 * a list of known colors (case-insensitive; see {@link #COLOR_MAP}) and conversion of the string into a color using
+	 * {@link Color#decode(String)}. Invalid strings cause <code>COLOR_MAP.get("black")</code> to be returned. Calls
+	 * {@link #convertStringToColor(String)} if the parameter is not a recognized color name.
+	 * 
+	 * @param name
+	 *            a recognized color name or an integer color value in octal or hexadecimal form (such as
+	 *            <code>#123</code>, <code>0x112233</code>, or <code>0X111222333</code>)
+	 * @return the corresponding Color object or {@link Color#BLACK} if not in a recognized format
+	 */
 	public static Color getColor(String name) {
-		name = name.trim();
+		name = name.trim().toLowerCase();
 		Color c = COLOR_MAP.get(name);
 		if (c != null)
 			return c;
@@ -213,9 +224,18 @@ public class MapToolUtil {
 		return c;
 	}
 
+	/**
+	 * Converts the incoming string value to a Color object and stores <code>val</code> and the Color as a key/value
+	 * pair in a cache. The incoming string may start with a <code>#</code> to indicate a numeric color value in CSS
+	 * format. Any errors cause {@link #COLOR_MAP}<code>.get("black")</code> to be returned.
+	 * 
+	 * @param val
+	 *            color value to interpret
+	 * @return Color object
+	 */
 	private static Color convertStringToColor(String val) {
 		Color c;
-		if (StringUtil.isEmpty(val) || val.charAt(0) != '#') {
+		if (StringUtil.isEmpty(val)) {
 			c = COLOR_MAP.get("black");
 		} else {
 			try {

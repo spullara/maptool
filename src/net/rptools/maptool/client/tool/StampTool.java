@@ -296,17 +296,14 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				repaint();
 			}
 		}
-
 		// So that keystrokes end up in the right place
 		renderer.requestFocusInWindow();
 		if (isDraggingMap()) {
 			return;
 		}
-
 		if (isDraggingToken) {
 			return;
 		}
-
 		dragStartX = e.getX();
 		dragStartY = e.getY();
 
@@ -345,26 +342,22 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				// Single
 				Token token = getTokenAt(e.getX(), e.getY());
 				if (token != null) {
-
 					EditTokenDialog tokenPropertiesDialog = MapTool.getFrame().getTokenPropertiesDialog();
 					tokenPropertiesDialog.showDialog(token);
 
 					if (tokenPropertiesDialog.isTokenSaved()) {
-						renderer.repaint();
-						renderer.flush(token);
 						MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 						renderer.getZone().putToken(token);
+						renderer.repaint();
+						renderer.flush(token);
 					}
 				}
 			}
-
 			return;
 		}
-
 		// SELECTION
 		Token token = getTokenAt(e.getX(), e.getY());
 		if (token != null && !isDraggingToken && SwingUtilities.isLeftMouseButton(e)) {
-
 			// Permission
 			if (!AppUtil.playerOwns(token)) {
 				if (!SwingUtil.isShiftDown(e)) {
@@ -372,7 +365,6 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				}
 				return;
 			}
-
 			// Don't select if it's already being moved by someone
 			isNewTokenSelected = false;
 			if (!renderer.isTokenMoving(token)) {
@@ -409,7 +401,6 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-
 		if (isShowingTokenStackPopup) {
 			if (tokenStackPanel.contains(e.getX(), e.getY())) {
 				tokenStackPanel.handleMouseEvent(e);
@@ -419,7 +410,6 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				repaint();
 			}
 		}
-
 		if (isResizingToken) {
 			renderer.flush(tokenUnderMouse);
 			MapTool.serverCommand().putToken(renderer.getZone().getId(), tokenUnderMouse);
@@ -427,7 +417,6 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 			isResizingRotatedToken = false;
 			return;
 		}
-
 		if (SwingUtilities.isLeftMouseButton(e)) {
 			try {
 				SwingUtil.showPointer(renderer);
@@ -439,23 +428,19 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 					if (!SwingUtil.isShiftDown(e)) {
 						renderer.clearSelectedTokens();
 					}
-
 					renderer.selectTokens(selectionBoundBox);
 
 					selectionBoundBox = null;
 					renderer.repaint();
 					return;
 				}
-
 				// DRAG TOKEN COMPLETE
 				if (isDraggingToken) {
 					stopTokenDrag();
 				}
-
 				// SELECT SINGLE TOKEN
 				Token token = getTokenAt(e.getX(), e.getY());
 				if (token != null && SwingUtilities.isLeftMouseButton(e) && !isDraggingToken && !SwingUtil.isShiftDown(e)) {
-
 					// Only if it isn't already being moved
 					if (!renderer.isTokenMoving(token)) {
 						renderer.clearSelectedTokens();
@@ -466,13 +451,10 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				isDraggingToken = false;
 				isDrawingSelectionBox = false;
 			}
-
 			return;
 		}
-
 		// POPUP MENU
 		if (SwingUtilities.isRightMouseButton(e) && !isDraggingToken && !isDraggingMap()) {
-
 			if (tokenUnderMouse != null && !renderer.getSelectedTokenSet().contains(tokenUnderMouse.getId())) {
 				if (!SwingUtil.isShiftDown(e)) {
 					renderer.clearSelectedTokens();
@@ -480,19 +462,15 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				renderer.selectToken(tokenUnderMouse.getId());
 				isNewTokenSelected = false;
 			}
-
 			if (tokenUnderMouse != null && renderer.getSelectedTokenSet().size() > 0) {
-
 				if (tokenUnderMouse.isStamp()) {
 					new StampPopupMenu(renderer.getSelectedTokenSet(), e.getX(), e.getY(), renderer, tokenUnderMouse).showPopup(renderer);
 				} else {
 					new TokenPopupMenu(renderer.getSelectedTokenSet(), e.getX(), e.getY(), renderer, tokenUnderMouse).showPopup(renderer);
 				}
-
 				return;
 			}
 		}
-
 		super.mouseReleased(e);
 	}
 

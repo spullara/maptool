@@ -67,8 +67,7 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 public class TokenPopupMenu extends AbstractTokenPopupMenu {
-
-	// TODO: This is temporary
+	// TODO: This is temporary -- it should be changed to use {@link MapToolUtil#getColorNames()}
 	// @formatter:off
     private static final Object[][] COLOR_ARRAY = new Object[][] {
 	    { "Black", Color.black, Color.white },
@@ -236,7 +235,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-		    	Zone zone = getRenderer().getZone();
+			Zone zone = getRenderer().getZone();
 			Token sourceToken = getRenderer().getZone().getToken(tokID);
 			ExposedAreaMetaData sourceMeta = zone.getExposedAreaMetaData(sourceToken.getExposedAreaGUID());
 			for (GUID tok : selectedTokenSet) {
@@ -257,7 +256,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-		    Zone zone = getRenderer().getZone();
+			Zone zone = getRenderer().getZone();
 			List<Token> allToks = getRenderer().getZone().getTokens();
 			for (Token tokenSource : allToks) {
 				ExposedAreaMetaData sourceMeta = zone.getExposedAreaMetaData(tokenSource.getExposedAreaGUID());
@@ -280,7 +279,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-		    Zone zone = getRenderer().getZone();
+			Zone zone = getRenderer().getZone();
 			Area area = zone.getExposedArea();
 			for (GUID tok : selectedTokenSet) {
 				Token token = getRenderer().getZone().getToken(tok);
@@ -302,7 +301,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 		public void actionPerformed(ActionEvent e) {
 			if (MapTool.getServerPolicy().isUseIndividualFOW()) {
-			    Zone zone = getRenderer().getZone();
+				Zone zone = getRenderer().getZone();
 				for (GUID tok : selectedTokenSet) {
 					Token token = zone.getToken(tok);
 					ExposedAreaMetaData meta = zone.getExposedAreaMetaData(token.getExposedAreaGUID());

@@ -43,7 +43,7 @@ public abstract class Tool extends JToggleButton implements ActionListener, KeyL
 	private final Set<Character> keyDownSet = new HashSet<Character>();
 
 	public Tool() {
-		// Map the escape key reset this tool.
+		// Map the escape key to reset this tool.
 		installKeystrokes(keyActionMap);
 
 		addActionListener(this);
@@ -66,7 +66,7 @@ public abstract class Tool extends JToggleButton implements ActionListener, KeyL
 	}
 
 	protected void installKeystrokes(Map<KeyStroke, Action> actionMap) {
-		actionMap.put(KeyStroke.getKeyStroke("ESCAPE"), new EscapeAction());
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), new EscapeAction());
 	}
 
 	public abstract String getTooltip();
