@@ -130,7 +130,7 @@ import org.apache.log4j.Logger;
 
 /**
  */
-public class ZoneRenderer extends JComponent implements DropTargetListener, Comparable {
+public class ZoneRenderer extends JComponent implements DropTargetListener, Comparable<Object> {
 	private static final long serialVersionUID = 3832897780066104884L;
 
 	private static final Logger log = Logger.getLogger(ZoneRenderer.class);
@@ -746,21 +746,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		// could come up with is checking for 'null' on each loop iteration.
 		Rectangle extents = null;
 
-		//
 		// We don't iterate over the layers in the same order as rendering
 		// because its cleaner to group them by type and the order doesn't matter.
-		//
 
 		// First background image extents
 		// TODO: when the background image can be resized, fix this!
-		//
 		if (zone.getMapAssetId() != null) {
 			extents = new Rectangle(zone.getBoardX(), zone.getBoardY(), ImageManager.getImage(zone.getMapAssetId(), this).getWidth(), ImageManager.getImage(zone.getMapAssetId(), this).getHeight());
 		}
-
-		//
 		// next, extents of drawing objects
-		//
 		List<DrawnElement> drawableList = new LinkedList<DrawnElement>();
 		drawableList.addAll(zone.getBackgroundDrawnElements());
 		drawableList.addAll(zone.getObjectDrawnElements());
@@ -768,7 +762,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		if (view.isGMView()) {
 			drawableList.addAll(zone.getGMDrawnElements());
 		}
-
 		for (DrawnElement element : drawableList) {
 			Drawable drawable = element.getDrawable();
 			Rectangle drawnBounds = new Rectangle(drawable.getBounds());
@@ -785,11 +778,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			else
 				extents.add(drawnBounds);
 		}
-
-		//
 		// now, add the stamps/tokens
 		//   tokens and stamps are the same thing, just treated differently
-		//
 
 		// This loop structure is a hack: but the getStamps-type methods return unmodifiable lists,
 		// so we can't concat them, and there are a fixed number of layers, so its not really extensible anyway.
@@ -813,7 +803,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				stampList = zone.getTokens();
 				break; // token layer
 			}
-
 			for (Token element : stampList) {
 				Rectangle drawnBounds = element.getBounds(zone);
 				if (element.hasFacing()) {
@@ -846,22 +835,18 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 					}
 				}
 				// TODO: Handle auras here?
-
 				if (extents == null)
 					extents = drawnBounds;
 				else
 					extents.add(drawnBounds);
 			}
-
 		}
-
 		if (zone.hasFog()) {
 			if (extents == null)
 				extents = fogExtents();
 			else
 				extents.add(fogExtents());
 		}
-
 		// TODO: What are token templates?
 		//renderTokenTemplates(g2d, view);
 
@@ -870,10 +855,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 		// TODO: Do auras make the area of interest larger?
 		// see: renderAuras(g2d, view);
-
 		return extents;
 	}
 
+	/**
+	 * This method clears {@link #renderedAuraMap}, {@link #renderedLightMap}, {@link #visibleScreenArea}, and
+	 * {@link #lastView}. It also flushes the {@link #zoneView} and sets the {@link #flushFog} flag so that fog will be
+	 * recalculated.
+	 */
 	public void invalidateCurrentViewCache() {
 		flushFog = true;
 		renderedLightMap = null;
@@ -911,7 +900,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			g2d.setClip(0, 0, getBounds().width, getBounds().height);
 			resetClip = true;
 		}
-
 		// Are we still waiting to show the zone ?
 		if (isLoading()) {
 			Dimension size = getSize();
@@ -921,7 +909,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			GraphicsUtil.drawBoxedString(g2d, loadingProgress, size.width / 2, size.height / 2);
 			return;
 		}
-
 		if (MapTool.getCampaign().isBeingSerialized()) {
 			Dimension size = getSize();
 			g2d.setColor(Color.black);
@@ -930,11 +917,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			GraphicsUtil.drawBoxedString(g2d, "    Please Wait    ", size.width / 2, size.height / 2);
 			return;
 		}
-
 		if (zone == null) {
 			return;
 		}
-
 		if (lastView != null && !lastView.equals(view)) {
 			invalidateCurrentViewCache();
 		}
@@ -953,7 +938,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			AffineTransform af = new AffineTransform();
 			af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
 			af.scale(getScale(), getScale());
-
 			visibleScreenArea = new Area(zoneView.getVisibleArea(view).createTransformedArea(af));
 		}
 		exposedFogArea = new Area(zone.getExposedArea());
@@ -974,7 +958,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			renderBoard(g2d, view);
 			timer.stop("board");
 		}
-
 		if (Zone.Layer.BACKGROUND.isEnabled()) {
 			timer.start("drawableBackground");
 			renderDrawableOverlay(g2d, backgroundDrawableRenderer, view, zone.getBackgroundDrawnElements());
@@ -984,22 +967,20 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			renderTokens(g2d, zone.getBackgroundStamps(), view);
 			timer.stop("tokensBackground");
 		}
-
 		if (Zone.Layer.OBJECT.isEnabled()) {
 			timer.start("drawableObjects");
 			renderDrawableOverlay(g2d, objectDrawableRenderer, view, zone.getObjectDrawnElements());
 			timer.stop("drawableObjects");
-		}
 
+			timer.start("tokensStamp");
+			renderTokens(g2d, zone.getStampTokens(), view);
+			timer.stop("tokensStamp");
+		}
 		timer.start("grid");
 		renderGrid(g2d, view);
 		timer.stop("grid");
 
 		if (Zone.Layer.TOKEN.isEnabled()) {
-			timer.start("tokensStamp");
-			renderTokens(g2d, zone.getStampTokens(), view);
-			timer.stop("tokensStamp");
-
 			timer.start("lights");
 			renderLights(g2d, view);
 			timer.stop("lights");
@@ -1036,8 +1017,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			if (Zone.Layer.GM.isEnabled()) {
 				timer.start("drawableGM");
 				renderDrawableOverlay(g2d, gmDrawableRenderer, view, zone.getGMDrawnElements());
-				renderTokens(g2d, zone.getGMStamps(), view);
 				timer.stop("drawableGM");
+
+				timer.start("tokensGM");
+				renderTokens(g2d, zone.getGMStamps(), view);
+				timer.stop("tokensGM");
 			}
 		}
 		if (Zone.Layer.TOKEN.isEnabled()) {
@@ -1099,30 +1083,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			if (view.isGMView() && AppState.isShowLightSources()) {
 				lightSourceIconOverlay.paintOverlay(this, g2d);
 			}
-//			timer.start("owned movement");
-//			renderMoveSelectionSets(g2d, view, getOwnedMovementSet(view));
-//			timer.stop("owned movement");
-//
-//			timer.start("token name/labels");
-//			renderRenderables(g2d);
-//			timer.stop("token name/labels");
 		}
-
-//		if (lightSourceArea != null) {
-//			g2d.setColor(Color.yellow);
-//			g2d.fill(lightSourceArea.createTransformedArea(AffineTransform.getScaleInstance
-//					(getScale(), getScale())));
-//		}
-
 //		g2d.setColor(Color.red);
 //		for (AreaMeta meta : getTopologyAreaData().getAreaList()) {
 //			Area area = new Area(meta.getArea().getBounds()).createTransformedArea(AffineTransform.getScaleInstance(getScale(), getScale()));
 //			area = area.createTransformedArea(AffineTransform.getTranslateInstance(zoneScale.getOffsetX(), zoneScale.getOffsetY()));
 //			g2d.draw(area);
 //		}
-
 		SwingUtil.restoreAntiAliasing(g2d, oldAA);
-
 		if (AppState.isCollectProfilingData()) {
 			MapTool.getProfilingNoteFrame().addText(timer.toString());
 		}
@@ -1433,16 +1401,13 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	Integer fogY = null;
 
 	private void renderFog(Graphics2D g, PlayerView view) {
-
 		if (!zone.hasFog()) {
 			return;
 		}
-
 		Dimension size = getSize();
 
 		// Optimization for panning
 		Area fogClip = null;
-
 		if (!flushFog && fogX != null && fogY != null && (fogX != getViewOffsetX() || fogY != getViewOffsetY())) {
 			// This optimization does not seem to keep the alpha channel correctly, and sometimes leaves
 			// lines on some graphics boards, we'll leave it out for now
@@ -1482,7 +1447,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				newImage = true;
 				fogBuffer = new BufferedImage(size.width, size.height, view.isGMView() ? Transparency.TRANSLUCENT : Transparency.BITMASK);
 			}
-
 			Graphics2D buffG = fogBuffer.createGraphics();
 			buffG.setClip(fogClip != null ? fogClip : new Rectangle(0, 0, size.width, size.height));
 			SwingUtil.useAntiAliasing(buffG);
@@ -1490,16 +1454,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			if (!newImage) {
 				Composite oldComposite = buffG.getComposite();
 				buffG.setComposite(AlphaComposite.Clear);
-
 				buffG.fillRect(0, 0, size.width, size.height);
-
 				buffG.setComposite(oldComposite);
 			}
-
 			// Fill
 			buffG.setPaint(zone.getFogPaint().getPaint(getViewOffsetX(), getViewOffsetY(), getScale()));
 			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, view.isGMView() ? .6f : 1f)); // JFJ this fixes the GM exposed area view.
-			//buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, alpha)); JFJ This is the current code put in by Azhrei in rev 5286.
 			buffG.fillRect(0, 0, size.width, size.height);
 
 			// Cut out the exposed area
@@ -1507,32 +1467,29 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			af.translate(getViewOffsetX(), getViewOffsetY());
 			af.scale(getScale(), getScale());
 
-			//buffG.setPaint(new TexturePaint(AppStyle.panelTexture, new Rectangle(0,0, size.width, size.height)));
+//			buffG.setPaint(new TexturePaint(AppStyle.panelTexture, new Rectangle(0,0, size.width, size.height)));
 			buffG.setTransform(af);
 			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, view.isGMView() ? .6f : 1f));
 
 			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
 
 			Area visibleArea = zoneView.getVisibleArea(view);
-			//visibleArea.getBounds().getCenterX();
+//			visibleArea.getBounds().getCenterX();
 			Area combined = zone.getExposedArea(view);
 			Area exposedArea = null;
 			Area tempArea = new Area();
-			boolean combinedView = zone.getVisionType() == VisionType.OFF || MapTool.isPersonalServer() || (MapTool.getServerPolicy().isUseIndividualFOW() && view.isGMView())
-					|| !MapTool.getServerPolicy().isUseIndividualFOW();
+			boolean combinedView = !zoneView.isUsingVision() || MapTool.isPersonalServer() || !MapTool.getServerPolicy().isUseIndividualFOW() || view.isGMView();
 
 			if (view.getTokens() != null) {
-				// if there are tokens selected combine the areas,
-				// then, if individual FOW is enabled
-				// we pass the combined exposed area to bulid the
-				// soft FOW and visible area.
+				// if there are tokens selected combine the areas, then, if individual FOW is enabled
+				// we pass the combined exposed area to build the soft FOW and visible area.
 				for (Token tok : view.getTokens()) {
 					ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tok.getExposedAreaGUID());
 					exposedArea = meta.getExposedAreaHistory();
 					tempArea.add(new Area(exposedArea));
 				}
 				if (combinedView) {
-					//combined = zone.getExposedArea(view);
+//					combined = zone.getExposedArea(view);
 					buffG.fill(combined);
 					renderFogArea(buffG, view, combined, visibleArea);
 					renderFogOutline(buffG, view, combined);
@@ -1542,8 +1499,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 					renderFogOutline(buffG, view, tempArea);
 				}
 			} else {
-				// No tokens selected, so if we are using
-				// Individual FOW, we build up all the owned tokens
+				// No tokens selected, so if we are using Individual FOW, we build up all the owned tokens
 				// exposed area's to build the soft FOW.
 				if (combinedView) {
 					if (combined.isEmpty()) {
@@ -1563,23 +1519,19 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 						exposedArea = meta.getExposedAreaHistory();
 						myCombined.add(new Area(exposedArea));
 					}
-
 					buffG.fill(myCombined);
 					renderFogArea(buffG, view, myCombined, visibleArea);
 					renderFogOutline(buffG, view, myCombined);
 				}
 			}
-
 			// Soft fog
 			buffG.dispose();
 			flushFog = false;
 		}
-
 		g.drawImage(fogBuffer, 0, 0, this);
 	}
 
 	private void renderFogArea(final Graphics2D buffG, final PlayerView view, Area softFog, Area visibleArea) {
-
 		if (zoneView.isUsingVision()) {
 			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC));
 			if (visibleArea != null) {
@@ -1602,15 +1554,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				}
 			} else {
 				if (zone.hasFog()) {
-
 					buffG.setColor(new Color(0, 0, 0, 80));
 					buffG.fill(softFog);
 				}
 			}
 		}
-
-		// Outline
-
 	}
 
 	private void renderFogOutline(final Graphics2D buffG, PlayerView view, Area softFog) {
@@ -1619,19 +1567,16 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		if (false && AppPreferences.getUseSoftFogEdges()) {
 			GraphicsUtil.renderSoftClipping(buffG, softFog, (int) (zone.getGrid().getSize() * getScale() * .25), alpha);
 		} else {
-
 			if (visibleScreenArea != null) {
 				Shape oldClip = buffG.getClip();
-				//buffG.setClip(softFog);
-
+//				buffG.setClip(softFog);
 				buffG.setTransform(new AffineTransform());
 				buffG.setComposite(AlphaComposite.Src);
 				buffG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 				buffG.setStroke(new BasicStroke(1));
 				buffG.setColor(Color.BLACK);
 				buffG.draw(visibleScreenArea);
-
-				//buffG.setClip(oldClip);
+//				buffG.setClip(oldClip);
 			}
 		}
 	}
@@ -1641,12 +1586,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	}
 
 	public boolean isLoading() {
-
 		if (isLoaded) {
 			// We're done, until the cache is cleared
 			return false;
 		}
-
 		// Get a list of all the assets in the zone
 		Set<MD5Key> assetSet = zone.getAllAssetIds();
 		assetSet.remove(null); // remove bad data
@@ -1656,7 +1599,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		int cacheCount = 0;
 		boolean loaded = true;
 		for (MD5Key id : assetSet) {
-
 			// Have we gotten the actual data yet ?
 			Asset asset = AssetManager.getAsset(id);
 			if (asset == null) {
@@ -1664,7 +1606,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				loaded = false;
 				continue;
 			}
-
 			downloadCount++;
 
 			// Have we loaded the image into memory yet ?
@@ -1673,24 +1614,18 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				loaded = false;
 				continue;
 			}
-
 			cacheCount++;
 		}
-
 		loadingProgress = String.format(" Loading Map '%s' - %d/%d Loaded %d/%d Cached", zone.getName(), downloadCount, assetSet.size(), cacheCount, assetSet.size());
-
 		isLoaded = loaded;
-
 		if (isLoaded) {
 			// Notify the token tree that it should update
 			MapTool.getFrame().updateTokenTree();
 		}
-
 		return !isLoaded;
 	}
 
 	protected void renderDrawableOverlay(Graphics g, DrawableRenderer renderer, PlayerView view, List<DrawnElement> drawnElements) {
-
 		Rectangle viewport = new Rectangle(zoneScale.getOffsetX(), zoneScale.getOffsetY(), getSize().width, getSize().height);
 		List<DrawnElement> list = new ArrayList<DrawnElement>();
 		list.addAll(drawnElements);
@@ -1699,23 +1634,19 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	}
 
 	protected void renderBoard(Graphics2D g, PlayerView view) {
-
 		Dimension size = getSize();
 		if (backbuffer == null || backbuffer.getWidth() != size.width || backbuffer.getHeight() != size.height) {
 			backbuffer = new BufferedImage(size.width, size.height, Transparency.OPAQUE);
 			drawBackground = true;
 		}
-
 		Scale scale = getZoneScale();
 		if (scale.getOffsetX() != lastX || scale.getOffsetY() != lastY || scale.getScale() != lastScale) {
 			drawBackground = true;
 		}
-
 		if (zone.isBoardChanged()) {
 			drawBackground = true;
 			zone.setBoardChanged(false);
 		}
-
 		if (drawBackground) {
 			Graphics2D bbg = backbuffer.createGraphics();
 
@@ -1731,12 +1662,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				bbg.drawImage(mapImage, getViewOffsetX() + (int) (zone.getBoardX() * scaleFactor), getViewOffsetY() + (int) (zone.getBoardY() * scaleFactor),
 						(int) (mapImage.getWidth() * scaleFactor), (int) (mapImage.getHeight() * scaleFactor), null);
 			}
-
 			bbg.dispose();
-
 			drawBackground = false;
 		}
-
 		lastX = scale.getOffsetX();
 		lastY = scale.getOffsetY();
 		lastScale = scale.getScale();
@@ -1749,7 +1677,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		if (!AppState.isShowGrid() || gridSize < MIN_GRID_SIZE) {
 			return;
 		}
-
 		zone.getGrid().draw(this, g, g.getClipBounds());
 	}
 
@@ -1801,23 +1728,23 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			for (GUID tokenGUID : set.getTokens()) {
 				Token token = zone.getToken(tokenGUID);
 
-				// Perhaps deleted ?
-				if (token == null) {
+				// Perhaps deleted?
+				if (token == null)
 					continue;
-				}
+
 				// Don't bother if it's not visible
-				if (!token.isVisible() && !view.isGMView()) {
+				if (!token.isVisible() && !view.isGMView())
 					continue;
-				}
+
 				// ... or if it's visible only to the owner and that's not us!
-				if (token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token)) {
+				if (token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token))
 					continue;
-				}
+
 				// ... or if it doesn't have an image to display.  (Hm, should still show *something*?)
 				Asset asset = AssetManager.getAsset(token.getImageAssetId());
-				if (asset == null) {
+				if (asset == null)
 					continue;
-				}
+
 				// OPTIMIZE: combine this with the code in renderTokens()
 				Rectangle footprintBounds = token.getBounds(zone);
 				ScreenPoint newScreenPoint = ScreenPoint.fromZonePoint(this, footprintBounds.x + set.getOffsetX(), footprintBounds.y + set.getOffsetY());
@@ -1834,6 +1761,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				// Vision visibility
 				boolean isOwner = view.isGMView() || set.getPlayerId().equals(MapTool.getPlayer().getName());
 				if (!view.isGMView() && visibleScreenArea != null && !isOwner) {
+					// FJE Um, why not just assign the clipping area at the top of the routine?
 					if (!clipInstalled) {
 						// Only show the part of the path that is visible
 						Area visibleArea = new Area(g.getClipBounds());
@@ -1843,7 +1771,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 						g.setClip(new GeneralPath(visibleArea));
 
 						clipInstalled = true;
-						//System.out.println("Adding Clip: " + MapTool.getPlayer().getName());
+//						System.out.println("Adding Clip: " + MapTool.getPlayer().getName());
 					}
 				}
 				// Show path only on the key token
@@ -1900,12 +1828,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 					bounds.height *= getScale();
 
 					Grid grid = zone.getGrid();
-					Area theVisibleArea = MapTool.getServerPolicy().isUseIndividualFOW() && zone.getVisionType() != VisionType.OFF ? zoneView.getVisibleArea(view) : new Area(exposedFogArea);
+					Area theVisibleArea = MapTool.getServerPolicy().isUseIndividualFOW() && zoneView.isUsingVision() ? zoneView.getVisibleArea(view) : new Area(exposedFogArea);
 					boolean showLabels = view.isGMView() || set.getPlayerId().equals(MapTool.getPlayer().getName());
-//					System.out.println("Player: " + MapTool.getPlayer().getName());
-//					System.out.println("showLabels: " + showLabels);
 					if (MapTool.getServerPolicy().isUseIndividualFOW()) {
-						@SuppressWarnings("unchecked")
 						Path<? extends AbstractPoint> path = set.getWalker() != null ? set.getWalker().getPath() : set.gridlessPath;
 						List<? extends AbstractPoint> thePoints = path.getCellPath();
 						/*
@@ -1913,7 +1838,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 						 * gridless, get the last point the token was at and see if the token's footprint is inside the
 						 * visible area to show the label.
 						 */
-						if (thePoints.size() > 0) {
+						if (thePoints.isEmpty()) {
+							showLabels = false;
+						} else {
 							AbstractPoint lastPoint = thePoints.get(thePoints.size() - 1);
 
 							Rectangle tokenRectangle = null;
@@ -1924,27 +1851,13 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 								tokenRectangle = new Rectangle();
 								tokenRectangle.setBounds(lastPoint.x, lastPoint.y, (int) tokBounds.getWidth(), (int) tokBounds.getHeight());
 							}
-							/*
-							 * if(MapTool.getPlayer().getName().equals("Jim")){ System.out.println(
-							 * "  Jim's Is Visible: " + (theVisibleArea.contains(tokenRectangle) ||
-							 * theVisibleArea.intersects(tokenRectangle) )); System.out.println(
-							 * "  Jim's Visible Area: " + theVisibleArea.getBounds()); System.out.println(
-							 * "  Token Rectangle: " + tokenRectangle); System.out.println( "  Points: " +
-							 * thePoints.size());
-							 * 
-							 * }
-							 */
-							showLabels = showLabels || (theVisibleArea.contains(tokenRectangle) || theVisibleArea.intersects(tokenRectangle));
-							//System.out.println("showLabels: " +showLabels);
-						} else {
-							showLabels = false;
+							showLabels = showLabels || theVisibleArea.intersects(tokenRectangle); // || theVisibleArea.contains(tokenRectangle)
 						}
-					} else {
-						showLabels = showLabels || (!zone.hasFog() && visibleScreenArea == null); // no fog, no vision
-						showLabels = showLabels || (visibleScreenArea != null && visibleScreenArea.intersects(bounds) && ((exposedFogArea.intersects(bounds) || exposedFogArea.contains(bounds)))); // vision
-						showLabels = showLabels || (visibleScreenArea == null && zone.hasFog() && (exposedFogArea.intersects(bounds) || exposedFogArea.contains(bounds))); // fog
+					} else { // !isUseIndividualFOW()
+						showLabels = showLabels || (visibleScreenArea == null && !zone.hasFog()); // no vision - fog
+						showLabels = showLabels || (visibleScreenArea == null && zone.hasFog() && exposedFogArea.intersects(bounds)); // no vision + fog
+						showLabels = showLabels || (visibleScreenArea != null && visibleScreenArea.intersects(bounds) && exposedFogArea.intersects(bounds)); // vision
 					}
-					//System.out.println("showLabels: " +showLabels);
 					if (showLabels) {
 						// if the token is visible on the screen it will be in the location cache
 						if (tokenLocationCache.containsKey(token)) {
@@ -1962,22 +1875,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 										double c = 0;
 										ZonePoint lastPoint = null;
 										for (ZonePoint zp : set.gridlessPath.getCellPath()) {
-
 											if (lastPoint == null) {
 												lastPoint = zp;
 												continue;
 											}
 											int a = lastPoint.x - zp.x;
 											int b = lastPoint.y - zp.y;
-
 											c += Math.hypot(a, b);
-
 											lastPoint = zp;
 										}
-
 										c /= zone.getGrid().getSize(); // Number of "cells"
 										c *= zone.getUnitsPerCell(); // "actual" distance traveled
-
 										distance = String.format("%.1f", c);
 									}
 									if (distance.length() > 0) {
@@ -1989,9 +1897,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 							if (set.getPlayerId() != null && set.getPlayerId().length() >= 1) {
 								delayRendering(new LabelRenderer(set.getPlayerId(), x, y));
 							}
-						}
-					}
-				}
+						} // !token.isStamp()
+					} // showLabels
+				} // token == keyToken
 			}
 		}
 	}
@@ -2675,8 +2583,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				labelRenderingCache.remove(token.getId());
 			}
 
-			boolean showIVFOWLabel = MapTool.getServerPolicy().isUseIndividualFOW()
-					&& (zoneView.getVisibleArea(view).contains(footprintBounds) || zoneView.getVisibleArea(view).intersects(footprintBounds));
+			boolean showIVFOWLabel = MapTool.getServerPolicy().isUseIndividualFOW() && zoneView.getVisibleArea(view).intersects(footprintBounds);
 
 			// Token names and labels
 			if ((AppState.isShowTokenNames() || token == tokenUnderMouse)
