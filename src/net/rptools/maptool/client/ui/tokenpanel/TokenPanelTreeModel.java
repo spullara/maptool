@@ -410,9 +410,9 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 			if (AppUtil.playerOwns(token)) { // returns true if useStrictTokenManagement()==false
 				return true;
 			}
-			if (token.isVisibleOnlyToOwner())
-				return false;
-			return true;
+//			if (token.isVisibleOnlyToOwner())
+//				return false;
+			return false;
 		}
 	}
 
