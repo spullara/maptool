@@ -1828,9 +1828,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 					bounds.height *= getScale();
 
 					Grid grid = zone.getGrid();
-					Area theVisibleArea = MapTool.getServerPolicy().isUseIndividualFOW() && zoneView.isUsingVision() ? zoneView.getVisibleArea(view) : new Area(exposedFogArea);
+					boolean checkForFog = MapTool.getServerPolicy().isUseIndividualFOW() && zoneView.isUsingVision();
 					boolean showLabels = view.isGMView() || set.getPlayerId().equals(MapTool.getPlayer().getName());
-					if (MapTool.getServerPolicy().isUseIndividualFOW()) {
+					if (checkForFog) {
 						Path<? extends AbstractPoint> path = set.getWalker() != null ? set.getWalker().getPath() : set.gridlessPath;
 						List<? extends AbstractPoint> thePoints = path.getCellPath();
 						/*
@@ -1851,7 +1851,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 								tokenRectangle = new Rectangle();
 								tokenRectangle.setBounds(lastPoint.x, lastPoint.y, (int) tokBounds.getWidth(), (int) tokBounds.getHeight());
 							}
-							showLabels = showLabels || theVisibleArea.intersects(tokenRectangle); // || theVisibleArea.contains(tokenRectangle)
+							showLabels = showLabels || zoneView.getVisibleArea(view).intersects(tokenRectangle);
 						}
 					} else { // !isUseIndividualFOW()
 						showLabels = showLabels || (visibleScreenArea == null && !zone.hasFog()); // no vision - fog
