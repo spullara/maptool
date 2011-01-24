@@ -732,13 +732,14 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		if (MapTool.getPlayer().isGM()) {
 			return true;
 		}
-		boolean isVisible = false;
+		boolean isVisible = true;
 		if (zone.hasFog()) {
 			// Check that the new position for each token is within the exposed area
 			Area fow = zone.getExposedArea();
 			if (fow == null) {
 				return true;
 			}
+			isVisible = false;
 			int fudgeSize = Math.max(Math.min((zone.getGrid().getSize() - 2) / 3 - 1, 8), 0);
 			int deltaX = point.x - leadToken.getX();
 			int deltaY = point.y - leadToken.getY();
