@@ -732,15 +732,16 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		if (MapTool.getPlayer().isGM()) {
 			return true;
 		}
+		boolean isVisible = false;
 		if (zone.hasFog()) {
 			// Check that the new position for each token is within the exposed area
 			Area fow = zone.getExposedArea();
 			if (fow == null) {
 				return true;
 			}
+			int fudgeSize = Math.max(Math.min((zone.getGrid().getSize() - 2) / 3 - 1, 8), 0);
 			int deltaX = point.x - leadToken.getX();
 			int deltaY = point.y - leadToken.getY();
-			boolean isVisible = false;
 			Rectangle bounds = new Rectangle();
 			for (GUID tokenGUID : tokenSet) {
 				Token token = zone.getToken(tokenGUID);
@@ -749,38 +750,48 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				}
 				int x = token.getX() + deltaX;
 				int y = token.getY() + deltaY;
+
 				Rectangle tokenSize = token.getBounds(zone);
-
-				int fudgeSize = 10;
-
-				bounds.width = fudgeSize;
-				bounds.height = fudgeSize;
-
-				for (int by = y; by < y + tokenSize.height; by += fudgeSize) {
-					for (int bx = x; bx < x + tokenSize.width; bx += fudgeSize) {
+				/*
+				 * Perhaps create a counter and count the number of times that the contains() check returns true? There
+				 * are currently 9 rectangular areas checked by this code (note the "/3" in the two 'interval'
+				 * variables) so checking for 5 or more would mean more than 55%+ of the destination was visible...
+				 */
+				int intervalX = tokenSize.width - fudgeSize * 2;
+				int intervalY = tokenSize.height - fudgeSize * 2;
+				int counter = 0;
+				for (int dy = 0; dy < 3; dy++) {
+					for (int dx = 0; dx < 3; dx++) {
+//				doneWithCheck: for (int by = y + fudgeSize; by < y + tokenSize.height - fudgeSize; by += intervalY) {
+//					for (int bx = x + fudgeSize; bx < x + tokenSize.width - fudgeSize; bx += intervalX) {
+						int by = y + fudgeSize + (intervalY * dy / 3);
+						int bx = x + fudgeSize + (intervalX * dx / 3);
 						bounds.x = bx;
 						bounds.y = by;
+						bounds.width = intervalY * (dy + 1) / 3 - intervalY * dy / 3; // No, this isn't the same as intervalY*1/3 because of integer arithmetic
+						bounds.height = intervalX * (dx + 1) / 3 - intervalX * dx / 3;
 
 						if (!MapTool.getServerPolicy().isUseIndividualFOW() || zone.getVisionType() == VisionType.OFF) {
 							if (fow.contains(bounds)) {
-								isVisible = true;
-								break;
+								counter++;
+//								isVisible = true;
+//								break doneWithCheck; // could be 'return'...
 							}
 						} else {
 							ExposedAreaMetaData meta = zone.getExposedAreaMetaData(token.getExposedAreaGUID());
 							if (meta.getExposedAreaHistory().contains(bounds)) {
-								isVisible = true;
-								break;
+								counter++;
+//								isVisible = true;
+//								break doneWithCheck; // could be 'return'...
 							}
 						}
-					}
-				}
-			}
-			if (!isVisible) {
-				return false;
+					} // bx
+				} // by
+				isVisible = (counter >= 6);
+//				System.out.println("Counter = " + counter);
 			}
 		}
-		return true;
+		return isVisible;
 	}
 
 	/**
