@@ -544,14 +544,11 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 		if (isShowingPointer) {
 			ZonePoint zp = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
-
 			Pointer pointer = MapTool.getFrame().getPointerOverlay().getPointer(MapTool.getPlayer().getName());
 			if (pointer != null) {
 				pointer.setX(zp.x);
 				pointer.setY(zp.y);
-
 				renderer.repaint();
-
 				MapTool.serverCommand().movePointer(MapTool.getPlayer().getName(), zp.x, zp.y);
 			}
 			return;
@@ -658,18 +655,15 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			}
 			isNewTokenSelected = false;
 
-			// Make user we're allowed
+			// Make sure we're allowed
 			if (!MapTool.getPlayer().isGM() && MapTool.getServerPolicy().isMovementLocked()) {
 				return;
 			}
 			// Might be dragging a token
 			String playerId = MapTool.getPlayer().getName();
 			Set<GUID> selectedTokenSet = renderer.getOwnedTokens(renderer.getSelectedTokenSet());
-			if (selectedTokenSet.size() > 0) {
+			if (!selectedTokenSet.isEmpty()) {
 				// Make sure we can do this
-				// LATER: This might be able to be removed since you can't
-				// select an unowned token, check later
-
 				// Possibly let unowned tokens be moved?
 				if (!MapTool.getPlayer().isGM() && MapTool.getServerPolicy().useStrictTokenManagement()) {
 					for (GUID tokenGUID : selectedTokenSet) {
@@ -702,9 +696,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		// TODO: Optimize this (combine with calling code)
 		zonePoint.translate(-dragOffsetX, -dragOffsetY);
 		if (tokenBeingDragged.isSnapToGrid()) {
-
-			// cellUnderMouse actually token position if token being dragged
-			// with keys.
+			// cellUnderMouse is actually token position if the token is being dragged with keys.
 			CellPoint cellUnderMouse = renderer.getZone().getGrid().convert(zonePoint);
 			zonePoint = renderer.getZone().getGrid().convert(cellUnderMouse);
 
@@ -1175,7 +1167,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	// //
 	// POINTER KEY ACTION
 	private class PointerActionListener extends AbstractAction {
-
 		Pointer.Type type;
 
 		public PointerActionListener(Pointer.Type type) {
@@ -1183,40 +1174,31 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-
 			if (isSpaceDown) {
 				return;
 			}
-
 			if (isDraggingToken) {
 				setWaypoint();
 			} else {
-
 				// Pointer
 				isShowingPointer = true;
 
 				ZonePoint zp = new ScreenPoint(mouseX, mouseY).convertToZone(renderer);
 				Pointer pointer = new Pointer(renderer.getZone(), zp.x, zp.y, 0, type);
-
 				MapTool.serverCommand().showPointer(MapTool.getPlayer().getName(), pointer);
 			}
-
 			isSpaceDown = true;
 		}
-
 	}
 
 	// //
 	// STOP POINTER ACTION
 	private class StopPointerActionListener extends AbstractAction {
-
 		public void actionPerformed(ActionEvent e) {
-
 			if (isShowingPointer) {
 				isShowingPointer = false;
 				MapTool.serverCommand().hidePointer(MapTool.getPlayer().getName());
 			}
-
 			isSpaceDown = false;
 		}
 	}
@@ -1230,7 +1212,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	 * java.awt.Graphics2D)
 	 */
 	public void paintOverlay(final ZoneRenderer renderer, Graphics2D g) {
-
 		Dimension viewSize = renderer.getSize();
 
 		Composite composite = g.getComposite();
@@ -1245,38 +1226,30 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				g.fillRoundRect(selectionBoundBox.x, selectionBoundBox.y, selectionBoundBox.width, selectionBoundBox.height, 10, 10);
 				g.setComposite(composite);
 			}
-
 			g.setColor(AppStyle.selectionBoxOutline);
 			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			g.drawRoundRect(selectionBoundBox.x, selectionBoundBox.y, selectionBoundBox.width, selectionBoundBox.height, 10, 10);
 
 			g.setStroke(stroke);
 		}
-
 		if (isShowingTokenStackPopup) {
-
 			tokenStackPanel.paint(g);
 		}
-
 		// Statsheet
 		if (tokenUnderMouse != null && !isDraggingToken && AppUtil.tokenIsVisible(renderer.getZone(), tokenUnderMouse, new PlayerView(MapTool.getPlayer().getRole()))) {
-
 			if (AppPreferences.getPortraitSize() > 0 && (tokenOnStatSheet == null || !tokenOnStatSheet.equals(tokenUnderMouse) || statSheet == null)) {
-
 				tokenOnStatSheet = tokenUnderMouse;
 
 				// Portrait
 				MD5Key portraitId = tokenUnderMouse.getPortraitImage() != null ? tokenUnderMouse.getPortraitImage() : tokenUnderMouse.getImageAssetId();
 				BufferedImage image = ImageManager.getImage(portraitId, new ImageObserver() {
 					public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
-						// The image was loading, so now rebuild the portrait
-						// panel with the real image
+						// The image was loading, so now rebuild the portrait panel with the real image
 						statSheet = null;
 						renderer.repaint();
 						return true;
 					}
 				});
-
 				Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
 
 				// Size
@@ -1287,17 +1260,13 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				Map<String, String> propertyMap = new LinkedHashMap<String, String>();
 				if (AppPreferences.getShowStatSheet()) {
 					for (TokenProperty property : MapTool.getCampaign().getTokenPropertyList(tokenUnderMouse.getPropertyType())) {
-
 						if (property.isShowOnStateSheet()) {
-
 							if (property.isGMOnly() && !MapTool.getPlayer().isGM()) {
 								continue;
 							}
-
 							if (property.isOwnerOnly() && !AppUtil.playerOwns(tokenUnderMouse)) {
 								continue;
 							}
-
 							Object propertyValue = tokenUnderMouse.getEvaluatedProperty(property.getName());
 							if (propertyValue != null) {
 								if (propertyValue.toString().length() > 0) {
@@ -1305,37 +1274,30 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 									if (property.getShortName() != null) {
 										propName = property.getShortName();
 									}
-
 									Object value = tokenUnderMouse.getEvaluatedProperty(property.getName());
-
 									propertyMap.put(propName, value != null ? value.toString() : "");
 								}
 							}
 						}
 					}
 				}
-
 				if (tokenUnderMouse.getPortraitImage() != null || propertyMap.size() > 0) {
 					Font font = AppStyle.labelFont;
 					FontMetrics valueFM = g.getFontMetrics(font);
 					FontMetrics keyFM = g.getFontMetrics(boldFont);
 					int rowHeight = Math.max(valueFM.getHeight(), keyFM.getHeight());
 					if (propertyMap.size() > 0) {
-
 						// Figure out size requirements
 						int height = propertyMap.size() * (rowHeight + PADDING);
 						int width = -1;
 						for (Entry<String, String> entry : propertyMap.entrySet()) {
-
 							int lineWidth = SwingUtilities.computeStringWidth(keyFM, entry.getKey()) + SwingUtilities.computeStringWidth(valueFM, "  " + entry.getValue());
 							if (width < 0 || lineWidth > width) {
 								width = lineWidth;
 							}
 						}
-
 						statSize = new Dimension(width + PADDING * 3, height);
 					}
-
 					// Create the space for the image
 					int width = imgSize.width + (statSize != null ? statSize.width + AppStyle.miniMapBorder.getRightMargin() : 0) + AppStyle.miniMapBorder.getLeftMargin()
 							+ AppStyle.miniMapBorder.getRightMargin();
@@ -1351,7 +1313,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					if (statSize != null) {
 						Rectangle bounds = new Rectangle(width - statSize.width - AppStyle.miniMapBorder.getRightMargin(), statSize.height == height ? 0 : height - statSize.height
 								- AppStyle.miniMapBorder.getBottomMargin(), statSize.width, statSize.height);
-
 						statsG.setPaint(new TexturePaint(AppStyle.panelTexture, new Rectangle(0, 0, AppStyle.panelTexture.getWidth(), AppStyle.panelTexture.getHeight())));
 						statsG.fill(bounds);
 						AppStyle.miniMapBorder.paintAround(statsG, bounds);
@@ -1360,7 +1321,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 						// Stats
 						int y = bounds.y + rowHeight;
 						for (Entry<String, String> entry : propertyMap.entrySet()) {
-
 							// Box
 							statsG.setColor(new Color(249, 241, 230, 140));
 							statsG.fillRect(bounds.x, y - keyFM.getAscent(), bounds.width - PADDING / 2, rowHeight);
@@ -1378,7 +1338,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 							y += PADDING + rowHeight;
 						}
 					}
-
 					// Draw the portrait
 					Rectangle bounds = new Rectangle(AppStyle.miniMapBorder.getLeftMargin(), height - imgSize.height - AppStyle.miniMapBorder.getBottomMargin(), imgSize.width, imgSize.height);
 
@@ -1393,9 +1352,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 					statsG.dispose();
 				}
-
 			}
-
 			if (statSheet != null) {
 				g.drawImage(statSheet, 5, viewSize.height - statSheet.getHeight() - 5, this);
 			}
@@ -1403,7 +1360,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 		// Hovers
 		if (isShowingHover) {
-
 			// Anchor next to the token
 			Dimension size = htmlRenderer.setText(hoverTokenNotes, (int) (renderer.getWidth() * .75), (int) (renderer.getHeight() * .75));
 			Point location = new Point(hoverTokenBounds.getBounds().x + hoverTokenBounds.getBounds().width / 2 - size.width / 2, hoverTokenBounds.getBounds().y);
@@ -1453,7 +1409,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		if (marker.getPortraitImage() != null) {
 			builder.append("<table><tr><td valign=top>");
 		}
-
 		if (!StringUtil.isEmpty(marker.getNotes())) {
 			builder.append("<b><span class='title'>").append(marker.getName()).append("</span></b><br>");
 			builder.append(markerUnderMouse.getNotes());
@@ -1462,7 +1417,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				builder.append("\n\n");
 			}
 		}
-
 		if (showGMNotes) {
 			builder.append("<b><span class='title'>GM Notes");
 			if (!StringUtil.isEmpty(marker.getGMName())) {
@@ -1471,9 +1425,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			builder.append(":</span></b><br>");
 			builder.append(marker.getGMNotes());
 		}
-
 		if (marker.getPortraitImage() != null) {
-
 			BufferedImage image = ImageManager.getImageAndWait(marker.getPortraitImage());
 			Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
 			if (imgSize.width > AppConstants.NOTE_PORTRAIT_SIZE || imgSize.height > AppConstants.NOTE_PORTRAIT_SIZE) {
@@ -1482,11 +1434,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			builder.append("</td><td valign=top>");
 			builder.append("<img src=asset://").append(marker.getPortraitImage()).append(" width=").append(imgSize.width).append(" height=").append(imgSize.height).append("></tr></table>");
 		}
-
 		String notes = builder.toString();
 		notes = notes.replaceAll("\n", "<br>");
-
 		return notes;
 	}
-
 }

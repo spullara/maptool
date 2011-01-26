@@ -968,18 +968,21 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			timer.stop("tokensBackground");
 		}
 		if (Zone.Layer.OBJECT.isEnabled()) {
+			// Drawables on the object layer are always below the grid, and...
 			timer.start("drawableObjects");
 			renderDrawableOverlay(g2d, objectDrawableRenderer, view, zone.getObjectDrawnElements());
 			timer.stop("drawableObjects");
-
-			timer.start("tokensStamp");
-			renderTokens(g2d, zone.getStampTokens(), view);
-			timer.stop("tokensStamp");
 		}
 		timer.start("grid");
 		renderGrid(g2d, view);
 		timer.stop("grid");
 
+		if (Zone.Layer.OBJECT.isEnabled()) {
+			// ... Images on the object layer are always ABOVE the grid.
+			timer.start("tokensStamp");
+			renderTokens(g2d, zone.getStampTokens(), view);
+			timer.stop("tokensStamp");
+		}
 		if (Zone.Layer.TOKEN.isEnabled()) {
 			timer.start("lights");
 			renderLights(g2d, view);
@@ -2933,8 +2936,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	}
 
 	/**
-	 * Returns the token at screen location x, y (not cell location). To get the token at a cell location, use
-	 * getGameMap() and use that.
+	 * Returns the token at screen location x, y (not cell location).
+	 * <p>
+	 * TODO: Add a check so that tokens owned by the current player are given priority.
 	 * 
 	 * @param x
 	 * @param y
