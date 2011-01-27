@@ -159,6 +159,11 @@ public class ZoneView implements ModelChangeListener {
 				brightLightSet.add(lightArea);
 			}
 		}
+		// FIXME There was a bug report of a ConcurrentModificationException regarding drawableLightCache.
+		// I don't see how, but perhaps this code -- and the ones in flush() and flush(Token) -- should be
+		// wrapped in a synchronization block?  This method is probably called only on the same thread as
+		// getDrawableLights() but the two flush() methods may be called from different threads.  How to
+		// verify this with Eclipse?  Maybe the flush() methods should defer modifications to the EventDispatchingThread?
 		Map<String, Set<DrawableLight>> lightMap = drawableLightCache.get(lightSourceToken.getId());
 		if (lightMap == null) {
 			lightMap = new HashMap<String, Set<DrawableLight>>();

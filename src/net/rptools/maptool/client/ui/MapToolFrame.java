@@ -19,6 +19,7 @@ import java.awt.GraphicsDevice;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.IllegalComponentStateException;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -130,6 +131,7 @@ import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.util.ImageManager;
 
 import org.apache.commons.collections.map.LinkedMap;
+import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
 
 import com.jidesoft.docking.DefaultDockableHolder;
@@ -138,6 +140,7 @@ import com.jidesoft.docking.DockableFrame;
 /**
  */
 public class MapToolFrame extends DefaultDockableHolder implements WindowListener, AppEventListener {
+	private static final Logger log = Logger.getLogger(MapToolFrame.class);
 
 	private static final String INITIAL_LAYOUT_XML = "net/rptools/maptool/client/ui/ilayout.xml";
 	private static final String MAPTOOL_LOGO_IMAGE = "net/rptools/maptool/client/image/maptool-logo.png";
@@ -921,13 +924,15 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 									}
 								}
 							}
-							if (selectedTokenSet.size() > 0) {
-
-								if (firstToken.isStamp()) {
-
-									new StampPopupMenu(selectedTokenSet, x, y, getCurrentZoneRenderer(), firstToken).showPopup(tree);
-								} else {
-									new TokenPopupMenu(selectedTokenSet, x, y, getCurrentZoneRenderer(), firstToken).showPopup(tree);
+							if (!selectedTokenSet.isEmpty()) {
+								try {
+									if (firstToken.isStamp()) {
+										new StampPopupMenu(selectedTokenSet, x, y, getCurrentZoneRenderer(), firstToken).showPopup(tree);
+									} else {
+										new TokenPopupMenu(selectedTokenSet, x, y, getCurrentZoneRenderer(), firstToken).showPopup(tree);
+									}
+								} catch (IllegalComponentStateException icse) {
+									log.info(tree.toString(), icse);
 								}
 							}
 						}
