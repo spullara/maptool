@@ -256,11 +256,22 @@ public class CommandPanel extends JPanel implements Observer {
 			chatNotifyButton.setFocusPainted(false);
 			chatNotifyButton.setPreferredSize(new Dimension(16, 16));
 			chatNotifyButton.addItemListener(new ItemListener() {
+				private ChatTypingListener ours = null;
+
 				public void itemStateChanged(ItemEvent e) {
 					if (e.getStateChange() == ItemEvent.SELECTED) {
-						commandTextArea.removeKeyListener(commandTextArea.getKeyListeners()[0]);
+						if (ours != null)
+							commandTextArea.removeKeyListener(ours);
+						ours = null;
+						// Go ahead and turn off the chat panel right away.
+						MapTool.getFrame().getChatTypingPanel().setVisible(false);
 					} else if (e.getStateChange() == ItemEvent.DESELECTED) {
-						commandTextArea.addKeyListener(new ChatTypingListener());
+						if (ours == null)
+							ours = new ChatTypingListener();
+						commandTextArea.addKeyListener(ours);
+						// Don't make the panel visible.  That will happen when there's actually
+						// something to display as the result of a key event.
+//						MapTool.getFrame().getChatTypingPanel().setVisible(true);
 					}
 				}
 			});
@@ -391,20 +402,16 @@ public class CommandPanel extends JPanel implements Observer {
 				}
 			});
 		}
-
 		return commandTextArea;
 	}
 
 	/**
-	 * Key listener for command area to handle live typing notification Implements an idle timer that removes the typing
-	 * notification after the duration set in AppPreferences expires.
+	 * Key listener for command area to handle live typing notification. Implements an idle timer that removes the
+	 * typing notification after the duration set in AppPreferences expires.
 	 */
-
 	private class ChatTypingListener extends KeyAdapter {
-
 		@Override
 		public void keyReleased(KeyEvent kre) {
-
 			// Get the key released
 			int key = kre.getKeyCode();
 

@@ -251,18 +251,26 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 		public synchronized void setChatTyper(final String playerName) {
 			if (AppPreferences.getTypingNotificationDuration() == 0) {
-				MapTool.getFrame().stopTimer();
+				turnOffUpdates();
+				chatTypingNotificationTimers.clear();
 			} else {
-				MapTool.getFrame().startTimer();
+				MapTool.getFrame().getChatTimer().start();
+				MapTool.getFrame().getChatTypingPanel().setVisible(true);
+				chatTypingNotificationTimers.put(playerName, System.currentTimeMillis());
+				setChanged();
+				notifyObservers();
 			}
-			chatTypingNotificationTimers.put(playerName, System.currentTimeMillis());
+		}
 
-			setChanged();
-			notifyObservers();
+		private void turnOffUpdates() {
+			MapTool.getFrame().getChatTimer().stop();
+			MapTool.getFrame().getChatTypingPanel().setVisible(false);
 		}
 
 		public synchronized void removeChatTyper(final String playerName) {
 			chatTypingNotificationTimers.remove(playerName);
+			if (chatTypingNotificationTimers.isEmpty())
+				turnOffUpdates();
 			setChanged();
 			notifyObservers();
 		}
@@ -766,10 +774,9 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		if (chatTypingPanel == null) {
 			chatTypingPanel = new ChatTypingNotification();
 			chatTypingPanel.setOpaque(false);
-			chatTypingPanel.setSize(220, 100);
+			chatTypingPanel.setSize(220, 100); // FIXME change to variable width
 			chatTypingPanel.setEnabled(true);
-			chatTypingPanel.setVisible(true);
-			//chatTypingPanel.validate();
+			chatTypingPanel.setVisible(false); // Only visible when there are notifications to display
 		}
 		return chatTypingPanel;
 	}
@@ -1443,10 +1450,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	public void windowDeactivated(WindowEvent e) {
 	}
 
-	// Windows OS defaults F10 to the menu bar, noooooo!! We want for macro
-	// buttons.
-	// XXX Doesn't work for Mac OSX. Shouldn't this
-	// keystroke be configurable via the properties file?
+	// Windows OS defaults F10 to the menu bar, noooooo!! We want for macro buttons.
+	// XXX Doesn't work for Mac OSX. Shouldn't this keystroke be configurable via the properties file?
 	private void removeWindowsF10() {
 		InputMap imap = menuBar.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
 		Object action = imap.get(KeyStroke.getKeyStroke("F10"));
@@ -1467,14 +1472,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			chatTimer = newChatTimer();
 		}
 		return chatTimer;
-	}
-
-	public void stopTimer() {
-		chatTimer.stop();
-	}
-
-	public void startTimer() {
-		chatTimer.start();
 	}
 
 	public void setChatTimer(Timer timer) {

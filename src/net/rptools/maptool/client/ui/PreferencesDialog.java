@@ -290,13 +290,6 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 
-//		typingNotificationDuration.getDocument().addDocumentListener(new DocumentListenerProxy(typingNotificationDuration) {
-//			@Override
-//			protected void storeNumericValue(int value) {
-//				AppPreferences.setTypingNotificationDuration(value);
-//			}
-//		});
-
 		chatNotificationColor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setChatNotificationColor(chatNotificationColor.getColor());
@@ -701,7 +694,7 @@ public class PreferencesDialog extends JDialog {
 		showInitGainMessage.setSelected(AppPreferences.isShowInitGainMessage());
 		Integer rawVal = AppPreferences.getTypingNotificationDuration();
 		Integer typingVal = null;
-		if (rawVal != null && rawVal > 99) {
+		if (rawVal != null && rawVal > 99) { // backward compatibility -- used to be stored in ms, now in seconds
 			Double dbl = (double) (rawVal / 1000);
 			if (dbl >= 1) {
 				long fixedUp = Math.round(dbl);
@@ -714,9 +707,8 @@ public class PreferencesDialog extends JDialog {
 		int value = Math.abs((typingVal == null || typingVal > rawVal) ? rawVal : typingVal);
 		AppPreferences.setTypingNotificationDuration(value);
 
-		SpinnerNumberModel typingDurationModel = new SpinnerNumberModel((((int) AppPreferences.getTypingNotificationDuration())), 0, 99, 1);
+		SpinnerNumberModel typingDurationModel = new SpinnerNumberModel((int) AppPreferences.getTypingNotificationDuration(), 0, 99, 1);
 		typingNotificationDuration.setModel(typingDurationModel);
-		//typingNotificationDuration.setValue(typingVal);
 
 		chatNotificationColor.setColor(AppPreferences.getChatNotificationColor());
 		chatNotificationShowBackground.setSelected(AppPreferences.getChatNotificationShowBackground());
