@@ -1121,12 +1121,9 @@ public class AppActions {
 
 		@Override
 		public void execute(ActionEvent e) {
-
 			AppState.setCollectProfilingData(!AppState.isCollectProfilingData());
-
 			MapTool.getProfilingNoteFrame().setVisible(AppState.isCollectProfilingData());
 		}
-
 	};
 
 	public static final Action TOGGLE_SHOW_MOVEMENT_MEASUREMENTS = new DefaultClientAction() {

@@ -887,7 +887,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	 */
 	public void renderZone(Graphics2D g2d, PlayerView view) {
 		timer = new CodeTimer("zonerenderer");
-		timer.setEnabled(AppState.isCollectProfilingData());
+		timer.setEnabled(AppState.isCollectProfilingData() || log.isDebugEnabled());
 		timer.setThreshold(10);
 
 		timer.start("setup");
@@ -1094,8 +1094,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 //			g2d.draw(area);
 //		}
 		SwingUtil.restoreAntiAliasing(g2d, oldAA);
-		if (AppState.isCollectProfilingData()) {
-			MapTool.getProfilingNoteFrame().addText(timer.toString());
+		if (AppState.isCollectProfilingData() || log.isDebugEnabled()) {
+			String results = timer.toString();
+			MapTool.getProfilingNoteFrame().addText(results);
+			if (log.isDebugEnabled())
+				log.debug(results);
 		}
 		if (resetClip) {
 			g2d.setClip(null);

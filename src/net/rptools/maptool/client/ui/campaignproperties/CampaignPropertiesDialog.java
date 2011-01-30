@@ -697,13 +697,11 @@ public class CampaignPropertiesDialog extends JDialog {
 				final File selectedFile = chooser.getSelectedFile();
 				EventQueue.invokeLater(new Runnable() {
 					public void run() {
-						try {
-							CampaignProperties properties = PersistenceUtil.loadCampaignProperties(selectedFile);
-							// TODO: Allow specifying whether it is a replace or merge
+						CampaignProperties properties = PersistenceUtil.loadCampaignProperties(selectedFile);
+						// TODO: Allow specifying whether it is a replace or merge
+						if (properties != null) {
 							MapTool.getCampaign().mergeCampaignProperties(properties);
 							copyCampaignToUI(properties);
-						} catch (IOException ioe) {
-							MapTool.showError("Could not load properties: ", ioe);
 						}
 					}
 				});

@@ -30,9 +30,13 @@ import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Token;
 
+import org.apache.log4j.Logger;
+
 import com.jidesoft.docking.DockableFrame;
 
 public class SelectionPanel extends AbstractMacroPanel {
+	private static final Logger log = Logger.getLogger(SelectionPanel.class);
+
 	private final List<Token> tokenList = null;
 	private List<MacroButtonProperties> commonMacros = new ArrayList<MacroButtonProperties>();
 	private CodeTimer timer;
@@ -68,7 +72,7 @@ public class SelectionPanel extends AbstractMacroPanel {
 		}
 		// Set up a code timer to get some performance data
 		timer = new CodeTimer("selectionpanel");
-		timer.setEnabled(AppState.isCollectProfilingData());
+		timer.setEnabled(AppState.isCollectProfilingData() || log.isDebugEnabled());
 		timer.setThreshold(10);
 
 		timer.start("painting");
@@ -99,8 +103,11 @@ public class SelectionPanel extends AbstractMacroPanel {
 		}
 		timer.stop("painting");
 
-		if (AppState.isCollectProfilingData()) {
-			MapTool.getProfilingNoteFrame().addText(timer.toString());
+		if (AppState.isCollectProfilingData() || log.isDebugEnabled()) {
+			String results = timer.toString();
+			MapTool.getProfilingNoteFrame().addText(results);
+			if (log.isDebugEnabled())
+				log.debug(results);
 		}
 		MapTool.getEventDispatcher().addListener(this, MapTool.ZoneEvent.Activated);
 	}
