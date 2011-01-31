@@ -373,7 +373,7 @@ public abstract class Grid implements Cloneable {
 		Rectangle bounds = new Rectangle();
 		int bit = 1;
 
-		if (areaToCheck.width < 9)
+		if (areaToCheck.width < 9 || (dirx == 0 && diry == 0))
 			direction = (512 - 1) & ~DirectionCalculator.CENTER;
 
 		for (int dy = 0; dy < 3; dy++) {

@@ -31,10 +31,9 @@ public abstract class AbstractZoneWalker implements ZoneWalker {
 	}
 
 	public CellPoint getLastPoint() {
-		if (partialPaths.size() == 0) {
+		if (partialPaths.isEmpty()) {
 			return null;
 		}
-
 		PartialPath lastPath = partialPaths.get(partialPaths.size() - 1);
 		return lastPath.end;
 	}
@@ -55,7 +54,7 @@ public abstract class AbstractZoneWalker implements ZoneWalker {
 	}
 
 	public CellPoint replaceLastWaypoint(CellPoint point) {
-		if (partialPaths.size() == 0)
+		if (partialPaths.isEmpty())
 			return null;
 
 		PartialPath oldPartial = partialPaths.remove(partialPaths.size() - 1);

@@ -572,8 +572,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			if (isMovingWithKeys) {
 				return;
 			}
-			ZonePoint zonePoint = new ScreenPoint(mouseX, mouseY).convertToZone(renderer);
-//			handleDragToken(zonePoint);
+			ZonePoint zp = new ScreenPoint(mouseX, mouseY).convertToZone(renderer);
+			ZonePoint last = renderer.getLastWaypoint(tokenUnderMouse.getId());
+			handleDragToken(zp, zp.x - last.x, zp.y - last.y);
 			return;
 		}
 		tokenUnderMouse = renderer.getTokenAt(mouseX, mouseY);
@@ -640,8 +641,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				if (isMovingWithKeys) {
 					return;
 				}
-				ZonePoint zonePoint = new ScreenPoint(mouseX, mouseY).convertToZone(renderer);
-				handleDragToken(zonePoint, 0, 0); // Should pass directions instead of 0,0 (such as +1,-1 to mean +1 on X and -1 on Y, i.e. moving to the NE)
+				ZonePoint zp = new ScreenPoint(mouseX, mouseY).convertToZone(renderer);
+				ZonePoint last = renderer.getLastWaypoint(tokenUnderMouse.getId());
+				handleDragToken(zp, zp.x - last.x, zp.y - last.y);
 				return;
 			}
 			if (tokenUnderMouse == null || !renderer.getSelectedTokenSet().contains(tokenUnderMouse.getId())) {

@@ -315,7 +315,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		if (tokenUnderMouse == token) {
 			return;
 		}
-
 		tokenUnderMouse = token;
 		repaint();
 	}
@@ -341,7 +340,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		if (set == null) {
 			return false;
 		}
-
 		Token token = zone.getToken(keyToken);
 		int x = point.x - token.getX();
 		int y = point.y - token.getY();
@@ -350,49 +348,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	}
 
 	public void updateMoveSelectionSet(GUID keyToken, ZonePoint offset) {
-
 		SelectionSet set = selectionSetMap.get(keyToken);
 		if (set == null) {
 			return;
 		}
-
 		Token token = zone.getToken(keyToken);
-
-		// int tokenWidth = (int)(TokenSize.getWidth(token,
-		// zone.getGrid().getSize()) * getScale());
-		// int tokenHeight = (int)(TokenSize.getHeight(token,
-		// zone.getGrid().getSize()) * getScale());
-		//
-		// // figure out screen bounds
-		// ScreenPoint tsp = ScreenPoint.fromZonePoint(this, token.getX(),
-		// token.getY());
-		// ScreenPoint dsp = ScreenPoint.fromZonePoint(this, offset.x,
-		// offset.y);
-		// ScreenPoint osp = ScreenPoint.fromZonePoint(this, token.getX() +
-		// set.offsetX, token.getY() + set.offsetY );
-		//
-		// int strWidth = SwingUtilities.computeStringWidth(fontMetrics,
-		// set.getPlayerId());
-		//
-		// int x = Math.min(tsp.x, dsp.x) - strWidth/2-4/*playername*/;
-		// int y = Math.min (tsp.y, dsp.y);
-		// int width = Math.abs(tsp.x - dsp.x)+ tokenWidth +
-		// strWidth+8/*playername*/;
-		// int height = Math.abs(tsp.y - dsp.y)+ tokenHeight + 45/*labels*/;
-		// Rectangle newBounds = new Rectangle(x, y, width, height);
-		//
-		// x = Math.min(tsp.x, osp.x) - strWidth/2-4/*playername*/;
-		// y = Math.min(tsp.y, osp.y);
-		// width = Math.abs(tsp.x - osp.x)+ tokenWidth +
-		// strWidth+8/*playername*/;
-		// height = Math.abs(tsp.y - osp.y)+ tokenHeight + 45/*labels*/;
-		// Rectangle oldBounds = new Rectangle(x, y, width, height);
-		//
-		// newBounds = newBounds.union(oldBounds);
-		//
 		set.setOffset(offset.x - token.getX(), offset.y - token.getY());
-
-		// repaint(newBounds.x, newBounds.y, newBounds.width, newBounds.height);
 		repaint();
 	}
 
@@ -401,31 +362,34 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		if (set == null) {
 			return;
 		}
-
 		set.toggleWaypoint(location);
 		repaint();
 	}
 
-	public void removeMoveSelectionSet(GUID keyToken) {
+	public ZonePoint getLastWaypoint(GUID keyToken) {
+		SelectionSet set = selectionSetMap.get(keyToken);
+		if (set == null) {
+			return null;
+		}
+		return set.getLastWaypoint();
+	}
 
+	public void removeMoveSelectionSet(GUID keyToken) {
 		SelectionSet set = selectionSetMap.remove(keyToken);
 		if (set == null) {
 			return;
 		}
-
 		repaint();
 	}
 
 	@SuppressWarnings("unchecked")
 	// this is for Path<?>
 	public void commitMoveSelectionSet(GUID keyTokenId) {
-
 		// TODO: Quick hack to handle updating server state
 		SelectionSet set = selectionSetMap.get(keyTokenId);
 		if (set == null) {
 			return;
 		}
-
 		removeMoveSelectionSet(keyTokenId);
 		MapTool.serverCommand().stopTokenMove(getZone().getId(), keyTokenId);
 
@@ -460,11 +424,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				filteredTokens.add(tokenGUID);
 			}
 		}
-
 		if (filteredTokens != null) {
 			// run onTokenMove for each token in the
 			// filtered selection list, canceling if
-			//
 			for (GUID tokenGUID : filteredTokens) {
 				Token token = zone.getToken(tokenGUID);
 				tmc = TokenMoveFunctions.tokenMoved(token, path, filteredTokens);
@@ -487,7 +449,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				}
 			}
 		}
-
 		MapTool.getFrame().updateTokenTree();
 	}
 
@@ -504,7 +465,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			} else {
 				zp = (ZonePoint) path.getCellPath().get(0);
 			}
-
 			// Relocate
 			token.setX(zp.x);
 			token.setY(zp.y);
@@ -523,24 +483,19 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	}
 
 	public boolean isTokenMoving(Token token) {
-
 		for (SelectionSet set : selectionSetMap.values()) {
-
 			if (set.contains(token)) {
 				return true;
 			}
 		}
-
 		return false;
 	}
 
 	protected void setViewOffset(int x, int y) {
-
 		zoneScale.setOffset(x, y);
 	}
 
 	public void centerOn(ZonePoint point) {
-
 		int x = point.x;
 		int y = point.y;
 
@@ -3177,7 +3132,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 			if (token.isSnapToGrid() && zone.getGrid().getCapabilities().isSnapToGridSupported()) {
 				if (ZoneRenderer.this.zone.getGrid().getCapabilities().isPathingSupported()) {
-
 					CellPoint tokenPoint = zone.getGrid().convert(new ZonePoint(token.getX(), token.getY()));
 
 					walker = ZoneRenderer.this.zone.getGrid().createZoneWalker();
@@ -3237,6 +3191,20 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			} else {
 				gridlessPath.addWayPoint(location);
 				gridlessPath.addPathCell(location);
+			}
+		}
+
+		/**
+		 * Retrieves the last waypoint, or if there isn't one then the start point of the first path segment.
+		 * 
+		 * @param location
+		 */
+		public ZonePoint getLastWaypoint() {
+			if (walker != null && token.isSnapToGrid() && getZone().getGrid() != null) {
+				CellPoint cp = walker.getLastPoint();
+				return getZone().getGrid().convert(cp);
+			} else {
+				return gridlessPath.getLastWaypoint();
 			}
 		}
 
