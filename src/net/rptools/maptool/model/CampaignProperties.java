@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.AppPreferences;
@@ -87,7 +88,7 @@ public class CampaignProperties implements Serializable {
 			sightTypeMap.putAll(properties.sightTypeMap);
 		}
 		// TODO: This doesn't feel right, should we deep copy, or does this do that automatically ?
-		lightSourcesMap = new HashMap<String, Map<GUID, LightSource>>(properties.lightSourcesMap);
+		lightSourcesMap = new TreeMap<String, Map<GUID, LightSource>>(properties.lightSourcesMap);
 
 		// TODO: fix for when old campaigns have been loaded into b33+
 		tokenStates = new LinkedHashMap<String, BooleanTokenOverlay>();
@@ -257,7 +258,7 @@ public class CampaignProperties implements Serializable {
 		if (lightSourcesMap != null) {
 			return;
 		}
-		lightSourcesMap = new HashMap<String, Map<GUID, LightSource>>();
+		lightSourcesMap = new TreeMap<String, Map<GUID, LightSource>>();
 
 		try {
 			Map<String, List<LightSource>> map = LightSource.getDefaultLightSources();

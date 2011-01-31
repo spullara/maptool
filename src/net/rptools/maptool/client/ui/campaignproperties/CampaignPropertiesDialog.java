@@ -29,6 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
@@ -62,7 +63,6 @@ import net.rptools.maptool.util.StringUtil;
 import com.jeta.forms.components.panel.FormPanel;
 
 public class CampaignPropertiesDialog extends JDialog {
-
 	public enum Status {
 		OK, CANCEL
 	}
@@ -500,7 +500,7 @@ public class CampaignPropertiesDialog extends JDialog {
 	 * </p>
 	 */
 	private Map<String, Map<GUID, LightSource>> commitLightMap(final String text, final Map<String, Map<GUID, LightSource>> originalLightSourcesMap) {
-		Map<String, Map<GUID, LightSource>> lightMap = new HashMap<String, Map<GUID, LightSource>>();
+		Map<String, Map<GUID, LightSource>> lightMap = new TreeMap<String, Map<GUID, LightSource>>();
 		LineNumberReader reader = new LineNumberReader(new BufferedReader(new StringReader(text)));
 		String line = null;
 		List<String> errlog = new LinkedList<String>();
@@ -615,7 +615,7 @@ public class CampaignPropertiesDialog extends JDialog {
 					}
 				}
 				// Keep ID the same if modifying existing light
-				// TODO FJE Why?  Is there some benefit to doing so?  Changes to light sources require the map to be re-rendered anyway, doesn't it?
+				// TODO FJE Why?  Is there some benefit to doing so?  Changes to light sources require the map to be re-rendered anyway, don't they?
 				if (originalLightSourcesMap.containsKey(currentGroupName)) {
 					for (LightSource ls : originalLightSourcesMap.get(currentGroupName).values()) {
 						if (ls.getName().equalsIgnoreCase(name)) {

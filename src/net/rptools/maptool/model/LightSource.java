@@ -21,7 +21,9 @@ import java.util.Map;
 
 import net.rptools.lib.FileUtil;
 
-public class LightSource {
+import org.apache.commons.lang.math.NumberUtils;
+
+public class LightSource implements Comparable<LightSource> {
 	public enum Type {
 		NORMAL,
 		AURA
@@ -196,5 +198,20 @@ public class LightSource {
 			type = Type.NORMAL;
 		}
 		return this;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	public int compareTo(LightSource o) {
+		if (o == this)
+			return 0;
+		Integer nameLong = NumberUtils.toInt(name, Integer.MIN_VALUE);
+		Integer onameLong = NumberUtils.toInt(o.name, Integer.MIN_VALUE);
+		if (nameLong != Integer.MIN_VALUE && onameLong != Integer.MIN_VALUE)
+			return nameLong - onameLong;
+		return name.compareTo(o.name);
 	}
 }

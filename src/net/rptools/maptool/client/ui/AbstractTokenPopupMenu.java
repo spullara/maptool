@@ -15,6 +15,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -118,7 +119,6 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			for (GUID tokenGUID : selectedTokenSet) {
-
 				Token token = renderer.getZone().getToken(tokenGUID);
 				if (token.hasLightSourceType(LightSource.Type.NORMAL)) {
 					menu.add(new ClearLightsOnlyAction());
@@ -135,11 +135,13 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 			}
 			menu.addSeparator();
 		}
-
 		for (Entry<String, Map<GUID, LightSource>> entry : MapTool.getCampaign().getLightSourcesMap().entrySet()) {
 			JMenu subMenu = new JMenu(entry.getKey());
 
-			List<LightSource> lightSourceList = new ArrayList<LightSource>(entry.getValue().values());
+			List<LightSource> lightSources = new ArrayList<LightSource>(entry.getValue().values());
+			LightSource[] lightSourceList = new LightSource[entry.getValue().size()];
+			lightSources.toArray(lightSourceList);
+			Arrays.sort(lightSourceList);
 			LIGHTSOURCES: for (LightSource lightSource : lightSourceList) {
 				for (Light light : lightSource.getLightList()) {
 					if (light.isGM() && !MapTool.getPlayer().isGM()) {
@@ -148,15 +150,12 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 				}
 				JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(new ToggleLightSourceAction(lightSource));
 				menuItem.setSelected(tokenUnderMouse.hasLightSource(lightSource));
-
 				subMenu.add(menuItem);
 			}
 			if (subMenu.getItemCount() != 0) {
 				menu.add(subMenu);
 			}
-
 		}
-
 		return menu;
 	}
 
@@ -165,7 +164,6 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 	}
 
 	protected JMenu createFlipMenu() {
-
 		JMenu flipMenu = new JMenu("Flip");
 
 		flipMenu.add(new AbstractAction() {
@@ -179,16 +177,13 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 					if (token == null) {
 						continue;
 					}
-
 					token.setFlippedX(!token.isFlippedX());
-
 					renderer.flush(token);
 					MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 				}
 				MapTool.getFrame().refresh();
 			}
 		});
-
 		flipMenu.add(new AbstractAction() {
 			{
 				putValue(NAME, "Vertical");
@@ -200,7 +195,6 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 					if (token == null) {
 						continue;
 					}
-
 					token.setFlippedY(!token.isFlippedY());
 					renderer.flush(token);
 					MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
@@ -208,12 +202,10 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 				MapTool.getFrame().refresh();
 			}
 		});
-
 		return flipMenu;
 	}
 
 	protected JMenu createChangeToMenu(Zone.Layer... types) {
-
 		JMenu changeTypeMenu = new JMenu("Change to");
 		for (Zone.Layer layer : types) {
 			changeTypeMenu.add(new JMenuItem(new ChangeTypeAction(layer)));
