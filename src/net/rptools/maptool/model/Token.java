@@ -887,8 +887,9 @@ public class Token extends BaseModel {
 	}
 
 	public Rectangle getBounds(Zone zone) {
-		TokenFootprint footprint = getFootprint(zone.getGrid());
-		Rectangle footprintBounds = footprint.getBounds(zone.getGrid(), zone.getGrid().convert(new ZonePoint(getX(), getY())));
+		Grid grid = zone.getGrid();
+		TokenFootprint footprint = getFootprint(grid);
+		Rectangle footprintBounds = footprint.getBounds(grid, grid.convert(new ZonePoint(getX(), getY())));
 
 		double width = footprintBounds.width;
 		double height = footprintBounds.height;
@@ -901,7 +902,6 @@ public class Token extends BaseModel {
 			width = footprintBounds.width * footprint.getScale() * sizeScale;
 			height = footprintBounds.height * footprint.getScale() * sizeScale;
 		}
-
 		// Positioning
 		if (!isSnapToGrid()) {
 			footprintBounds.x = getX();
@@ -922,7 +922,6 @@ public class Token extends BaseModel {
 		// Offset
 		footprintBounds.x += anchorX;
 		footprintBounds.y += anchorY;
-
 		return footprintBounds;
 	}
 

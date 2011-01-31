@@ -37,6 +37,7 @@ import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +75,7 @@ import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.ExposedAreaMetaData;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenProperty;
@@ -566,11 +568,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		mouseY = e.getY();
 
 		if (isDraggingToken) {
+			// FJE If we're dragging the token, wouldn't mouseDragged() be called instead?  Can this code ever be executed?
 			if (isMovingWithKeys) {
 				return;
 			}
 			ZonePoint zonePoint = new ScreenPoint(mouseX, mouseY).convertToZone(renderer);
-			handleDragToken(zonePoint);
+//			handleDragToken(zonePoint);
 			return;
 		}
 		tokenUnderMouse = renderer.getTokenAt(mouseX, mouseY);
@@ -624,14 +627,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				selectionBoundBox.y = Math.min(y1, y2);
 				selectionBoundBox.width = Math.abs(x1 - x2);
 				selectionBoundBox.height = Math.abs(y1 - y2);
-
-				// NOTE: This is a weird one that has to do with the order of
-				// the mouseReleased event. if the selection
-				// box started the drag while hovering over a marker, we need to
-				// tell it to not show the marker after the
-				// drag is complete
+				/*
+				 * NOTE: This is a weird one that has to do with the order of the mouseReleased event. If the selection
+				 * box started the drag while hovering over a marker, we need to tell it to not show the marker after
+				 * the drag is complete.
+				 */
 				markerUnderMouse = null;
-
 				renderer.repaint();
 				return;
 			}
@@ -640,7 +641,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					return;
 				}
 				ZonePoint zonePoint = new ScreenPoint(mouseX, mouseY).convertToZone(renderer);
-				handleDragToken(zonePoint);
+				handleDragToken(zonePoint, 0, 0); // Should pass directions instead of 0,0 (such as +1,-1 to mean +1 on X and -1 on Y, i.e. moving to the NE)
 				return;
 			}
 			if (tokenUnderMouse == null || !renderer.getSelectedTokenSet().contains(tokenUnderMouse.getId())) {
@@ -692,23 +693,30 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	 * @param zonePoint
 	 * @return true if the move was successful
 	 */
-	public boolean handleDragToken(ZonePoint zonePoint) {
+	public boolean handleDragToken(ZonePoint zonePoint, int dx, int dy) {
 		// TODO: Optimize this (combine with calling code)
 		zonePoint.translate(-dragOffsetX, -dragOffsetY);
-		if (tokenBeingDragged.isSnapToGrid()) {
+		Grid grid = renderer.getZone().getGrid();
+		if (tokenBeingDragged.isSnapToGrid() && grid.getCapabilities().isSnapToGridSupported()) {
 			// cellUnderMouse is actually token position if the token is being dragged with keys.
-			CellPoint cellUnderMouse = renderer.getZone().getGrid().convert(zonePoint);
-			zonePoint = renderer.getZone().getGrid().convert(cellUnderMouse);
-
+			CellPoint cellUnderMouse = grid.convert(zonePoint);
+			zonePoint = grid.convert(cellUnderMouse);
 			MapTool.getFrame().getCoordinateStatusBar().update(cellUnderMouse.x, cellUnderMouse.y);
 		} else {
+			// Nothing
 		}
 		// Don't bother if there isn't any movement
 		if (!renderer.hasMoveSelectionSetMoved(tokenBeingDragged.getId(), zonePoint)) {
 			return false;
 		}
 		// Make sure it's a valid move
-		if (!validateMove(tokenBeingDragged, renderer.getSelectedTokenSet(), zonePoint)) {
+		boolean isValid;
+		if (grid.getSize() >= 9)
+			isValid = validateMove(tokenBeingDragged, renderer.getSelectedTokenSet(), zonePoint, dx, dy);
+		else
+			isValid = validateMove_legacy(tokenBeingDragged, renderer.getSelectedTokenSet(), zonePoint);
+
+		if (!isValid) {
 			return false;
 		}
 		dragStartX = zonePoint.x;
@@ -719,7 +727,43 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		return true;
 	}
 
-	private boolean validateMove(Token leadToken, Set<GUID> tokenSet, ZonePoint point) {
+	private boolean validateMove(Token leadToken, Set<GUID> tokenSet, ZonePoint point, int dirx, int diry) {
+		if (MapTool.getPlayer().isGM()) {
+			return true;
+		}
+		boolean isBlocked = false;
+		Zone zone = renderer.getZone();
+		if (zone.hasFog()) {
+			// Check that the new position for each token is within the exposed area
+			Area fog = zone.getExposedArea();
+			if (fog == null) {
+				return true;
+			}
+			boolean useTokenExposedArea = MapTool.getServerPolicy().isUseIndividualFOW() && zone.getVisionType() != VisionType.OFF;
+			isBlocked = false;
+			int deltaX = point.x - leadToken.getX();
+			int deltaY = point.y - leadToken.getY();
+			Grid grid = zone.getGrid();
+			// Loop through all tokens.  As soon as one of them is blocked, stop processing and return false.
+			for (Iterator<GUID> iter = tokenSet.iterator(); !isBlocked && iter.hasNext();) {
+				GUID tokenGUID = iter.next();
+				Token token = zone.getToken(tokenGUID);
+				if (token == null) {
+					continue;
+				}
+				if (useTokenExposedArea) {
+					ExposedAreaMetaData meta = zone.getExposedAreaMetaData(token.getExposedAreaGUID());
+					fog = meta.getExposedAreaHistory();
+				}
+				Rectangle tokenSize = token.getBounds(zone);
+				Rectangle destination = new Rectangle(token.getX() + deltaX, token.getY() + deltaY, tokenSize.width, tokenSize.height);
+				isBlocked = !grid.validateMove(destination, dirx, diry, fog);
+			}
+		}
+		return !isBlocked;
+	}
+
+	private boolean validateMove_legacy(Token leadToken, Set<GUID> tokenSet, ZonePoint point) {
 		Zone zone = renderer.getZone();
 		if (MapTool.getPlayer().isGM()) {
 			return true;
@@ -755,8 +799,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				int counter = 0;
 				for (int dy = 0; dy < 3; dy++) {
 					for (int dx = 0; dx < 3; dx++) {
-//				doneWithCheck: for (int by = y + fudgeSize; by < y + tokenSize.height - fudgeSize; by += intervalY) {
-//					for (int bx = x + fudgeSize; bx < x + tokenSize.width - fudgeSize; bx += intervalX) {
 						int by = y + fudgeSize + (intervalY * dy / 3);
 						int bx = x + fudgeSize + (intervalX * dx / 3);
 						bounds.x = bx;
@@ -767,21 +809,16 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 						if (!MapTool.getServerPolicy().isUseIndividualFOW() || zone.getVisionType() == VisionType.OFF) {
 							if (fow.contains(bounds)) {
 								counter++;
-//								isVisible = true;
-//								break doneWithCheck; // could be 'return'...
 							}
 						} else {
 							ExposedAreaMetaData meta = zone.getExposedAreaMetaData(token.getExposedAreaGUID());
 							if (meta.getExposedAreaHistory().contains(bounds)) {
 								counter++;
-//								isVisible = true;
-//								break doneWithCheck; // could be 'return'...
 							}
 						}
-					} // bx
-				} // by
+					}
+				}
 				isVisible = (counter >= 6);
-//				System.out.println("Counter = " + counter);
 			}
 		}
 		return isVisible;
@@ -1135,16 +1172,15 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			dragOffsetX = 0;
 			dragOffsetY = 0;
 		}
-
 		ZonePoint zp = null;
-		if (tokenBeingDragged.isSnapToGrid()) {
-
-			CellPoint cp = renderer.getZone().getGrid().convert(new ZonePoint(dragStartX, dragStartY));
+		Grid grid = renderer.getZone().getGrid();
+		if (tokenBeingDragged.isSnapToGrid() && grid.getCapabilities().isSnapToGridSupported()) {
+			CellPoint cp = grid.convert(new ZonePoint(dragStartX, dragStartY));
 
 			cp.x += dx;
 			cp.y += dy;
 
-			zp = renderer.getZone().getGrid().convert(cp);
+			zp = grid.convert(cp);
 		} else {
 			Rectangle tokenSize = tokenBeingDragged.getBounds(renderer.getZone());
 
@@ -1153,9 +1189,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 			zp = new ZonePoint(x, y);
 		}
-
 		isMovingWithKeys = true;
-		handleDragToken(zp);
+		handleDragToken(zp, dx, dy);
 	}
 
 	private void setWaypoint() {
