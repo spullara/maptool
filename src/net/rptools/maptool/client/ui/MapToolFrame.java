@@ -324,11 +324,10 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		String version = "";
 		Image logo = null;
 		try {
-			credits = new String(FileUtil.loadResource(CREDITS_HTML), "utf-8");
+			credits = new String(FileUtil.loadResource(CREDITS_HTML), FileUtil.UTF_8);
 			version = MapTool.getVersion();
 			credits = credits.replace("%VERSION%", version);
 			logo = ImageUtil.getImage(MAPTOOL_LOGO_IMAGE);
-
 		} catch (Exception ioe) {
 			System.err.println(I18N.getText("msg.error.credits"));
 		}
