@@ -57,7 +57,7 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/maptool/lib/javadoc/ezmorph-1.0.5-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar" sourcepath="/Users/frank/.m2/repository/log4j/log4j/1.2.15/log4j-1.2.15-sources.jar"/>
 	<classpathentry kind="lib" path="lib/maptool.resource-1.0.b18.jar"/>
 	<classpathentry kind="lib" path="lib/jide-common-2.7.3.jar"/>
 	<classpathentry kind="lib" path="lib/jide-components-2.7.3.jar"/>

@@ -54,7 +54,8 @@ public class MessagePanel extends JPanel {
 	 * From ImageView
 	 */
 	private static final String IMAGE_CACHE_PROPERTY = "imageCache";
-	private static final Pattern URL_PATTERN = Pattern.compile("([^:]*)://([^/]*)/([^?]*)(?:\\?(.*))?");
+
+	public static final Pattern URL_PATTERN = Pattern.compile("([^:]*)://([^/]*)/([^?]*)(?:\\?(.*))?");
 
 	public MessagePanel() {
 		setLayout(new GridLayout());

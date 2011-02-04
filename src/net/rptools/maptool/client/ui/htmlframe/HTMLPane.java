@@ -8,7 +8,6 @@ import java.io.StringReader;
 import java.util.Enumeration;
 import java.util.Stack;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.JEditorPane;
 import javax.swing.ToolTipManager;
@@ -23,16 +22,19 @@ import javax.swing.text.html.StyleSheet;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.functions.MacroLinkFunction;
+import net.rptools.maptool.client.ui.commandpanel.MessagePanel;
 import net.rptools.parser.ParserException;
+
+import org.apache.log4j.Logger;
 
 @SuppressWarnings("serial")
 public class HTMLPane extends JEditorPane {
+	private static final Logger log = Logger.getLogger(HTMLPane.class);
 
 	private ActionListener actionListeners;
 	private final HTMLPaneEditorKit editorKit;
 
 	public HTMLPane() {
-//		registerEditorKitForContentType("text/html", "net.rptools.maptool.client.ui.htmlframe.HTMLPaneEditorKit");
 		editorKit = new HTMLPaneEditorKit(this);
 		setEditorKit(editorKit);
 		setContentType("text/html");
@@ -40,11 +42,14 @@ public class HTMLPane extends JEditorPane {
 
 		addHyperlinkListener(new HyperlinkListener() {
 			public void hyperlinkUpdate(HyperlinkEvent e) {
+				if (log.isDebugEnabled()) {
+					log.debug("Responding to hyperlink event: " + e.getEventType().toString() + " " + e.toString());
+				}
 				if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
 					if (e.getURL() != null) {
 						MapTool.showDocument(e.getURL().toString());
 					} else {
-						Matcher m = Pattern.compile("([^:]*)://([^/]*)/([^?]*)(?:\\?(.*))?").matcher(e.getDescription());
+						Matcher m = MessagePanel.URL_PATTERN.matcher(e.getDescription());
 						if (m.matches()) {
 							if (m.group(1).equalsIgnoreCase("macro")) {
 								MacroLinkFunction.getInstance().runMacroLink(e.getDescription());
@@ -54,9 +59,7 @@ public class HTMLPane extends JEditorPane {
 				}
 			}
 		});
-
 		ToolTipManager.sharedInstance().registerComponent(this);
-
 	}
 
 	public void addActionListener(ActionListener listener) {
@@ -79,6 +82,9 @@ public class HTMLPane extends JEditorPane {
 	 */
 	void doSubmit(String method, String action, String data) {
 		if (actionListeners != null) {
+			if (log.isDebugEnabled()) {
+				log.debug("submit event: method='" + method + "' action='" + action + "' data='" + data + "'");
+			}
 			actionListeners.actionPerformed(new FormActionEvent(method, action, data));
 		}
 	}
@@ -91,6 +97,9 @@ public class HTMLPane extends JEditorPane {
 	 */
 	private void doChangeTitle(String title) {
 		if (actionListeners != null) {
+			if (log.isDebugEnabled()) {
+				log.debug("changeTitle event: " + title);
+			}
 			actionListeners.actionPerformed(new ChangeTitleActionEvent(title));
 		}
 	}
@@ -105,6 +114,9 @@ public class HTMLPane extends JEditorPane {
 	 */
 	private void doRegisterMacro(String type, String link) {
 		if (actionListeners != null) {
+			if (log.isDebugEnabled()) {
+				log.debug("registerMacro event: type='" + type + "' link='" + link + "'");
+			}
 			actionListeners.actionPerformed(new RegisterMacroActionEvent(type, link));
 		}
 	}
@@ -119,6 +131,9 @@ public class HTMLPane extends JEditorPane {
 	 */
 	private void handleMetaTag(String name, String content) {
 		if (actionListeners != null) {
+			if (log.isDebugEnabled()) {
+				log.debug("metaTag found: name='" + name + "' content='" + content + "'");
+			}
 			actionListeners.actionPerformed(new MetaTagActionEvent(name, content));
 		}
 	}
@@ -134,7 +149,7 @@ public class HTMLPane extends JEditorPane {
 		HTMLEditorKit.Parser parse = editorKit.getParser();
 		try {
 			super.setText("");
-			Enumeration snames = style.getStyleNames();
+			Enumeration<?> snames = style.getStyleNames();
 			while (snames.hasMoreElements()) {
 				style.removeStyle(snames.nextElement().toString());
 			}
@@ -145,7 +160,9 @@ public class HTMLPane extends JEditorPane {
 		} catch (IOException e) {
 			// Do nothing, we should not get an io exception on string
 		}
-
+		if (log.isDebugEnabled()) {
+			log.debug("setting text in HTMLPane: " + text);
+		}
 		// We use ASCII control characters to mark off the rolls so that there's no limitation on what (printable) characters the output can include
 		text = text.replaceAll("\036([^\036\037]*)\037([^\036]*)\036", "<span class='roll' title='&#171; $1 &#187;'>$2</span>");
 		text = text.replaceAll("\036\01u\02([^\036]*)\036", "&#171; $1 &#187;");
@@ -154,7 +171,6 @@ public class HTMLPane extends JEditorPane {
 		// Auto inline expansion
 		text = text.replaceAll("(^|\\s)(https?://[\\w.%-/~?&+#=]+)", "$1<a href='$2'>$2</a>");
 		super.setText(text);
-
 	}
 
 	/**
@@ -190,7 +206,6 @@ public class HTMLPane extends JEditorPane {
 		public String getData() {
 			return data;
 		}
-
 	}
 
 	/**
@@ -241,7 +256,6 @@ public class HTMLPane extends JEditorPane {
 		public String getContent() {
 			return content;
 		}
-
 	}
 
 	/**
@@ -274,7 +288,6 @@ public class HTMLPane extends JEditorPane {
 		public String getMacro() {
 			return macro;
 		}
-
 	}
 
 	/**
@@ -316,6 +329,9 @@ public class HTMLPane extends JEditorPane {
 
 		@Override
 		public void handleError(String errorMsg, int pos) {
+			if (log.isTraceEnabled()) {
+				log.trace("handleError called in client.ui.htmlframe.HTMLPane.ParserCallBack: " + errorMsg);
+			}
 		}
 
 		/**
@@ -372,5 +388,4 @@ public class HTMLPane extends JEditorPane {
 			}
 		}
 	}
-
 }
