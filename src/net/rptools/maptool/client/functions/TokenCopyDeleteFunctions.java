@@ -96,7 +96,7 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 		case 1:
 			token = FindTokenFunctions.findToken(param.get(0).toString(), zoneName);
 			if (token == null) {
-				throw new ParserException(I18N.getText("macro.function.general.unknownTokenOnMap", COPY_FUNC, param.get(0), zoneName));
+				throw new ParserException(I18N.getText("macro.function.general.unknownTokenOnMap", COPY_FUNC, param.get(0).toString(), zoneName));
 			}
 			Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 			List<String> newTokens = new ArrayList<String>(numberCopies);

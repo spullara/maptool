@@ -53,7 +53,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 		Zone zone = zoneR.getZone();
 
 		/*
-		 * String type = getPropertyType()
+		 * String type = getPropertyType(String tokenId: currentToken())
 		 */
 		if (functionName.equals("getPropertyType")) {
 			if (parameters.size() > 1) {
@@ -64,7 +64,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 		}
 
 		/*
-		 * String empty = setPropertyType(String propTypeName, Token id: self)
+		 * String empty = setPropertyType(String propTypeName, String tokenId: currentToken())
 		 */
 		if (functionName.equals("setPropertyType")) {
 			if (parameters.size() < 1)
@@ -612,12 +612,15 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			if (parameters.size() > 2) {
 				throw new ParserException(I18N.getText("macro.function.general.tooManyParam", functionName, 2, parameters.size()));
 			}
+			boolean trusted = MapTool.getParser().isMacroTrusted();
 			Token token = getTokenFromParam(resolver, functionName, parameters, 1);
-			// Remove current owners
+			// Remove current owners, but if this macro is untrusted and the current player is an owner, keep the
+			// ownership there.
+			String myself = MapTool.getPlayer().getName();
 			token.clearAllOwners();
 			String s = parameters.get(0).toString();
 			if (StringUtil.isEmpty(s)) {
-				// Do nothing, since all ownership should be turned off for an empty string
+				// Do nothing when trusted, since all ownership should be turned off for an empty string used in such a macro.
 			} else {
 				Object json = JSONMacroFunctions.asJSON(parameters.get(0));
 				if (json != null && json instanceof JSONArray) {
@@ -628,6 +631,8 @@ public class TokenPropertyFunctions extends AbstractFunction {
 					token.addOwner(s);
 				}
 			}
+			if (!trusted)
+				token.addOwner(myself); // If not trusted we must have been in the owner list -- keep us there.
 			MapTool.serverCommand().putToken(zone.getId(), token);
 			zone.putToken(token);
 			return "";
@@ -875,7 +880,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			}
 			token = FindTokenFunctions.findToken(param.get(index).toString(), null);
 			if (token == null) {
-				throw new ParserException(I18N.getText("macro.function.general.unknownToken", functionName, param.get(index)));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", functionName, param.get(index).toString()));
 			}
 		} else {
 			token = res.getTokenInContext();

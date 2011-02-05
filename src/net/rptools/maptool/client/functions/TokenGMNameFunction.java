@@ -100,7 +100,7 @@ public class TokenGMNameFunction extends AbstractFunction {
 		if (args.size() == 1) {
 			token = FindTokenFunctions.findToken(args.get(0).toString(), null);
 			if (token == null) {
-				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "getGMName", args.get(0)));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "getGMName", args.get(0).toString()));
 			}
 		} else if (args.size() == 0) {
 			MapToolVariableResolver res = (MapToolVariableResolver) parser.getVariableResolver();
@@ -130,7 +130,7 @@ public class TokenGMNameFunction extends AbstractFunction {
 		if (args.size() == 2) {
 			token = FindTokenFunctions.findToken(args.get(1).toString(), null);
 			if (token == null) {
-				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "setGMName", args.get(0)));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "setGMName", args.get(1).toString()));
 			}
 		} else if (args.size() == 1) {
 			MapToolVariableResolver res = (MapToolVariableResolver) parser.getVariableResolver();
@@ -143,7 +143,6 @@ public class TokenGMNameFunction extends AbstractFunction {
 		} else {
 			throw new ParserException(I18N.getText("macro.function.general.tooManyParam", "setGMName", 2, args.size()));
 		}
-
 		token.setGMName(args.get(0).toString());
 		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 		MapTool.serverCommand().putToken(zone.getId(), token);
@@ -151,5 +150,4 @@ public class TokenGMNameFunction extends AbstractFunction {
 
 		return args.get(0);
 	}
-
 }

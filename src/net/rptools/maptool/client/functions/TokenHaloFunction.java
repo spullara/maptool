@@ -170,7 +170,7 @@ public class TokenHaloFunction extends AbstractFunction {
 			}
 			token = FindTokenFunctions.findToken(args.get(0).toString(), null);
 			if (token == null) {
-				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "getHalo", args.get(1)));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "getHalo", args.get(0).toString()));
 			}
 		} else if (args.size() == 0) {
 			MapToolVariableResolver res = (MapToolVariableResolver) parser.getVariableResolver();
@@ -181,9 +181,7 @@ public class TokenHaloFunction extends AbstractFunction {
 		} else {
 			throw new ParserException(I18N.getText("macro.function.general.tooManyParam", "getHalo", 1, args.size()));
 		}
-
 		return getHalo(token);
-
 	}
 
 	/**
@@ -220,7 +218,7 @@ public class TokenHaloFunction extends AbstractFunction {
 			}
 			token = FindTokenFunctions.findToken(args.get(1).toString(), null);
 			if (token == null) {
-				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "setHalo", args.get(1)));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "setHalo", args.get(1).toString()));
 			}
 		}
 		setHalo(token, value);

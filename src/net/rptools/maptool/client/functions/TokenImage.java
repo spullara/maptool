@@ -1,9 +1,9 @@
 /*
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
- *
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
@@ -40,9 +40,16 @@ public class TokenImage extends AbstractFunction {
 		TOKEN_HANDOUT(2);
 
 		int value;
-		imageType(int v) { value = v; }
-		final int getValue() { return value; }
+
+		imageType(int v) {
+			value = v;
+		}
+
+		final int getValue() {
+			return value;
+		}
 	};
+
 	public final static String SET_IMAGE = "setImage";
 	public final static String SET_PORTRAIT = "setTokenPortrait";
 	public final static String SET_HANDOUT = "setTokenHandout";
@@ -50,13 +57,12 @@ public class TokenImage extends AbstractFunction {
 	private TokenImage() {
 		super(0, 2, "getTokenImage", "getTokenPortrait", "getTokenHandout",
 				"setTokenImage", "setTokenPortrait", "setTokenHandout",
-				"getImage"
-		);
+				"getImage");
 	}
 
 	/**
 	 * Gets the TokenImage instance.
-	 *
+	 * 
 	 * @return the instance.
 	 */
 	public static TokenImage getInstance() {
@@ -122,7 +128,7 @@ public class TokenImage extends AbstractFunction {
 			}
 			token = findImageToken(args.get(0).toString(), "getImage");
 			if (token == null) {
-				throw new ParserException(I18N.getText("macro.function.general.unknownToken", functionName, args.get(0)));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", functionName, args.get(0).toString()));
 			}
 			if (args.size() > 1) {
 				size = (BigDecimal) args.get(1);
@@ -143,7 +149,6 @@ public class TokenImage extends AbstractFunction {
 				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", functionName));
 			}
 		}
-
 		StringBuilder assetId = new StringBuilder("asset://");
 		if (functionName.equals("getTokenImage")) {
 			if (token.getImageAssetId() == null) {
@@ -187,16 +192,16 @@ public class TokenImage extends AbstractFunction {
 			throw new ParserException(I18N.getText("macro.function.general.argumentTypeInvalid", func, 1, assetName));
 		}
 		switch (type) {
-		case TOKEN_IMAGE :
+		case TOKEN_IMAGE:
 			token.setImageAsset(null, new MD5Key(assetId));
 			break;
-		case TOKEN_PORTRAIT :
+		case TOKEN_PORTRAIT:
 			token.setPortraitImage(new MD5Key(assetId));
 			break;
-		case TOKEN_HANDOUT :
+		case TOKEN_HANDOUT:
 			token.setCharsheetImage(new MD5Key(assetId));
 			break;
-		default :
+		default:
 			throw new IllegalArgumentException("unknown image type " + type);
 		}
 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);

@@ -45,40 +45,35 @@ public class TokenSelectionFunctions extends AbstractFunction {
 	}
 
 	private void deselectTokens(List<Object> parameters) throws ParserException {
-
 		ZoneRenderer zr = MapTool.getFrame().getCurrentZoneRenderer();
 		Zone zone = zr.getZone();
 
 		// If no tokens are selected, don't bother with the rest
-		if(zr.getSelectedTokenSet() == null || zr.getSelectedTokenSet().isEmpty()){
+		if (zr.getSelectedTokenSet() == null || zr.getSelectedTokenSet().isEmpty()) {
 			return;
 		}
 		Collection<GUID> deselectGUIDs = new ArrayList<GUID>();
 
 		if (parameters == null || parameters.isEmpty()) {
-
 			// Deselect all currently selected tokens
 			deselectGUIDs.addAll(zr.getSelectedTokenSet());
 		} else if (parameters.size() == 1) {
-
 			// If no tokens are selected, don't do anything
-			String paramStr = parameters.get(0).toString();
-			Token t = zone.resolveToken(paramStr.trim());
+			String paramStr = parameters.get(0).toString().trim();
+			Token t = zone.resolveToken(paramStr);
 
 			if (t != null) {
 				deselectGUIDs.add(t.getId());
 			} else {
-				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "deselectTokens", paramStr.trim()));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "deselectTokens", paramStr));
 			}
 		} else if (parameters.size() == 2) {
 			// Either a JSON Array or a String List
-
 			String paramStr = parameters.get(0).toString();
 			String delim = parameters.get(1).toString();
 
 			if (delim.equalsIgnoreCase("json")) {
 				// A JSON Array was supplied
-
 				Object json = JSONMacroFunctions.convertToJSON(paramStr);
 				if (json instanceof JSONArray) {
 					for (Object o : (JSONArray) json) {
@@ -93,7 +88,6 @@ public class TokenSelectionFunctions extends AbstractFunction {
 				}
 			} else {
 				// String List
-
 				String[] strList = paramStr.split(delim);
 				for (String s : strList) {
 					Token t = zone.resolveToken(s.trim());
@@ -108,13 +102,12 @@ public class TokenSelectionFunctions extends AbstractFunction {
 			throw new ParserException(I18N.getText("macro.function.general.tooManyParam", "deselectTokens", 2, parameters.size()));
 		}
 		// Finally, loop through the deselect guids and deselect each token in turn
-		for (GUID deselectGUID : deselectGUIDs){
+		for (GUID deselectGUID : deselectGUIDs) {
 			zr.deselectToken(deselectGUID);
 		}
 	}
 
 	private void selectTokens(List<Object> parameters) throws ParserException {
-
 		ZoneRenderer zr = MapTool.getFrame().getCurrentZoneRenderer();
 		Zone zone = zr.getZone();
 		Collection<GUID> allGUIDs = new ArrayList<GUID>();
@@ -133,13 +126,12 @@ public class TokenSelectionFunctions extends AbstractFunction {
 			String paramStr = parameters.get(0).toString();
 			zr.clearSelectedTokens();
 			Token t = zone.resolveToken(paramStr);
-			if (t != null){
+			if (t != null) {
 				allGUIDs.add(t.getId());
 			} else {
 				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "selectTokens", paramStr));
 			}
 		} else if (parameters.size() == 2) {
-
 			String paramStr = parameters.get(0).toString();
 			String addOrReplace = parameters.get(1).toString();
 			boolean add = AbstractTokenAccessorFunction.getBooleanValue(addOrReplace);
@@ -156,7 +148,6 @@ public class TokenSelectionFunctions extends AbstractFunction {
 			} else {
 				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "selectTokens", paramStr));
 			}
-
 		} else if (parameters.size() == 3) {
 			// Either a JSON Array or a String List
 			String paramStr = parameters.get(0).toString();
@@ -171,7 +162,6 @@ public class TokenSelectionFunctions extends AbstractFunction {
 			}
 			if (delim.equalsIgnoreCase("json")) {
 				// A JSON Array was supplied
-
 				Object json = JSONMacroFunctions.convertToJSON(paramStr);
 				if (json instanceof JSONArray) {
 					for (Object o : (JSONArray) json) {
@@ -186,7 +176,6 @@ public class TokenSelectionFunctions extends AbstractFunction {
 				}
 			} else {
 				// String List
-
 				String[] strList = paramStr.split(delim);
 				for (String s : strList) {
 					Token t = zone.resolveToken(s.trim());

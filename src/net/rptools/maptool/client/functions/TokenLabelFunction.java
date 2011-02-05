@@ -86,7 +86,7 @@ public class TokenLabelFunction extends AbstractFunction {
 
 			token = FindTokenFunctions.findToken(args.get(0).toString(), null);
 			if (token == null) {
-				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "getLabel", args.get(0)));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "getLabel", args.get(0).toString()));
 			}
 		} else if (args.isEmpty()) {
 			MapToolVariableResolver res = (MapToolVariableResolver) parser.getVariableResolver();
@@ -120,7 +120,7 @@ public class TokenLabelFunction extends AbstractFunction {
 			}
 			token = FindTokenFunctions.findToken(args.get(1).toString(), null);
 			if (token == null) {
-				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "setLabel", args.get(1)));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "setLabel", args.get(1).toString()));
 			}
 		} else if (args.size() == 1) {
 			MapToolVariableResolver res = (MapToolVariableResolver) parser.getVariableResolver();

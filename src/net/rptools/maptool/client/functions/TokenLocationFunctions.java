@@ -50,26 +50,21 @@ public class TokenLocationFunctions extends AbstractFunction {
 
 	@Override
 	public Object childEvaluate(Parser parser, String functionName, List<Object> parameters) throws ParserException {
-
 		if (!MapTool.getParser().isMacroTrusted()) {
 			throw new ParserException(I18N.getText("macro.function.general.noPerm", functionName));
 		}
-
 		MapToolVariableResolver res = (MapToolVariableResolver) parser.getVariableResolver();
 
 		if (functionName.equals("getTokenX")) {
-			return BigDecimal.valueOf(getTokenLocation(res, parameters).x);
+			return BigDecimal.valueOf(getTokenLocation(res, functionName, parameters).x);
 		}
-
 		if (functionName.equals("getTokenY")) {
-			return BigDecimal.valueOf(getTokenLocation(res, parameters).y);
+			return BigDecimal.valueOf(getTokenLocation(res, functionName, parameters).y);
 		}
-
 		if (functionName.equals("getTokenDrawOrder")) {
 			Token token = getTokenFromParam(res, functionName, parameters, 0);
 			return BigDecimal.valueOf(token.getZOrder());
 		}
-
 		if (functionName.equals("setTokenDrawOrder")) {
 			Token token = getTokenFromParam(res, functionName, parameters, 1);
 			if (parameters.isEmpty()) {
@@ -84,31 +79,24 @@ public class TokenLocationFunctions extends AbstractFunction {
 			MapTool.getFrame().getCurrentZoneRenderer().flushLight();
 			return BigDecimal.valueOf(token.getZOrder());
 		}
-
 		if (functionName.equals("getDistance")) {
 			return getDistance(res, parameters);
 		}
-
 		if (functionName.equals("getDistanceToXY")) {
 			return getDistanceToXY(res, parameters);
 		}
-
 		if (functionName.equals("goto")) {
 			return gotoLoc(res, parameters);
 		}
-
 		if (functionName.equals("moveToken")) {
 			return moveToken(res, parameters);
 		}
-
 		if (functionName.equals("moveTokenToMap")) {
 			return tokenMoveMap(true, parameters);
 		}
-
 		if (functionName.equals("moveTokenFromMap")) {
 			return tokenMoveMap(false, parameters);
 		}
-
 		throw new ParserException(I18N.getText("macro.function.general.unknownFunction", functionName));
 	}
 
@@ -226,25 +214,23 @@ public class TokenLocationFunctions extends AbstractFunction {
 	 * @throws ParserException
 	 *             if an error occurs.
 	 */
-	private TokenLocation getTokenLocation(MapToolVariableResolver res, List<Object> args) throws ParserException {
-		Token token = getTokenFromParam(res, "getTokenLocation", args, 1);
+	private TokenLocation getTokenLocation(MapToolVariableResolver res, String functionName, List<Object> args) throws ParserException {
+		Token token = getTokenFromParam(res, functionName, args, 1);
 		boolean useDistancePerCell = true;
 
 		if (args.size() > 0) {
 			if (!(args.get(0) instanceof BigDecimal)) {
-				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "getTokenLocation", 1, args.get(0).toString()));
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 1, args.get(0).toString()));
 			}
 			BigDecimal val = (BigDecimal) args.get(0);
 			useDistancePerCell = val.equals(BigDecimal.ZERO) ? false : true;
 		}
-
 		TokenLocation loc = new TokenLocation();
 
 		if (useDistancePerCell) {
 			loc.x = token.getX();
 			loc.y = token.getY();
 			loc.z = token.getZOrder();
-
 		} else {
 			CellPoint cellPoint = getTokenCell(token);
 			int x = cellPoint.x;
@@ -621,7 +607,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 
 	/**
 	 * Gets the token from the specified index or returns the token in context. This method will check the list size
-	 * before trying to retrieve the token so it is safe to use for functions that have the token as a optional
+	 * before trying to retrieve the token so it is safe to use for functions that have the token as an optional
 	 * argument.
 	 * 
 	 * @param res
@@ -643,10 +629,9 @@ public class TokenLocationFunctions extends AbstractFunction {
 			if (!MapTool.getParser().isMacroTrusted()) {
 				throw new ParserException(I18N.getText("macro.function.general.noPermOther", functionName));
 			}
-
 			token = FindTokenFunctions.findToken(param.get(index).toString(), null);
 			if (token == null) {
-				throw new ParserException(I18N.getText("macro.function.general.unknownToken", functionName, param.get(index)));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", functionName, param.get(index).toString()));
 			}
 		} else {
 			token = res.getTokenInContext();
@@ -656,5 +641,4 @@ public class TokenLocationFunctions extends AbstractFunction {
 		}
 		return token;
 	}
-
 }

@@ -791,8 +791,6 @@ public class CampaignPropertiesDialog extends JDialog {
 				}
 			}
 		}
-//		String sights = "";
-//		cpd.commitSightMap(sights);
 		System.exit(1);
 	}
 }

@@ -91,7 +91,7 @@ public class TokenNameFunction extends AbstractFunction {
 			}
 			token = FindTokenFunctions.findToken(args.get(0).toString(), null);
 			if (token == null) {
-				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "getName", args.get(0)));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "getName", args.get(0).toString()));
 			}
 		} else if (args.size() == 0) {
 			MapToolVariableResolver res = (MapToolVariableResolver) parser.getVariableResolver();
@@ -125,7 +125,7 @@ public class TokenNameFunction extends AbstractFunction {
 			}
 			token = FindTokenFunctions.findToken(args.get(1).toString(), null);
 			if (token == null) {
-				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "setName", args.get(1)));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "setName", args.get(1).toString()));
 			}
 			if (args.get(0).toString().equals("")) {
 				throw new ParserException(I18N.getText("macro.function.tokenName.emptyTokenNameForbidden", "setName"));

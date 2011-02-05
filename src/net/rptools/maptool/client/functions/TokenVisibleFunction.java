@@ -143,7 +143,7 @@ public class TokenVisibleFunction extends AbstractFunction {
 		if (args.size() == 1) {
 			token = FindTokenFunctions.findToken(args.get(0).toString(), null);
 			if (token == null) {
-				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "getVisible", args.get(0)));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "getVisible", args.get(0).toString()));
 			}
 		} else if (args.size() == 0) {
 			MapToolVariableResolver res = (MapToolVariableResolver) parser.getVariableResolver();
@@ -175,7 +175,7 @@ public class TokenVisibleFunction extends AbstractFunction {
 		if (args.size() == 2) {
 			token = FindTokenFunctions.findToken(args.get(1).toString(), null);
 			if (token == null) {
-				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "setVisible", args.get(1)));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "setVisible", args.get(1).toString()));
 			}
 		} else if (args.size() == 1) {
 			MapToolVariableResolver res = (MapToolVariableResolver) parser.getVariableResolver();
@@ -203,7 +203,7 @@ public class TokenVisibleFunction extends AbstractFunction {
 		if (args.size() == 2) {
 			token = FindTokenFunctions.findToken(args.get(1).toString(), null);
 			if (token == null) {
-				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "setOwnerOnlyVisible", args.get(1)));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "setOwnerOnlyVisible", args.get(1).toString()));
 			}
 		} else if (args.size() == 1) {
 			MapToolVariableResolver res = (MapToolVariableResolver) parser.getVariableResolver();
@@ -229,7 +229,7 @@ public class TokenVisibleFunction extends AbstractFunction {
 		if (args.size() == 1) {
 			token = FindTokenFunctions.findToken(args.get(0).toString(), null);
 			if (token == null) {
-				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "getOwnerOnlyVisible", args.get(0)));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "getOwnerOnlyVisible", args.get(0).toString()));
 			}
 		} else if (args.size() == 0) {
 			MapToolVariableResolver res = (MapToolVariableResolver) parser.getVariableResolver();

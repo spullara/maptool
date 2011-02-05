@@ -130,7 +130,7 @@ public class TokenStateFunction extends AbstractFunction {
 
 			token = FindTokenFunctions.findToken(args.get(1).toString(), null);
 			if (token == null) {
-				return I18N.getText("macro.function.general.unknownToken", "getState", args.get(1));
+				return I18N.getText("macro.function.general.unknownToken", "getState", args.get(1).toString());
 			}
 		} else if (args.size() == 0) {
 			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "getState", 1, args.size()));
@@ -159,13 +159,12 @@ public class TokenStateFunction extends AbstractFunction {
 		Object val;
 
 		if (args.size() == 3) {
-
 			if (!MapTool.getParser().isMacroTrusted()) {
 				return I18N.getText("macro.function.general.noPermOther", "setState");
 			}
 			token = FindTokenFunctions.findToken(args.get(2).toString(), null);
 			if (token == null) {
-				return I18N.getText("macro.function.general.unknownToken", "setState", args.get(1));
+				return I18N.getText("macro.function.general.unknownToken", "setState", args.get(2).toString());
 			}
 		} else if (args.size() == 2) {
 			MapToolVariableResolver res = (MapToolVariableResolver) parser.getVariableResolver();
@@ -213,7 +212,7 @@ public class TokenStateFunction extends AbstractFunction {
 			}
 			token = FindTokenFunctions.findToken(args.get(1).toString(), null);
 			if (token == null) {
-				return I18N.getText("macro.function.general.unknownToken", "setAllStates", args.get(1));
+				return I18N.getText("macro.function.general.unknownToken", "setAllStates", args.get(1).toString());
 			}
 		} else if (args.size() == 0) {
 			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "setAllStates", 1, args.size()));
