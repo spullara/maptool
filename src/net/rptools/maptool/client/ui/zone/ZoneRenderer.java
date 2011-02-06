@@ -1247,18 +1247,16 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	 */
 	private void renderPlayerVisionOverlay(Graphics2D g, PlayerView view) {
 		Graphics2D g2 = (Graphics2D) g.create();
-		Area viewArea = new Area();
-		if (zone.getVisionType() != VisionType.OFF && MapTool.getServerPolicy().isUseIndividualFOW()) {
-			if (view.getTokens() != null) {
-				for (Token tok : view.getTokens()) {
-					ExposedAreaMetaData exposedMeta = zone.getExposedAreaMetaData(tok.getExposedAreaGUID());
-					viewArea.add(new Area(exposedMeta.getExposedAreaHistory()));
-				}
-			}
-		}
-		if (zone.hasFog() && (exposedFogArea != null)) {
+		if (zone.hasFog() && exposedFogArea != null) {
 			Area clip = new Area(new Rectangle(getSize().width, getSize().height));
 			if (zone.getVisionType() != VisionType.OFF && MapTool.getServerPolicy().isUseIndividualFOW()) {
+				Area viewArea = new Area();
+				if (view.getTokens() != null) {
+					for (Token tok : view.getTokens()) {
+						ExposedAreaMetaData exposedMeta = zone.getExposedAreaMetaData(tok.getExposedAreaGUID());
+						viewArea.add(new Area(exposedMeta.getExposedAreaHistory()));
+					}
+				}
 				clip.intersect(viewArea);
 			} else {
 				clip.intersect(exposedFogArea);
@@ -1295,10 +1293,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			currentTokenVisionArea.intersect(meta.getExposedAreaHistory());
 		}
 
-		String player = MapTool.getPlayer().getName();
 		boolean isOwner = AppUtil.playerOwns(tokenUnderMouse);
 		boolean tokenIsPC = tokenUnderMouse.getType() == Token.Type.PC;
 		boolean strictOwnership = MapTool.getServerPolicy() == null ? false : MapTool.getServerPolicy().useStrictTokenManagement();
+//		String player = MapTool.getPlayer().getName();
 //		System.err.print("tokenUnderMouse.ownedBy(" + player + "): " + isOwner);
 //		System.err.print(", tokenIsPC: " + tokenIsPC);
 //		System.err.print(", isGMView(): " + view.isGMView());

@@ -200,6 +200,7 @@ public class ZoneView implements ModelChangeListener {
 		SightType sight = MapTool.getCampaign().getSightType(token.getSightType());
 		// More sanity checks; maybe sight type removed from campaign after token set?
 		if (sight == null) {
+			// TODO Should we turn off the token's HasSight flag?  Would speed things up for later...
 			return null;
 		}
 		// Combine the player visible area with the available light sources
