@@ -391,7 +391,7 @@ public class AssetManager {
 		File newFile = File.createTempFile("remote", null, null);
 		try {
 			FileUtils.copyURLToFile(url, newFile);
-			if (newFile.exists() && newFile.length() < 20)
+			if (!newFile.exists() || newFile.length() < 20)
 				return null;
 			Asset temp = new Asset(FileUtil.getNameWithoutExtension(url), FileUtils.readFileToByteArray(newFile));
 			return temp;
