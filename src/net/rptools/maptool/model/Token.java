@@ -724,7 +724,7 @@ public class Token extends BaseModel {
 	 */
 	public void setName(String name) {
 		//Let's see if there is another Token with that name (only if Player is not GM)
-		if (!MapTool.getPlayer().isGM()) {
+		if (!MapTool.getPlayer().isGM() && !MapTool.getParser().isMacroTrusted()) {
 			Zone curZone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 			List<Token> tokensList = curZone.getTokens();
 
