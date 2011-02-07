@@ -891,16 +891,16 @@ public class Token extends BaseModel {
 		TokenFootprint footprint = getFootprint(grid);
 		Rectangle footprintBounds = footprint.getBounds(grid, grid.convert(new ZonePoint(getX(), getY())));
 
-		double width = footprintBounds.width;
-		double height = footprintBounds.height;
+		double w = footprintBounds.width;
+		double h = footprintBounds.height;
 
 		// Sizing
 		if (!isSnapToScale()) {
-			width = this.width * getScaleX();
-			height = this.height * getScaleY();
+			w = this.width * getScaleX();
+			h = this.height * getScaleY();
 		} else {
-			width = footprintBounds.width * footprint.getScale() * sizeScale;
-			height = footprintBounds.height * footprint.getScale() * sizeScale;
+			w = footprintBounds.width * footprint.getScale() * sizeScale;
+			h = footprintBounds.height * footprint.getScale() * sizeScale;
 		}
 		// Positioning
 		if (!isSnapToGrid()) {
@@ -909,15 +909,15 @@ public class Token extends BaseModel {
 		} else {
 			if (!isBackgroundStamp()) {
 				// Center it on the footprint
-				footprintBounds.x -= (width - footprintBounds.width) / 2;
-				footprintBounds.y -= (height - footprintBounds.height) / 2;
+				footprintBounds.x -= (w - footprintBounds.width) / 2;
+				footprintBounds.y -= (h - footprintBounds.height) / 2;
 			} else {
 //	        	footprintBounds.x -= zone.getGrid().getSize()/2;
 //	        	footprintBounds.y -= zone.getGrid().getSize()/2;
 			}
 		}
-		footprintBounds.width = (int) width; // perhaps make this a double
-		footprintBounds.height = (int) height;
+		footprintBounds.width = (int) w; // perhaps make this a double
+		footprintBounds.height = (int) h;
 
 		// Offset
 		footprintBounds.x += anchorX;

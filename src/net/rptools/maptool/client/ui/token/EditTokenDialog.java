@@ -22,6 +22,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,6 +73,7 @@ import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.model.Zone.Layer;
+import net.rptools.maptool.util.ImageManager;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -478,8 +480,11 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 
 		// IMAGE
 		if (!token.getImageAssetId().equals(getTokenIconPanel().getImageId())) {
+			BufferedImage image = ImageManager.getImageAndWait(getTokenIconPanel().getImageId());
 			MapToolUtil.uploadAsset(AssetManager.getAsset(getTokenIconPanel().getImageId()));
 			token.setImageAsset(null, getTokenIconPanel().getImageId()); // Default image for now
+			token.setWidth(image.getWidth(null));
+			token.setHeight(image.getHeight(null));
 		}
 
 		// PORTRAIT
