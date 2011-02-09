@@ -510,42 +510,6 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 
 	ScreenPoint p = new ScreenPoint(0, 0);
 
-	private ScreenPoint constrainImageRatio(int theta, ScreenPoint mouse, ScreenPoint tokenPoint, BufferedImage image) {
-		double ratio = image.getWidth() / (double) image.getHeight();
-
-		AffineTransform af;
-		af = AffineTransform.getTranslateInstance(-tokenPoint.x, -tokenPoint.y);
-		af.rotate(Math.toRadians(theta));
-		Point2D temp2;
-		Point2D temp1 = null;
-		try {
-			temp1 = new Point2D.Double(0, 0);
-			temp2 = af.transform(temp1, null); // convert ScreenPoint into coordinate relative to tokenPoint
-			System.out.println(temp1 + " = " + temp2);
-
-			temp1 = new Point2D.Double(100, 0);
-			temp2 = af.transform(temp1, null); // convert ScreenPoint into coordinate relative to tokenPoint
-			System.out.println(temp1 + " = " + temp2);
-
-			temp1 = new Point2D.Double(0, 100);
-			temp2 = af.transform(temp1, null); // convert ScreenPoint into coordinate relative to tokenPoint
-			System.out.println(temp1 + " = " + temp2);
-
-			temp1 = new Point2D.Double(mouse.x, mouse.y);
-			temp2 = af.inverseTransform(temp1, null); // convert coordinate relative to tokenPoint back into ScreenPoint
-			System.out.println(temp1 + " = " + temp2);
-
-			temp1.setLocation(temp2.getX(), -temp2.getX() / ratio);
-			temp2 = af.transform(temp1, null); // convert ScreenPoint into coordinate relative to tokenPoint
-
-			mouse = new ScreenPoint(temp2.getX() + tokenPoint.x, temp2.getY() + tokenPoint.y);
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		return mouse;
-	}
-
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		mouseX = e.getX();
@@ -562,69 +526,59 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 		}
 		if (isResizingToken) {
 			ScreenPoint sp = new ScreenPoint(mouseX + dragOffsetX, mouseY + dragOffsetY);
-			int keyModifiers = e.getModifiersEx();
 			BufferedImage image = ImageManager.getImage(tokenBeingResized.getImageAssetId());
-			ZonePoint tap = new ZonePoint(tokenBeingResized.getX(), tokenBeingResized.getY()); // tap = token anchor point, ie. upper-left corner
-			boolean isImageRotated = tokenBeingResized.hasFacing() && tokenBeingResized.getShape() == Token.TokenShape.TOP_DOWN && tokenBeingResized.getFacing() != -90;
 
-			// 'theta' is the rotation angle clockwise from the positive x-axis to compensate for the positive y-axis
-			// pointing downwards in zone space.  And an unrotated token has facing of -90.
-			int theta = -tokenBeingResized.getFacing() - 90;
-			double sinTheta = 0.0;
-			double cosTheta = 0.0;
-
-			if (SwingUtil.isControlDown(keyModifiers)) // snap size to grid
+			if (SwingUtil.isControlDown(e)) { // snap size to grid
 				sp = getNearestVertex(sp);
-			if (isImageRotated) {
-				// This block of code could be moved below, but I separated it because I wanted to determine the amount of
-				// rotation and constrain the image size when the Shift key is held down.  But we're not using an AffineTransform
-				// for this and spreading the math out into two places seems a bit ugly. :(
-				sinTheta = Math.sin(Math.toRadians(theta));
-				cosTheta = Math.cos(Math.toRadians(theta));
-
-				// can't handle snap to grid with rotated token when resizing because they have to be able to nudge.
-				if (tokenBeingResized.isSnapToGrid())
-					tokenBeingResized.setSnapToGrid(false);
-
-				// FIXME: Since the image is rotated, what does it do to the math to constrain the ratio?
-				// Normally, we would calculate the width/height ratio and apply that to one component of the mouse location.
-				// But if the image is rotated, that technique no longer makes any sense.
-				// For now we simply turn off any attempt to constrain the aspect ratio. :(
-				keyModifiers &= ~InputEvent.SHIFT_DOWN_MASK;
 			}
-			Rectangle footprintBounds = tokenBeingResized.getBounds(renderer.getZone());
+			boolean isRotated = tokenBeingResized.hasFacing() && tokenBeingResized.getShape() == Token.TokenShape.TOP_DOWN && tokenBeingResized.getFacing() != -90;
+			if (!isRotated && SwingUtil.isShiftDown(e)) { // lock aspect ratio -- broken for rotated images
+				ScreenPoint tokenPoint = ScreenPoint.fromZonePoint(renderer, tokenBeingResized.getX(), tokenBeingResized.getY());
 
-			if (SwingUtil.isShiftDown(keyModifiers)) { // lock aspect ratio
-				ScreenPoint rotationSP = ScreenPoint.fromZonePoint(renderer, tap.x + footprintBounds.width / 2, tap.y + footprintBounds.height / 2);
-				sp = constrainImageRatio(tokenBeingResized.getFacing() + 90, sp, rotationSP, image);
+				double ratio = image.getWidth() / (double) image.getHeight();
+				int dx = (int) (sp.x - tokenPoint.x);
+
+				sp.y = (int) (tokenPoint.y + (dx / ratio));
 			}
 			ZonePoint zp = sp.convertToZone(renderer);
 			p = ScreenPoint.fromZonePoint(renderer, zp);
 
-			boolean isObjectSnapToGrid = tokenBeingResized.isSnapToGrid() && !tokenBeingResized.isBackgroundStamp();
-			int newWidth = Math.max(1, (zp.x - tap.x) * (isObjectSnapToGrid ? 2 : 1));
-			int newHeight = Math.max(1, (zp.y - tap.y) * (isObjectSnapToGrid ? 2 : 1));
+			int newWidth = Math.max(1, (zp.x - tokenBeingResized.getX()) * (tokenBeingResized.isSnapToGrid() && !tokenBeingResized.isBackgroundStamp() ? 2 : 1));
+			int newHeight = Math.max(1, (zp.y - tokenBeingResized.getY()) * (tokenBeingResized.isSnapToGrid() && !tokenBeingResized.isBackgroundStamp() ? 2 : 1));
 
-			if (SwingUtil.isControlDown(keyModifiers) && isObjectSnapToGrid) {
+			if (SwingUtil.isControlDown(e) && tokenBeingResized.isSnapToGrid() && tokenBeingResized.isObjectStamp()) {
 				// Account for the 1/2 cell on each side of the stamp (since it's anchored in the center)
-				int size = renderer.getZone().getGrid().getSize();
-				newWidth += size;
-				newHeight += size;
+				newWidth += renderer.getZone().getGrid().getSize();
+				newHeight += renderer.getZone().getGrid().getSize();
 			}
-			// Take into account rotated stamps.
-			if (isImageRotated) {
+			// take into account rotated stamps
+			if (isRotated) {
 				// if we are beginning a new resize, reset the resizing variables.
 				if (!isResizingRotatedToken) {
 					isResizingRotatedToken = true;
-					preciseStampZonePoint = new Point2D.Double(tap.x, tap.y);
+					preciseStampZonePoint = new Point2D.Double(tokenBeingResized.getX(), tokenBeingResized.getY());
 					lastResizeZonePoint = new ZonePoint(zp.x, zp.y);
 				}
-				int changeX = (zp.x - lastResizeZonePoint.x) * (isObjectSnapToGrid ? 2 : 1);
-				int changeY = (zp.y - lastResizeZonePoint.y) * (isObjectSnapToGrid ? 2 : 1);
+				// theta is the rotation angle clockwise from the positive x-axis to compensate for the +ve y-axis
+				// pointing downwards in zone space and an unrotated token has facing of -90.
+				int theta = -tokenBeingResized.getFacing() - 90;
+
+				// can't handle snap to grid with rotated token when resizing because they have to be able to nudge.
+				if (tokenBeingResized.isSnapToGrid()) {
+					tokenBeingResized.setSnapToGrid(false);
+				}
+				Rectangle footprintBounds = tokenBeingResized.getBounds(renderer.getZone());
+
+				int changeX = (zp.x - lastResizeZonePoint.x) // zp = mouse location
+						* (tokenBeingResized.isSnapToGrid() && !tokenBeingResized.isBackgroundStamp() ? 2 : 1);
+				int changeY = (zp.y - lastResizeZonePoint.y) * (tokenBeingResized.isSnapToGrid() && !tokenBeingResized.isBackgroundStamp() ? 2 : 1);
+
+				double sinTheta = Math.sin(Math.toRadians(theta));
+				double cosTheta = Math.cos(Math.toRadians(theta));
 
 				// Calculate change in the stamp's height and width.
 				// Sine terms are negated from the standard rotation transform because the direction of theta
-				// is reversed (theta rotates clockwise).
+				// is reversed (theta rotates clockwise)
 				double dw = changeX * cosTheta + changeY * sinTheta;
 				double dh = -changeX * sinTheta + changeY * cosTheta;
 
@@ -632,14 +586,14 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				newHeight = (int) Math.max(1, footprintBounds.height + dh);
 
 				// Move the stamp to compensate for a change in the stamp's rotation anchor
-				// so that the stamp stays fixed in place while being resized.
+				// so that the stamp stays fixed in place while being resized
 
-				// Change in stamp's rotation anchor due to resize.
+				// change in stamp's rotation anchor due to resize
 				double dx = dw / 2;
 				double dy = dh / 2;
 
-				// Change in rotated stamp's anchor due to resize. currently only works perfectly for clockwise 0-90
-				// needs fine tuning for the three other quadrants to prevent the stamp from creeping.
+				// change in rotated stamp's anchor due to resize. currently only works perfectly for clockwise 0-90
+				// needs fine tuning for the three other quadrants to prevent the stamp from creeping
 				double dxRot = dx * cosTheta - dy * sinTheta;
 				double dyRot = dx * sinTheta + dy * cosTheta;
 
@@ -648,12 +602,12 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				double stampAdjustX = dxRot - dx;
 				double stampAdjustY = dyRot - dy;
 
-				// Prevent the stamp from moving around if a limit has been reached.
+				// prevent the stamp from moving around if a limit has been reached.
 				if (newWidth == 1 || newHeight == 1) {
 					newWidth = newWidth == 1 ? 1 : footprintBounds.width;
 					newHeight = newHeight == 1 ? 1 : footprintBounds.height;
 				} else {
-					// Remembering the precise location prevents the stamp from drifting due to rounding down to integer.
+					// remembering the precise location prevents the stamp from drifting due to rounding to int
 					preciseStampZonePoint.x += stampAdjustX;
 					preciseStampZonePoint.y += stampAdjustY;
 
