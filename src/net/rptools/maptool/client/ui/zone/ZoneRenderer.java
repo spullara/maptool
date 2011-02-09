@@ -2080,11 +2080,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	 */
 	private List<TokenLocation> getTokenLocations(Zone.Layer layer) {
 		List<TokenLocation> list = tokenLocationMap.get(layer);
-		if (list != null) {
-			return list;
+		if (list == null) {
+			list = new LinkedList<TokenLocation>();
+			tokenLocationMap.put(layer, list);
 		}
-		list = new LinkedList<TokenLocation>();
-		tokenLocationMap.put(layer, list);
 		return list;
 	}
 
@@ -2118,8 +2117,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		return gp.createTransformedShape(AffineTransform.getScaleInstance(getScale(), getScale()));
 	}
 
-	private final Rectangle last_one = new Rectangle();
-
 	protected void renderTokens(Graphics2D g, List<Token> tokenList, PlayerView view) {
 		Graphics2D clippedG = g;
 
@@ -2141,10 +2138,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		Set<GUID> tempVisTokens = new HashSet<GUID>();
 
 		// calculations
-		boolean calculateStacks = tokenList.size() > 0 && !tokenList.get(0).isStamp() && tokenStackMap == null;
+		boolean calculateStacks = !tokenList.isEmpty() && !tokenList.get(0).isStamp() && tokenStackMap == null;
 		if (calculateStacks) {
 			tokenStackMap = new HashMap<Token, Set<Token>>();
 		}
+		List<Token> tokenPostProcessing = new ArrayList<Token>(tokenList.size());
 		for (Token token : tokenList) {
 			timer.start("tokenlist-1");
 			if (token.isStamp() && isTokenMoving(token)) {
@@ -2387,6 +2385,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			timer.start("tokenlist-8");
 
 			// Halo (SQUARE)
+			// XXX Why are square halos drawn separately?!
 			if (token.hasHalo() && token.getShape() == Token.TokenShape.SQUARE) {
 				Stroke oldStroke = g.getStroke();
 				clippedG.setStroke(new BasicStroke(AppPreferences.getHaloLineWidth()));
@@ -2485,25 +2484,30 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			locg.dispose();
 			timer.stop("tokenlist-10");
 
+			// Keep track of which tokens have been drawn so we can perform post-processing on them later
+			// (such as selection borders and names/labels)
+			if (getActiveLayer().equals(token.getLayer()))
+				tokenPostProcessing.add(token);
+
 			// DEBUGGING
-//            ScreenPoint tmpsp = ScreenPoint.fromZonePoint(this, new ZonePoint(token.getX(), token.getY()));
-//            g.setColor(Color.red);
-//            g.drawLine(tmpsp.x, 0, tmpsp.x, getSize().height);
-//            g.drawLine(0, tmpsp.y, getSize().width, tmpsp.y);
+//			ScreenPoint tmpsp = ScreenPoint.fromZonePoint(this, new ZonePoint(token.getX(), token.getY()));
+//			g.setColor(Color.red);
+//			g.drawLine(tmpsp.x, 0, tmpsp.x, getSize().height);
+//			g.drawLine(0, tmpsp.y, getSize().width, tmpsp.y);
 		}
 		timer.start("tokenlist-12");
 
+		boolean useIF = MapTool.getServerPolicy().isUseIndividualFOW();
 		// Selection and labels
-		for (TokenLocation location : getTokenLocations(getActiveLayer())) {
+		for (Token token : tokenPostProcessing) {
+			TokenLocation location = tokenLocationCache.get(token);
 			Area bounds = location.bounds;
-			Rectangle2D origBounds = location.origBounds;
 
 			// TODO: This isn't entirely accurate as it doesn't account for the actual text
 			// to be in the clipping bounds, but I'll fix that later
 			if (!bounds.getBounds().intersects(clipBounds)) {
 				continue;
 			}
-			Token token = location.token;
 			Rectangle footprintBounds = token.getBounds(zone);
 
 			boolean isSelected = selectedTokenSet.contains(token.getId());
@@ -2519,7 +2523,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				if (!AppUtil.playerOwns(token)) {
 					selectedBorder = AppStyle.selectedUnownedBorder;
 				}
-				if (MapTool.getServerPolicy().isUseIndividualFOW() && !token.isStamp()) {
+				if (useIF && !token.isStamp()) {
 					Tool tool = MapTool.getFrame().getToolbox().getSelectedTool();
 					if (tool instanceof RectangleExposeTool // XXX Change to use marker interface such as ExposeTool?
 							|| tool instanceof OvalExposeTool || tool instanceof FreehandExposeTool || tool instanceof PolygonExposeTool)
@@ -2542,12 +2546,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				labelRenderingCache.remove(token.getId());
 			}
 
-			boolean showIVFOWLabel = MapTool.getServerPolicy().isUseIndividualFOW() && zoneView.getVisibleArea(view).intersects(footprintBounds);
-
 			// Token names and labels
-			if ((AppState.isShowTokenNames() || token == tokenUnderMouse)
-					&& (view.isGMView() || (AppUtil.tokenIsVisible(zone, token, view) && ((!MapTool.getServerPolicy().isUseIndividualFOW() && (visibleScreenArea == null || GraphicsUtil.intersects(
-							visibleScreenArea, bounds))) || showIVFOWLabel)))) {
+			boolean showCurrentTokenLabel = AppState.isShowTokenNames() || token == tokenUnderMouse;
+			if (showCurrentTokenLabel) {
 				GUID tokId = token.getId();
 				int offset = 3; // Keep it from tramping on the token border.
 				ImageLabel background;
@@ -2628,11 +2629,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			}
 		}
 
-//        // Markers
-//        for (TokenLocation location : getMarkerLocations() ) {
-//            BufferedImage stackImage = AppStyle.markerImage;
-//            g.drawImage(stackImage, location.bounds.getBounds().x, location.bounds.getBounds().y, null);
-//        }
+		// Markers
+//		for (TokenLocation location : getMarkerLocations()) {
+//			BufferedImage stackImage = AppStyle.markerImage;
+//			g.drawImage(stackImage, location.bounds.getBounds().x, location.bounds.getBounds().y, null);
+//		}
 
 		if (clippedG != g) {
 			clippedG.dispose();

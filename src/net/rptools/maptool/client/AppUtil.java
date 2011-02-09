@@ -159,11 +159,9 @@ public class AppUtil {
 	 * @return true if token is visible in zone given the view
 	 */
 	public static boolean tokenIsVisible(Zone zone, Token token, PlayerView view) {
-
 		if (view.isGMView()) {
 			return true;
 		}
-
 		return zone.isTokenVisible(token);
 	}
 }
