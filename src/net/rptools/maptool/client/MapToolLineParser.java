@@ -241,7 +241,7 @@ public class MapToolLineParser {
 		GM("g|gm", 0, 0), SELF("s|self", 0, 0), WHISPER("w|whisper", 1, -1),
 		// tooltip visibility
 		GMTT("gt|gmtt", 0, 0), SELFTT("st|selftt", 0, 0),
-//		WHISPER     ("wt|whispertt",  1, -1),
+		//		WHISPER     ("wt|whispertt",  1, -1),
 		// loops
 		COUNT("c|count", 1, 2, defaultLoopSep), FOR("for", 3, 5, BigDecimal.ONE, defaultLoopSep), FOREACH("foreach", 2, 4, defaultLoopSep, ","), WHILE("while", 1, 2, defaultLoopSep),
 		// branches
@@ -1804,13 +1804,12 @@ public class MapToolLineParser {
 	}
 
 	/**
-	 * Gets if the macro context is trusted or not.
+	 * Gets if the macro context is trusted or not. An empty context stack returns false.
 	 * 
 	 * @return if the macro context is trusted or not.
 	 */
 	public boolean isMacroTrusted() {
-
-		return contextStack.peek().isTrusted();
+		return !contextStack.isEmpty() && contextStack.peek().isTrusted();
 	}
 
 	/**
