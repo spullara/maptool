@@ -111,7 +111,7 @@
                       </at>
                       <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                      </super>
-                     <at name="id">embedded.28544220</at>
+                     <at name="id">embedded.157092432</at>
                      <at name="rowspecs">CENTER:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),CENTER:DEFAULT:NONE</at>
                      <at name="colspecs">FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE</at>
                      <at name="components">
@@ -294,7 +294,7 @@
                       </at>
                       <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                      </super>
-                     <at name="id">embedded.3687978</at>
+                     <at name="id">embedded.81249983</at>
                      <at name="rowspecs">CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:GROW(1.0),CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE</at>
                      <at name="colspecs">FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE</at>
                      <at name="components">
@@ -514,7 +514,7 @@
                            </at>
                            <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                           </super>
-                          <at name="id">embedded.5192610</at>
+                          <at name="id">embedded.1778998154</at>
                           <at name="rowspecs">CENTER:DEFAULT:NONE</at>
                           <at name="colspecs">FILL:DEFAULT:NONE</at>
                           <at name="components">
@@ -674,7 +674,7 @@
                            </at>
                            <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                           </super>
-                          <at name="id">embedded.10879377</at>
+                          <at name="id">embedded.724860211</at>
                           <at name="rowspecs">CENTER:DEFAULT:NONE</at>
                           <at name="colspecs">FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE</at>
                           <at name="components">
@@ -947,7 +947,7 @@
                       </at>
                       <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                      </super>
-                     <at name="id">embedded.2954177</at>
+                     <at name="id">embedded.12329707</at>
                      <at name="rowspecs">CENTER:DEFAULT:NONE,CENTER:DEFAULT:GROW(1.0),CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE</at>
                      <at name="colspecs">FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE</at>
                      <at name="components">
@@ -1227,7 +1227,7 @@ r# - Range of personal light.  The token will have a light source centered on th
                       </at>
                       <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                      </super>
-                     <at name="id">embedded.30856733</at>
+                     <at name="id">embedded.507538185</at>
                      <at name="rowspecs">CENTER:DEFAULT:NONE,CENTER:DEFAULT:GROW(1.0),CENTER:DEFAULT:GROW(1.0),CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE</at>
                      <at name="colspecs">FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE</at>
                      <at name="components">
@@ -1340,7 +1340,6 @@ r# - Range of personal light.  The token will have a light source centered on th
                             <at name="classname">javax.swing.JEditorPane</at>
                             <at name="properties">
                              <object classname="com.jeta.forms.store.support.PropertyMap">
-                              <at name="selectionEnd">1968</at>
                               <at name="text">&lt;html&gt;
   &lt;head&gt;
     
@@ -1356,14 +1355,43 @@ r# - Range of personal light.  The token will have a light source centered on th
         &lt;td&gt;
           &lt;pre&gt;Group name
 ----------
-name : &lt;i&gt;type&lt;/i&gt; &lt;i&gt;shape&lt;/i&gt; range
+name &lt;b&gt;:&lt;/b&gt; &lt;i&gt;type&lt;/i&gt; &lt;i&gt;shape&lt;/i&gt; range &lt;b&gt;#&lt;/b&gt;rrggbb
+name &lt;b&gt;:&lt;/b&gt; &lt;i&gt;type&lt;/i&gt; &lt;i&gt;shape&lt;/i&gt; &lt;b&gt;OWNER&lt;/b&gt; range &lt;b&gt;#&lt;/b&gt;rrggbb
+name &lt;b&gt;:&lt;/b&gt; &lt;i&gt;type&lt;/i&gt; &lt;i&gt;shape&lt;/i&gt; &lt;b&gt;GM&lt;/b&gt; range &lt;b&gt;#&lt;/b&gt;rrggbb
 &amp;lt;blank line&amp;gt;&lt;/pre&gt;
         &lt;/td&gt;
       &lt;/tr&gt;
     &lt;/table&gt;
-    Define groups of light types with a line to indicate the group name 
-    followed by one or more &lt;b&gt;name&lt;/b&gt; definitions. End a group with a blank 
-    line. Lines that start with a &amp;quot;-&amp;quot; are considered comments and are ignored.
+    Define groups of light types with a line of text to indicate the group 
+    name followed by one or more &lt;b&gt;name&lt;/b&gt; definitions. End a group with a 
+    blank line. All text is case-insensitive. Lines that start with a &amp;quot;-&amp;quot; are 
+    considered comments and are ignored. The group name becomes an entry on 
+    the token&apos;s popup menu under the &lt;b&gt;Light Sources&lt;/b&gt; element, and 
+    individual light source definitions become sub-entries. Group names are 
+    displayed in sorted order, and the sub-entries are alphabetically sorted 
+    as well.
+
+    &lt;p&gt;
+      &lt;b&gt;name:&lt;/b&gt; A user-visible name for light definition.&lt;br&gt;&lt;b&gt;type:&lt;/b&gt; 
+      An optional type for the light. Currently only &lt;b&gt;aura&lt;/b&gt; is valid. 
+      (See below for a description of auras.)&lt;br&gt;&lt;b&gt;shape:&lt;/b&gt; An optional 
+      shape for the light emanation. Can be &lt;b&gt;circle&lt;/b&gt; (default), &lt;b&gt;square&lt;/b&gt;, 
+      or &lt;b&gt;cone&lt;/b&gt; (cones also have an &lt;b&gt;arc=&lt;i&gt;angle&lt;/i&gt;&lt;/b&gt; field). 
+      Shapes apply from the point they are included in the definition until 
+      the end of the definition or until another shape is specified. This 
+      means multiple light shapes can be created under a single name and 
+      turned on or off as a unit.&lt;br&gt;&lt;b&gt;range:&lt;/b&gt; A distance measured in map 
+      units (defined when the map is created). Units are measured from the 
+      centerpoint of the grid cell, hence the extra 2 &amp;#189; feet added in the 
+      below example to make neat squares. Can have an optional &lt;i&gt;#rrggbb&lt;/i&gt; 
+      hex color component appended to it as per typical CSS rules.&lt;br&gt;&lt;b&gt;OWNER&lt;/b&gt;, 
+      &lt;b&gt;GM:&lt;/b&gt; An optional &lt;b&gt;owner&lt;/b&gt; or &lt;b&gt;gm&lt;/b&gt; indicates a light 
+      source visible only to the owner of the token that has the light source 
+      attached, or the GM. The GM sees all light sources even if attached to a 
+      player&apos;s token.
+    &lt;/p&gt;
+    &lt;hr&gt;
+    
 
     &lt;p&gt;
       &lt;b&gt;Example:&lt;/b&gt;
@@ -1374,35 +1402,33 @@ name : &lt;i&gt;type&lt;/i&gt; &lt;i&gt;shape&lt;/i&gt; range
           &amp;#160;&amp;#160;&amp;#160;&amp;#160;
         &lt;/td&gt;
         &lt;td&gt;
-          &lt;pre&gt;D20 - 5&apos; square grid
+          &lt;pre&gt;Sample Lights - 5&apos; square grid
 ----
 Candle - 5 : 7.5 12.5#000000 
 Lamp - 15 : 17.5 32.5#000000 
 Torch - 20 : 22.5 42.5#000000 
 Lantern, bullseye - 60 : cone arc=60 62.5 122.5#000000 
+Lantern, bullseye (leaks light) - 60 : cone arc=60 62.5 122.5#000000 circle 2.5#000000
+Nightvision goggles - 40 : cone arc=30 owner 42.5#00e000 
 &amp;lt;blank line&amp;gt;&lt;/pre&gt;
         &lt;/td&gt;
       &lt;/tr&gt;
     &lt;/table&gt;
-    &lt;b&gt;name&lt;/b&gt; A user-visible name for light definition.&lt;br&gt;&lt;b&gt;type&lt;/b&gt; An 
-    optional type for the light. Currently only &lt;b&gt;aura&lt;/b&gt; is valid. See 
-    below for a description of auras.&lt;br&gt;&lt;b&gt;shape&lt;/b&gt; An optional shape for 
-    the light emanation. Can be &lt;b&gt;circle&lt;/b&gt; (default), &lt;b&gt;square&lt;/b&gt;, or &lt;b&gt;cone&lt;/b&gt; 
-    (cones also have an &lt;b&gt;arc=&lt;i&gt;angle&lt;/i&gt;&lt;/b&gt; field). Shapes apply from the 
-    point they are included in the definition until the end of the definition 
-    or another shape is specified.&lt;br&gt;&lt;b&gt;range&lt;/b&gt; A distance measured in map 
-    units (defined when the map is created). Can have an optional &lt;i&gt;#rrggbb&lt;/i&gt; 
-    hex color component appended to it.
+    &lt;hr&gt;
+    
 
     &lt;p&gt;
       &lt;b&gt;Auras:&lt;/b&gt;
     &lt;/p&gt;
     &lt;p&gt;
       To create an aura, put the keyword &lt;b&gt;aura&lt;/b&gt; at the beginning of the 
-      defintion. Auras radiate a colored area and interact with the vision 
-      blocking layer, but do not actually cast any visible light. GM-only 
-      auras are only visible by clients logged into the server as GM. They 
-      remain visible even when the map is in &lt;i&gt;Show As Player&lt;/i&gt; mode.
+      definition. Auras radiate a colored area and interact with the vision 
+      blocking layer (i.e. are blocked by VBL), but do not actually cast any 
+      visible light and therefore do not expose any fog-of-war. GM-only auras 
+      are only visible by clients logged into the server as GM. They remain 
+      visible even when the map is in &lt;i&gt;Show As Player&lt;/i&gt; mode. Owner-only 
+      auras are only visible to the player who owns the token they are 
+      attached to and are always visible to the GM.
     &lt;/p&gt;
     &lt;p&gt;
       In the following example, the GM-only auras are red and the player auras 
@@ -1414,7 +1440,7 @@ Lantern, bullseye - 60 : cone arc=60 62.5 122.5#000000
           &amp;#160;&amp;#160;&amp;#160;&amp;#160;
         &lt;/td&gt;
         &lt;td&gt;
-          &lt;pre&gt;Auras
+          &lt;pre&gt;Sample Auras - 5&apos; square grid
 ----
 Aura red 5 : aura square GM 2.5#ff0000
 Aura red 10 : aura GM 7.5#ff0000
@@ -1432,7 +1458,11 @@ Aura Player Also 10 : aura square 7.5#0000ff&lt;/pre&gt;
 &lt;/html&gt;
 </at>
                               <at name="scrollableTracksViewportWidth">true</at>
+                              <at name="height">760</at>
                               <at name="width">1023</at>
+                              <at name="name">lightHelp</at>
+                              <at name="background" object="color">238,238,238</at>
+                              <at name="autoscrolls">false</at>
                               <at name="contentType">text/html</at>
                               <at name="scollBars">
                                <object classname="com.jeta.forms.store.properties.ScrollBarsProperty">
@@ -1462,12 +1492,6 @@ Aura Player Also 10 : aura square 7.5#0000ff&lt;/pre&gt;
                                 </at>
                                </object>
                               </at>
-                              <at name="editable">false</at>
-                              <at name="height">594</at>
-                              <at name="background" object="color">238,238,238</at>
-                              <at name="name">lightHelp</at>
-                              <at name="autoscrolls">false</at>
-                              <at name="selectionStart">1968</at>
                               <at name="border">
                                <object classname="com.jeta.forms.store.properties.CompoundBorderProperty">
                                 <super classname="com.jeta.forms.store.properties.BorderProperty">
@@ -1488,6 +1512,7 @@ Aura Player Also 10 : aura square 7.5#0000ff&lt;/pre&gt;
                                 </at>
                                </object>
                               </at>
+                              <at name="editable">false</at>
                              </object>
                             </at>
                            </object>
@@ -1619,7 +1644,7 @@ Aura Player Also 10 : aura square 7.5#0000ff&lt;/pre&gt;
                       </at>
                       <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                      </super>
-                     <at name="id">embedded.29561818</at>
+                     <at name="id">embedded.1427131815</at>
                      <at name="rowspecs">CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:4DLU:NONE,FILL:DEFAULT:GROW(1.0),CENTER:DEFAULT:NONE</at>
                      <at name="colspecs">FILL:DEFAULT:NONE,RIGHT:DEFAULT:NONE,FILL:4DLU:NONE,FILL:DEFAULT:NONE,FILL:8DLU:NONE,RIGHT:DEFAULT:NONE,FILL:4DLU:NONE,FILL:25PX:NONE,FILL:8DLU:NONE,RIGHT:DEFAULT:NONE,FILL:4DLU:NONE,FILL:50PX:NONE,FILL:8DLU:NONE,RIGHT:DEFAULT:NONE,FILL:4DLU:NONE,FILL:50PX:NONE,FILL:0PX:GROW(1.0),FILL:4DLU:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE</at>
                      <at name="components">
@@ -3026,7 +3051,7 @@ Aura Player Also 10 : aura square 7.5#0000ff&lt;/pre&gt;
                            </at>
                            <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                           </super>
-                          <at name="id">embedded.24571577</at>
+                          <at name="id">embedded.388416933</at>
                           <at name="rowspecs">TOP:DEFAULT:NONE,CENTER:4DLU:NONE,CENTER:DEFAULT:NONE,CENTER:4DLU:NONE,CENTER:DEFAULT:NONE,CENTER:4DLU:NONE,CENTER:DEFAULT:NONE,CENTER:4DLU:NONE,CENTER:DEFAULT:NONE</at>
                           <at name="colspecs">FILL:DEFAULT:NONE</at>
                           <at name="components">
@@ -3434,7 +3459,7 @@ Aura Player Also 10 : aura square 7.5#0000ff&lt;/pre&gt;
                            </at>
                            <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                           </super>
-                          <at name="id">embedded.29120938</at>
+                          <at name="id">embedded.1300800391</at>
                           <at name="rowspecs">CENTER:DEFAULT:NONE</at>
                           <at name="colspecs">FILL:0PX:GROW(1.0),FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:4DLU:NONE,FILL:0PX:GROW(1.0)</at>
                           <at name="components">
@@ -3706,7 +3731,7 @@ Aura Player Also 10 : aura square 7.5#0000ff&lt;/pre&gt;
                            </at>
                            <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                           </super>
-                          <at name="id">embedded.24338308</at>
+                          <at name="id">embedded.297240915</at>
                           <at name="rowspecs">CENTER:DEFAULT:NONE</at>
                           <at name="colspecs">FILL:DEFAULT:NONE</at>
                           <at name="components">
@@ -3728,7 +3753,7 @@ Aura Player Also 10 : aura square 7.5#0000ff&lt;/pre&gt;
                                 </at>
                                 <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                                </super>
-                               <at name="id">embedded.26412561</at>
+                               <at name="id">embedded.357015919</at>
                                <at name="rowspecs">CENTER:DEFAULT:NONE</at>
                                <at name="colspecs">FILL:DEFAULT:NONE,FILL:8DLU:NONE,FILL:DEFAULT:NONE,FILL:8DLU:NONE,FILL:DEFAULT:NONE</at>
                                <at name="components">
@@ -4234,7 +4259,7 @@ Aura Player Also 10 : aura square 7.5#0000ff&lt;/pre&gt;
                       </at>
                       <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                      </super>
-                     <at name="id">embedded.10231596</at>
+                     <at name="id">embedded.182228245</at>
                      <at name="rowspecs">FILL:DEFAULT:GROW(1.0)</at>
                      <at name="colspecs">FILL:DEFAULT:GROW(1.0)</at>
                      <at name="components">
@@ -4256,7 +4281,7 @@ Aura Player Also 10 : aura square 7.5#0000ff&lt;/pre&gt;
                            </at>
                            <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                           </super>
-                          <at name="id">embedded.13863997</at>
+                          <at name="id">embedded.612299867</at>
                           <at name="rowspecs">CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,FILL:DEFAULT:NONE,CENTER:4DLU:NONE,FILL:DEFAULT:GROW(1.0),CENTER:DEFAULT:NONE</at>
                           <at name="colspecs">FILL:DEFAULT:NONE,RIGHT:DEFAULT:NONE,FILL:4DLU:NONE,FILL:DEFAULT:NONE,FILL:8DLU:NONE,RIGHT:DEFAULT:NONE,FILL:4DLU:NONE,FILL:25PX:NONE,FILL:8DLU:NONE,RIGHT:DEFAULT:NONE,FILL:4DLU:NONE,FILL:50PX:NONE,FILL:8DLU:NONE,RIGHT:DEFAULT:NONE,FILL:4DLU:NONE,FILL:50PX:NONE,FILL:0PX:GROW(1.0),FILL:4DLU:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE</at>
                           <at name="components">
@@ -5425,7 +5450,7 @@ Aura Player Also 10 : aura square 7.5#0000ff&lt;/pre&gt;
                                 </at>
                                 <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                                </super>
-                               <at name="id">embedded.12476680</at>
+                               <at name="id">embedded.630354549</at>
                                <at name="rowspecs">TOP:DEFAULT:NONE,CENTER:4DLU:NONE,CENTER:DEFAULT:NONE,CENTER:4DLU:NONE,CENTER:DEFAULT:NONE,CENTER:4DLU:NONE,CENTER:DEFAULT:NONE,CENTER:4DLU:NONE,CENTER:DEFAULT:NONE</at>
                                <at name="colspecs">FILL:DEFAULT:NONE</at>
                                <at name="components">
@@ -5833,7 +5858,7 @@ Aura Player Also 10 : aura square 7.5#0000ff&lt;/pre&gt;
                                 </at>
                                 <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                                </super>
-                               <at name="id">embedded.20142982</at>
+                               <at name="id">embedded.260797080</at>
                                <at name="rowspecs">CENTER:DEFAULT:NONE</at>
                                <at name="colspecs">FILL:0PX:GROW(1.0)</at>
                                <at name="components">
@@ -5991,7 +6016,7 @@ Aura Player Also 10 : aura square 7.5#0000ff&lt;/pre&gt;
                                 </at>
                                 <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                                </super>
-                               <at name="id">embedded.4861396</at>
+                               <at name="id">embedded.1877511295</at>
                                <at name="rowspecs">CENTER:DEFAULT:NONE</at>
                                <at name="colspecs">FILL:DEFAULT:NONE</at>
                                <at name="components">
@@ -6013,7 +6038,7 @@ Aura Player Also 10 : aura square 7.5#0000ff&lt;/pre&gt;
                                      </at>
                                      <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                                     </super>
-                                    <at name="id">embedded.8129857</at>
+                                    <at name="id">embedded.1156331114</at>
                                     <at name="rowspecs">CENTER:DEFAULT:NONE</at>
                                     <at name="colspecs">FILL:DEFAULT:NONE,FILL:8DLU:NONE,FILL:DEFAULT:NONE,FILL:8DLU:NONE,FILL:DEFAULT:NONE</at>
                                     <at name="components">
@@ -6391,7 +6416,7 @@ Aura Player Also 10 : aura square 7.5#0000ff&lt;/pre&gt;
                                 </at>
                                 <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                                </super>
-                               <at name="id">embedded.13008985</at>
+                               <at name="id">embedded.784920740</at>
                                <at name="rowspecs">TOP:DEFAULT:NONE,CENTER:4DLU:NONE,CENTER:DEFAULT:NONE,CENTER:4DLU:NONE,CENTER:DEFAULT:NONE,CENTER:4DLU:NONE,CENTER:DEFAULT:NONE,CENTER:4DLU:NONE,CENTER:DEFAULT:NONE</at>
                                <at name="colspecs">FILL:DEFAULT:NONE</at>
                                <at name="components">
@@ -6859,7 +6884,7 @@ Aura Player Also 10 : aura square 7.5#0000ff&lt;/pre&gt;
                                 </at>
                                 <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                                </super>
-                               <at name="id">embedded.30314629</at>
+                               <at name="id">embedded.1944239527</at>
                                <at name="rowspecs">FILL:DEFAULT:GROW(1.0),CENTER:DEFAULT:NONE</at>
                                <at name="colspecs">FILL:DEFAULT:NONE,FILL:4DLU:NONE,FILL:DEFAULT:GROW(1.0)</at>
                                <at name="components">
@@ -7386,7 +7411,7 @@ Aura Player Also 10 : aura square 7.5#0000ff&lt;/pre&gt;
          </at>
          <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
         </super>
-        <at name="id">embedded.31691786</at>
+        <at name="id">embedded.88615143</at>
         <at name="rowspecs">CENTER:DEFAULT:NONE</at>
         <at name="colspecs">FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE</at>
         <at name="components">
