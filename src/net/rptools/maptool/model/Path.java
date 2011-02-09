@@ -49,6 +49,16 @@ public class Path<T extends AbstractPoint> {
 		return waypointList.get(waypointList.size() - 1);
 	}
 
+	/**
+	 * Returns the last waypoint if there is one, or the last T point if there is not.
+	 * 
+	 * @return a non-<code>null</code> location
+	 */
+	public T getLastJunctionPoint() {
+		T temp = getLastWaypoint();
+		return temp != null ? temp : cellList.get(cellList.size() - 1);
+	}
+
 	public Path<T> derive(int cellOffsetX, int cellOffsetY) {
 		Path<T> path = new Path<T>();
 		for (T cp : cellList) {
