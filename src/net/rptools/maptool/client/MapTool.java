@@ -1241,11 +1241,15 @@ public class MapTool {
 			if (img != null)
 				setDockIconImage.invoke(appl, new Object[] { img });
 
-			Method setDockIconBadge = appl.getClass().getDeclaredMethod("setDockIconBadge", new Class[] { java.lang.String.class });
-			String vers = getVersion();
-			vers = vers.substring(vers.length() - 2);
-			vers = vers.replaceAll("[^0-9]", "0"); // Convert all non-digits to zeroes
-			setDockIconBadge.invoke(appl, new Object[] { vers });
+			if (MapToolUtil.isDebugEnabled()) {
+				// For some reason Mac users don't like the dock badge icon.  But from a development standpoint I like seeing the
+				// version number in the dock bar.  So we'll only include it when running with MAPTOOL_DEV on the command line.
+				Method setDockIconBadge = appl.getClass().getDeclaredMethod("setDockIconBadge", new Class[] { java.lang.String.class });
+				String vers = getVersion();
+				vers = vers.substring(vers.length() - 2);
+				vers = vers.replaceAll("[^0-9]", "0"); // Convert all non-digits to zeroes
+				setDockIconBadge.invoke(appl, new Object[] { vers });
+			}
 		} catch (Exception e) {
 			log.info("Cannot find/invoke methods on com.apple.eawt.Application; use -X command line options to set dock bar attributes", e);
 		}
