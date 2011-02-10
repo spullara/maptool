@@ -597,7 +597,10 @@ public class MapTool {
 				}
 			});
 			profilingNoteFrame.setSize(profilingNoteFrame.getPreferredSize());
-			SwingUtil.centerOver(profilingNoteFrame, clientFrame);
+			// It's possible that the SelectionPanel may cause text to be added to the NoteFrame, so it
+			// can happen before MapTool.initialize() has had a chance to init the clientFrame.
+			if (clientFrame != null)
+				SwingUtil.centerOver(profilingNoteFrame, clientFrame);
 		}
 		return profilingNoteFrame;
 	}
