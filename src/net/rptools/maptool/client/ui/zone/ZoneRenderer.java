@@ -3203,7 +3203,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				CellPoint cp = walker.getLastPoint();
 				return getZone().getGrid().convert(cp);
 			} else {
-				return gridlessPath.getLastWaypoint();
+				return gridlessPath.getLastJunctionPoint();
 			}
 		}
 
