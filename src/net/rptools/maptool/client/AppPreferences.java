@@ -12,6 +12,7 @@ package net.rptools.maptool.client;
 
 import java.awt.Color;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -24,8 +25,10 @@ import net.rptools.maptool.model.GridFactory;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 
-public class AppPreferences {
+import org.apache.log4j.Logger;
 
+public class AppPreferences {
+	private static final Logger log = Logger.getLogger(AppPreferences.class);
 	private static Preferences prefs = Preferences.userRoot().node(AppConstants.APP_NAME + "/prefs");
 
 	private static final String KEY_ASSET_ROOTS = "assetRoots";
@@ -780,7 +783,20 @@ public class AppPreferences {
 	public static void setMruCampaigns(List<File> mruCampaigns) {
 		StringBuilder combined = new StringBuilder("");
 		for (ListIterator<File> iter = mruCampaigns.listIterator(); iter.hasNext();) {
-			combined.append(iter.next().getPath());
+			File file = iter.next();
+			String path = null;
+			try {
+				path = file.getCanonicalPath();
+			} catch (IOException e) {
+				// Probably pretty rare, but we want to know about it
+				if (log.isInfoEnabled())
+					log.info("unexpected during file.getCanonicalPath()", e); // $NON-NLS-1$
+				path = file.getPath();
+			}
+			// It's important that '%3A' is done last.  Note that the pathSeparator may not be a colon on
+			// the current platform, but it doesn't matter since it will be reconverted when read back in again.
+			// THink of the '%3A' as a symbol of the separator, not an encoding of the character.
+			combined.append(path.replaceAll("%", "%25").replaceAll(File.pathSeparator, "%3A"));
 			combined.append(File.pathSeparator);
 		}
 		prefs.put(KEY_MRU_CAMPAIGNS, combined.toString());
@@ -790,6 +806,8 @@ public class AppPreferences {
 		List<File> mruCampaigns = new ArrayList<File>();
 		String combined = prefs.get(KEY_MRU_CAMPAIGNS, null);
 		if (combined != null) {
+			// It's important that '%3A' is done first
+			combined = combined.replaceAll("%3A", File.pathSeparator).replaceAll("%25", "%");
 			String[] all = combined.split(File.pathSeparator);
 			for (int i = 0; i < all.length; i++)
 				mruCampaigns.add(new File(all[i]));
