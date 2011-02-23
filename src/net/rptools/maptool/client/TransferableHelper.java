@@ -14,23 +14,23 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.io.PrintStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 
-import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.transferable.FileTransferableHandler;
@@ -43,6 +43,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.util.PersistenceUtil;
+import net.rptools.maptool.util.StringUtil;
 
 import org.apache.log4j.Logger;
 
@@ -62,25 +63,90 @@ import org.apache.log4j.Logger;
 public class TransferableHelper extends TransferHandler {
 	private static final Logger log = Logger.getLogger(TransferableHelper.class);
 
-	/** URL to an image */
+	/**
+	 * <b>text/uri-list; class=java.lang.String</b>
+	 * <p>
+	 * This is a JRE fix on Linux; the JRE <i>should</i> be providing DataFlavor.javaFileListFlavor but doesn't. :(
+	 */
 	private static final DataFlavor URI_LIST_FLAVOR = new DataFlavor("text/uri-list; class=java.lang.String", "Image"); //$NON-NLS-1$
-	private static final DataFlavor URL_FLAVOR = new DataFlavor("text/plain; class=java.lang.String", "Image"); //$NON-NLS-1$
+	/**
+	 * <b>application/x-java-url; class=java.net.URL</b>
+	 * <p>
+	 * The best type of object to get is this one -- a URL -- since the representation of URLs is universal
+	 */
+	private static final DataFlavor URL_FLAVOR_URI = new DataFlavor("application/x-java-url; class=java.net.URL", "Image"); //$NON-NLS-1$
+	/**
+	 * <b>image/x-java-image; class=java.awt.Image</b>
+	 * <p>
+	 * The next best type of object to get is this one, since the JRE has already recognized the type of data
+	 */
+	private static final DataFlavor X_JAVA_IMAGE = new DataFlavor("image/x-java-image; class=java.awt.Image", "Image"); //$NON-NLS-1$
+	/**
+	 * <b>text/plain; class=java.lang.String</b>
+	 * <p>
+	 * The last type of object to check for is text/plain. It's likely a URL -- or so we assume. :(
+	 */
+	private static final DataFlavor URL_FLAVOR_PLAIN = new DataFlavor("text/plain; class=java.lang.String", "Image"); //$NON-NLS-1$
 
 	/**
 	 * Data flavors that this handler will support.
 	 */
 	// @formatter:off
 	public static final DataFlavor[] SUPPORTED_FLAVORS = {
-		DataFlavor.javaFileListFlavor,
-		URI_LIST_FLAVOR,
-		MapToolTokenTransferData.MAP_TOOL_TOKEN_LIST_FLAVOR,
-		GroupTokenTransferData.GROUP_TOKEN_LIST_FLAVOR,
 		TransferableAsset.dataFlavor,
 		TransferableAssetReference.dataFlavor,
-		URL_FLAVOR,
-		TransferableToken.dataFlavor
+		URL_FLAVOR_URI,		// Prefer the real one (although this list isn't necessarily scanned in order)
+		X_JAVA_IMAGE,
+		URL_FLAVOR_PLAIN,
+		DataFlavor.javaFileListFlavor,
+		URI_LIST_FLAVOR,
+		TransferableToken.dataFlavor,
+		MapToolTokenTransferData.MAP_TOOL_TOKEN_LIST_FLAVOR,	// Is this appropriate? never used herein...
+		GroupTokenTransferData.GROUP_TOKEN_LIST_FLAVOR,
 	};
 	// @formatter:on
+
+	/**
+	 * Looks at a complete URL and tries to figure out which string within the URL might be the name of an image.
+	 * <p>
+	 * It does this by looking for known filename extensions such as JPG, JPEG, and PNG to determine where the end of
+	 * the name might be, then works left from there looking for something not normally part of a name. For example, in
+	 * the query string of a URL it would stop looking at an equal sign ("="), an ampersand ("&amp;"), a question mark
+	 * ("?"), or a number sign ("#").
+	 */
+	private static String findName(URL url) {
+		String result = null;
+
+		// If there is a query string, start there.
+		result = url.getQuery();
+		if (!StringUtil.isEmpty(result)) {
+			result = findNameInThisPiece(result);
+			return result;
+		}
+		result = url.getFile();
+		if (!StringUtil.isEmpty(result)) {
+			result = findNameInThisPiece(result);
+			return result;
+		}
+		return null;
+	}
+
+	private static Pattern extensionPattern = null;
+
+	private static String findNameInThisPiece(String text) {
+		if (extensionPattern == null) {
+			String extensions[] = ImageIO.getReaderFileSuffixes();
+			String list = Arrays.deepToString(extensions);
+			// Final result is something like:  (\w+\.(jpeg|jpg|png|gif|tiff))
+			String pattern = "(\\w+\\." + list.replace('[', '(').replace(']', ')').replace(", ", "|") + ")";
+			extensionPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+		}
+		Matcher m = extensionPattern.matcher(text);
+		if (m.matches()) {
+			return m.group();
+		}
+		return null;
+	}
 
 	/**
 	 * Takes a drop event and returns an asset from it. Returns null if an asset could not be obtained.
@@ -88,31 +154,71 @@ public class TransferableHelper extends TransferHandler {
 	public static List<Object> getAsset(Transferable transferable) {
 		List<Object> assets = new ArrayList<Object>();
 		try {
+			Object o = null;
+
+			// This *really* should be done using either the Strategy or Template patterns.  Sigh.
+
 			// EXISTING ASSET
-			if (transferable.isDataFlavorSupported(TransferableAsset.dataFlavor)) {
-				assets.add(handleTransferableAsset(transferable));
-
-			} else if (transferable.isDataFlavorSupported(TransferableAssetReference.dataFlavor)) {
-				assets.add(handleTransferableAssetReference(transferable));
-
-				// LOCAL FILESYSTEM
-				// Used by OSX (and Windows?) when files are dragged from the desktop.
-			} else if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+			if (o == null && transferable.isDataFlavorSupported(TransferableAsset.dataFlavor)) {
+				if (log.isDebugEnabled())
+					log.debug(TransferableAsset.dataFlavor);
+				o = handleTransferableAsset(transferable);
+				assets.add(o);
+			}
+			if (o == null && transferable.isDataFlavorSupported(TransferableAssetReference.dataFlavor)) {
+				if (log.isDebugEnabled())
+					log.debug(TransferableAssetReference.dataFlavor);
+				o = handleTransferableAssetReference(transferable);
+				assets.add(o);
+			}
+			// DIRECT/BROWSER
+			// First try 'application/x-java-url; java.net.URL'
+			if (o == null && transferable.isDataFlavorSupported(URL_FLAVOR_URI)) {
+				if (log.isDebugEnabled())
+					log.debug(URL_FLAVOR_URI);
+				URL url = (URL) transferable.getTransferData(URL_FLAVOR_URI);
+				o = handleImage(url, "URL_FLAVOR_URI", transferable);
+				assets.add(o);
+			}
+			// DIRECT/BROWSER
+			// Then try 'image/x-java-image; java.awt.Image' to see if Java has recognized the image as such
+			if (o == null && transferable.isDataFlavorSupported(X_JAVA_IMAGE)) {
+				if (log.isDebugEnabled())
+					log.debug(X_JAVA_IMAGE);
+				BufferedImage image = (BufferedImage) new ImageTransferableHandler().getTransferObject(transferable);
+				o = new Asset("unnamed", ImageUtil.imageToBytes(image));
+				assets.add(o);
+			}
+			// DIRECT/BROWSER
+			// It may be that the dropped object is a URL but is 'text/plain; java.lang.String' and URLs are better than other file types...
+			if (o == null && transferable.isDataFlavorSupported(URL_FLAVOR_PLAIN)) {
+				if (log.isDebugEnabled())
+					log.debug(URL_FLAVOR_PLAIN);
+				String text = (String) transferable.getTransferData(URL_FLAVOR_PLAIN);
+				URL url = new URL(text);
+				o = handleImage(url, "URL_FLAVOR_PLAIN", transferable);
+				assets.add(o);
+			}
+			// LOCAL FILESYSTEM
+			// Used by OSX (and Windows?) when files are dragged from the desktop.
+			if (o == null && transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+				if (log.isDebugEnabled())
+					log.debug(DataFlavor.javaFileListFlavor);
 				List<URL> list = new FileTransferableHandler().getTransferObject(transferable);
 				assets = handleURLList(list);
-
-				// LOCAL FILESYSTEM
-				// Used by Linux when files are dragged from the desktop.
-				// Note that "text/uri-list" is considered a JRE bug and it should be
-				// converting the event into "text/x-java-file-list", but until it does...
-			} else if (transferable.isDataFlavorSupported(URI_LIST_FLAVOR)) {
+				o = assets;
+			}
+			// LOCAL FILESYSTEM
+			// Used by Linux when files are dragged from the desktop.
+			// Note that "text/uri-list" is considered a JRE bug and it should be
+			// converting the event into "text/x-java-file-list", but until it does...
+			if (o == null && transferable.isDataFlavorSupported(URI_LIST_FLAVOR)) {
+				if (log.isDebugEnabled())
+					log.debug(URI_LIST_FLAVOR);
 				String data = (String) transferable.getTransferData(URI_LIST_FLAVOR);
 				List<URL> list = textURIListToFileList(data);
 				assets = handleURLList(list);
-
-				// DIRECT/BROWSER
-			} else if (transferable.isDataFlavorSupported(URL_FLAVOR)) {
-				assets.add(handleImage(transferable));
+				o = assets;
 			}
 		} catch (Exception e) {
 			MapTool.showError("TransferableHelper.error.unrecognizedAsset", e); //$NON-NLS-1$
@@ -145,56 +251,84 @@ public class TransferableHelper extends TransferHandler {
 				URI uri = new URI(s);
 				URL url = uri.toURL();
 				list.add(url);
-			} catch (URISyntaxException e) {
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
+			} catch (Exception e) {
+				// There's no reason to trap the individual exceptions when a single catch suffices.
+				if (log.isDebugEnabled())
+					log.debug(s, e);
+//			} catch (URISyntaxException e) {				// Thrown by the URI constructor
+//				e.printStackTrace();
+//			} catch (IllegalArgumentException e) {	// Thrown by URI.toURL()
+//				e.printStackTrace();
+//			} catch (MalformedURLException e) {		// Thrown by URI.toURL()
+//				e.printStackTrace();
 			}
 		}
 		return list;
 	}
 
-	private static Asset handleImage(Transferable transferable) throws IOException, UnsupportedFlavorException {
-		String name = null;
+	private static Asset handleImage(URL url, String type, Transferable transferable) throws IOException, UnsupportedFlavorException {
 		BufferedImage image = null;
-		if (transferable.isDataFlavorSupported(URL_FLAVOR)) {
-			try {
-				String fname = (String) transferable.getTransferData(URL_FLAVOR);
-				if (log.isDebugEnabled())
-					log.debug("Transferable " + fname); //$NON-NLS-1$
-				name = FileUtil.getNameWithoutExtension(fname);
-
-				File file;
-				URL url = new URL(fname);
-				try {
-					URI uri = url.toURI(); // Should replace '%20' sequences and such
-					file = new File(uri);
-				} catch (URISyntaxException e) {
-					file = new File(fname);
-				}
-				if (file.exists()) {
-					if (log.isDebugEnabled())
-						log.debug("Reading local file:  " + file); //$NON-NLS-1$
-					image = ImageIO.read(file);
-				} else {
-					if (log.isDebugEnabled())
-						log.debug("Reading remote URL:  " + url); //$NON-NLS-1$
-					image = ImageIO.read(url);
-				}
-			} catch (Exception e) {
-				MapTool.showError("TransferableHelper.error.urlFlavor", e); //$NON-NLS-1$
-			}
+		Asset asset = null;
+		try {
+			if (log.isDebugEnabled())
+				log.debug("Reading URL:  " + url); //$NON-NLS-1$
+			image = ImageIO.read(url);
+		} catch (Exception e) {
+			MapTool.showError("TransferableHelper.error.urlFlavor", e); //$NON-NLS-1$
 		}
 		if (image == null) {
 			if (log.isDebugEnabled())
-				log.debug("URL_FLAVOR didn't work; trying ImageTransferableHandler().getTransferObject()"); //$NON-NLS-1$
+				log.debug(type + " didn't work; trying ImageTransferableHandler().getTransferObject()"); //$NON-NLS-1$
 			image = (BufferedImage) new ImageTransferableHandler().getTransferObject(transferable);
 		}
-		Asset asset = new Asset(name, ImageUtil.imageToBytes(image));
+		if (image != null) {
+			String name = findName(url);
+			asset = new Asset(name != null ? name : "unnamed", ImageUtil.imageToBytes(image));
+		} else {
+			throw new IllegalArgumentException("cannot convert drop object to image: " + url.toString());
+		}
 		return asset;
 	}
+
+//	private static Asset handleImage(Transferable transferable) throws IOException, UnsupportedFlavorException {
+//		String name = null;
+//		BufferedImage image = null;
+//		if (transferable.isDataFlavorSupported(URL_FLAVOR_PLAIN)) {
+//			try {
+//				String fname = (String) transferable.getTransferData(URL_FLAVOR_PLAIN);
+//				if (log.isDebugEnabled())
+//					log.debug("Transferable " + fname); //$NON-NLS-1$
+//				name = FileUtil.getNameWithoutExtension(fname);
+//
+//				File file;
+//				URL url = new URL(fname);
+//				try {
+//					URI uri = url.toURI(); // Should replace '%20' sequences and such
+//					file = new File(uri);
+//				} catch (URISyntaxException e) {
+//					file = new File(fname);
+//				}
+//				if (file.exists()) {
+//					if (log.isDebugEnabled())
+//						log.debug("Reading local file:  " + file); //$NON-NLS-1$
+//					image = ImageIO.read(file);
+//				} else {
+//					if (log.isDebugEnabled())
+//						log.debug("Reading remote URL:  " + url); //$NON-NLS-1$
+//					image = ImageIO.read(url);
+//				}
+//			} catch (Exception e) {
+//				MapTool.showError("TransferableHelper.error.urlFlavor", e); //$NON-NLS-1$
+//			}
+//		}
+//		if (image == null) {
+//			if (log.isDebugEnabled())
+//				log.debug("URL_FLAVOR_PLAIN didn't work; trying ImageTransferableHandler().getTransferObject()"); //$NON-NLS-1$
+//			image = (BufferedImage) new ImageTransferableHandler().getTransferObject(transferable);
+//		}
+//		Asset asset = new Asset(name, ImageUtil.imageToBytes(image));
+//		return asset;
+//	}
 
 	private static List<Object> handleURLList(List<URL> list) throws Exception {
 		List<Object> assets = new ArrayList<Object>();
@@ -266,7 +400,7 @@ public class TransferableHelper extends TransferHandler {
 
 	public static boolean isSupportedAssetFlavor(Transferable transferable) {
 		return transferable.isDataFlavorSupported(TransferableAsset.dataFlavor) || transferable.isDataFlavorSupported(TransferableAssetReference.dataFlavor)
-				|| transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor) || transferable.isDataFlavorSupported(URI_LIST_FLAVOR) || transferable.isDataFlavorSupported(URL_FLAVOR);
+				|| transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor) || transferable.isDataFlavorSupported(URI_LIST_FLAVOR) || transferable.isDataFlavorSupported(URL_FLAVOR_PLAIN);
 	}
 
 	public static boolean isSupportedTokenFlavor(Transferable transferable) {
@@ -282,8 +416,8 @@ public class TransferableHelper extends TransferHandler {
 			for (int i = 0; i < transferFlavors.length; i++) {
 				if (SUPPORTED_FLAVORS[j].equals(transferFlavors[i]))
 					return true;
-			} // endfor
-		} // endfor
+			}
+		}
 		return false;
 	}
 
@@ -304,19 +438,50 @@ public class TransferableHelper extends TransferHandler {
 	private static List<DataFlavor> whichOnesWork(Transferable t) {
 		List<DataFlavor> worked = new ArrayList<DataFlavor>();
 
+		// On OSX, any data flavor that uses java.nio.ByteBuffer or an array of bytes
+		// appears to output the object to the console (via System.out?).  Geez, can't
+		// Apple even run a frakkin' grep against their code before releasing it?!
+		PrintStream old = null;
+		if (MapTool.MAC_OS_X) {
+			old = System.out;
+			setOnOff(null);
+		}
 		for (DataFlavor flavor : t.getTransferDataFlavors()) {
+			Object result = null;
 			try {
-				Object result = t.getTransferData(flavor);
-				worked.add(flavor);
-				log.info(flavor.toString() + " -- " + result.toString()); //$NON-NLS-1$
+				result = t.getTransferData(flavor);
 			} catch (UnsupportedFlavorException ufe) {
 				log.debug("Failed (UFE):  " + flavor.toString()); //$NON-NLS-1$
 			} catch (IOException ioe) {
 				log.debug("Failed (IOE):  " + flavor.toString()); //$NON-NLS-1$
+			} catch (Exception e) {
+//				System.err.println(e);
+			}
+			if (result != null) {
+				for (Class<?> type : validTypes) {
+					if (type.equals(result.getClass())) {
+						worked.add(flavor);
+						log.info(flavor.toString() + " -- " + result.toString()); //$NON-NLS-1$
+						break;
+					}
+				}
 			}
 		}
+		if (MapTool.MAC_OS_X)
+			setOnOff(old);
 		return worked;
 	}
+
+	private static void setOnOff(PrintStream old) {
+		System.setOut(old);
+	}
+
+	private static final Class<?> validTypes[] = {
+			java.lang.String.class,
+			java.net.URL.class,
+			java.util.List.class,
+			java.awt.Image.class,
+	};
 
 	/**
 	 * @see javax.swing.TransferHandler#importData(javax.swing.JComponent, java.awt.datatransfer.Transferable)
@@ -351,10 +516,13 @@ public class TransferableHelper extends TransferHandler {
 					tokens = Collections.singletonList(new Token((Token) t.getTransferData(TransferableToken.dataFlavor)));
 					// A token from the Resource Library is already fully configured.
 					configureTokens = Collections.singletonList(new Boolean(false));
-				} catch (UnsupportedFlavorException ufe) {
-					ufe.printStackTrace();
-				} catch (IOException ioe) {
-					ioe.printStackTrace();
+				} catch (Exception e) {
+					// There's no reason to trap the individual exceptions when a single catch suffices.
+					log.error("while using TransferableToken.dataFlavor", e); //$NON-NLS-1$
+//				} catch (UnsupportedFlavorException ufe) {
+//					ufe.printStackTrace();
+//				} catch (IOException ioe) {
+//					ioe.printStackTrace();
 				}
 			} else if (t.isDataFlavorSupported(GroupTokenTransferData.GROUP_TOKEN_LIST_FLAVOR)) {
 				tokens = getTokens(t);

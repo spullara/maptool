@@ -1,9 +1,9 @@
 /*
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
- *
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
@@ -34,22 +34,20 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import net.rptools.lib.swing.ImagePanel;
-import net.rptools.lib.swing.SelectionListener;
 import net.rptools.lib.swing.ImagePanel.SelectionMode;
+import net.rptools.lib.swing.SelectionListener;
 import net.rptools.lib.swing.preference.SplitPanePreferences;
 import net.rptools.lib.swing.preference.TreePreferences;
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.model.Asset;
 
 public class AssetPanel extends JComponent {
-
 	private static final ImageIcon FILTER_IMAGE = new ImageIcon(AssetPanel.class.getClassLoader().getResource("net/rptools/maptool/client/image/zoom.png"));
 
 	private final AssetTree assetTree;
 	private ImagePanel imagePanel;
 	private JTextField filterTextField;
 	private JCheckBox globalSearchField;
-	private Asset assetBeingTransferred;
 
 	private final AssetPanelModel assetPanelModel;
 
@@ -64,12 +62,10 @@ public class AssetPanel extends JComponent {
 	}
 
 	public AssetPanel(String controlName, AssetPanelModel model, int splitPaneDirection) {
-
 		assetPanelModel = model;
 		model.addImageUpdateObserver(this);
 
 		assetTree = new AssetTree(this);
-
 		createImagePanel();
 
 		JSplitPane splitPane = new JSplitPane(splitPaneDirection);
@@ -87,36 +83,31 @@ public class AssetPanel extends JComponent {
 	}
 
 	private void createImagePanel() {
-		imagePanel = new ImagePanel();/*
-									 * {
-									 *
-									 * @Override public void dragGestureRecognized(DragGestureEvent dge) {
-									 * super.dragGestureRecognized(dge);
-									 *
-									 * MapTool.getFrame().getDragImageGlassPane().setImage(ImageManager.getImageAndWait(
-									 * assetBeingTransferred)); }
-									 *
-									 * @Override public void dragMouseMoved(DragSourceDragEvent dsde) {
-									 * super.dragMouseMoved(dsde);
-									 *
-									 * Point p = new Point(dsde.getLocation()); SwingUtilities.convertPointFromScreen(p,
-									 * MapTool.getFrame().getDragImageGlassPane());
-									 *
-									 * MapTool.getFrame().getDragImageGlassPane().setImagePosition(p); }
-									 *
-									 * @Override public void dragDropEnd(DragSourceDropEvent dsde) {
-									 * super.dragDropEnd(dsde);
-									 *
-									 * MapTool.getFrame().getDragImageGlassPane().setImage(null); }
-									 *
-									 * @Override protected Cursor getDragCursor() { return
-									 * Toolkit.getDefaultToolkit().createCustomCursor(new BufferedImage(1, 1,
-									 * Transparency.BITMASK), new Point (0,0), ""); } };
-									 */
-
+		imagePanel = new ImagePanel();
+		/*
+		 * {
+		 * 
+		 * @Override public void dragGestureRecognized(DragGestureEvent dge) { super.dragGestureRecognized(dge);
+		 * 
+		 * MapTool.getFrame().getDragImageGlassPane().setImage(ImageManager.getImageAndWait( assetBeingTransferred)); }
+		 * 
+		 * @Override public void dragMouseMoved(DragSourceDragEvent dsde) { super.dragMouseMoved(dsde);
+		 * 
+		 * Point p = new Point(dsde.getLocation()); SwingUtilities.convertPointFromScreen(p,
+		 * MapTool.getFrame().getDragImageGlassPane());
+		 * 
+		 * MapTool.getFrame().getDragImageGlassPane().setImagePosition(p); }
+		 * 
+		 * @Override public void dragDropEnd(DragSourceDropEvent dsde) { super.dragDropEnd(dsde);
+		 * 
+		 * MapTool.getFrame().getDragImageGlassPane().setImage(null); }
+		 * 
+		 * @Override protected Cursor getDragCursor() { return Toolkit.getDefaultToolkit().createCustomCursor(new
+		 * BufferedImage(1, 1, Transparency.BITMASK), new Point (0,0), ""); } };
+		 */
 		imagePanel.setShowCaptions(true);
 		imagePanel.setSelectionMode(SelectionMode.SINGLE);
-		imagePanel.setFont(new Font("Helvetica", 0, 10));		// XXX Overrides TinyLAF?
+		imagePanel.setFont(new Font("Helvetica", 0, 10)); // XXX Overrides TinyLAF?
 	}
 
 	public void setThumbSize(int size) {
@@ -133,9 +124,9 @@ public class AssetPanel extends JComponent {
 	}
 
 	/**
-	 * Creates the GUI for the bottom half of the splitpane that allows for finding assets
-	 * within any of the repository locations (such as local directories).
-	 *
+	 * Creates the GUI for the bottom half of the splitpane that allows for finding assets within any of the repository
+	 * locations (such as local directories).
+	 * 
 	 * @return
 	 */
 	private JPanel createFilterPanel() {
@@ -165,7 +156,6 @@ public class AssetPanel extends JComponent {
 	}
 
 	public void showImagePanelPopup(JPopupMenu menu, int x, int y) {
-
 		menu.show(imagePanel, x, y);
 	}
 
@@ -190,10 +180,9 @@ public class AssetPanel extends JComponent {
 	}
 
 	/**
-	 * Returns a checkbox that indicates whether the filter field applies to <i>all</i>
-	 * images in all libraries or just the currently selected image directory.  Currently not
-	 * implemented.
-	 *
+	 * Returns a checkbox that indicates whether the filter field applies to <i>all</i> images in all libraries or just
+	 * the currently selected image directory. Currently not implemented.
+	 * 
 	 * @return the checkbox component
 	 */
 	public JCheckBox getGlobalSearchField() {
@@ -212,7 +201,6 @@ public class AssetPanel extends JComponent {
 		if (updateFilterTimer == null) {
 			updateFilterTimer = new Timer(500, new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-
 					ImageFileImagePanelModel model = (ImageFileImagePanelModel) imagePanel.getModel();
 					if (model == null) {
 						return;
@@ -263,7 +251,6 @@ public class AssetPanel extends JComponent {
 	}
 
 	public void addAssetRoot(Directory dir) {
-
 		assetPanelModel.addRootGroup(dir);
 	}
 
@@ -283,5 +270,4 @@ public class AssetPanel extends JComponent {
 	public AssetTree getAssetTree() {
 		return assetTree;
 	}
-
 }
