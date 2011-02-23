@@ -3199,12 +3199,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		 * @param location
 		 */
 		public ZonePoint getLastWaypoint() {
+			ZonePoint zp;
 			if (walker != null && token.isSnapToGrid() && getZone().getGrid() != null) {
 				CellPoint cp = walker.getLastPoint();
-				return getZone().getGrid().convert(cp);
+				zp = getZone().getGrid().convert(cp);
 			} else {
-				return gridlessPath.getLastJunctionPoint();
+				zp = gridlessPath.getLastJunctionPoint();
 			}
+			return zp;
 		}
 
 		public int getOffsetX() {
