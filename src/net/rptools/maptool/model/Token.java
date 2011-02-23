@@ -721,8 +721,9 @@ public class Token extends BaseModel {
 	 * interactive nature of a failure.
 	 * 
 	 * @param name
+	 * @throws IOException
 	 */
-	public void setName(String name) {
+	public void setName(String name) throws IllegalArgumentException {
 		//Let's see if there is another Token with that name (only if Player is not GM)
 		if (!MapTool.getPlayer().isGM() && !MapTool.getParser().isMacroTrusted()) {
 			Zone curZone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
@@ -732,7 +733,7 @@ public class Token extends BaseModel {
 				String curTokenName = tokensList.get(i).getName();
 				if (curTokenName.equalsIgnoreCase(name)) {
 					MapTool.showError(I18N.getText("Token.error.unableToRename", name));
-					return;
+					throw new IllegalArgumentException("Player dropped token with duplicate name");
 				}
 			}
 		}
