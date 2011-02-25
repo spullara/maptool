@@ -1826,9 +1826,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 							if (!token.isStamp()) {
 								if (AppState.getShowMovementMeasurements()) {
 									String distance = "";
-									if (zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
-										if (walker.getDistance() >= 1) {
-											distance = Integer.toString(walker.getDistance());
+									if (walker != null) { // This wouldn't be true unless token.isSnapToGrid() && grid.isPathingSupported()
+										int distanceTraveled = walker.getDistance();
+										if (distanceTraveled >= 1) {
+											distance = Integer.toString(distanceTraveled);
 										}
 									} else {
 										double c = 0;
@@ -3130,10 +3131,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			token = zone.getToken(tokenGUID);
 
 			if (token.isSnapToGrid() && zone.getGrid().getCapabilities().isSnapToGridSupported()) {
-				if (ZoneRenderer.this.zone.getGrid().getCapabilities().isPathingSupported()) {
+				if (zone.getGrid().getCapabilities().isPathingSupported()) {
 					CellPoint tokenPoint = zone.getGrid().convert(new ZonePoint(token.getX(), token.getY()));
 
-					walker = ZoneRenderer.this.zone.getGrid().createZoneWalker();
+					walker = zone.getGrid().createZoneWalker();
 					walker.setWaypoints(tokenPoint, tokenPoint);
 				}
 			} else {
