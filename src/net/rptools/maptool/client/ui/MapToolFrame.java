@@ -324,7 +324,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		String version = "";
 		Image logo = null;
 		try {
-			credits = new String(FileUtil.loadResource(CREDITS_HTML), FileUtil.UTF_8);
+			credits = new String(FileUtil.loadResource(CREDITS_HTML), "UTF-8"); // 2nd param of Charset is Java6+
 			version = MapTool.getVersion();
 			credits = credits.replace("%VERSION%", version);
 			logo = ImageUtil.getImage(MAPTOOL_LOGO_IMAGE);
@@ -1195,6 +1195,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			ImageManager.flush(renderer.getZone().getAllAssetIds());
 		} else {
 			ImageManager.flush();
+//			zoneRendererList.remove(currentRenderer);
 		}
 
 		// Handle new renderers
