@@ -1179,7 +1179,7 @@ public class Zone extends BaseModel {
 	}
 
 	private void collapseDrawableLayer(List<DrawnElement> layer) {
-		if (layer.size() == 0) {
+		if (layer.isEmpty()) {
 			return;
 		}
 		Area area = new Area();
