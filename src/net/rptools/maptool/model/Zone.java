@@ -718,16 +718,14 @@ public class Zone extends BaseModel {
 	}
 
 	public Area getExposedArea(PlayerView view) {
-		Area area = new Area();
-		List<Token> toks = null;
 		if (getVisionType() == VisionType.OFF || MapTool.isPersonalServer() || (MapTool.getServerPolicy().isUseIndividualFOW() && view.isGMView()) || !MapTool.getServerPolicy().isUseIndividualFOW()) {
 			return getExposedArea();
-		} else {
-			toks = view.getTokens();
 		}
+		List<Token> toks = view.getTokens();
 		if (toks == null) {
 			toks = getTokens();
 		}
+		Area area = new Area();
 		for (Token tok : toks) {
 			if (!tok.getHasSight() || !AppUtil.playerOwns(tok)) {
 				continue;

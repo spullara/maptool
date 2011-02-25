@@ -40,10 +40,10 @@ public class AppUtil {
 	}
 
 	/**
-	 * Returns a File path that points to the AppHome base directory along with the subpath denoted in the "subdir"
-	 * argument
+	 * Returns a {@link File} path that points to the AppHome base directory along with the subpath denoted in the
+	 * "subdir" argument.
 	 * <p>
-	 * For example <code>getAppHome("cache")</code> will return the path <code>{APPHOME}/cache</code>
+	 * For example <code>getAppHome("cache")</code> will return the path <code>{APPHOME}/cache</code>.
 	 * <p>
 	 * As a side-effect the function creates the directory pointed to by File.
 	 * 
@@ -61,10 +61,12 @@ public class AppUtil {
 		if (path.getAbsolutePath().matches("!"))
 			throw new RuntimeException(I18N.getText("msg.error.unusableDir", path.getAbsolutePath()));
 
-		path.mkdirs();
-		// Now check our work
 		if (!path.exists()) {
-			throw new RuntimeException(I18N.getText("msg.error.unableToCreateDataDir", path.getAbsolutePath()));
+			path.mkdirs();
+			// Now check our work
+			if (!path.exists()) {
+				throw new RuntimeException(I18N.getText("msg.error.unableToCreateDataDir", path.getAbsolutePath()));
+			}
 		}
 		return path;
 	}
