@@ -366,7 +366,7 @@ public class MapTool {
 	 *            key from the properties file (preferred) or hard-coded string to display
 	 * @param params
 	 *            optional arguments for the formatting of the property value
-	 * @return
+	 * @return <code>true</code> if the user clicks the OK button, <code>false</code> otherwise
 	 */
 	public static boolean confirm(String message, Object... params) {
 		String msg = I18N.getText(message, params);
@@ -803,22 +803,18 @@ public class MapTool {
 		if (campaign == null) {
 			return;
 		}
-
 		// Install new campaign
 		for (Zone zone : campaign.getZones()) {
-
 			ZoneRenderer renderer = ZoneRendererFactory.newRenderer(zone);
 			clientFrame.addZoneRenderer(renderer);
-
 			if ((zone.getId().equals(defaultRendererId) || currRenderer == null) && (getPlayer().isGM() || zone.isVisible())) {
 				currRenderer = renderer;
 			}
-
 			eventDispatcher.fireEvent(ZoneEvent.Added, campaign, null, zone);
 		}
+		clientFrame.setCurrentZoneRenderer(currRenderer);
 		clientFrame.getInitiativePanel().setOwnerPermissions(campaign.isInitiativeOwnerPermissions());
 		clientFrame.getInitiativePanel().setMovementLock(campaign.isInitiativeMovementLock());
-		clientFrame.setCurrentZoneRenderer(currRenderer);
 
 		AssetManager.updateRepositoryList();
 		MapTool.getFrame().getCampaignPanel().reset();
@@ -1098,6 +1094,21 @@ public class MapTool {
 			JOptionPane.showMessageDialog(frame, t.getMessage(), errorCreatingDir, JOptionPane.ERROR_MESSAGE);
 			System.exit(1);
 		}
+		// Check to see if we're running on Java 6+.  While MapTool itself doesn't use any
+		// Java 6-specific features, we use a couple dozen third-party libraries and a search
+		// through those JARs indicate that they DO use Java 6 features.  So it's best if we warn
+		// people about this issue.  This is mainly for OSX 10.6.4 and embedded Java.
+		//
+		// (Note:  I chose "java.specification.version" as it seemed the easiest way to test. :))
+		String version = System.getProperty("java.specification.version");
+		boolean keepgoing = true;
+		if (version == null)
+			keepgoing = confirm("msg.error.unknownJavaVersion");
+		else if (Double.valueOf(version) < 1.6)
+			keepgoing = confirm("msg.error.wrongJavaVersion", version);
+		if (!keepgoing)
+			System.exit(1);
+
 		configureLogging();
 
 		// System properties
