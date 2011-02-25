@@ -670,8 +670,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		if (role == Player.Role.GM && AppState.isShowAsPlayer()) {
 			role = Player.Role.PLAYER;
 		}
+		return getPlayerView(role);
+	}
+
+	public PlayerView getPlayerView(Player.Role role) {
 		List<Token> selectedTokens = null;
-		if (getSelectedTokenSet() != null && getSelectedTokenSet().size() > 0) {
+		if (getSelectedTokenSet() != null && !getSelectedTokenSet().isEmpty()) {
 			selectedTokens = getSelectedTokensList();
 			for (ListIterator<Token> iter = selectedTokens.listIterator(); iter.hasNext();) {
 				Token token = iter.next();

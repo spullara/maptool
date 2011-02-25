@@ -100,6 +100,7 @@ import net.rptools.maptool.model.Zone.VisionType;
 import net.rptools.maptool.model.ZoneFactory;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
+import net.rptools.maptool.server.ServerCommand;
 import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
 import net.rptools.maptool.util.ImageManager;
@@ -207,7 +208,6 @@ public class AppActions {
 				} catch (Exception ex) {
 					MapTool.showError("msg.error.failedExportingImage", ex);
 				}
-
 			}
 		}
 	};
@@ -1930,13 +1930,9 @@ public class AppActions {
 			public void run() {
 				try {
 					StaticMessageDialog progressDialog = new StaticMessageDialog(I18N.getText("msg.info.campaignLoading"));
-					ZoneRenderer current = null;
 					try {
 						// I'm going to get struck by lighting for writing code like this.
 						// CLEAN ME CLEAN ME CLEAN ME !   I NEED A SWINGWORKER!
-						current = MapTool.getFrame().getCurrentZoneRenderer();
-						MapTool.getFrame().setCurrentZoneRenderer(null);
-						ImageManager.flush(); // Clear out the old campaign's images
 						MapTool.getFrame().showFilledGlassPane(progressDialog);
 						MapTool.getAutoSaveManager().pause(); // Pause auto-save while loading
 
@@ -1947,26 +1943,32 @@ public class AppActions {
 						// Load
 						final PersistedCampaign campaign = PersistenceUtil.loadCampaign(campaignFile);
 						if (campaign != null) {
-							current = null;
+//							current = MapTool.getFrame().getCurrentZoneRenderer();
+//							MapTool.getFrame().setCurrentZoneRenderer(null);
+							ImageManager.flush(); // Clear out the old campaign's images
+
 							AppState.setCampaignFile(campaignFile);
 							AppPreferences.setLoadDir(campaignFile.getParentFile());
 							AppMenuBar.getMruManager().addMRUCampaign(campaignFile);
 
 							/*
-							 * Bypass the serialization when we are hosting the server. TODO: This optimization doesn't
-							 * work since the player name isn't the right thing to use to exclude this thread...
+							 * Bypass the serialization when we are hosting the server.
 							 */
-//							if (MapTool.isHostingServer() || MapTool.isPersonalServer()) {
-//								String playerName = MapTool.getPlayer().getName();
-//								String command = ServerCommand.COMMAND.setCampaign.name();
-//								MapTool.getServer().getMethodHandler().handleMethod(playerName, command, new Object[]{campaign.campaign});
-//							} else {
-							MapTool.serverCommand().setCampaign(campaign.campaign);
-//							}
-							MapTool.setCampaign(campaign.campaign, campaign.currentZoneId);
-							if (campaign.currentView != null && MapTool.getFrame().getCurrentZoneRenderer() != null) {
-								MapTool.getFrame().getCurrentZoneRenderer().setZoneScale(campaign.currentView);
+							if (false && (MapTool.isHostingServer() || MapTool.isPersonalServer())) {
+								/*
+								 * TODO: This optimization doesn't work since the player name isn't the right thing to
+								 * use to exclude this thread...
+								 */
+								String playerName = MapTool.getPlayer().getName();
+								String command = ServerCommand.COMMAND.setCampaign.name();
+								MapTool.getServer().getMethodHandler().handleMethod(playerName, command, new Object[] { campaign.campaign });
+							} else {
+								MapTool.serverCommand().setCampaign(campaign.campaign);
 							}
+							MapTool.setCampaign(campaign.campaign, campaign.currentZoneId);
+							ZoneRenderer current = MapTool.getFrame().getCurrentZoneRenderer();
+							if (campaign.currentView != null && current != null)
+								current.setZoneScale(campaign.currentView);
 							MapTool.getAutoSaveManager().tidy();
 
 							// UI related stuff
@@ -1974,8 +1976,6 @@ public class AppActions {
 							MapTool.getFrame().resetPanels();
 						}
 					} finally {
-						if (current != null)
-							MapTool.getFrame().setCurrentZoneRenderer(current);
 						MapTool.getAutoSaveManager().restart();
 						MapTool.getFrame().hideGlassPane();
 					}

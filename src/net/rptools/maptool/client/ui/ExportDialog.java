@@ -322,7 +322,7 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 			for (ExportLayers layer : ExportLayers.values()) {
 				layer.setChecked(true);
 			}
-			// however, some psuedo-layers do have a state, so set that appropriately
+			// however, some pseudo-layers do have a state, so set that appropriately
 			final Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 			ExportLayers.LAYER_VISIBILITY.setChecked(zone.getVisionType() != Zone.VisionType.OFF);
 			ExportLayers.LAYER_FOG.setChecked(zone.hasFog());
@@ -412,29 +412,21 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 		ExportRadioButtons.setForm(interactPanel);
 		ExportLayers.setForm(interactPanel);
 
-		interactPanel.getButton("exportButton").addActionListener(
-				new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-						exportButtonAction();
-					}
-				}
-				);
-
-		interactPanel.getButton("cancelButton").addActionListener(
-				new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-						dispose();
-					}
-				}
-				);
-
-		interactPanel.getButton("browseButton").addActionListener(
-				new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-						browseButtonAction();
-					}
-				}
-				);
+		interactPanel.getButton("exportButton").addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				exportButtonAction();
+			}
+		});
+		interactPanel.getButton("cancelButton").addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				dispose();
+			}
+		});
+		interactPanel.getButton("browseButton").addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				browseButtonAction();
+			}
+		});
 
 		// Run this once to make sure the dialog is in a good starting state.
 		ExportLayers.setDefaultChecked();
@@ -531,7 +523,6 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 		if (exportLocation instanceof LocalLocation) {
 			chooser.setSelectedFile(((LocalLocation) exportLocation).getFile());
 		}
-
 		if (chooser.showOpenDialog(ExportDialog.this) == JFileChooser.APPROVE_OPTION) {
 			interactPanel.setText("locationTextField", chooser.getSelectedFile().getAbsolutePath());
 		}
@@ -539,13 +530,12 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 
 	/**
 	 * This is the top-level screen-capture routine. It sends the resulting PNG image to the location previously
-	 * selected by the user. TODO: It currently calls {@link MapTool.takeMapScreenShot()} for "normal" screenshots, but
+	 * selected by the user. TODO: It currently calls {@link MapTool#takeMapScreenShot()} for "normal" screenshots, but
 	 * that's just until this code is considered stable enough.
 	 * 
 	 * @throws Exception
 	 */
 	public void screenCapture() throws Exception {
-
 		MapTool.getFrame().setStatusMessage(I18N.getString("dialog.screenshot.msg.GeneratingScreenshot"));
 		ExportRadioButtons type = ExportRadioButtons.getType();
 		Player.Role role;
@@ -555,7 +545,7 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 				// This uses the original screenshot code: I didn't want to touch it, so I need
 				// to pass it the same parameter it took before.
 				role = ExportRadioButtons.VIEW_GM.isChecked() ? Player.Role.GM : Player.Role.PLAYER;
-				BufferedImage screenCap = MapTool.takeMapScreenShot(new PlayerView(role));
+				BufferedImage screenCap = MapTool.takeMapScreenShot(renderer.getPlayerView(role));
 				// since old screenshot code doesn't throw exceptions, look for null
 				if (screenCap == null) {
 					throw new Exception(I18N.getString("dialog.screenshot.error.failedImageGeneration"));
@@ -744,7 +734,7 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 	}
 
 	/**
-	 * This restores the layer settings on the Zone object. It should be followed by restoreZone()
+	 * This restores the layer settings on the Zone object. It should follow setupZoneLayers().
 	 * 
 	 * @return the image to be saved to a file
 	 */
@@ -777,7 +767,6 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 		setupZoneLayers();
 		boolean viewAsPlayer = ExportRadioButtons.VIEW_PLAYER.isChecked();
 
-		//
 		// First, figure out the 'extents' of the canvas
 		//   This will be later modified by the fog (for players),
 		//   and by the tiling texture (for re-importing)
@@ -788,7 +777,6 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 			// Clip to what the players know about (if applicable).
 			// This keeps the player from exporting the map to learn which
 			// direction has more 'stuff' in it.
-
 			if (viewAsPlayer) {
 				Rectangle fogE = renderer.fogExtents();
 				// MapTool.showError(fogE.x + " " + fogE.y + " " + fogE.width + " " + fogE.height);
