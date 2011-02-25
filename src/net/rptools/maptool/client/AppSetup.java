@@ -11,8 +11,12 @@
 package net.rptools.maptool.client;
 
 import java.awt.EventQueue;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -22,6 +26,7 @@ import javax.swing.JTextPane;
 import net.rptools.lib.FileUtil;
 import net.rptools.maptool.model.AssetManager;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingworker.SwingWorker;
 
@@ -29,22 +34,17 @@ import org.jdesktop.swingworker.SwingWorker;
  * Executes only the first time the application is run.
  */
 public class AppSetup {
-
 	private static final Logger log = Logger.getLogger(AppSetup.class);
 
 	public static void install() {
-
 		File appDir = AppUtil.getAppHome();
 
 		// Only init once
 		if (appDir.listFiles().length > 0) {
 			return;
 		}
-
 		try {
-
 			installDefaultTokens();
-
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
@@ -54,8 +54,23 @@ public class AppSetup {
 		installLibrary("Default", AppSetup.class.getClassLoader().getResource("default_images.zip"));
 	}
 
+	private static void createREADME() throws IOException {
+		File outFilename = new File(AppConstants.UNZIP_DIR, "README");
+		InputStream inStream = null;
+		OutputStream outStream = null;
+		try {
+			inStream = AppSetup.class.getResourceAsStream("README");
+			outStream = new BufferedOutputStream(new FileOutputStream(outFilename));
+			IOUtils.copy(inStream, outStream);
+		} finally {
+			IOUtils.closeQuietly(inStream);
+			IOUtils.closeQuietly(outStream);
+		}
+	}
+
 	public static void installLibrary(String libraryName, URL resourceFile) throws IOException {
-		File unzipDir = new File(AppConstants.UNZIP_DIR.getAbsolutePath() + File.separator + libraryName);
+		createREADME();
+		File unzipDir = new File(AppConstants.UNZIP_DIR, libraryName);
 		FileUtil.unzip(resourceFile, unzipDir);
 		installLibrary(libraryName, unzipDir);
 	}
@@ -67,9 +82,9 @@ public class AppSetup {
 			MapTool.getFrame().addAssetRoot(root);
 
 			// License
-			File licenseFile = new File(root.getAbsolutePath() + "/License.txt");
+			File licenseFile = new File(root, "License.txt");
 			if (!licenseFile.exists()) {
-				licenseFile = new File(root.getAbsolutePath() + "/license.txt");
+				licenseFile = new File(root, "license.txt");
 			}
 			if (licenseFile.exists()) {
 				final File licenseFileFinal = licenseFile;
@@ -77,7 +92,7 @@ public class AppSetup {
 					public void run() {
 						try {
 							JTextPane pane = new JTextPane();
-							pane.setPage(licenseFileFinal.toURL());
+							pane.setPage(licenseFileFinal.toString());
 							JOptionPane.showMessageDialog(MapTool.getFrame(), pane, "License for " + libraryName, JOptionPane.INFORMATION_MESSAGE);
 						} catch (MalformedURLException e) {
 							log.error("Could not load license file: " + licenseFileFinal, e);
@@ -88,7 +103,6 @@ public class AppSetup {
 				});
 			}
 		}
-
 		new SwingWorker<Object, Object>() {
 			@Override
 			protected Object doInBackground() throws Exception {
