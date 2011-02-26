@@ -14,7 +14,6 @@ import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.Path;
 
 public interface ZoneWalker {
-
 	public void setWaypoints(CellPoint... points);
 
 	public void addWaypoints(CellPoint... point);
@@ -39,7 +38,7 @@ public interface ZoneWalker {
 	boolean removeWaypoint(CellPoint point);
 
 	/**
-	 * Toggle the existance of a way point. A waypoint is added if the passed point is not on an existing waypoint or a
+	 * Toggle the existence of a way point. A waypoint is added if the passed point is not on an existing waypoint or a
 	 * waypoint is removed if it is on an existing point.
 	 * 
 	 * @param point

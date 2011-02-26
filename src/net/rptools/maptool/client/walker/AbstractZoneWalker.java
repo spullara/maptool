@@ -56,14 +56,13 @@ public abstract class AbstractZoneWalker implements ZoneWalker {
 	public CellPoint replaceLastWaypoint(CellPoint point) {
 		if (partialPaths.isEmpty())
 			return null;
-
 		PartialPath oldPartial = partialPaths.remove(partialPaths.size() - 1);
 
-		// short circuit exit of the point hasn't changed.
-		//if (oldPartial.end.equals(point)) return null;
+		// short circuit exit if the point hasn't changed.
+//		if (oldPartial.end.equals(point))
+//			return null;
 
 		partialPaths.add(new PartialPath(oldPartial.start, point, calculatePath(oldPartial.start, point)));
-
 		return oldPartial.end;
 	}
 
