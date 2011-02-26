@@ -489,7 +489,7 @@ public class Zone extends BaseModel {
 		}
 		if (MapTool.getServerPolicy().isUseIndividualFOW() && getVisionType() != VisionType.OFF) {
 			Area combined = new Area();
-			List<Token> toks = (view.getTokens() != null) ? view.getTokens() : this.getTokens();
+			List<Token> toks = (view.getTokens() != null && !view.getTokens().isEmpty()) ? view.getTokens() : this.getTokens();
 			// Should this use FindTokenFunctions.OwnedFilter and zone.getTokenList()?
 			for (Token tok : toks) {
 				if (!AppUtil.playerOwns(tok)) {
@@ -499,6 +499,7 @@ public class Zone extends BaseModel {
 					combined.add(new Area(exposedAreaMeta.get(tok.getExposedAreaGUID()).getExposedAreaHistory()));
 				}
 			}
+			combined.add(new Area(exposedArea));
 			return combined.contains(point.x, point.y);
 		} else {
 			return exposedArea.contains(point.x, point.y);
@@ -551,8 +552,22 @@ public class Zone extends BaseModel {
 		int x = token.getX();
 		int y = token.getY();
 		Rectangle tokenSize = token.getBounds(this);
-
-		return getExposedArea().intersects(x, y, tokenSize.width, tokenSize.height);
+		Area combined = new Area();
+		combined.add(new Area(exposedArea));
+		PlayerView view = MapTool.getFrame().getZoneRenderer(this).getPlayerView();
+		if (MapTool.getServerPolicy().isUseIndividualFOW() && getVisionType() != VisionType.OFF) {
+			List<Token> toks = (view.getTokens() != null && !view.getTokens().isEmpty()) ? view.getTokens() : this.getTokens();
+			// Should this use FindTokenFunctions.OwnedFilter and zone.getTokenList()?
+			for (Token tok : toks) {
+				if (!AppUtil.playerOwns(tok)) {
+					continue;
+				}
+				if (exposedAreaMeta.containsKey(tok.getExposedAreaGUID())) {
+					combined.add(new Area(exposedAreaMeta.get(tok.getExposedAreaGUID()).getExposedAreaHistory()));
+				}
+			}
+		}
+		return combined.intersects(x, y, tokenSize.width, tokenSize.height);
 	}
 
 	public void clearTopology() {
@@ -600,7 +615,19 @@ public class Zone extends BaseModel {
 		exposedArea.add(area);
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
-
+	/**
+	 * Retrieves the selected tokens and adds the passed in area to their exposed area. (Why are we passing in a
+	 * <code>Set&lt;GUID></code> when <code>Set&lt;Token></code> would be much more efficient?)
+	 * 
+	 * @param area
+	 */
+	public void exposeArea(Area area) {
+		if (area == null) {
+			return;
+		}
+		exposedArea.add(area);
+		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
+	}
 	/**
 	 * Retrieves the selected tokens and adds the passed in area to their exposed area. (Why are we passing in a
 	 * <code>Set&lt;GUID></code> when <code>Set&lt;Token></code> would be much more efficient?)
@@ -633,10 +660,16 @@ public class Zone extends BaseModel {
 				MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush();
 			}
 		}
-		exposedArea.add(area);
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
 
+	public void setFogArea(Area area) {
+		if (area == null) {
+			return;
+		}
+		exposedArea = area;
+		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
+	}
 	public void setFogArea(Area area, Set<GUID> selectedToks) {
 		if (area == null) {
 			return;
@@ -669,10 +702,18 @@ public class Zone extends BaseModel {
 				putToken(tok);
 			}
 		}
-		exposedArea = area;
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
 
+	public void hideArea(Area area ) {
+		if (area == null) {
+			return;
+		}
+		exposedArea.subtract(area);
+		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
+	
+	}
+	
 	public void hideArea(Area area, Set<GUID> selectedToks) {
 		if (area == null) {
 			return;
@@ -701,7 +742,6 @@ public class Zone extends BaseModel {
 				putToken(tok);
 			}
 		}
-		exposedArea.subtract(area);
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
 
@@ -718,24 +758,40 @@ public class Zone extends BaseModel {
 	}
 
 	public Area getExposedArea(PlayerView view) {
-		if (getVisionType() == VisionType.OFF || MapTool.isPersonalServer() || (MapTool.getServerPolicy().isUseIndividualFOW() && view.isGMView()) || !MapTool.getServerPolicy().isUseIndividualFOW()) {
-			return getExposedArea();
-		}
-		List<Token> toks = view.getTokens();
-		if (toks == null) {
-			toks = getTokens();
-		}
+
 		Area area = new Area();
-		for (Token tok : toks) {
-			if (!tok.getHasSight() || !AppUtil.playerOwns(tok)) {
-				continue;
-			}
-			if (exposedAreaMeta.containsKey(tok.getExposedAreaGUID())) {
-				ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getExposedAreaGUID());
-				area.add(new Area(meta.getExposedAreaHistory()));
-			}
+		Area combined = new Area();
+		
+
+		if (getVisionType() == VisionType.OFF
+				|| MapTool.isPersonalServer()
+				|| (MapTool.getServerPolicy().isUseIndividualFOW() && view.isGMView())
+				|| !MapTool.getServerPolicy().isUseIndividualFOW()) {
+			combined = getExposedArea();
+			return combined;
 		}
-		return area;
+		
+		List<Token> toks = view.getTokens();
+		if (toks == null || toks.isEmpty()) {
+
+			if (toks == null) {
+
+				toks = getTokens();
+			}
+
+			for (Token tok : toks) {
+				if (!tok.getHasSight() || !AppUtil.playerOwns(tok)) {
+					continue;
+				}
+				if (exposedAreaMeta.containsKey(tok.getExposedAreaGUID())) {
+					ExposedAreaMetaData meta = exposedAreaMeta.get(tok
+							.getExposedAreaGUID());
+					area.add(new Area(meta.getExposedAreaHistory()));
+				}
+			}
+			combined.add(area);
+		}
+		return combined;
 	}
 
 	public Area getExposedArea() {

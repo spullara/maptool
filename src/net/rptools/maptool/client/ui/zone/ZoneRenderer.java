@@ -1255,12 +1255,13 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			Area clip = new Area(new Rectangle(getSize().width, getSize().height));
 			if (zone.getVisionType() != VisionType.OFF && MapTool.getServerPolicy().isUseIndividualFOW()) {
 				Area viewArea = new Area();
-				if (view.getTokens() != null) {
+				if (view.getTokens() != null && !view.getTokens().isEmpty()) {
 					for (Token tok : view.getTokens()) {
 						ExposedAreaMetaData exposedMeta = zone.getExposedAreaMetaData(tok.getExposedAreaGUID());
 						viewArea.add(new Area(exposedMeta.getExposedAreaHistory()));
 					}
 				}
+				viewArea.add(zone.getExposedArea());
 				clip.intersect(viewArea);
 			} else {
 				clip.intersect(exposedFogArea);
@@ -1290,11 +1291,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		Area currentTokenVisionArea = zoneView.getVisibleArea(tokenUnderMouse);
 		if (currentTokenVisionArea == null)
 			return;
-
+		Area combined = new Area();
+		combined.add(currentTokenVisionArea);
 		ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tokenUnderMouse.getExposedAreaGUID());
 		if (zone.getVisionType() != VisionType.OFF && MapTool.getServerPolicy().isUseIndividualFOW()) {
 			meta.getExposedAreaHistory();
-			currentTokenVisionArea.intersect(meta.getExposedAreaHistory());
+			combined.intersect(meta.getExposedAreaHistory());
 		}
 
 		boolean isOwner = AppUtil.playerOwns(tokenUnderMouse);
@@ -1316,7 +1318,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
 			af.scale(getScale(), getScale());
 
-			Area area = currentTokenVisionArea.createTransformedArea(af);
+			Area area = combined.createTransformedArea(af);
 			g.setClip(this.getBounds());
 			SwingUtil.useAntiAliasing(g);
 			//g.setStroke(new BasicStroke(2));
