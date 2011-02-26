@@ -499,7 +499,7 @@ public class Zone extends BaseModel {
 					combined.add(new Area(exposedAreaMeta.get(tok.getExposedAreaGUID()).getExposedAreaHistory()));
 				}
 			}
-			combined.add(new Area(exposedArea));
+			combined.add(exposedArea);
 			return combined.contains(point.x, point.y);
 		} else {
 			return exposedArea.contains(point.x, point.y);
@@ -508,12 +508,12 @@ public class Zone extends BaseModel {
 
 	public boolean isEmpty() {
 		// @formatter:off
-		return	(drawables == null || drawables.size() == 0) &&
-					(gmDrawables == null || gmDrawables.size() == 0) &&
-					(objectDrawables == null || objectDrawables.size() == 0) &&
-					(backgroundDrawables == null || backgroundDrawables.size() == 0) &&
-					(tokenOrderedList == null || tokenOrderedList.size() == 0) &&
-					(labels == null || labels.size() == 0);
+		return	(drawables == null || drawables.isEmpty()) &&
+					(gmDrawables == null || gmDrawables.isEmpty()) &&
+					(objectDrawables == null || objectDrawables.isEmpty()) &&
+					(backgroundDrawables == null || backgroundDrawables.isEmpty()) &&
+					(tokenOrderedList == null || tokenOrderedList.isEmpty()) &&
+					(labels == null || labels.isEmpty());
 		// @formatter:on
 	}
 
@@ -615,9 +615,10 @@ public class Zone extends BaseModel {
 		exposedArea.add(area);
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
+
 	/**
-	 * Retrieves the selected tokens and adds the passed in area to their exposed area. (Why are we passing in a
-	 * <code>Set&lt;GUID></code> when <code>Set&lt;Token></code> would be much more efficient?)
+	 * Modifies the global exposed area (GEA) by adding the contents of the passed in Area and firing a
+	 * ModelChangeEvent.
 	 * 
 	 * @param area
 	 */
@@ -628,6 +629,7 @@ public class Zone extends BaseModel {
 		exposedArea.add(area);
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
+
 	/**
 	 * Retrieves the selected tokens and adds the passed in area to their exposed area. (Why are we passing in a
 	 * <code>Set&lt;GUID></code> when <code>Set&lt;Token></code> would be much more efficient?)
@@ -663,6 +665,12 @@ public class Zone extends BaseModel {
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
 
+	/**
+	 * Modifies the global exposed area (GEA) by setting it to the contents of the passed in Area and firing a
+	 * ModelChangeEvent.
+	 * 
+	 * @param area
+	 */
 	public void setFogArea(Area area) {
 		if (area == null) {
 			return;
@@ -670,6 +678,7 @@ public class Zone extends BaseModel {
 		exposedArea = area;
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
+
 	public void setFogArea(Area area, Set<GUID> selectedToks) {
 		if (area == null) {
 			return;
@@ -705,15 +714,20 @@ public class Zone extends BaseModel {
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
 
-	public void hideArea(Area area ) {
+	/**
+	 * Modifies the global exposed area (GEA) by subtracting the contents of the passed in Area and firing a
+	 * ModelChangeEvent.
+	 * 
+	 * @param area
+	 */
+	public void hideArea(Area area) {
 		if (area == null) {
 			return;
 		}
 		exposedArea.subtract(area);
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
-	
 	}
-	
+
 	public void hideArea(Area area, Set<GUID> selectedToks) {
 		if (area == null) {
 			return;
@@ -758,10 +772,7 @@ public class Zone extends BaseModel {
 	}
 
 	public Area getExposedArea(PlayerView view) {
-
-		Area area = new Area();
 		Area combined = new Area();
-		
 
 		if (getVisionType() == VisionType.OFF
 				|| MapTool.isPersonalServer()
@@ -770,26 +781,18 @@ public class Zone extends BaseModel {
 			combined = getExposedArea();
 			return combined;
 		}
-		
 		List<Token> toks = view.getTokens();
 		if (toks == null || toks.isEmpty()) {
-
-			if (toks == null) {
-
-				toks = getTokens();
+			toks = getTokens();
+		}
+		for (Token tok : toks) {
+			if (!tok.getHasSight() || !AppUtil.playerOwns(tok)) {
+				continue;
 			}
-
-			for (Token tok : toks) {
-				if (!tok.getHasSight() || !AppUtil.playerOwns(tok)) {
-					continue;
-				}
-				if (exposedAreaMeta.containsKey(tok.getExposedAreaGUID())) {
-					ExposedAreaMetaData meta = exposedAreaMeta.get(tok
-							.getExposedAreaGUID());
-					area.add(new Area(meta.getExposedAreaHistory()));
-				}
+			if (exposedAreaMeta.containsKey(tok.getExposedAreaGUID())) {
+				ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getExposedAreaGUID());
+				combined.add(new Area(meta.getExposedAreaHistory()));
 			}
-			combined.add(area);
 		}
 		return combined;
 	}
