@@ -16,28 +16,38 @@ import org.apache.log4j.Logger;
 import com.jidesoft.dialog.JideOptionPane;
 
 public class MapToolEventQueue extends EventQueue {
-
 	private static final Logger log = Logger.getLogger(MapToolEventQueue.class);
-	
-    @Override
-    protected void dispatchEvent(AWTEvent event) {
-        try {
-            super.dispatchEvent(event);
-        } catch (Throwable e) {
-        	log.error(e, e);
-        	JideOptionPane optionPane = new JideOptionPane(I18N.getString("MapToolEventQueue.details"), JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION); //$NON-NLS-1$
-            optionPane.setTitle(I18N.getString("MapToolEventQueue.unexpectedError")); //$NON-NLS-1$
-            optionPane.setDetails(toString(e));
-            JDialog dialog = optionPane.createDialog(MapTool.getFrame(), I18N.getString("MapToolEventQueue.warning")); //$NON-NLS-1$
-            dialog.setResizable(true);
-            dialog.pack();
-            dialog.setVisible(true);
-        }
-    }
+	private static final JideOptionPane optionPane = new JideOptionPane(I18N.getString("MapToolEventQueue.details"), JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION); //$NON-NLS-1$
 
-    private static String toString(Throwable t) {
-    	ByteArrayOutputStream out = new ByteArrayOutputStream(); 
-    	t.printStackTrace(new PrintStream(out));
-    	return out.toString();
-    }
+	@Override
+	protected void dispatchEvent(AWTEvent event) {
+		try {
+			super.dispatchEvent(event);
+		} catch (StackOverflowError soe) {
+			log.error(soe, soe);
+			optionPane.setTitle(I18N.getString("MapToolEventQueue.stackOverflow.title")); //$NON-NLS-1$
+			optionPane.setDetails(I18N.getString("MapToolEventQueue.stackOverflow"));
+			displayPopup();
+		} catch (Throwable t) {
+			log.error(t, t);
+			optionPane.setTitle(I18N.getString("MapToolEventQueue.unexpectedError")); //$NON-NLS-1$
+			optionPane.setDetails(toString(t));
+			displayPopup();
+		}
+	}
+
+	private static void displayPopup() {
+		JDialog dialog = optionPane.createDialog(MapTool.getFrame(), I18N.getString("MapToolEventQueue.warning.title")); //$NON-NLS-1$
+		dialog.setResizable(true);
+		dialog.pack();
+		dialog.setVisible(true);
+	}
+
+	private static String toString(Throwable t) {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		PrintStream ps = new PrintStream(out);
+		t.printStackTrace(ps);
+		ps.close();
+		return out.toString();
+	}
 }
