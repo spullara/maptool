@@ -42,7 +42,6 @@ import com.caucho.hessian.client.HessianRuntimeException;
  * @author trevor
  */
 public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences> {
-
 	private boolean accepted;
 
 	private StartServerDialogPreferences prefs;
@@ -96,7 +95,7 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 			}
 		});
 
-		movementMetricCombo = (JComboBox) getComponent("movementMetric");
+		movementMetricCombo = getMovementMetric();
 		DefaultComboBoxModel movementMetricModel = new DefaultComboBoxModel();
 		movementMetricModel.addElement(WalkerMetric.ONE_TWO_ONE);
 		movementMetricModel.addElement(WalkerMetric.ONE_ONE_ONE);

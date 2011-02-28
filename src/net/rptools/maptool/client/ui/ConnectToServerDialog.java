@@ -16,6 +16,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -269,6 +270,14 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 		}
 		getUsernameTextField().setText(username);
 
+		String externalAddress = "Unknown";
+		try {
+			externalAddress = MapToolRegistry.getAddress();
+		} catch (Exception e) {
+			// Oh well, might not be connected
+		}
+		System.out.println("External address is: " + externalAddress);
+
 		JComponent selectedPanel = (JComponent) getTabPane().getSelectedComponent();
 		if (SwingUtil.hasComponent(selectedPanel, "lanPanel")) {
 			if (getLocalServerList().getSelectedIndex() < 0) {
@@ -327,6 +336,17 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 				MapTool.showError("ServerDialog.error.portNumberException");
 				return;
 			}
+		}
+		try {
+			InetAddress server = InetAddress.getByName(hostname);
+			InetAddress extAddress = InetAddress.getByName(externalAddress);
+			if (extAddress != null && extAddress.equals(server)) {
+				boolean yes = MapTool.confirm("ConnectToServerDialog.warning.doNotUseExternalAddress", I18N.getString("menu.file"), I18N.getString("action.showConnectionInfo"));
+				if (!yes)
+					return;
+			}
+		} catch (UnknownHostException e) {
+			// If an exception occurs, don't bother doing the comparison.  But otherwise it's not an error.
 		}
 		if (commit()) {
 			accepted = true;

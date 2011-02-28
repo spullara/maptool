@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client;
 
@@ -19,9 +16,7 @@ import java.util.List;
 import com.caucho.hessian.client.HessianProxyFactory;
 
 public class MapToolRegistry {
-
 	private static final String SERVICE_URL = "http://services.rptools.net/maptool_registry-1_3.php";
-
 	private static MapToolRegistryService service;
 
 	static {
@@ -34,22 +29,22 @@ public class MapToolRegistry {
 		}
 	}
 
-    public static String findInstance(String id) {
-        checkService();
-        return service.findInstance(id);
-    }
+	public static String findInstance(String id) {
+		checkService();
+		return service.findInstance(id);
+	}
 
-    public static List<String> findAllInstances() {
-        checkService();
-        return service.findAllInstances();
-    }
+	public static List<String> findAllInstances() {
+		checkService();
+		return service.findAllInstances();
+	}
 
-    public static String getAddress() {
-    	checkService();
-    	return service.getAddress();
-    }
+	public static String getAddress() {
+		checkService();
+		return service.getAddress();
+	}
 
-    public static int registerInstance(String id, int port) {
+	public static int registerInstance(String id, int port) {
 		checkService();
 		return service.registerInstance(id, port, MapTool.getVersion());
 	}
@@ -76,32 +71,32 @@ public class MapToolRegistry {
 	}
 
 	public static void main(String[] args) throws Exception {
-		long delay = 0;
-
+//		long delay = 0;
+//
 //		Thread.sleep(delay);
-//		System.out.println ("Register");
+//		System.out.println("Register");
 //		registerInstance("my test", 4444);
 //
 //		Thread.sleep(delay);
-//		System.out.println ("Heartbeat");
+//		System.out.println("Heartbeat");
 //
 //		heartBeat(4444);
 //
 //		Thread.sleep(delay);
-//		System.out.println ("Find: " + findInstance("my test"));
+//		System.out.println("Find: " + findInstance("my test"));
 //
 //		Thread.sleep(delay);
-//        System.out.println ("RERegister");
-//        registerInstance("my test", 4444);
+//		System.out.println("RERegister");
+//		registerInstance("my test", 4444);
 //
-//        Thread.sleep(delay);
-//        System.out.println ("Find: " + findInstance("my test"));
+//		Thread.sleep(delay);
+//		System.out.println("Find: " + findInstance("my test"));
 //
-//        Thread.sleep(delay);
-//        System.out.println ("Find: " + findInstance("my test"));
+//		Thread.sleep(delay);
+//		System.out.println("Find: " + findInstance("my test"));
 //
-//        Thread.sleep(delay);
-//		System.out.println ("UnRegister");
+//		Thread.sleep(delay);
+//		System.out.println("UnRegister");
 //		unregisterInstance(4444);
 
 		System.out.println("Test: " + testConnection(51234));

@@ -30,7 +30,6 @@ import net.rptools.maptool.server.MapToolServer;
 import com.jeta.forms.components.panel.FormPanel;
 
 public class ConnectionInfoDialog extends JDialog {
-
 	private final JTextField externalAddressLabel;
 
 	/**
@@ -52,7 +51,6 @@ public class ConnectionInfoDialog extends JDialog {
 		if (name == null) {
 			name = "---";
 		}
-
 		String localAddress = "Unknown";
 		try {
 			InetAddress rptools = InetAddress.getByName("www.rptools.net");
@@ -62,7 +60,6 @@ public class ConnectionInfoDialog extends JDialog {
 			System.err.println("Can't resolve 'www.rptools.net' or our own IP address!");
 			e.printStackTrace();
 		}
-
 		String externalAddress = "Discovering ...";
 		String port = MapTool.isPersonalServer() ? "---" : Integer.toString(server.getConfig().getPort());
 
@@ -83,7 +80,6 @@ public class ConnectionInfoDialog extends JDialog {
 
 	@Override
 	public void setVisible(boolean b) {
-
 		if (b) {
 			SwingUtil.centerOver(this, MapTool.getFrame());
 		}
@@ -96,7 +92,6 @@ public class ConnectionInfoDialog extends JDialog {
 	 * @return javax.swing.JButton
 	 */
 	private void bindOKButtonActions(JButton okButton) {
-
 		okButton.addActionListener(new ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent e) {
 				setVisible(false);
@@ -106,14 +101,12 @@ public class ConnectionInfoDialog extends JDialog {
 
 	private class ExternalAddressFinder implements Runnable {
 		public void run() {
-
 			String address = "Unknown";
 			try {
 				address = MapToolRegistry.getAddress();
 			} catch (Exception e) {
 				// Oh well, might not be connected
 			}
-
 			final String addy = address;
 			EventQueue.invokeLater(new Runnable() {
 				public void run() {
@@ -122,5 +115,4 @@ public class ConnectionInfoDialog extends JDialog {
 			});
 		}
 	}
-
-} //  @jve:decl-index=0:visual-constraint="10,10"
+}
