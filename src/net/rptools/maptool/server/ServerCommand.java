@@ -151,7 +151,7 @@ public interface ServerCommand {
 
 	public void bringTokensToFront(GUID zoneGUID, Set<GUID> tokenSet);
 
-	public void clearAllDrawings(GUID zoneGUID);
+	public void clearAllDrawings(GUID zoneGUID, Zone.Layer layer);
 
 	public void enforceZone(GUID zoneGUID);
 

@@ -660,11 +660,12 @@ public class AppActions {
 			if (renderer == null) {
 				return;
 			}
-			if (!MapTool.confirm("msg.confirm.clearAllDrawings")) {
+			Zone.Layer layer = renderer.getActiveLayer();
+			if (!MapTool.confirm("msg.confirm.clearAllDrawings", layer)) {
 				return;
 			}
 			// LATER: Integrate this with the undo stuff
-			MapTool.serverCommand().clearAllDrawings(renderer.getZone().getId());
+			MapTool.serverCommand().clearAllDrawings(renderer.getZone().getId(), layer);
 		}
 
 		@Override

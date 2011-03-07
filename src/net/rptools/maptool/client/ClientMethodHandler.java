@@ -126,8 +126,9 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 
 				case clearAllDrawings:
 					zoneGUID = (GUID) parameters[0];
+					Zone.Layer layer = (Zone.Layer) parameters[1];
 					zone = MapTool.getCampaign().getZone(zoneGUID);
-					zone.getDrawnElements().clear();
+					zone.getDrawnElements(layer).clear();
 
 					MapTool.getFrame().refresh();
 					return;

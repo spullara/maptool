@@ -163,7 +163,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 				updateTokenMove(context.getGUID(0), context.getGUID(1), context.getInt(2), context.getInt(3));
 				break;
 			case clearAllDrawings:
-				clearAllDrawings(context.getGUID(0));
+				clearAllDrawings(context.getGUID(0), (Zone.Layer) context.get(1));
 				break;
 			case enforceZone:
 				enforceZone(context.getGUID(0));
@@ -289,9 +289,9 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 		}
 	}
 
-	public void clearAllDrawings(GUID zoneGUID) {
+	public void clearAllDrawings(GUID zoneGUID, Zone.Layer layer) {
 		Zone zone = server.getCampaign().getZone(zoneGUID);
-		zone.getDrawnElements().clear();
+		zone.getDrawnElements(layer).clear();
 		forwardToAllClients();
 	}
 
