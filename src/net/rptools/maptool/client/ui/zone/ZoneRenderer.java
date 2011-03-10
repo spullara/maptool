@@ -1253,19 +1253,21 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		Graphics2D g2 = (Graphics2D) g.create();
 		if (zone.hasFog() && exposedFogArea != null) {
 			Area clip = new Area(new Rectangle(getSize().width, getSize().height));
-			if (zone.getVisionType() != VisionType.OFF && MapTool.getServerPolicy().isUseIndividualFOW()) {
+			 
 				Area viewArea = new Area();
 				if (view.getTokens() != null && !view.getTokens().isEmpty()) {
 					for (Token tok : view.getTokens()) {
+						if (!AppUtil.playerOwns(tok)) {
+							continue;
+						}
 						ExposedAreaMetaData exposedMeta = zone.getExposedAreaMetaData(tok.getExposedAreaGUID());
 						viewArea.add(new Area(exposedMeta.getExposedAreaHistory()));
 					}
 				}
 				viewArea.add(zone.getExposedArea());
 				clip.intersect(viewArea);
-			} else {
-				clip.intersect(exposedFogArea);
-			}
+			
+
 			AffineTransform af = new AffineTransform();
 			//af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
 			af.scale(+1, +1);
@@ -1294,10 +1296,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		Area combined = new Area();
 		combined.add(currentTokenVisionArea);
 		ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tokenUnderMouse.getExposedAreaGUID());
-		if (zone.getVisionType() != VisionType.OFF && MapTool.getServerPolicy().isUseIndividualFOW()) {
-			meta.getExposedAreaHistory();
-			combined.intersect(meta.getExposedAreaHistory());
-		}
+		
+		Area tmpArea = new Area(meta.getExposedAreaHistory());
+		tmpArea.add(new Area(zone.getExposedArea()));
+		combined.intersect(tmpArea);
 
 		boolean isOwner = AppUtil.playerOwns(tokenUnderMouse);
 		boolean tokenIsPC = tokenUnderMouse.getType() == Token.Type.PC;
@@ -1432,64 +1434,16 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			af.translate(getViewOffsetX(), getViewOffsetY());
 			af.scale(getScale(), getScale());
 
-//			buffG.setPaint(new TexturePaint(AppStyle.panelTexture, new Rectangle(0,0, size.width, size.height)));
 			buffG.setTransform(af);
 			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, view.isGMView() ? .6f : 1f));
 
 			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
 
 			Area visibleArea = zoneView.getVisibleArea(view);
-//			visibleArea.getBounds().getCenterX();
 			Area combined = zone.getExposedArea(view);
-			Area exposedArea = null;
-			Area tempArea = new Area();
-			boolean combinedView = !zoneView.isUsingVision() || MapTool.isPersonalServer() || !MapTool.getServerPolicy().isUseIndividualFOW() || view.isGMView();
-
-			if (view.getTokens() != null) {
-				// if there are tokens selected combine the areas, then, if individual FOW is enabled
-				// we pass the combined exposed area to build the soft FOW and visible area.
-				for (Token tok : view.getTokens()) {
-					ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tok.getExposedAreaGUID());
-					exposedArea = meta.getExposedAreaHistory();
-					tempArea.add(new Area(exposedArea));
-				}
-				if (combinedView) {
-//					combined = zone.getExposedArea(view);
-					buffG.fill(combined);
-					renderFogArea(buffG, view, combined, visibleArea);
-					renderFogOutline(buffG, view, combined);
-				} else {
-					buffG.fill(tempArea);
-					renderFogArea(buffG, view, tempArea, visibleArea);
-					renderFogOutline(buffG, view, tempArea);
-				}
-			} else {
-				// No tokens selected, so if we are using Individual FOW, we build up all the owned tokens
-				// exposed area's to build the soft FOW.
-				if (combinedView) {
-					if (combined.isEmpty()) {
-						combined = zone.getExposedArea();
-					}
-					buffG.fill(combined);
-					renderFogArea(buffG, view, combined, visibleArea);
-					renderFogOutline(buffG, view, combined);
-				} else {
-					Area myCombined = new Area();
-					List<Token> myToks = zone.getTokens();
-					for (Token tok : myToks) {
-						if (!AppUtil.playerOwns(tok)) {
-							continue;
-						}
-						ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tok.getExposedAreaGUID());
-						exposedArea = meta.getExposedAreaHistory();
-						myCombined.add(new Area(exposedArea));
-					}
-					buffG.fill(myCombined);
-					renderFogArea(buffG, view, myCombined, visibleArea);
-					renderFogOutline(buffG, view, myCombined);
-				}
-			}
-			// Soft fog
+		
+			renderFogArea(buffG, view, combined, visibleArea);
+			renderFogOutline(buffG, view, combined);
 			buffG.dispose();
 			flushFog = false;
 		}
@@ -2530,7 +2484,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				if (!AppUtil.playerOwns(token)) {
 					selectedBorder = AppStyle.selectedUnownedBorder;
 				}
-				if (useIF && !token.isStamp()) {
+				if (useIF && !token.isStamp() && zoneView.isUsingVision()) {
 					Tool tool = MapTool.getFrame().getToolbox().getSelectedTool();
 					if (tool instanceof RectangleExposeTool // XXX Change to use marker interface such as ExposeTool?
 							|| tool instanceof OvalExposeTool || tool instanceof FreehandExposeTool || tool instanceof PolygonExposeTool)

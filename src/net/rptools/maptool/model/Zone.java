@@ -606,7 +606,7 @@ public class Zone extends BaseModel {
 				if (meta == null)
 					meta = new ExposedAreaMetaData();
 				meta.addToExposedAreaHistory(new Area(area));
-				meta.addToExposedAreaHistory(MapTool.getFrame().getZoneRenderer(getId()).getZoneView().getVisibleArea(token));
+				//meta.addToExposedAreaHistory(MapTool.getFrame().getZoneRenderer(getId()).getZoneView().getVisibleArea(token));
 				exposedAreaMeta.put(token.getExposedAreaGUID(), meta);
 				MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush();
 				putToken(token);
@@ -616,23 +616,11 @@ public class Zone extends BaseModel {
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
 
-	/**
-	 * Modifies the global exposed area (GEA) by adding the contents of the passed in Area and firing a
-	 * ModelChangeEvent.
-	 * 
-	 * @param area
-	 */
-	public void exposeArea(Area area) {
-		if (area == null) {
-			return;
-		}
-		exposedArea.add(area);
-		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
-	}
 
 	/**
-	 * Retrieves the selected tokens and adds the passed in area to their exposed area. (Why are we passing in a
-	 * <code>Set&lt;GUID></code> when <code>Set&lt;Token></code> would be much more efficient?)
+	 * Retrieves the selected tokens and adds the passed in area to their
+	 * exposed area. (Why are we passing in a <code>Set&lt;GUID></code> when
+	 * <code>Set&lt;Token></code> would be much more efficient?)
 	 * 
 	 * @param area
 	 * @param selectedToks
@@ -641,124 +629,121 @@ public class Zone extends BaseModel {
 		if (area == null) {
 			return;
 		}
-		if (MapTool.getServerPolicy().isUseIndividualFOW()) {
+		if(getVisionType() == VisionType.OFF)
+		{
+			exposedArea.subtract(new Area(area));
+		}
+		if (selectedToks != null && !selectedToks.isEmpty()
+				&& MapTool.getServerPolicy().isUseIndividualFOW()) {
 			List<Token> allToks = new ArrayList<Token>();
-			if (selectedToks != null && selectedToks.size() > 0) {
-				for (GUID guid : selectedToks) {
-					allToks.add(getToken(guid));
-				}
-			} else {
-				allToks = getTokens();
+
+			for (GUID guid : selectedToks) {
+				allToks.add(getToken(guid));
 			}
 			for (Token tok : allToks) {
 				if (!tok.getHasSight()) {
 					continue;
 				}
-				ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getExposedAreaGUID());
+				ExposedAreaMetaData meta = exposedAreaMeta.get(tok
+						.getExposedAreaGUID());
 				if (meta == null)
 					meta = new ExposedAreaMetaData();
 				meta.addToExposedAreaHistory(new Area(area));
 				exposedAreaMeta.put(tok.getExposedAreaGUID(), meta);
-				MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush();
+				MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView()
+						.flush();
 			}
+		} else {
+			exposedArea.add(area);
 		}
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
 
 	/**
-	 * Modifies the global exposed area (GEA) by setting it to the contents of the passed in Area and firing a
+	 * Modifies the global exposed area (GEA) or token exposed by resetting it and then setting it to the contents of the passed in Area and firing a
 	 * ModelChangeEvent.
 	 * 
 	 * @param area
+	 * @param selectedToks
 	 */
-	public void setFogArea(Area area) {
-		if (area == null) {
-			return;
-		}
-		exposedArea = area;
-		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
-	}
 
 	public void setFogArea(Area area, Set<GUID> selectedToks) {
 		if (area == null) {
 			return;
 		}
-		if (getVisionType() != VisionType.OFF && MapTool.getServerPolicy().isUseIndividualFOW()) {
+	
+		if (selectedToks != null && !selectedToks.isEmpty()  ) {
+
 			List<Token> allToks = new ArrayList<Token>();
-			if (selectedToks != null && selectedToks.size() > 0) {
-				for (GUID guid : selectedToks) {
-					allToks.add(getToken(guid));
-				}
-			} else {
-				allToks = getTokens();
+
+			for (GUID guid : selectedToks) {
+				allToks.add(getToken(guid));
 			}
+
 			for (Token tok : allToks) {
 				if (!tok.getHasSight()) {
 					continue;
 				}
-				if (exposedAreaMeta.containsKey(tok.getExposedAreaGUID())) {
-					ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getExposedAreaGUID());
-					meta.clearExposedAreaHistory();
-					meta.addToExposedAreaHistory(new Area(area));
-					exposedAreaMeta.put(tok.getExposedAreaGUID(), meta);
-				} else {
-					ExposedAreaMetaData meta = new ExposedAreaMetaData();
-					meta.clearExposedAreaHistory();
-					meta.addToExposedAreaHistory(new Area(area));
-					exposedAreaMeta.put(tok.getExposedAreaGUID(), meta);
+
+				ExposedAreaMetaData meta = exposedAreaMeta.get(tok
+						.getExposedAreaGUID());
+				if (meta == null) {
+					meta = new ExposedAreaMetaData();
 				}
-				MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush(tok);
+				meta.clearExposedAreaHistory();
+				meta.addToExposedAreaHistory(new Area(area));
+				exposedAreaMeta.put(tok.getExposedAreaGUID(), meta);
+				MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView()
+						.flush(tok);
 				putToken(tok);
 			}
+		} else {
+			exposedArea.reset();
+			exposedArea.add(new Area(area));
 		}
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
 
-	/**
-	 * Modifies the global exposed area (GEA) by subtracting the contents of the passed in Area and firing a
-	 * ModelChangeEvent.
-	 * 
-	 * @param area
-	 */
-	public void hideArea(Area area) {
-		if (area == null) {
-			return;
-		}
-		exposedArea.subtract(area);
-		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
-	}
 
 	public void hideArea(Area area, Set<GUID> selectedToks) {
 		if (area == null) {
 			return;
 		}
-		if (MapTool.getServerPolicy().isUseIndividualFOW()) {
+		if(getVisionType() == VisionType.OFF)
+		{
+			exposedArea.subtract(new Area(area));
+		}
+		if (selectedToks != null && !selectedToks.isEmpty()
+				&& MapTool.getServerPolicy().isUseIndividualFOW()) {
 			List<Token> allToks = new ArrayList<Token>();
-			if (selectedToks != null && selectedToks.size() > 0) {
-				for (GUID guid : selectedToks) {
-					allToks.add(getToken(guid));
-				}
-			} else {
-				allToks = getTokens();
+
+			for (GUID guid : selectedToks) {
+				allToks.add(getToken(guid));
 			}
+
 			for (Token tok : allToks) {
 				if (!tok.getHasSight()) {
 					continue;
 				}
-				if (exposedAreaMeta != null) {
-					ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getExposedAreaGUID());
-					if (meta == null)
-						meta = new ExposedAreaMetaData();
-					meta.removeExposedAreaHistory(new Area(area));
-					exposedAreaMeta.put(tok.getExposedAreaGUID(), meta);
+
+				ExposedAreaMetaData meta = exposedAreaMeta.get(tok
+						.getExposedAreaGUID());
+				if (meta == null) {
+					meta = new ExposedAreaMetaData();
 				}
-				MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush(tok);
+				meta.removeExposedAreaHistory(new Area(area));
+				exposedAreaMeta.put(tok.getExposedAreaGUID(), meta);
+				MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView()
+						.flush(tok);
 				putToken(tok);
 			}
+		} else {
+			exposedArea.subtract(new Area(area));
 		}
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
 
+	
 	public long getCreationTime() {
 		return creationTime;
 	}
@@ -774,13 +759,11 @@ public class Zone extends BaseModel {
 	public Area getExposedArea(PlayerView view) {
 		Area combined = new Area();
 
-		if (getVisionType() == VisionType.OFF
-				|| MapTool.isPersonalServer()
-				|| (MapTool.getServerPolicy().isUseIndividualFOW() && view.isGMView())
-				|| !MapTool.getServerPolicy().isUseIndividualFOW()) {
-			combined = getExposedArea();
-			return combined;
-		}
+		//if ((MapTool.getServerPolicy().isUseIndividualFOW() && view.isGMView())
+		//		|| !MapTool.getServerPolicy().isUseIndividualFOW()) {
+		//	combined = getExposedArea();
+		//	return combined;
+		//}
 		List<Token> toks = view.getTokens();
 		if (toks == null || toks.isEmpty()) {
 			toks = getTokens();
@@ -794,6 +777,7 @@ public class Zone extends BaseModel {
 				combined.add(new Area(meta.getExposedAreaHistory()));
 			}
 		}
+		combined.add(new Area (getExposedArea()));
 		return combined;
 	}
 
