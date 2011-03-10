@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.ui.macrobuttons.buttongroups;
 
@@ -20,8 +17,8 @@ import java.awt.Insets;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Collections;
+import java.util.List;
 
 import javax.swing.SwingUtilities;
 
@@ -32,7 +29,6 @@ import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Token;
 
 public class AreaGroup extends AbstractButtonGroup {
-
 	// constructor for creating an area group in the campaign/global panels
 	public AreaGroup(List<MacroButtonProperties> propertiesList, String panelLabel, AbstractMacroPanel panel) {
 		setPropertiesList(propertiesList);
@@ -58,23 +54,22 @@ public class AreaGroup extends AbstractButtonGroup {
 	}
 
 	// constructor for creating an area spacer, used to take up space where an area label would be
-	public AreaGroup(int height, AbstractMacroPanel panel){
+	public AreaGroup(int height, AbstractMacroPanel panel) {
 		setSpacerHeight(height);
 		setPanel(panel);
 		setPanelClass(panel.getPanelClass());
 		setOpaque(false);
 //		addMouseListener(this);  don't use; the label has its own 
 	}
-	
-	public void drawArea(){
-		if (getToken() == null && getGroupLabel().equals("")){
+
+	public void drawArea() {
+		if (getToken() == null && getGroupLabel().equals("")) {
 			// don't put an extra border around the campaign/global panels, or if there is no label
 		} else {
 			ThumbnailedBorder border = createBorder(getGroupLabel());
 			setBorder(border);
 			add(new AreaGroup(12, getPanel())); // spacer
 		}
-
 		String lastGroup = "akjaA#$Qq4jakjj#%455jkkajDAJFAJ"; // random string
 		String currentGroup = "";
 
@@ -82,38 +77,39 @@ public class AreaGroup extends AbstractButtonGroup {
 		List<MacroButtonProperties> groupList = new ArrayList<MacroButtonProperties>();
 		Collections.sort(propertiesList);
 
-		if (propertiesList.isEmpty()){
+		if (propertiesList.isEmpty()) {
 			add(new ButtonGroup(propertiesList, "", getPanel(), getTokenId(), this));
 		} else {
 			// build separate button groups for each user-defined group
 			for (MacroButtonProperties prop : propertiesList) {
 				currentGroup = prop.getGroup();
-				if ( !groupList.isEmpty() && !lastGroup.equalsIgnoreCase(currentGroup)){
+				if (!groupList.isEmpty() && !lastGroup.equalsIgnoreCase(currentGroup)) { // better to use currentGroup.equals(lastGroup) since lastGroup could be initialized to null
 					add(new ButtonGroup(groupList, lastGroup, getPanel(), getTokenId(), this));
 					groupList.clear();
 				}
 				lastGroup = currentGroup;
 				groupList.add(prop);
 			}
-			if (!groupList.isEmpty()){
+			if (!groupList.isEmpty()) {
 				add(new ButtonGroup(groupList, lastGroup, getPanel(), getTokenId(), this));
 				groupList.clear();
 			}
 		}
-
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		revalidate();
 		repaint();
 	}
 
+	@Override
 	public void drop(DropTargetDropEvent event) {
 		//System.out.println("BG: drop!");
-		event.rejectDrop();  // don't accept drops in an area group, it should be in the button group
+		event.rejectDrop(); // don't accept drops in an area group, it should be in the button group
 		event.dropComplete(true);
 	}
 
+	@Override
 	public Insets getInsets() {
-		return new Insets(0,1,3,0);
+		return new Insets(0, 1, 3, 0);
 	}
 
 	@Override
@@ -128,7 +124,7 @@ public class AreaGroup extends AbstractButtonGroup {
 		for (Component c : getComponents()) {
 			Dimension cSize = c.getPreferredSize();
 			if (rowWidth + cSize.width + layout.getHgap() - 5 > availableWidth && rowWidth > 0) {
-				height += rowHeight + layout.getVgap(); 
+				height += rowHeight + layout.getVgap();
 				rowHeight = 0;
 				rowWidth = insets.left + layout.getHgap() + insets.right;
 			}
@@ -141,20 +137,20 @@ public class AreaGroup extends AbstractButtonGroup {
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent event)	{
+	public void mouseReleased(MouseEvent event) {
 		Token token = getToken();
 		if (SwingUtilities.isRightMouseButton(event)) {
-			if (getPanelClass()=="CampaignPanel" && !MapTool.getPlayer().isGM()) {
+			if (getPanelClass() == "CampaignPanel" && !MapTool.getPlayer().isGM()) {
 				return;
 			}
 			// open button group menu
-			new ButtonGroupPopupMenu(getPanelClass(), this, getMacroGroup() ,token).show(this, event.getX(), event.getY());
+			new ButtonGroupPopupMenu(getPanelClass(), this, getMacroGroup(), token).show(this, event.getX(), event.getY());
 		}
 	}
-	
+
 	public List<ButtonGroup> getButtonGroups() {
 		List<ButtonGroup> myButtonGroups = new ArrayList<ButtonGroup>();
-		for(int buttonGroupCount = 0; buttonGroupCount < this.getComponentCount(); buttonGroupCount++) {
+		for (int buttonGroupCount = 0; buttonGroupCount < this.getComponentCount(); buttonGroupCount++) {
 			myButtonGroups.add((ButtonGroup) this.getComponent(buttonGroupCount));
 		}
 		return myButtonGroups;

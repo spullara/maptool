@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 
 package net.rptools.maptool.model.drawing;
@@ -33,11 +30,9 @@ import net.rptools.maptool.model.ZonePoint;
  * A drawing tool that will draw a line template between 2 vertices.
  * 
  * @author jgorrell
- * @version $Revision$ $Date: 2009-02-09 01:00:59 -0600 (Mon, 09 Feb
- *          2009) $ $Author$
+ * @version $Revision$ $Date$ $Author$
  */
 public class LineTemplate extends AbstractTemplate {
-
 	/*---------------------------------------------------------------------------------------------
 	 * Instance Variables
 	 *-------------------------------------------------------------------------------------------*/
@@ -63,8 +58,8 @@ public class LineTemplate extends AbstractTemplate {
 	private ArrayList<CellPoint> pool;
 
 	/**
-	 * The line is drawn in this quadrant. A string is used as a hack to get
-	 * around the hessian library's problem w/ serialization of enums
+	 * The line is drawn in this quadrant. A string is used as a hack to get around the hessian library's problem w/
+	 * serialization of enums
 	 */
 	private String quadrant = null;
 
@@ -78,8 +73,8 @@ public class LineTemplate extends AbstractTemplate {
 	 *-------------------------------------------------------------------------------------------*/
 
 	/**
-	 * @see net.rptools.maptool.model.drawing.AbstractTemplate#paintArea(java.awt.Graphics2D,
-	 *      int, int, int, int, int, int)
+	 * @see net.rptools.maptool.model.drawing.AbstractTemplate#paintArea(java.awt.Graphics2D, int, int, int, int, int,
+	 *      int)
 	 */
 	@Override
 	protected void paintArea(Graphics2D g, int x, int y, int xOff, int yOff, int gridSize, int distance) {
@@ -87,17 +82,14 @@ public class LineTemplate extends AbstractTemplate {
 	}
 
 	/**
-	 * This method is cheating, the distance parameter was replaced with the
-	 * offset into the path.
+	 * This method is cheating, the distance parameter was replaced with the offset into the path.
 	 * 
-	 * @see net.rptools.maptool.model.drawing.AbstractTemplate#paintBorder(java.awt.Graphics2D,
-	 *      int, int, int, int, int, int)
+	 * @see net.rptools.maptool.model.drawing.AbstractTemplate#paintBorder(java.awt.Graphics2D, int, int, int, int, int,
+	 *      int)
 	 */
 	@Override
 	protected void paintBorder(Graphics2D g, int x, int y, int xOff, int yOff, int gridSize, int pElement) {
-
-		// Have to scan 3 points behind and ahead, since that is the maximum
-		// number of points
+		// Have to scan 3 points behind and ahead, since that is the maximum number of points
 		// that can be added to the path from any single intersection.
 		boolean[] noPaint = new boolean[4];
 		for (int i = pElement - 3; i < pElement + 3; i++) {
@@ -127,16 +119,13 @@ public class LineTemplate extends AbstractTemplate {
 	}
 
 	/**
-	 * @see net.rptools.maptool.model.drawing.AbstractTemplate#paint(java.awt.Graphics2D,
-	 *      boolean, boolean)
+	 * @see net.rptools.maptool.model.drawing.AbstractTemplate#paint(java.awt.Graphics2D, boolean, boolean)
 	 */
 	@Override
 	protected void paint(Graphics2D g, boolean border, boolean area) {
-
 		if (MapTool.getCampaign().getZone(getZoneId()) == null) {
 			return;
 		}
-
 		// Need to paint? We need a line and to translate the painting
 		if (pathVertex == null)
 			return;
@@ -214,7 +203,6 @@ public class LineTemplate extends AbstractTemplate {
 		MathContext mc = MathContext.DECIMAL128;
 		MathContext rmc = new MathContext(MathContext.DECIMAL64.getPrecision(), RoundingMode.DOWN);
 		if (dx != 0 && dy != 0) {
-
 			// Calculate quadrant and the slope
 			setQuadrant((dx < 0) ? (dy < 0 ? Quadrant.NORTH_WEST : Quadrant.SOUTH_WEST) : (dy < 0 ? Quadrant.NORTH_EAST : Quadrant.SOUTH_EAST));
 			BigDecimal m = BigDecimal.valueOf(dy).divide(BigDecimal.valueOf(dx), mc).abs();
@@ -229,7 +217,6 @@ public class LineTemplate extends AbstractTemplate {
 				double xValue = BigDecimal.valueOf(y + 1).divide(m, mc).round(rmc).doubleValue();
 				double yValue = BigDecimal.valueOf(x + 1).multiply(m, mc).round(rmc).doubleValue();
 				if (xValue == x + 1 && yValue == y + 1) {
-
 					// Special case, right on the diagonal
 					if (doubleWide || !mouseSlopeGreater)
 						path.add(getPointFromPool(x + 1, y));
@@ -253,7 +240,6 @@ public class LineTemplate extends AbstractTemplate {
 				pool = null;
 			} // endif
 		} else {
-
 			// Straight line
 			int xInc = dx != 0 ? 1 : 0;
 			int yInc = dy != 0 ? 1 : 0;
@@ -332,8 +318,7 @@ public class LineTemplate extends AbstractTemplate {
 	}
 
 	/**
-	 * Clear the current path. This will cause it to be recalculated during the
-	 * next draw.
+	 * Clear the current path. This will cause it to be recalculated during the next draw.
 	 */
 	public void clearPath() {
 		if (path != null)
@@ -424,14 +409,10 @@ public class LineTemplate extends AbstractTemplate {
 	 * @see net.rptools.maptool.model.drawing.Drawable#getBounds()
 	 */
 	public Rectangle getBounds() {
-
 		// Get all of the numbers needed for the calculation
-
 		if (MapTool.getCampaign().getZone(getZoneId()) == null) {
 			return new Rectangle();
-			
 		}
-
 		int gridSize = MapTool.getCampaign().getZone(getZoneId()).getGrid().getSize();
 		ZonePoint vertex = getVertex();
 
@@ -453,14 +434,12 @@ public class LineTemplate extends AbstractTemplate {
 				minp = new ZonePoint(p.x, p.y);
 				maxp = new ZonePoint(p.x, p.y);
 			}
-
 			minp.x = Math.min(minp.x, p.x);
 			minp.y = Math.min(minp.y, p.y);
 
 			maxp.x = Math.max(maxp.x, p.x);
 			maxp.y = Math.max(maxp.y, p.y);
 		}
-
 		maxp.x += gridSize;
 		maxp.y += gridSize;
 
@@ -478,9 +457,8 @@ public class LineTemplate extends AbstractTemplate {
 			maxp.y = vertex.y - (minp.y - vertex.y);
 			minp.y = tmp;
 		}
-
-		int width = (int) (maxp.x - minp.x);
-		int height = (int) (maxp.y - minp.y);
+		int width = (maxp.x - minp.x);
+		int height = (maxp.y - minp.y);
 
 		// Account for pen size
 		// We don't really know what the pen size will be, so give a very rough
@@ -491,9 +469,9 @@ public class LineTemplate extends AbstractTemplate {
 		width += 20;
 		height += 20;
 
-		return new Rectangle((int) minp.x, (int) minp.y, width, height);
+		return new Rectangle(minp.x, minp.y, width, height);
 	}
-	
+
 	public Area getArea() {
 		if (path == null) {
 			calcPath();
@@ -502,7 +480,6 @@ public class LineTemplate extends AbstractTemplate {
 				return new Area();
 			}
 		}
-
 		// I don't feel like figuring out the exact shape of this right now
 		return null;
 	}

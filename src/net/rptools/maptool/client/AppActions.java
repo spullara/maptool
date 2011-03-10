@@ -17,7 +17,6 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.event.ActionEvent;
-import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -944,7 +943,7 @@ public class AppActions {
 				token.setExposedAreaGUID(guid);
 				ExposedAreaMetaData meta = zone.getExposedAreaMetaData(guid);
 				// 'meta' references the object already stored in the zone's HashMap (it was created if necessary).
-				meta.addToExposedAreaHistory(new Area(meta.getExposedAreaHistory()));
+				meta.addToExposedAreaHistory(meta.getExposedAreaHistory());
 				MapTool.serverCommand().updateExposedAreaMeta(zone.getId(), token.getExposedAreaGUID(), meta);
 			}
 			if (newZoneSupportsSnapToGrid && gridCopiedFromSupportsSnapToGrid && token.isSnapToGrid()) {
