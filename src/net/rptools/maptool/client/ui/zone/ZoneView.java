@@ -257,7 +257,7 @@ public class ZoneView implements ModelChangeListener {
 				a1.add(a2);
 				intersects.add(a1);
 			}
-			tokenVisibleArea = intersects.size() > 0 ? intersects.get(0) : new Area();
+			tokenVisibleArea = !intersects.isEmpty() ? intersects.get(0) : new Area();
 		}
 		tokenVisionCache.put(token.getId(), tokenVisibleArea);
 		return tokenVisibleArea;
