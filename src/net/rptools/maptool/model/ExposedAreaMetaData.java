@@ -5,40 +5,38 @@ package net.rptools.maptool.model;
 
 import java.awt.geom.Area;
 
-public class ExposedAreaMetaData
-{
+public class ExposedAreaMetaData {
 	private Area exposedAreaHistory;
 
-	public ExposedAreaMetaData()
-	{
+	public ExposedAreaMetaData() {
 		exposedAreaHistory = new Area();
 	}
-	public ExposedAreaMetaData(Area area)
-	{
-		exposedAreaHistory = (Area) area.clone();
+
+	public ExposedAreaMetaData(Area area) {
+		exposedAreaHistory = new Area(area);
 	}
-	public Area getExposedAreaHistory()
-	{
-		if(exposedAreaHistory == null)
-		{
+
+	public Area getExposedAreaHistory() {
+		if (exposedAreaHistory == null) {
 			exposedAreaHistory = new Area();
 		}
 		return exposedAreaHistory;
 	}
+
 	public void addToExposedAreaHistory(Area newArea) {
-		if(newArea== null)
-		{
+		if (newArea == null) {
 			newArea = new Area();
 		}
-		this.exposedAreaHistory.add((Area) newArea.clone()) ;
+		this.exposedAreaHistory.add(newArea);
 	}
+
 	public void removeExposedAreaHistory(Area newArea) {
-		if(newArea== null)
-		{
+		if (newArea == null) {
 			newArea = new Area();
 		}
-		this.exposedAreaHistory.subtract((Area) newArea.clone()) ;
+		this.exposedAreaHistory.subtract(newArea);
 	}
+
 	public void clearExposedAreaHistory() {
 		this.exposedAreaHistory = new Area();
 	}

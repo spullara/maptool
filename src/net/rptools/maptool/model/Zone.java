@@ -496,7 +496,7 @@ public class Zone extends BaseModel {
 					continue;
 				}
 				if (exposedAreaMeta.containsKey(tok.getExposedAreaGUID())) {
-					combined.add(new Area(exposedAreaMeta.get(tok.getExposedAreaGUID()).getExposedAreaHistory()));
+					combined.add(exposedAreaMeta.get(tok.getExposedAreaGUID()).getExposedAreaHistory());
 				}
 			}
 			combined.add(exposedArea);
@@ -534,12 +534,10 @@ public class Zone extends BaseModel {
 		if (token == null) {
 			return false;
 		}
-
 		// Base case, nothing is visible
 		if (!token.isVisible()) {
 			return false;
 		}
-
 		// Base case, everything is visible
 		if (!hasFog()) {
 			return true;
@@ -547,13 +545,11 @@ public class Zone extends BaseModel {
 		if (token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token)) {
 			return false;
 		}
-
 		// Token is visible, and there is fog
 		int x = token.getX();
 		int y = token.getY();
 		Rectangle tokenSize = token.getBounds(this);
-		Area combined = new Area();
-		combined.add(new Area(exposedArea));
+		Area combined = new Area(exposedArea);
 		PlayerView view = MapTool.getFrame().getZoneRenderer(this).getPlayerView();
 		if (MapTool.getServerPolicy().isUseIndividualFOW() && getVisionType() != VisionType.OFF) {
 			List<Token> toks = (view.getTokens() != null && !view.getTokens().isEmpty()) ? view.getTokens() : this.getTokens();
@@ -563,7 +559,7 @@ public class Zone extends BaseModel {
 					continue;
 				}
 				if (exposedAreaMeta.containsKey(tok.getExposedAreaGUID())) {
-					combined.add(new Area(exposedAreaMeta.get(tok.getExposedAreaGUID()).getExposedAreaHistory()));
+					combined.add(exposedAreaMeta.get(tok.getExposedAreaGUID()).getExposedAreaHistory());
 				}
 			}
 		}
@@ -605,8 +601,8 @@ public class Zone extends BaseModel {
 				ExposedAreaMetaData meta = exposedAreaMeta.get(token.getExposedAreaGUID());
 				if (meta == null)
 					meta = new ExposedAreaMetaData();
-				meta.addToExposedAreaHistory(new Area(area));
-				//meta.addToExposedAreaHistory(MapTool.getFrame().getZoneRenderer(getId()).getZoneView().getVisibleArea(token));
+				meta.addToExposedAreaHistory(area);
+//				meta.addToExposedAreaHistory(MapTool.getFrame().getZoneRenderer(getId()).getZoneView().getVisibleArea(token));
 				exposedAreaMeta.put(token.getExposedAreaGUID(), meta);
 				MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush();
 				putToken(token);
@@ -616,11 +612,9 @@ public class Zone extends BaseModel {
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
 
-
 	/**
-	 * Retrieves the selected tokens and adds the passed in area to their
-	 * exposed area. (Why are we passing in a <code>Set&lt;GUID></code> when
-	 * <code>Set&lt;Token></code> would be much more efficient?)
+	 * Retrieves the selected tokens and adds the passed in area to their exposed area. (Why are we passing in a
+	 * <code>Set&lt;GUID></code> when <code>Set&lt;Token></code> would be much more efficient?)
 	 * 
 	 * @param area
 	 * @param selectedToks
@@ -629,12 +623,10 @@ public class Zone extends BaseModel {
 		if (area == null) {
 			return;
 		}
-		if(getVisionType() == VisionType.OFF)
-		{
-			exposedArea.subtract(new Area(area));
+		if (getVisionType() == VisionType.OFF) {
+			exposedArea.add(area);
 		}
-		if (selectedToks != null && !selectedToks.isEmpty()
-				&& MapTool.getServerPolicy().isUseIndividualFOW()) {
+		if (selectedToks != null && !selectedToks.isEmpty() && MapTool.getServerPolicy().isUseIndividualFOW()) {
 			List<Token> allToks = new ArrayList<Token>();
 
 			for (GUID guid : selectedToks) {
@@ -644,14 +636,12 @@ public class Zone extends BaseModel {
 				if (!tok.getHasSight()) {
 					continue;
 				}
-				ExposedAreaMetaData meta = exposedAreaMeta.get(tok
-						.getExposedAreaGUID());
+				ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getExposedAreaGUID());
 				if (meta == null)
 					meta = new ExposedAreaMetaData();
-				meta.addToExposedAreaHistory(new Area(area));
+				meta.addToExposedAreaHistory(area);
 				exposedAreaMeta.put(tok.getExposedAreaGUID(), meta);
-				MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView()
-						.flush();
+				MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush();
 			}
 		} else {
 			exposedArea.add(area);
@@ -660,8 +650,8 @@ public class Zone extends BaseModel {
 	}
 
 	/**
-	 * Modifies the global exposed area (GEA) or token exposed by resetting it and then setting it to the contents of the passed in Area and firing a
-	 * ModelChangeEvent.
+	 * Modifies the global exposed area (GEA) or token exposed by resetting it and then setting it to the contents of
+	 * the passed in Area and firing a ModelChangeEvent.
 	 * 
 	 * @param area
 	 * @param selectedToks
@@ -671,79 +661,63 @@ public class Zone extends BaseModel {
 		if (area == null) {
 			return;
 		}
-	
-		if (selectedToks != null && !selectedToks.isEmpty()  ) {
-
+		if (selectedToks != null && !selectedToks.isEmpty()) {
 			List<Token> allToks = new ArrayList<Token>();
 
 			for (GUID guid : selectedToks) {
 				allToks.add(getToken(guid));
 			}
-
 			for (Token tok : allToks) {
 				if (!tok.getHasSight()) {
 					continue;
 				}
-
-				ExposedAreaMetaData meta = exposedAreaMeta.get(tok
-						.getExposedAreaGUID());
-				if (meta == null) {
+				ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getExposedAreaGUID());
+				if (meta == null)
 					meta = new ExposedAreaMetaData();
-				}
 				meta.clearExposedAreaHistory();
-				meta.addToExposedAreaHistory(new Area(area));
+				meta.addToExposedAreaHistory(area);
 				exposedAreaMeta.put(tok.getExposedAreaGUID(), meta);
-				MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView()
-						.flush(tok);
+				MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush(tok);
 				putToken(tok);
 			}
 		} else {
 			exposedArea.reset();
-			exposedArea.add(new Area(area));
+			exposedArea.add(area);
 		}
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
-
 
 	public void hideArea(Area area, Set<GUID> selectedToks) {
 		if (area == null) {
 			return;
 		}
-		if(getVisionType() == VisionType.OFF)
-		{
-			exposedArea.subtract(new Area(area));
+		if (getVisionType() == VisionType.OFF) {
+			exposedArea.subtract(area);
 		}
-		if (selectedToks != null && !selectedToks.isEmpty()
-				&& MapTool.getServerPolicy().isUseIndividualFOW()) {
+		if (selectedToks != null && !selectedToks.isEmpty() && MapTool.getServerPolicy().isUseIndividualFOW()) {
 			List<Token> allToks = new ArrayList<Token>();
 
 			for (GUID guid : selectedToks) {
 				allToks.add(getToken(guid));
 			}
-
 			for (Token tok : allToks) {
 				if (!tok.getHasSight()) {
 					continue;
 				}
-
-				ExposedAreaMetaData meta = exposedAreaMeta.get(tok
-						.getExposedAreaGUID());
-				if (meta == null) {
+				ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getExposedAreaGUID());
+				if (meta == null)
 					meta = new ExposedAreaMetaData();
-				}
-				meta.removeExposedAreaHistory(new Area(area));
+				meta.removeExposedAreaHistory(area);
 				exposedAreaMeta.put(tok.getExposedAreaGUID(), meta);
-				MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView()
-						.flush(tok);
+				MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush(tok);
 				putToken(tok);
 			}
 		} else {
-			exposedArea.subtract(new Area(area));
+			exposedArea.subtract(area);
 		}
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
 
-	
 	public long getCreationTime() {
 		return creationTime;
 	}
@@ -774,10 +748,10 @@ public class Zone extends BaseModel {
 			}
 			if (exposedAreaMeta.containsKey(tok.getExposedAreaGUID())) {
 				ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getExposedAreaGUID());
-				combined.add(new Area(meta.getExposedAreaHistory()));
+				combined.add(meta.getExposedAreaHistory());
 			}
 		}
-		combined.add(new Area (getExposedArea()));
+		combined.add(getExposedArea());
 		return combined;
 	}
 
@@ -1226,6 +1200,7 @@ public class Zone extends BaseModel {
 		Area area = new Area();
 		List<DrawnElement> list = new ArrayList<DrawnElement>(layer);
 		Collections.reverse(list);
+		int eraserCount = 0;
 		for (ListIterator<DrawnElement> drawnIter = list.listIterator(); drawnIter.hasNext();) {
 			DrawnElement drawn = drawnIter.next();
 			// Are we covered ourselves ?
@@ -1246,13 +1221,17 @@ public class Zone extends BaseModel {
 			// Are we possibly covering something up?
 			if (drawn.getPen().isEraser() && (drawn.getPen().getBackgroundMode() == Pen.MODE_SOLID)) {
 				area.add(drawnArea);
+				eraserCount++;
 				continue;
 			}
 		}
 		// Now use the new list
 		layer.clear();
-		layer.addAll(list);
-		Collections.reverse(layer);
+		// If the number of elements is greater than the number of erasables, keep them all.
+		if (list.size() > eraserCount) {
+			layer.addAll(list);
+			Collections.reverse(layer);
+		}
 	}
 
 	////

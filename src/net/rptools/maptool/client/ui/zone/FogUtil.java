@@ -68,14 +68,12 @@ public class FogUtil {
 //		if (topology.contains(x, y)) {
 //			return null;
 //		}
-
 		Point origin = new Point(x, y);
 
 		AreaOcean ocean = topology.getOceanAt(origin);
 		if (ocean == null) {
 			return null;
 		}
-
 		int skippedAreas = 0;
 
 		List<VisibleAreaSegment> segmentList = new ArrayList<VisibleAreaSegment>(ocean.getVisibleAreaSegments(origin));
@@ -83,7 +81,6 @@ public class FogUtil {
 
 		List<Area> clearedAreaList = new LinkedList<Area>();
 		for (VisibleAreaSegment segment : segmentList) {
-
 			boolean found = false;
 			for (Area clearedArea : clearedAreaList) {
 				if (clearedArea.contains(segment.getPath().getBounds())) {
@@ -95,7 +92,6 @@ public class FogUtil {
 			if (found) {
 				continue;
 			}
-
 			Area area = segment.getArea();
 
 			timer.start("combine");
@@ -111,7 +107,6 @@ public class FogUtil {
 				}
 			}
 			timer.stop("combine");
-
 			clearedAreaList.add(intersectedArea != null ? intersectedArea : area);
 		}
 
@@ -119,7 +114,6 @@ public class FogUtil {
 //		int metaBlockCount = clearedAreaList.size();
 
 		while (clearedAreaList.size() > 1) {
-
 			Area a1 = clearedAreaList.remove(0);
 			Area a2 = clearedAreaList.remove(0);
 
@@ -130,12 +124,10 @@ public class FogUtil {
 		if (clearedAreaList.size() > 0) {
 			vision.subtract(clearedAreaList.get(0));
 		}
-
 //		System.out.println("Blocks: " + blockCount + " Skipped: " + skippedAreas + " metaBlocks: " + metaBlockCount );
 //		System.out.println(timer);
 
 		// For simplicity, this catches some of the edge cases
-
 		return vision;
 	}
 
@@ -172,7 +164,6 @@ public class FogUtil {
 	//  @formatter:on
 
 	public static void exposeVisibleArea(ZoneRenderer renderer, Set<GUID> tokenSet) {
-
 		Zone zone = renderer.getZone();
 
 		for (GUID tokenGUID : tokenSet) {
@@ -180,17 +171,14 @@ public class FogUtil {
 			if (token == null) {
 				continue;
 			}
-
 			if (!token.getHasSight()) {
 				continue;
 			}
 			if (token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token)) {
 				continue;
 			}
-
 			renderer.flush(token);
 			Area tokenVision = renderer.getVisibleArea(token);
-
 			if (tokenVision != null) {
 				Set<GUID> filteredToks = new HashSet<GUID>();
 				filteredToks.add(token.getId());
@@ -198,7 +186,6 @@ public class FogUtil {
 				MapTool.serverCommand().exposeFoW(zone.getId(), tokenVision, filteredToks);
 			}
 		}
-
 	}
 
 	public static void exposePCArea(ZoneRenderer renderer) {
@@ -224,7 +211,6 @@ public class FogUtil {
 		if (!renderer.getZone().getGrid().getCapabilities().isPathingSupported() || !renderer.getZone().getGrid().getCapabilities().isSnapToGridSupported()) {
 			return;
 		}
-
 		Zone zone = renderer.getZone();
 		for (GUID tokenGUID : tokenSet) {
 			Token token = zone.getToken(tokenGUID);
@@ -299,7 +285,6 @@ public class FogUtil {
 	}
 
 	public static void main(String[] args) {
-
 		System.out.println("Creating topology");
 		final int topSize = 10000;
 		final Area topology = new Area();
@@ -309,7 +294,6 @@ public class FogUtil {
 			int y = r.nextInt(topSize);
 			int w = r.nextInt(500) + 50;
 			int h = r.nextInt(500) + 50;
-
 			topology.add(new Area(new Rectangle(x, y, w, h)));
 		}
 
@@ -322,7 +306,6 @@ public class FogUtil {
 		for (PathIterator iter = topology.getPathIterator(null); !iter.isDone(); iter.next()) {
 			pointCount++;
 		}
-
 		System.out.println("Starting test " + pointCount + " points");
 		final AreaData data = new AreaData(topology);
 		data.digest();
@@ -374,7 +357,6 @@ public class FogUtil {
 
 			@Override
 			protected void paintComponent(Graphics g) {
-
 				Dimension size = getSize();
 				g.setColor(Color.white);
 				g.fillRect(0, 0, size.width, size.height);
@@ -394,7 +376,6 @@ public class FogUtil {
 					g2.fill(top);
 					g2.dispose();
 				}
-
 				g.setColor(Color.black);
 				g.drawLine(size.width / 2, 0, size.width / 2, size.height);
 
@@ -413,7 +394,6 @@ public class FogUtil {
 				if (theArea != null) {
 					g2d.fill(theArea.createTransformedArea(at));
 				}
-
 				for (AreaMeta areaMeta : data.getAreaList(new Point(0, 0))) {
 					g.setColor(Color.red);
 					g2d.draw(areaMeta.area.createTransformedArea(at));
@@ -427,7 +407,5 @@ public class FogUtil {
 			}
 		});
 		f.setVisible(true);
-
 	}
-
 }
