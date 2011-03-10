@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.ui.zone.vbl;
 
@@ -25,46 +22,41 @@ import net.rptools.lib.GeometryUtil;
 import net.rptools.lib.GeometryUtil.PointNode;
 
 public class AreaMeta {
-
 	Area area;
 	Point2D centerPoint;
 	List<AreaFace> faceList = new ArrayList<AreaFace>();
-	
+
 	// Only used during construction
 	boolean isHole;
 	PointNode pointNodeList;
-	GeneralPath path; 
+	GeneralPath path;
 	PointNode lastPointNode;
-	
+
 	public AreaMeta() {
 	}
-	
+
 	public Point2D getCenterPoint() {
 		if (centerPoint == null) {
-			centerPoint = new Point2D.Double(area.getBounds().x + area.getBounds().width/2, area.getBounds().y + area.getBounds().height/2);
+			centerPoint = new Point2D.Double(area.getBounds().x + area.getBounds().width / 2, area.getBounds().y + area.getBounds().height / 2);
 		}
 		return centerPoint;
 	}
-	
+
 	public Set<VisibleAreaSegment> getVisibleAreas(Point2D origin) {
 		Set<VisibleAreaSegment> segSet = new HashSet<VisibleAreaSegment>();
-	
+
 		VisibleAreaSegment segment = null;
 		for (AreaFace face : faceList) {
-			
 			double originAngle = GeometryUtil.getAngle(origin, face.getMidPoint());
-			double delta = GeometryUtil.getAngleDelta(originAngle, face.getFacing()); 
+			double delta = GeometryUtil.getAngleDelta(originAngle, face.getFacing());
 
 			if (Math.abs(delta) > 90) {
-
 				if (segment != null) {
 					segSet.add(segment);
 					segment = null;
 				}
-				
 				continue;
 			}
-
 			// Continuous face
 			if (segment == null) {
 				segment = new VisibleAreaSegment(origin);
@@ -76,7 +68,6 @@ public class AreaMeta {
 			// TODO: attempt to combine with the first segment somehow
 			segSet.add(segment);
 		}
-		
 //		System.out.println("Segs: " + segSet.size());
 		return segSet;
 	}
@@ -84,14 +75,14 @@ public class AreaMeta {
 	public Area getArea() {
 		return new Area(area);
 	}
-	
+
 	public boolean isHole() {
 		return isHole;
 	}
 
-	private int skippedPoints = 0;
-	public void addPoint(float x, float y) {
+	private final int skippedPoints = 0;
 
+	public void addPoint(float x, float y) {
 		// Cut out redundant points
 		// TODO: This works ... in concept, but in practice it can create holes that pop outside of their parent bounds
 		// for really thin diagonal lines.  At some point this could be moved to a post processing step, after the 
@@ -100,9 +91,7 @@ public class AreaMeta {
 //			skippedPoints++;
 //			return;
 //		}
-		
 		PointNode pointNode = new PointNode(new Point2D.Double(x, y));
-		
 
 		// Don't add if we haven't moved
 		if (lastPointNode != null) {
@@ -110,22 +99,20 @@ public class AreaMeta {
 				return;
 			}
 		}
-		
 		if (path == null) {
 			path = new GeneralPath();
 			path.moveTo(x, y);
-			
+
 			pointNodeList = pointNode;
 		} else {
 			path.lineTo(x, y);
-			
+
 			lastPointNode.next = pointNode;
 			pointNode.previous = lastPointNode;
 		}
-		
 		lastPointNode = pointNode;
 	}
-	
+
 	public void close() {
 		area = new Area(path);
 
@@ -133,7 +120,7 @@ public class AreaMeta {
 		lastPointNode.next = pointNodeList;
 		pointNodeList.previous = lastPointNode;
 		lastPointNode = null;
-		
+
 		// For some odd reason, sometimes the first and last point are the same, which causes
 		// bugs in the way areas are calculated
 		if (pointNodeList.point.equals(pointNodeList.previous.point)) {
@@ -142,41 +129,34 @@ public class AreaMeta {
 			trueLastPoint.next = pointNodeList;
 			pointNodeList.previous = trueLastPoint;
 		}
-		
 		computeIsHole();
 		computeFaces();
-		
+
 		// Don't need point list anymore
 		pointNodeList = null;
 		path = null;
-		
 //		System.out.println("AreaMeta.skippedPoints: " + skippedPoints + " h:" + isHole + " f:" + faceList.size());
 	}
 
 	private void computeIsHole() {
 		double angle = 0;
-		
+
 		PointNode currNode = pointNodeList.next;
 
 		while (currNode != pointNodeList) {
-			double currAngle = GeometryUtil.getAngleDelta(GeometryUtil.getAngle(currNode.previous.point, currNode.point), GeometryUtil.getAngle(currNode.point, currNode.next.point)); 
+			double currAngle = GeometryUtil.getAngleDelta(GeometryUtil.getAngle(currNode.previous.point, currNode.point), GeometryUtil.getAngle(currNode.point, currNode.next.point));
 
 			angle += currAngle;
 			currNode = currNode.next;
 		}
-		
 		isHole = angle < 0;
-		
 	}
-	
+
 	private void computeFaces() {
-	
 		PointNode node = pointNodeList;
 		do {
 			faceList.add(new AreaFace(node.point, node.next.point));
-			
 			node = node.next;
-			
 		} while (!node.point.equals(pointNodeList.point));
 	}
 }
