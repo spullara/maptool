@@ -115,7 +115,6 @@ import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.Zone.VisionType;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
@@ -897,7 +896,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			AffineTransform af = new AffineTransform();
 			af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
 			af.scale(getScale(), getScale());
-			visibleScreenArea = new Area(zoneView.getVisibleArea(view).createTransformedArea(af));
+			visibleScreenArea = zoneView.getVisibleArea(view).createTransformedArea(af);
 		}
 		exposedFogArea = new Area(zone.getExposedArea());
 		if (exposedFogArea != null) {
@@ -1253,20 +1252,19 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		Graphics2D g2 = (Graphics2D) g.create();
 		if (zone.hasFog() && exposedFogArea != null) {
 			Area clip = new Area(new Rectangle(getSize().width, getSize().height));
-			 
-				Area viewArea = new Area();
-				if (view.getTokens() != null && !view.getTokens().isEmpty()) {
-					for (Token tok : view.getTokens()) {
-						if (!AppUtil.playerOwns(tok)) {
-							continue;
-						}
-						ExposedAreaMetaData exposedMeta = zone.getExposedAreaMetaData(tok.getExposedAreaGUID());
-						viewArea.add(new Area(exposedMeta.getExposedAreaHistory()));
+
+			Area viewArea = new Area();
+			if (view.getTokens() != null && !view.getTokens().isEmpty()) {
+				for (Token tok : view.getTokens()) {
+					if (!AppUtil.playerOwns(tok)) {
+						continue;
 					}
+					ExposedAreaMetaData exposedMeta = zone.getExposedAreaMetaData(tok.getExposedAreaGUID());
+					viewArea.add(exposedMeta.getExposedAreaHistory());
 				}
-				viewArea.add(zone.getExposedArea());
-				clip.intersect(viewArea);
-			
+			}
+			viewArea.add(zone.getExposedArea());
+			clip.intersect(viewArea);
 
 			AffineTransform af = new AffineTransform();
 			//af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
@@ -1293,12 +1291,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		Area currentTokenVisionArea = zoneView.getVisibleArea(tokenUnderMouse);
 		if (currentTokenVisionArea == null)
 			return;
-		Area combined = new Area();
-		combined.add(currentTokenVisionArea);
+		Area combined = new Area(currentTokenVisionArea);
 		ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tokenUnderMouse.getExposedAreaGUID());
-		
+
 		Area tmpArea = new Area(meta.getExposedAreaHistory());
-		tmpArea.add(new Area(zone.getExposedArea()));
+		tmpArea.add(zone.getExposedArea());
 		combined.intersect(tmpArea);
 
 		boolean isOwner = AppUtil.playerOwns(tokenUnderMouse);
@@ -1436,12 +1433,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 			buffG.setTransform(af);
 			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, view.isGMView() ? .6f : 1f));
-
 			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
 
 			Area visibleArea = zoneView.getVisibleArea(view);
 			Area combined = zone.getExposedArea(view);
-		
+
 			renderFogArea(buffG, view, combined, visibleArea);
 			renderFogOutline(buffG, view, combined);
 			buffG.dispose();
@@ -2531,7 +2527,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				if (view.isGMView() && token.getGMName() != null && !StringUtil.isEmpty(token.getGMName())) {
 					name += " (" + token.getGMName() + ")";
 				}
-				if (((lastView != null && !lastView.equals(view))) || !labelRenderingCache.containsKey(tokId)) {
+				if (!view.equals(lastView) || !labelRenderingCache.containsKey(tokId)) {
+//				if ((lastView != null && !lastView.equals(view)) || !labelRenderingCache.containsKey(tokId)) {
 					boolean hasLabel = false;
 
 					// Calculate image dimensions

@@ -55,7 +55,7 @@ public class PlayerView {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof PlayerView)) {
+		if (obj == null || !(obj instanceof PlayerView)) {
 			return false;
 		}
 		PlayerView other = (PlayerView) obj;
