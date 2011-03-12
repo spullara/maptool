@@ -363,10 +363,17 @@ public class CampaignProperties implements Serializable {
 
 	public Set<MD5Key> getAllImageAssets() {
 		Set<MD5Key> set = new HashSet<MD5Key>();
-		for (AbstractTokenOverlay overlay : tokenStates.values()) {
+
+		// Start with the table images
+		for (LookupTable table : getLookupTableMap().values()) {
+			set.addAll(table.getAllAssetIds());
+		}
+
+		// States have images as well
+		for (AbstractTokenOverlay overlay : getTokenStatesMap().values()) {
 			if (overlay instanceof ImageTokenOverlay)
 				set.add(((ImageTokenOverlay) overlay).getAssetId());
-		} // endfor
+		}
 
 		// Bars
 		for (BarTokenOverlay overlay : getTokenBarsMap().values()) {
@@ -377,7 +384,7 @@ public class CampaignProperties implements Serializable {
 				set.add(((TwoImageBarTokenOverlay) overlay).getBottomAssetId());
 			} else if (overlay instanceof MultipleImageBarTokenOverlay) {
 				set.addAll(Arrays.asList(((MultipleImageBarTokenOverlay) overlay).getAssetIds()));
-			} // endif
+			}
 		}
 		return set;
 	}
