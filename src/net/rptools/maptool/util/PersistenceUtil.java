@@ -563,12 +563,16 @@ public class PersistenceUtil {
 
 			if (!AssetManager.hasAsset(key)) {
 				String pathname = ASSET_DIR + key;
-				Asset asset;
+				Asset asset = null;
 				if (fixRequired) {
 					InputStream is = null;
 					try {
 						is = pakFile.getFileAsInputStream(pathname);
 						asset = new Asset(key.toString(), IOUtils.toByteArray(is)); // Ugly bug fix :(
+					} catch (FileNotFoundException fnf) {
+						// Doesn't need to be reported, since that's handled below.
+					} catch (Exception e) {
+						log.error("Cannot load asset from 1.3.b64 file in compatibility mode", e);
 					} finally {
 						IOUtils.closeQuietly(is);
 					}
@@ -595,6 +599,12 @@ public class PersistenceUtil {
 					try {
 						is = pakFile.getFileAsInputStream(pathname);
 						asset.setImage(IOUtils.toByteArray(is));
+					} catch (FileNotFoundException fnf) {
+						log.error("Image data for '" + pathname + "' not found?!", fnf);
+						continue;
+					} catch (Exception e) {
+						log.error("While reading image data for '" + pathname + "'", e);
+						continue;
 					} finally {
 						IOUtils.closeQuietly(is);
 					}
