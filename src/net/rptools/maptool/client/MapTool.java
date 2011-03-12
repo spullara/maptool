@@ -685,7 +685,6 @@ public class MapTool {
 	 * These are the messages that originate from the server
 	 */
 	public static void addServerMessage(TextMessage message) {
-
 		// Filter
 		if (message.isGM() && !getPlayer().isGM()) {
 			return;
@@ -693,11 +692,9 @@ public class MapTool {
 		if (message.isWhisper() && !getPlayer().getName().equalsIgnoreCase(message.getTarget())) {
 			return;
 		}
-
 		if (!getFrame().isCommandPanelVisible()) {
 			getFrame().getChatActionLabel().setVisible(true);
 		}
-
 		// Flashing
 		if (!isInFocus()) {
 			taskbarFlasher.flash();
@@ -712,7 +709,6 @@ public class MapTool {
 	 * These are the messages that are generated locally
 	 */
 	public static void addMessage(TextMessage message) {
-
 		// Filter stuff
 		addServerMessage(message);
 

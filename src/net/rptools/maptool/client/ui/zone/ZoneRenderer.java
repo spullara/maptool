@@ -112,6 +112,7 @@ import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Player;
+import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.model.Zone;
@@ -3270,6 +3271,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	private void addTokens(List<Token> tokens, ZonePoint zp, List<Boolean> configureTokens, boolean showDialog) {
 		GridCapabilities gridCaps = zone.getGrid().getCapabilities();
 		boolean isGM = MapTool.getPlayer().isGM();
+		List<String> failedPaste = new ArrayList<String>(tokens.size());
+		List<GUID> selectThese = new ArrayList<GUID>(tokens.size());
 
 		ScreenPoint sp = ScreenPoint.fromZonePoint(this, zp);
 		Point dropPoint = new Point((int) sp.x, (int) sp.y);
@@ -3299,8 +3302,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			token.setLayer(getActiveLayer());
 
 			// He who drops, owns, if there are not players already set
-			// and if there are already players set, add the current one to the
-			// list.
+			// and if there are already players set, add the current one to the list.
+			// (Cannot use AppUtil.playerOwns() since that checks 'isStrictTokenManagement' and we want real ownership here.
 			if (!isGM && (!token.hasOwners() || !token.isOwner(MapTool.getPlayer().getName()))) {
 				token.addOwner(MapTool.getPlayer().getName());
 			}
@@ -3343,18 +3346,18 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				break;
 			}
 
-			// Check the name (after Token layer is set as name relies on layer)
-			token.setName(MapToolUtil.nextTokenId(zone, token));
+			// FJE Yes, this looks redundant.  But calling getType() retrieves the type of
+			// the Token and returns NPC if the type can't be determined (raw image,
+			// corrupted token file, etc).  So retrieving it and then turning around and
+			// setting it ensures it has a valid value without necessarily changing what
+			// it was. :)
+			Token.Type type = token.getType();
+			token.setType(type);
 
 			// Token type
 			if (isGM) {
-				// FJE Yes, this looks redundant.  But calling getType() retrieves the type of
-				// the Token and returns NPC if the type can't be determined (raw image,
-				// corrupted token file, etc).  So retrieving it and then turning around and
-				// setting it ensures it has a valid value without necessarily changing what
-				// it was. :)
-				Token.Type type = token.getType();
-				token.setType(type);
+				// Check the name (after Token layer is set as name relies on layer)
+				token.setName(MapToolUtil.nextTokenId(zone, token));
 
 				if (getActiveLayer() == Zone.Layer.TOKEN) {
 					if (AppPreferences.getShowDialogOnNewToken() || showDialog) {
@@ -3367,9 +3370,22 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				}
 			} else {
 				// Player dropped, ensure it's a PC token
+				// (Why?  Couldn't a Player drop an RPTOK that represents an NPC, such as for a summoned monster?
+				// Unfortunately, we can't know at this point whether the original input was an RPTOK or not.)
 				token.setType(Token.Type.PC);
-			}
 
+				// For Players, check to see if the name is already in use.  If it is already in use, make sure the current Player
+				// owns the token being duplicated (to avoid subtle ways of manipulating someone else's token!).
+				Token tokenNameUsed = zone.getTokenByName(token.getName());
+				if (tokenNameUsed != null) {
+					if (!AppUtil.playerOwns(tokenNameUsed)) {
+						failedPaste.add(token.getName());
+						continue;
+					}
+					String newName = MapToolUtil.nextTokenId(zone, token);
+					token.setName(newName);
+				}
+			}
 			// Make sure all the assets are transfered
 			for (MD5Key id : token.getAllImageAssets()) {
 				Asset asset = AssetManager.getAsset(id);
@@ -3379,16 +3395,24 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				}
 				MapToolUtil.uploadAsset(asset);
 			}
-
 			// Save the token and tell everybody about it
 			zone.putToken(token);
 			MapTool.serverCommand().putToken(zone.getId(), token);
+			selectThese.add(token.getId());
 		}
 
 		// For convenience, select them
 		clearSelectedTokens();
-		for (Token token : tokens) {
-			selectToken(token.getId());
+		selectTokens(selectThese);
+
+		if (!isGM)
+			MapTool.addMessage(TextMessage.gm(null, "Tokens dropped onto map '" + zone.getName() + "'"));
+		if (!failedPaste.isEmpty()) {
+			String mesg = "Failed to paste token(s) with duplicate name(s): " + failedPaste;
+			TextMessage msg = TextMessage.gm(null, mesg);
+			MapTool.addMessage(msg);
+//			msg.setChannel(Channel.ME);
+//			MapTool.addMessage(msg);
 		}
 
 		// Copy them to the clipboard so that we can quickly copy them onto the map

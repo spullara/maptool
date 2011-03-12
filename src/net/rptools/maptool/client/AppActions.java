@@ -92,6 +92,7 @@ import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.Player;
+import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.Zone.Layer;
@@ -933,6 +934,8 @@ public class AppActions {
 		}
 		List<Token> tokenList = new ArrayList<Token>(tokenCopySet);
 		Collections.sort(tokenList, Token.COMPARE_BY_ZORDER);
+		List<String> failedPaste = new ArrayList<String>(tokenList.size());
+
 		for (Token origToken : tokenList) {
 			Token token = new Token(origToken);
 
@@ -960,12 +963,39 @@ public class AppActions {
 			// paste into correct layer
 			token.setLayer(layer);
 
-			// check the token's name, don't change PC token names ... ever
-			if (token.getType() != Token.Type.PC) {
-				token.setName(MapToolUtil.nextTokenId(zone, token));
+			// check the token's name and change it, if necessary
+			// XXX Merge this with the drag/drop code in ZoneRenderer.addTokens().
+			boolean tokenNeedsNewName = false;
+			if (MapTool.getPlayer().isGM()) {
+				// For GMs, only change the name of NPCs.  It's possible that we should be changing the name of PCs as well
+				// since macros don't work properly when multiple tokens have the same name, but if we changed it without
+				// asking it could be seriously confusing.  Yet we don't want to popup a confirmation every time the GM pastes either. :(
+				tokenNeedsNewName = token.getType() != Token.Type.PC;
+			} else {
+				// For Players, check to see if the name is already in use.  If it is already in use, make sure the current Player
+				// owns the token being duplicated (to avoid subtle ways of manipulating someone else's token!).
+				Token tokenNameUsed = zone.getTokenByName(token.getName());
+				if (tokenNameUsed != null) {
+					if (!AppUtil.playerOwns(tokenNameUsed)) {
+						failedPaste.add(token.getName());
+						continue;
+					}
+					tokenNeedsNewName = true;
+				}
+			}
+			if (tokenNeedsNewName) {
+				String newName = MapToolUtil.nextTokenId(zone, token);
+				token.setName(newName);
 			}
 			zone.putToken(token);
 			MapTool.serverCommand().putToken(zone.getId(), token);
+		}
+		if (!failedPaste.isEmpty()) {
+			String mesg = "Failed to paste token(s) with duplicate name(s): " + failedPaste;
+			TextMessage msg = TextMessage.gm(null, mesg);
+			MapTool.addMessage(msg);
+//			msg.setChannel(Channel.ME);
+//			MapTool.addMessage(msg);
 		}
 	}
 

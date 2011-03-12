@@ -92,7 +92,7 @@ public class CommandPanel extends JPanel implements Observer {
 	private String typedCommandBuffer;
 
 	// Chat timers
-//	private long chatNotifyDuration; // Initialize it on first loadup
+//	private long chatNotifyDuration; // Initialize it on first load
 //	private Timer chatTimer;
 
 	private ChatProcessor chatProcessor;

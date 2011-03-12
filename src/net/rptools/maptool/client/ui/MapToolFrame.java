@@ -822,11 +822,9 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 				ObservableList<TextMessage> textList = MapTool.getMessageList();
 				ObservableList.Event event = (ObservableList.Event) arg;
 
-				// if (rightSplitPane.isBottomHidden() && event ==
-				// ObservableList.Event.append) {
-				//
-				// getChatActionLabel().setVisible(true);
-				// }
+//				if (rightSplitPane.isBottomHidden() && event == ObservableList.Event.append) {
+//					getChatActionLabel().setVisible(true);
+//				}
 			}
 		};
 	}
