@@ -178,22 +178,56 @@ public class TransferableHelper extends TransferHandler {
 				o = handleTransferableAssetReference(transferable);
 			}
 
-			// DIRECT/BROWSER
-			// First try 'application/x-java-url; java.net.URL'
-			if (o == null && transferable.isDataFlavorSupported(URL_FLAVOR_URI)) {
+			/**
+			 * Check for all InputStream types first?
+			 * <p>
+			 * This would allow an application to give us a data stream instead of, for example, a URL. This could be
+			 * significantly better for web browsers since they have already downloaded the image anyway and could give
+			 * us an InputStream connected to the cached data. But being passed an InputStream is a bit of a pain since
+			 * the MIME type can't be known in advance for all possible applications. We'd need to loop through all of
+			 * them {@link #whichOnesWork(Transferable)} and look for ones that return InputStream. But how to choose
+			 * which of those to actually use?
+			 */
+
+			// LOCAL FILESYSTEM
+			// Used by Linux when files are dragged from the desktop.  Other systems don't use this so we're safe checking for it first.
+			// Note that "text/uri-list" is considered a JRE bug and it should be converting the event into "text/x-java-file-list", but
+			// until it does...
+			if (o == null && transferable.isDataFlavorSupported(URI_LIST_FLAVOR)) {
 				if (log.isInfoEnabled())
-					log.info("Selected: " + URL_FLAVOR_URI);
-				URL url = (URL) transferable.getTransferData(URL_FLAVOR_URI);
-				o = handleImage(url, "URL_FLAVOR_URI", transferable);
+					log.info("Selected: " + URI_LIST_FLAVOR);
+				String data = (String) transferable.getTransferData(URI_LIST_FLAVOR);
+				List<URL> list = textURIListToFileList(data);
+				o = handleURLList(list);
 			}
+
+			// LOCAL FILESYSTEM
+			// Used by OSX (and Windows?) when files are dragged from the desktop:  'text/java-file-list; java.util.List<java.io.File>'
+			if (o == null && transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+				if (log.isInfoEnabled())
+					log.info("Selected: " + DataFlavor.javaFileListFlavor);
+				List<URL> list = new FileTransferableHandler().getTransferObject(transferable);
+				o = handleURLList(list);
+			}
+
 			// DIRECT/BROWSER
-			// Then try 'image/x-java-image; java.awt.Image' to see if Java has recognized the image as such
+			// Try 'image/x-java-image; java.awt.Image' to see if Java has recognized the image as such
 			if (o == null && transferable.isDataFlavorSupported(X_JAVA_IMAGE)) {
 				if (log.isInfoEnabled())
 					log.info("Selected: " + X_JAVA_IMAGE);
 				BufferedImage image = (BufferedImage) new ImageTransferableHandler().getTransferObject(transferable);
 				o = new Asset("unnamed", ImageUtil.imageToBytes(image));
 			}
+
+			// DIRECT/BROWSER
+			// Try 'application/x-java-url; java.net.URL'
+			if (o == null && transferable.isDataFlavorSupported(URL_FLAVOR_URI)) {
+				if (log.isInfoEnabled())
+					log.info("Selected: " + URL_FLAVOR_URI);
+				URL url = (URL) transferable.getTransferData(URL_FLAVOR_URI);
+				o = handleImage(url, "URL_FLAVOR_URI", transferable);
+			}
+
 			// DIRECT/BROWSER
 			// It may be that the dropped object is a URL but is 'text/plain; java.lang.String' and URLs are better than other file types...
 			if (o == null && transferable.isDataFlavorSupported(URL_FLAVOR_PLAIN)) {
@@ -202,26 +236,6 @@ public class TransferableHelper extends TransferHandler {
 				String text = (String) transferable.getTransferData(URL_FLAVOR_PLAIN);
 				URL url = new URL(text);
 				o = handleImage(url, "URL_FLAVOR_PLAIN", transferable);
-			}
-
-			// LOCAL FILESYSTEM
-			// Used by OSX (and Windows?) when files are dragged from the desktop.
-			if (o == null && transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-				if (log.isInfoEnabled())
-					log.info("Selected: " + DataFlavor.javaFileListFlavor);
-				List<URL> list = new FileTransferableHandler().getTransferObject(transferable);
-				o = handleURLList(list);
-			}
-			// LOCAL FILESYSTEM
-			// Used by Linux when files are dragged from the desktop.
-			// Note that "text/uri-list" is considered a JRE bug and it should be
-			// converting the event into "text/x-java-file-list", but until it does...
-			if (o == null && transferable.isDataFlavorSupported(URI_LIST_FLAVOR)) {
-				if (log.isInfoEnabled())
-					log.info("Selected: " + URI_LIST_FLAVOR);
-				String data = (String) transferable.getTransferData(URI_LIST_FLAVOR);
-				List<URL> list = textURIListToFileList(data);
-				o = handleURLList(list);
 			}
 			if (o != null) {
 				if (o instanceof List)
@@ -438,7 +452,10 @@ public class TransferableHelper extends TransferHandler {
 
 	/**
 	 * Retrieves a list of DataFlavors from the passed in Transferable, then tries to actually retrieve an object from
-	 * the drop event using each one. Theoretically at least one should always work.
+	 * the drop event using each one.
+	 * <p>
+	 * Theoretically at least one should always work. But this can backfire as some data sources may not support
+	 * retreiving the object more than once. (Think of a data source such as unidirectional pipe.)
 	 * 
 	 * @param t
 	 *            Transferable to check
