@@ -14,6 +14,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,12 +75,12 @@ public class Directory {
 		files = null;
 	}
 
-	public List<Directory> getSubDirs() {
+	public List<Directory> getSubDirs() throws FileNotFoundException {
 		load();
 		return subdirs;
 	}
 
-	public List<File> getFiles() {
+	public List<File> getFiles() throws FileNotFoundException {
 		load();
 		return files;
 	}
@@ -88,14 +89,17 @@ public class Directory {
 		return parent;
 	}
 
-	private void load() {
+	private void load() throws FileNotFoundException {
 		if (files == null && subdirs == null) {
 			if (!directory.exists() || !directory.isDirectory()) {
 				files = new ArrayList<File>();
 				subdirs = new ArrayList<Directory>();
 				return;
 			}
-			files = Collections.unmodifiableList(Arrays.asList(directory.listFiles(fileFilter)));
+			File[] listFiles = directory.listFiles(fileFilter);
+			if (listFiles == null)
+				throw new FileNotFoundException("Invalid directory name: '" + directory.getPath() + "'");
+			files = Collections.unmodifiableList(Arrays.asList(listFiles));
 			File[] subdirList = directory.listFiles(DIRECTORY_FILTER);
 			subdirs = new ArrayList<Directory>();
 			for (int i = 0; i < subdirList.length; i++) {

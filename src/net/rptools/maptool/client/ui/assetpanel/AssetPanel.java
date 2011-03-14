@@ -48,9 +48,7 @@ public class AssetPanel extends JComponent {
 	private ImagePanel imagePanel;
 	private JTextField filterTextField;
 	private JCheckBox globalSearchField;
-
 	private final AssetPanelModel assetPanelModel;
-
 	private Timer updateFilterTimer;
 
 	public AssetPanel(String controlName) {

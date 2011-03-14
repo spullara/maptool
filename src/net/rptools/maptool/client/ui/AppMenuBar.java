@@ -241,12 +241,13 @@ public class AppMenuBar extends JMenuBar {
 				return menu;
 			}
 		}
-
-		for (File file : textureDir.listFiles(AppConstants.IMAGE_FILE_FILTER)) {
-
-			menu.add(new JMenuItem(new AppActions.QuickMapAction(FileUtil.getNameWithoutExtension(file), file)));
+		File[] listFiles = textureDir.listFiles(AppConstants.IMAGE_FILE_FILTER);
+		// This shouldn't happen unless the prepackaged maptool-resources.zip becomes corrupted somehow?!
+		if (listFiles != null) {
+			for (File file : listFiles) {
+				menu.add(new JMenuItem(new AppActions.QuickMapAction(FileUtil.getNameWithoutExtension(file), file)));
+			}
 		}
-
 		// basicQuickMap.putValue(Action.ACCELERATOR_KEY,
 		// KeyStroke.getKeyStroke("ctrl shift N"));
 

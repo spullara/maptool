@@ -106,7 +106,6 @@ import de.muntjak.tinylookandfeel.controlpanel.ColorReference;
 /**
  */
 public class MapTool {
-
 	private static final Logger log = Logger.getLogger(MapTool.class);
 
 	/**
@@ -140,6 +139,12 @@ public class MapTool {
 	 * Returns true if currently running on a Windows based operating system.
 	 */
 	public static boolean WINDOWS = (System.getProperty("os.name").toLowerCase().startsWith("windows"));
+
+	/**
+	 * Version of Java being used. Note that this is the "specification version", so expect numbers like 1.4, 1.5, and
+	 * 1.6.
+	 */
+	public static Double JAVA_VERSION;
 
 	public static enum ZoneEvent {
 		Added, Removed, Activated, Deactivated
@@ -1090,20 +1095,7 @@ public class MapTool {
 			JOptionPane.showMessageDialog(frame, t.getMessage(), errorCreatingDir, JOptionPane.ERROR_MESSAGE);
 			System.exit(1);
 		}
-		// Check to see if we're running on Java 6+.  While MapTool itself doesn't use any
-		// Java 6-specific features, we use a couple dozen third-party libraries and a search
-		// through those JARs indicate that they DO use Java 6 features.  So it's best if we warn
-		// people about this issue.  This is mainly for OSX 10.6.4 and embedded Java.
-		//
-		// (Note:  I chose "java.specification.version" as it seemed the easiest way to test. :))
-		String version = System.getProperty("java.specification.version");
-		boolean keepgoing = true;
-		if (version == null)
-			keepgoing = confirm("msg.error.unknownJavaVersion");
-		else if (Double.valueOf(version) < 1.6)
-			keepgoing = confirm("msg.error.wrongJavaVersion", version);
-		if (!keepgoing)
-			System.exit(1);
+		verifyJavaVersion();
 
 		configureLogging();
 
@@ -1202,6 +1194,33 @@ public class MapTool {
 			}
 		});
 		// new Thread(new HeapSpy()).start();
+	}
+
+	/**
+	 * Check to see if we're running on Java 6+.
+	 * <p>
+	 * While MapTool itself doesn't use any Java 6-specific features, we use a couple dozen third-party libraries and a
+	 * search of those JAR files indicate that <i>they DO use</i> Java 6. So it's best if we warn users that they might
+	 * be going along happily and suddenly hit a Java runtime error! It might even be something they do every time they
+	 * run the program, but some piece of data was different and the library took a different path and the Java 6-only
+	 * method was invoked...
+	 * <p>
+	 * This method uses the system property <b>java.specification.version</b> as it seemed the easiest thing to test. :)
+	 */
+	private static void verifyJavaVersion() {
+		String version = System.getProperty("java.specification.version");
+		boolean keepgoing = true;
+		if (version == null) {
+			keepgoing = confirm("msg.error.unknownJavaVersion");
+			JAVA_VERSION = 1.5;
+		} else {
+			JAVA_VERSION = Double.valueOf(version);
+			if (JAVA_VERSION < 1.6) {
+				keepgoing = confirm("msg.error.wrongJavaVersion", version);
+			}
+		}
+		if (!keepgoing)
+			System.exit(1);
 	}
 
 	/**
