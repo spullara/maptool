@@ -845,7 +845,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	 *            PlayerView object that describes whether the view is a Player or GM view
 	 */
 	public void renderZone(Graphics2D g2d, PlayerView view) {
-		timer = new CodeTimer("zonerenderer");
+		timer = new CodeTimer("ZoneRenderer.renderZone");
 		timer.setEnabled(AppState.isCollectProfilingData() || log.isDebugEnabled());
 		timer.setThreshold(10);
 
