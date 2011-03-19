@@ -37,6 +37,7 @@ public class MapToolEventQueue extends EventQueue {
 	}
 
 	private static void displayPopup() {
+		optionPane.setDetailsVisible(true);
 		JDialog dialog = optionPane.createDialog(MapTool.getFrame(), I18N.getString("MapToolEventQueue.warning.title")); //$NON-NLS-1$
 		dialog.setResizable(true);
 		dialog.pack();
