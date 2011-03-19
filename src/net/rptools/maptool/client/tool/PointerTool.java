@@ -737,10 +737,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		Zone zone = renderer.getZone();
 		if (zone.hasFog()) {
 			// Check that the new position for each token is within the exposed area
-			Area fog = zone.getExposedArea();
-			if (fog == null) {
-				return true;
-			}
+			Area zoneFog = zone.getExposedArea();
+			if (zoneFog == null)
+				zoneFog = new Area();
 			boolean useTokenExposedArea = MapTool.getServerPolicy().isUseIndividualFOW() && zone.getVisionType() != VisionType.OFF;
 			isBlocked = false;
 			int deltaX = point.x - leadToken.getX();
@@ -748,6 +747,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			Grid grid = zone.getGrid();
 			// Loop through all tokens.  As soon as one of them is blocked, stop processing and return false.
 			for (Iterator<GUID> iter = tokenSet.iterator(); !isBlocked && iter.hasNext();) {
+				Area tokenFog = new Area(zoneFog);
 				GUID tokenGUID = iter.next();
 				Token token = zone.getToken(tokenGUID);
 				if (token == null) {
@@ -755,11 +755,11 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				}
 				if (useTokenExposedArea) {
 					ExposedAreaMetaData meta = zone.getExposedAreaMetaData(token.getExposedAreaGUID());
-					fog = meta.getExposedAreaHistory();
+					tokenFog.add(meta.getExposedAreaHistory());
 				}
 				Rectangle tokenSize = token.getBounds(zone);
-				Rectangle destination = new Rectangle(token.getX() + deltaX, token.getY() + deltaY, tokenSize.width, tokenSize.height);
-				isBlocked = !grid.validateMove(destination, dirx, diry, fog);
+				Rectangle destination = new Rectangle(tokenSize.x + deltaX, tokenSize.y + deltaY, tokenSize.width, tokenSize.height);
+				isBlocked = !grid.validateMove(token, destination, deltaX, deltaY, tokenFog);
 			}
 		}
 		return !isBlocked;

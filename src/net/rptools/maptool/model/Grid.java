@@ -357,17 +357,19 @@ public abstract class Grid implements Cloneable {
 	 * <li>If at least 4 of these pieces contain fog, then the space is closed. Return <code>false</code>.
 	 * </ol>
 	 * 
+	 * @param token
+	 *            token whose movement is being validated; passed in case token state is needed
 	 * @param areaToCheck
-	 *            destination area to check, measured in CellPoint units
+	 *            destination area to check, measured in ZonePoint units
 	 * @param dirx
 	 *            direction token is traveling along the X axis
 	 * @param diry
 	 *            direction token is traveling along the Y axis
-	 * @param fog
+	 * @param exposedFog
 	 *            area in which fog has been cleared away
 	 * @return true or false whether the token may move into the area
 	 */
-	public boolean validateMove(Rectangle areaToCheck, int dirx, int diry, Area fog) {
+	public boolean validateMove(Token token, Rectangle areaToCheck, int dirx, int diry, Area exposedFog) {
 		int direction = calculator.getDirection(dirx, diry);
 
 		Rectangle bounds = new Rectangle();
@@ -383,9 +385,9 @@ public abstract class Grid implements Cloneable {
 				oneThird(areaToCheck, dx, dy, bounds);
 
 				// The 'fog' variable defines areas where fog has been cleared away
-				if (!fog.contains(bounds))
+				if (!exposedFog.contains(bounds))
 					continue;
-				return checkCenterRegion(areaToCheck, fog);
+				return checkCenterRegion(areaToCheck, exposedFog);
 			}
 		}
 		// Everything is covered with fog.  Or at least, the three regions that we wanted to use to enter the destination area.

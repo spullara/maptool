@@ -17,6 +17,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
@@ -29,7 +30,7 @@ import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.TokenFootprint.OffsetTranslator;
 
 /**
- * An abstract hex grid class that uses generic cartesian-coordinates for calculations to allow for various hex grid
+ * An abstract hex grid class that uses generic Cartesian-coordinates for calculations to allow for various hex grid
  * orientations.
  * 
  * The v-axis points along the direction of edge to edge hexes
@@ -39,7 +40,8 @@ public abstract class HexGrid extends Grid {
 	// the ratio = minor_radius / edge_length
 	public static final double REGULAR_HEX_RATIO = Math.sqrt(3) / 2;
 
-	protected static BufferedImage pathHighlight;
+	/** One DirectionCalculator object is shared by all instances of this hex grid class. */
+	private static final DirectionCalculator calculator = new DirectionCalculator();
 
 	static {
 		try {
@@ -71,38 +73,115 @@ public abstract class HexGrid extends Grid {
 		}
 	};
 
-	@Override
-	public Rectangle getBounds(CellPoint cp) {
-		// This is naive, but, give it a try
-		ZonePoint zp = convert(cp);
-		Shape shape = getCellShape();
+	static class DirectionCalculator {
+		private static final int NW = 0;
+		private static final int N = 1;
+		private static final int NE = 2;
+		private static final int SE = 3;
+		private static final int S = 4;
+		private static final int SW = 5;
 
-		zp.x -= shape.getBounds().width / 2 + getOffsetX();
-		zp.y -= shape.getBounds().height / 2 + getOffsetY();
+		/**
+		 * Given delta movement on the X and Y axes, determine which direction that would be for the current grid type.
+		 * Note that horizontal and vertical hex grids will be different.
+		 * 
+		 * @param dirx
+		 *            movement on the X axis
+		 * @param diry
+		 *            movement on the Y axis
+		 * @return direction being moved
+		 */
+		public int getDirection(int dirx, int diry) {
+			int direction = -1;
+			// @formatter:off
+			if (dirx > 0 && diry > 0) direction = NW;
+			if (dirx > 0 && diry < 0) direction = SW;
+			if (dirx < 0 && diry > 0) direction = NE;
+			if (dirx < 0 && diry < 0) direction = SE;
+			if (dirx == 0 && diry > 0) direction = N;
+			if (dirx == 0 && diry < 0) direction = S;
+			// @formatter:on
+			return direction;
+		}
 
-		int w = shape.getBounds().width;
-		int h = shape.getBounds().height;
+		/**
+		 * Given a particular direction returns the opposite direction. Used for finding the "pie slice" on the 'other
+		 * side' of the hex grid cell.
+		 * 
+		 * @param dir
+		 *            one of the constants <code>DirectionCalculator.NW</code> .. <code>DirectionCalculator.SW</code>
+		 *            (0..5)
+		 * @return
+		 */
+		public int oppositeDirection(int dir) {
+			return (dir + 3) % 6;
+		}
 
-//		System.out.println(new Rectangle(zp.x, zp.y, w, h));
-		return new Rectangle(zp.x, zp.y, w, h);
+		/**
+		 * <div style="float: left">Image of a <i>vertical hex</i> grid:<br>
+		 * <img src="doc-files/HexGridVertical.png" title="Vertical Hex"> </div> <div>
+		 * <p>
+		 * Returns a {@link Shape} that can be used to test for exposed fog areas in the direction specified by
+		 * <code>dir</code>. Note that <code>dir</code> is the direction from which a token is entering a grid cell. So
+		 * if the token is coming from the North, <code>dir</code> should be Direction.Calculator.N (i.e. "2"). The
+		 * resulting Shape returned would be the isosceles triangle that represents one-sixth of the hex in an upward
+		 * direction. The returned Shape has its origin at the center of the hex grid cell.
+		 * 
+		 * @param dir
+		 *            direction that the movement is coming from
+		 * @return a {@link Shape} representing one slice of the 6-slice pie </div>
+		 */
+		public Shape getFogAreaToCheck(int dir) {
+			pieSlices = null; // debugging -- forces the following IF statement to always be true
+			if (pieSlices == null) {
+				double coords[][] = {
+						{ 0, 0, -114, 0, -57, -100 }, // NW
+						{ 0, 0, -57, -100, 57, -100 }, // N
+						{ 0, 0, 57, -100, 114, 0 }, // NE
+						{ 0, 0, 114, 0, 57, 100 }, // SE
+						{ 0, 0, 57, 100, -57, 100 }, // S
+						{ 0, 0, -57, 100, -114, 0 }, // SW
+				};
+				pieSlices = new Shape[6];
+				for (int i = 0; i < 6; i++) {
+					double row[] = coords[i];
+					GeneralPath slice = new GeneralPath();
+					slice.moveTo(row[0], row[1]);
+					slice.lineTo(row[2], row[3]);
+					slice.lineTo(row[4], row[5]);
+					pieSlices[i] = slice;
+				}
+			}
+			return pieSlices[dir];
+		}
+
+		private Shape[] pieSlices = null;
 	}
 
-	/**
-	 * minorRadius / edgeLength
-	 */
+	protected static BufferedImage pathHighlight;
+
+	/** minorRadius / edgeLength */
 	private double hexRatio = REGULAR_HEX_RATIO;
 
-	// Hex defining variables for convenience
+	/** One-half the length of an edge. Set to sqrt(edgeLength^2 - minorRadius^2), i.e. one side of a right triangle. */
 	private double edgeProjection;
+	/** Distance from centerpoint to middle of a face. Set to gridSize/2. */
 	private double minorRadius;
+	/**
+	 * Distance from centerpoint to vertex. Set to minorRadius/hexRatio (basically, uses 30¼ cosine to calculate
+	 * sqrt(3)/2).
+	 */
 	private double edgeLength;
 
 	// Hex defining variables scaled for zoom
 	private double scaledEdgeProjection;
 	private double scaledMinorRadius;
 	private double scaledEdgeLength;
-	private transient GeneralPath scaledHex;
+
+	/** Cached value from the last request to scale the hex grid */
 	private double lastScale = -1;
+	/** Cached value of the hex shape using <code>lastScale</code> */
+	private transient GeneralPath scaledHex;
 
 	/**
 	 * The offset required to translate from the center of a cell to the top right (x_min, y_min) of the cell's bounding
@@ -119,6 +198,22 @@ public abstract class HexGrid extends Grid {
 		// don't use size.  it has already been used to set the minorRadius
 		// and will only introduce a rounding error.
 		return new Area(createShape(minorRadius, edgeProjection, edgeLength));
+	}
+
+	@Override
+	public Rectangle getBounds(CellPoint cp) {
+		// This is naive, but, give it a try
+		ZonePoint zp = convert(cp);
+		Shape shape = getCellShape();
+
+		zp.x -= shape.getBounds().width / 2 + getOffsetX();
+		zp.y -= shape.getBounds().height / 2 + getOffsetY();
+
+		int w = shape.getBounds().width;
+		int h = shape.getBounds().height;
+
+//		System.out.println(new Rectangle(zp.x, zp.y, w, h));
+		return new Rectangle(zp.x, zp.y, w, h);
 	}
 
 	/**
@@ -175,12 +270,12 @@ public abstract class HexGrid extends Grid {
 
 		minorRadius = (double) size / 2;
 		edgeLength = minorRadius / hexRatio;
-		edgeProjection = Math.sqrt(edgeLength * edgeLength - minorRadius * minorRadius); // Pythagorus
+//		edgeProjection = Math.sqrt(edgeLength * edgeLength - minorRadius * minorRadius); // Pythagorus
+		edgeProjection = edgeLength / 2; // It's an isosceles triangle, after all!
 
 		scaledHex = null;
 
-		// Cell offset gives the offset to apply to the 
-		// cell zone coords to draw images/tokens
+		// Cell offset gives the offset to apply to the cell zone coords to draw images/tokens
 		cellOffset = setCellOffset();
 
 		super.setSize(size);
@@ -221,6 +316,62 @@ public abstract class HexGrid extends Grid {
 
 		orientHex(hex);
 		return hex;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see net.rptools.maptool.model.Grid#validateMove(java.awt.Rectangle, int, int, java.awt.geom.Area)
+	 */
+	@Override
+	public boolean validateMove(Token token, Rectangle areaToCheck, int dirx, int diry, Area exposedFog) {
+		// For a hex grid, we calculate the center of the areaToCheck and use that to calculate the CellPoint.
+		CellPoint cp = convertZP(areaToCheck.x + areaToCheck.width / 2, areaToCheck.y + areaToCheck.height / 2);
+		ZonePoint zp = convertCP(cp.x, cp.y);
+
+		// The first step is to check the center of the hex; if it's not in the exposed fog, there's no reason to check
+		// the rest of the pieces since we can just return false right away.
+		if (!exposedFog.contains(zp.x, zp.y))
+			return false;
+
+		// The next step is to check the triangle that covers the hex face we are leaving from and teh one we
+		// are entering through to see if either contain any fog.  If they do, the movement is disallowed.
+		int direction = calculator.getDirection(dirx, diry);
+		if (direction < DirectionCalculator.NW || direction > DirectionCalculator.SW) {
+			// we're not really moving so return 'true' -- it's a valid movement
+			// XXX When does this happen?
+			return true;
+		}
+		boolean result;
+		// can we move into the new cell?
+		result = checkOneSlice(zp, direction, exposedFog);
+
+		// If this one is false, don't bother checking the other one...
+		if (!result)
+			return false;
+
+		zp = new ZonePoint(token.getX(), token.getY());
+		cp = convert(zp); // takes grid orientation and cellOffset into account
+		zp = convert(cp);
+		result = checkOneSlice(zp, calculator.oppositeDirection(direction), exposedFog); // can we exit our own cell?
+		return result;
+	}
+
+	private boolean checkOneSlice(ZonePoint zp, int dir, Area exposedFog) {
+		Shape s = calculator.getFogAreaToCheck(dir);
+
+		// The resulting Shape is 4x larger than it should be.  Use a transform to correct it.
+		AffineTransform af = new AffineTransform();
+		af.translate(zp.x, zp.y);
+		af.scale(minorRadius / 100, minorRadius / 100);
+		Area transformed = new Area(af.createTransformedShape(s));
+
+		// Create an Area based on the pie slice, then calculate the intersection with the exposed area.  If the result
+		// is exactly the same as the original pie slice, then the entire slice must have been contained with the
+		// exposed area.  That means it's fine for a token to move into the grid cell.  Whew. ;-)
+		Area a = new Area(transformed);
+		a.intersect(exposedFog);
+		return a.equals(transformed);
 	}
 
 	/**
