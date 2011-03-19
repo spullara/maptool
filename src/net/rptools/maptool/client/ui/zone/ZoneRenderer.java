@@ -2459,6 +2459,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		// Selection and labels
 		for (Token token : tokenPostProcessing) {
 			TokenLocation location = tokenLocationCache.get(token);
+			if (location == null)
+				continue;
 			Area bounds = location.bounds;
 
 			// TODO: This isn't entirely accurate as it doesn't account for the actual text
