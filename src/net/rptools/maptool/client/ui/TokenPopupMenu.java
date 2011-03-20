@@ -197,7 +197,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	private JMenu createExposedFOWMenu() {
 		String viewMenu = I18N.getText("token.popup.menu.fow");
 		JMenu menu = new JMenu(viewMenu);
-		menu.add(new AddGlobalExposedAreaAction());
+		//menu.add(new AddGlobalExposedAreaAction());
 		menu.add(new AddPartyExposedAreaAction());
 
 		if (getRenderer().getZone().getTokens() != null && getRenderer().getZone().getTokens().size() != 0) {
