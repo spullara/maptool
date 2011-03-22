@@ -958,9 +958,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		if (tokenPanelTreeModel != null) {
 			tokenPanelTreeModel.setZone(null);
 		}
-		if (initiativePanel != null) {
-			initiativePanel.clearTokens();
-		}
 	}
 
 	public void updateTokenTree() {

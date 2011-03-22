@@ -800,6 +800,7 @@ public class MapTool {
 		// Clean up
 		clientFrame.setCurrentZoneRenderer(null);
 		clientFrame.clearZoneRendererList();
+        clientFrame.getInitiativePanel().setZone(null);
 		clientFrame.clearTokenTree();
 		if (campaign == null) {
 			return;

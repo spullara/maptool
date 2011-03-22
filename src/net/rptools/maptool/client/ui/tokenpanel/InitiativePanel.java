@@ -386,7 +386,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
 			zone.addModelChangeListener(this);
 
 		// Older campaigns didn't have a list, make sure this one does
-		InitiativeList list = zone.getInitiativeList();
+		InitiativeList list = (zone != null) ? zone.getInitiativeList() : new InitiativeList(null);
 		if (list == null) {
 			list = new InitiativeList(zone);
 			zone.setInitiativeList(list);
