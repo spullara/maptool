@@ -605,14 +605,14 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 		if (isShowingTokenStackPopup) {
 			isShowingTokenStackPopup = false;
-			if (tokenStackPanel.contains(e.getX(), e.getY())) {
+			if (tokenStackPanel.contains(mouseX, mouseY)) {
 				tokenStackPanel.handleMouseMotionEvent(e);
 				return;
 			} else {
 				renderer.repaint();
 			}
 		}
-		CellPoint cellUnderMouse = renderer.getCellAt(new ScreenPoint(e.getX(), e.getY()));
+		CellPoint cellUnderMouse = renderer.getCellAt(new ScreenPoint(mouseX, mouseY));
 		if (cellUnderMouse != null) {
 			MapTool.getFrame().getCoordinateStatusBar().update(cellUnderMouse.x, cellUnderMouse.y);
 		}
@@ -621,8 +621,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				int x1 = dragStartX;
 				int y1 = dragStartY;
 
-				int x2 = e.getX();
-				int y2 = e.getY();
+				int x2 = mouseX;
+				int y2 = mouseY;
 
 				selectionBoundBox.x = Math.min(x1, x2);
 				selectionBoundBox.y = Math.min(y1, y2);
@@ -641,8 +641,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				if (isMovingWithKeys) {
 					return;
 				}
-				ZonePoint zp = new ScreenPoint(mouseX, mouseY).convertToZone(renderer);
+				ZonePoint zp = renderer.getZone().getGrid().convert(cellUnderMouse);
 				ZonePoint last = renderer.getLastWaypoint(tokenUnderMouse.getId());
+//				System.out.println("  From " + last + " to " + zp);
 				handleDragToken(zp, zp.x - last.x, zp.y - last.y);
 				return;
 			}
@@ -741,7 +742,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			if (zoneFog == null)
 				zoneFog = new Area();
 			boolean useTokenExposedArea = MapTool.getServerPolicy().isUseIndividualFOW() && zone.getVisionType() != VisionType.OFF;
-			isBlocked = false;
 			int deltaX = point.x - leadToken.getX();
 			int deltaY = point.y - leadToken.getY();
 			Grid grid = zone.getGrid();
@@ -759,7 +759,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				}
 				Rectangle tokenSize = token.getBounds(zone);
 				Rectangle destination = new Rectangle(tokenSize.x + deltaX, tokenSize.y + deltaY, tokenSize.width, tokenSize.height);
-				isBlocked = !grid.validateMove(token, destination, deltaX, deltaY, tokenFog);
+				isBlocked = !grid.validateMove(token, destination, dirx, diry, tokenFog);
 			}
 		}
 		return !isBlocked;

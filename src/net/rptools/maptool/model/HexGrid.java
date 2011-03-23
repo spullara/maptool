@@ -323,16 +323,27 @@ public abstract class HexGrid extends Grid {
 	 * 
 	 * @see net.rptools.maptool.model.Grid#validateMove(java.awt.Rectangle, int, int, java.awt.geom.Area)
 	 */
+
 	@Override
 	public boolean validateMove(Token token, Rectangle areaToCheck, int dirx, int diry, Area exposedFog) {
 		// For a hex grid, we calculate the center of the areaToCheck and use that to calculate the CellPoint.
 		CellPoint cp = convertZP(areaToCheck.x + areaToCheck.width / 2, areaToCheck.y + areaToCheck.height / 2);
+		if (cp.x == 3 && cp.y == 0)
+			cp.y = 0; // hook for setting breakpoint in debugger while testing
+
 		ZonePoint zp = convertCP(cp.x, cp.y);
 
 		// The first step is to check the center of the hex; if it's not in the exposed fog, there's no reason to check
 		// the rest of the pieces since we can just return false right away.
 		if (!exposedFog.contains(zp.x, zp.y))
 			return false;
+
+		if (!token.isSnapToGrid()) {
+			// If the token is not SnapToGrid, draw a line from the old location to the new one and ensure that the line lies
+			// entirely within the exposed area of fog.
+			// Not currently implemented as there's no good way to do this using GeneralPath, Shape, and Area. :-/
+			return true;
+		}
 
 		// The next step is to check the triangle that covers the hex face we are leaving from and teh one we
 		// are entering through to see if either contain any fog.  If they do, the movement is disallowed.
@@ -350,7 +361,7 @@ public abstract class HexGrid extends Grid {
 		if (!result)
 			return false;
 
-		zp = new ZonePoint(token.getX(), token.getY());
+		zp.translate(-dirx, -diry);
 		cp = convert(zp); // takes grid orientation and cellOffset into account
 		zp = convert(cp);
 		result = checkOneSlice(zp, calculator.oppositeDirection(direction), exposedFog); // can we exit our own cell?
