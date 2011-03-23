@@ -1475,8 +1475,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				}
 			}
 		}
+		else{ 
+			if (zone.hasFog())
+			{
+				buffG.fill(softFog);
+				buffG.setClip(softFog);
+			}
+		}
 	}
-
+		
 	private void renderFogOutline(final Graphics2D buffG, PlayerView view, Area softFog) {
 		float alpha = view.isGMView() ? AppPreferences.getFogOverlayOpacity() / 255.0f : 1f;
 
