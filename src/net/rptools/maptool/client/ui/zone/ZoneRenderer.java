@@ -1474,16 +1474,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 					buffG.fill(softFog);
 				}
 			}
-		}
-		else{ 
-			if (zone.hasFog())
-			{
+		} else {
+			if (zone.hasFog()) {
 				buffG.fill(softFog);
 				buffG.setClip(softFog);
 			}
 		}
 	}
-		
+
 	private void renderFogOutline(final Graphics2D buffG, PlayerView view, Area softFog) {
 		float alpha = view.isGMView() ? AppPreferences.getFogOverlayOpacity() / 255.0f : 1f;
 
@@ -3292,7 +3290,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 			// Get the snap to grid value for the current prefs and abilities
 			token.setSnapToGrid(gridCaps.isSnapToGridSupported() && AppPreferences.getTokensStartSnapToGrid());
-			if (gridCaps.isSnapToGridSupported() && token.isSnapToGrid()) {
+			if (token.isSnapToGrid()) {
 				zp = zone.getGrid().convert(zone.getGrid().convert(zp));
 			}
 			token.setX(zp.x);
@@ -3366,7 +3364,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			// Token type
 			if (isGM) {
 				// Check the name (after Token layer is set as name relies on layer)
-				token.setName(MapToolUtil.nextTokenId(zone, token));
+				Token tokenNameUsed = zone.getTokenByName(token.getName());
+				if (tokenNameUsed != null)
+					token.setName(MapToolUtil.nextTokenId(zone, token));
 
 				if (getActiveLayer() == Zone.Layer.TOKEN) {
 					if (AppPreferences.getShowDialogOnNewToken() || showDialog) {

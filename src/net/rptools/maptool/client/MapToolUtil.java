@@ -140,7 +140,13 @@ public class MapToolUtil {
 			Matcher m = NAME_PATTERN.matcher(baseName);
 			if (m.find()) {
 				newName = m.group(1);
-				newNum = Integer.parseInt(m.group(2));
+				try {
+					newNum = Integer.parseInt(m.group(2));
+				} catch (NumberFormatException nfe) {
+					// This exception happens if the number is too big to fit inside an integer.
+					// In this case, we use the original name as the filename and assign a new number as the suffix.
+					newName = baseName;
+				}
 			} else {
 				newName = baseName;
 			}
@@ -157,14 +163,12 @@ public class MapToolUtil {
 		if (newNum != null || random || zone.getTokenByName(newName) != null) {
 			// Figure out the proper number of digits and generate a random number.
 			int maxNum = 99;
-			if (random && isToken) { // XXX Isn't 'isToken' redundant here?
+			if (random) {
 				if (zone.getTokenCount() >= 89)
 					maxNum = 999;
 				if (zone.getTokenCount() >= 900)
 					maxNum = 9999;
 				newNum = getRandomNumber(10, maxNum);
-			}
-			if (random) {
 				/*
 				 * If we're generating a random number suffix, check to see if the value we have is already taken and
 				 * pick a new one if so. The "Token Name" field is separate from the "GM Name" field.
