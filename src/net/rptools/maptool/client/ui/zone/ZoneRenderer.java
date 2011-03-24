@@ -1265,7 +1265,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				}
 			}
 			viewArea.add(zone.getExposedArea());
-			clip.intersect(viewArea);
+			if(!viewArea.isEmpty()){
+				clip.intersect(viewArea);
+			}
 
 			AffineTransform af = new AffineTransform();
 			//af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
@@ -1297,8 +1299,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 		Area tmpArea = new Area(meta.getExposedAreaHistory());
 		tmpArea.add(zone.getExposedArea());
-		combined.intersect(tmpArea);
-
+		if(tmpArea.isEmpty() && zone.hasFog()){
+			return;
+		}
+		if(zone.hasFog())
+		{
+			combined.intersect(tmpArea);
+		}
+		
 		boolean isOwner = AppUtil.playerOwns(tokenUnderMouse);
 		boolean tokenIsPC = tokenUnderMouse.getType() == Token.Type.PC;
 		boolean strictOwnership = MapTool.getServerPolicy() == null ? false : MapTool.getServerPolicy().useStrictTokenManagement();
