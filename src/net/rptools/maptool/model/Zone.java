@@ -722,6 +722,7 @@ public class Zone extends BaseModel {
 		return creationTime;
 	}
 
+	// FIXME This needs to take the current grid type into account, such as square or hex
 	public ZonePoint getNearestVertex(ZonePoint point) {
 		int gridx = (int) Math.round((point.x - grid.getOffsetX()) / grid.getCellWidth());
 		int gridy = (int) Math.round((point.y - grid.getOffsetY()) / grid.getCellHeight());

@@ -68,7 +68,7 @@ public class TransferableHelper extends TransferHandler {
 	/**
 	 * <b>text/uri-list; class=java.lang.String</b>
 	 * <p>
-	 * This is a JRE fix on Linux; the JRE <i>should</i> be providing DataFlavor.javaFileListFlavor but doesn't. :(
+	 * This is a JRE bug on Linux; the JRE <i>should</i> be providing DataFlavor.javaFileListFlavor but doesn't. :(
 	 */
 	private static final DataFlavor URI_LIST_FLAVOR = new DataFlavor("text/uri-list; class=java.lang.String", "Image"); //$NON-NLS-1$
 	/**
@@ -276,8 +276,8 @@ public class TransferableHelper extends TransferHandler {
 				list.add(url);
 			} catch (Exception e) {
 				// There's no reason to trap the individual exceptions when a single catch suffices.
-				if (log.isEnabledFor(Level.ERROR))
-					log.error(s, e);
+				if (log.isInfoEnabled())
+					log.info(s, e);
 //			} catch (URISyntaxException e) {				// Thrown by the URI constructor
 //				e.printStackTrace();
 //			} catch (IllegalArgumentException e) {	// Thrown by URI.toURL()
@@ -368,6 +368,8 @@ public class TransferableHelper extends TransferHandler {
 					Asset temp = AssetManager.createAsset(url);
 					if (temp != null) // `null' means no image available
 						assets.add(temp);
+					else if (log.isInfoEnabled())
+						log.info("No image available for " + url);
 				}
 			}
 		}
