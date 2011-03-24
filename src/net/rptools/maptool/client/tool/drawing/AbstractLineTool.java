@@ -15,7 +15,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,7 +33,7 @@ import net.rptools.maptool.model.drawing.ShapeDrawable;
 /**
  * Tool for drawing freehand lines.
  */
-public abstract class AbstractLineTool extends AbstractDrawingTool implements MouseListener {
+public abstract class AbstractLineTool extends AbstractDrawingTool {
 	private int currentX;
 	private int currentY;
 

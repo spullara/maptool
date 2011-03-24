@@ -14,7 +14,6 @@ import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 
 import net.rptools.lib.swing.ColorPicker;
@@ -37,7 +36,7 @@ import net.rptools.maptool.model.drawing.Pen;
 /**
  * Tool for drawing freehand lines.
  */
-public abstract class AbstractDrawingTool extends DefaultTool implements MouseListener, ZoneOverlay {
+public abstract class AbstractDrawingTool extends DefaultTool implements ZoneOverlay {
 	private boolean isEraser;
 	private boolean isSnapToGridSelected;
 	private boolean isEraseSelected;

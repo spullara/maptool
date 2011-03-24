@@ -23,7 +23,6 @@ import java.util.List;
  * @author drice
  */
 public class LineSegment extends AbstractDrawing {
-
 	private final List<Point> points = new ArrayList<Point>();
 	private Float width;
 	private transient int lastPointCount = -1;

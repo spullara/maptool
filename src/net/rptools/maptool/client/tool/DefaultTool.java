@@ -77,8 +77,10 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 	// Mouse
 	public void mousePressed(MouseEvent e) {
 		// Potential map dragging
-		dragStartX = e.getX();
-		dragStartY = e.getY();
+		if (SwingUtilities.isRightMouseButton(e)) {
+			dragStartX = e.getX();
+			dragStartY = e.getY();
+		}
 	}
 
 	public void mouseReleased(MouseEvent e) {
@@ -127,7 +129,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		mouseX = e.getX();
 		mouseY = e.getY();
 
-		CellPoint cp = renderer.getZone().getGrid().convert(new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer));
+		CellPoint cp = getZone().getGrid().convert(new ScreenPoint(mouseX, mouseY).convertToZone(renderer));
 		if (cp != null) {
 			MapTool.getFrame().getCoordinateStatusBar().update(cp.x, cp.y);
 		} else {
@@ -136,7 +138,9 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 	}
 
 	public void mouseDragged(MouseEvent e) {
-		CellPoint cellUnderMouse = renderer.getCellAt(new ScreenPoint(e.getX(), e.getY()));
+		int mX = e.getX();
+		int mY = e.getY();
+		CellPoint cellUnderMouse = renderer.getCellAt(new ScreenPoint(mX, mY));
 		if (cellUnderMouse != null) {
 			MapTool.getFrame().getCoordinateStatusBar().update(cellUnderMouse.x, cellUnderMouse.y);
 		} else {
@@ -146,17 +150,16 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		if (SwingUtilities.isRightMouseButton(e)) {
 			isDraggingMap = true;
 
-			mapDX += e.getX() - dragStartX;
-			mapDY += e.getY() - dragStartY;
+			mapDX += mX - dragStartX;
+			mapDY += mY - dragStartY;
 
-			dragStartX = e.getX();
-			dragStartY = e.getY();
+			dragStartX = mX;
+			dragStartY = mY;
 
 			long now = System.currentTimeMillis();
 			if (now - lastMoveRedraw > REDRAW_DELAY) {
 				// TODO: does it matter to capture the last map move in the series ?
-				// TODO: This should probably be genericized an put into ZoneRenderer
-				// to prevent over zealous repainting
+				// TODO: This should probably be genericized and put into ZoneRenderer to prevent over zealous repainting
 				renderer.moveViewBy(mapDX, mapDY);
 				mapDX = 0;
 				mapDY = 0;
@@ -171,11 +174,11 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		// QUICK ROTATE
 		if (SwingUtil.isShiftDown(e)) {
 			Set<GUID> tokenGUIDSet = renderer.getSelectedTokenSet();
-			if (tokenGUIDSet.size() == 0) {
+			if (tokenGUIDSet.isEmpty()) {
 				return;
 			}
 			for (GUID tokenGUID : tokenGUIDSet) {
-				Token token = renderer.getZone().getToken(tokenGUID);
+				Token token = getZone().getToken(tokenGUID);
 				if (token == null) {
 					continue;
 				}
@@ -189,7 +192,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 				if (SwingUtil.isControlDown(e)) {
 					facing += e.getWheelRotation() > 0 ? 5 : -5;
 				} else {
-					int[] facingArray = renderer.getZone().getGrid().getFacingAngles();
+					int[] facingArray = getZone().getGrid().getFacingAngles();
 					int facingIndex = TokenUtil.getIndexNearestTo(facingArray, facing);
 
 					facingIndex += e.getWheelRotation() > 0 ? 1 : -1;
@@ -204,9 +207,9 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 				token.setFacing(facing);
 
 				renderer.flush(token);
-				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
+				MapTool.serverCommand().putToken(getZone().getId(), token);
 			}
-			renderer.repaint();
+			repaintZone();
 			return;
 		}
 		// ZOOM
