@@ -104,6 +104,7 @@ public class FacingTool extends DefaultTool {
 			degrees = facingAngles[TokenUtil.getIndexNearestTo(facingAngles, degrees)];
 		}
 		Area visibleArea = null;
+		Set<GUID> remoteSelected = new HashSet<GUID>();
 		for (GUID tokenGUID : selectedTokenSet) {
 			Token token = renderer.getZone().getToken(tokenGUID);
 			if (token == null) {
@@ -113,15 +114,13 @@ public class FacingTool extends DefaultTool {
 			// if has fog(required) 
 			// and ((isGM with pref set) OR serverPolicy allows auto reveal by players)
 			if (renderer.getZone().hasFog() && ((AppPreferences.getAutoRevealVisionOnGMMovement() && MapTool.getPlayer().isGM())) || MapTool.getServerPolicy().isAutoRevealOnMovement()) {
-				renderer.flush(token);
 				visibleArea = MapTool.getFrame().getCurrentZoneRenderer().getZoneView().getVisibleArea(token);
-				Set<GUID> selected = new HashSet<GUID>();
-				selected.add(token.getId());
-				MapTool.getFrame().getCurrentZoneRenderer().getZone().exposeArea(visibleArea, selected);
+				remoteSelected.add(token.getId());
+				MapTool.getFrame().getCurrentZoneRenderer().getZone().exposeArea(visibleArea,token);
 			}
-			renderer.flush(token);
+			renderer.flushFog();
 		}
-		MapTool.serverCommand().exposeFoW(renderer.getZone().getId(), visibleArea == null ? new Area() : visibleArea, null);
+		MapTool.serverCommand().exposeFoW(renderer.getZone().getId(), visibleArea == null ? new Area() : visibleArea, remoteSelected);
 		renderer.repaint(); // TODO: shrink this
 	}
 

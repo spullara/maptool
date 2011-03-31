@@ -106,9 +106,11 @@ memory to initially load than the default Java Runtime Environment
 allocates.  Check the folder where you extracted the zip archive.
 As described above, each operating system has its own start file.
 For Windows, the EXE will ask for memory size parameters -- try
-increasing the maximum memory and running MapTool again.  For OS X
-and Linux/Unix users, edit the corresponding script and modify the
-memory settings at the top of the file (if you're using a script).
+increasing the maximum memory and running MapTool again (you can
+always delete or edit the file 'mt.cfg' to change previous settings).
+For OS X and Linux/Unix users, edit the corresponding script and
+modify the memory settings at the top of the file (if you're using
+a script).
 
 Mac Users:  If you installed from the DMG file, look inside the
 resulting app package for a file named "Info.plist" and edit it with a

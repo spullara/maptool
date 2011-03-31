@@ -633,9 +633,13 @@ public class Zone extends BaseModel {
 				allToks.add(getToken(guid));
 			}
 			for (Token tok : allToks) {
+				if (!AppUtil.playerOwns(tok)) {
+					continue;
+				}
 				if (!tok.getHasSight()) {
 					continue;
 				}
+				
 				ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getExposedAreaGUID());
 				if (meta == null)
 					meta = new ExposedAreaMetaData();
@@ -701,6 +705,9 @@ public class Zone extends BaseModel {
 				allToks.add(getToken(guid));
 			}
 			for (Token tok : allToks) {
+				if (!AppUtil.playerOwns(tok)) {
+					continue;
+				}
 				if (!tok.getHasSight()) {
 					continue;
 				}
