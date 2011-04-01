@@ -85,7 +85,6 @@ public abstract class Grid implements Cloneable {
 		Object obj = FileUtil.objFromResource(path);
 		@SuppressWarnings("unchecked")
 		List<TokenFootprint> footprintList = (List<TokenFootprint>) obj;
-//		List<TokenFootprint> footprintList = (List<TokenFootprint>) new XStream().fromXML(new String(FileUtil.loadResource(path)));
 		for (TokenFootprint footprint : footprintList) {
 			for (OffsetTranslator ot : translators) {
 				footprint.addOffsetTranslator(ot);

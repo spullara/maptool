@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.model;
 
@@ -32,24 +29,23 @@ import net.rptools.maptool.model.TokenFootprint.OffsetTranslator;
 public class HexGridHorizontal extends HexGrid {
 
 	/*
-	 * Facings are set when a new map is created with a particular grid 
-	 * and these facings affect all maps with the same grid.  Other maps 
-	 * with different grids will remain the same.
+	 * Facings are set when a new map is created with a particular grid and these facings affect all maps with the same
+	 * grid. Other maps with different grids will remain the same.
 	 * 
 	 * Facings are set when maps are loaded to the current preferences.
 	 */
 	private static int[] FACING_ANGLES; // =  new int[] {-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180};
-	private static final int[] ALL_ANGLES = new int[] {-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180};
+	private static final int[] ALL_ANGLES = new int[] { -150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180 };
 	private static List<TokenFootprint> footprintList;
 
 	private static final OffsetTranslator OFFSET_TRANSLATOR = new OffsetTranslator() {
 		public void translate(CellPoint originPoint, CellPoint offsetPoint) {
-			if (Math.abs(originPoint.y)%2==1 && Math.abs(offsetPoint.y)%2==0) {
+			if (Math.abs(originPoint.y) % 2 == 1 && Math.abs(offsetPoint.y) % 2 == 0) {
 				offsetPoint.x++;
 			}
 		}
 	};
-	
+
 	public HexGridHorizontal() {
 		super();
 		if (FACING_ANGLES == null) {
@@ -58,7 +54,7 @@ public class HexGridHorizontal extends HexGrid {
 			setFacings(faceEdges, faceVertices);
 		}
 	}
-	
+
 	public HexGridHorizontal(boolean faceEdges, boolean faceVertices) {
 		super();
 		setFacings(faceEdges, faceVertices);
@@ -67,69 +63,72 @@ public class HexGridHorizontal extends HexGrid {
 	/**
 	 * Set available facings based on the passed parameters.
 	 * 
-	 * @param faceEdges - Tokens can face cell faces if true.
-	 * @param faceVertices - Tokens can face cell vertices if true.
+	 * @param faceEdges
+	 *            - Tokens can face cell faces if true.
+	 * @param faceVertices
+	 *            - Tokens can face cell vertices if true.
 	 */
+	@Override
 	public void setFacings(boolean faceEdges, boolean faceVertices) {
 		if (faceEdges && faceVertices) {
 			FACING_ANGLES = ALL_ANGLES;
 		} else if (!faceEdges && faceVertices) {
-			FACING_ANGLES = new int[] {-150, -90, -30, 30, 90, 150};
+			FACING_ANGLES = new int[] { -150, -90, -30, 30, 90, 150 };
 		} else if (faceEdges && !faceVertices) {
-			FACING_ANGLES = new int[]{-120, -60, 0, 60, 120, 180};
+			FACING_ANGLES = new int[] { -120, -60, 0, 60, 120, 180 };
 		} else {
-			FACING_ANGLES = new int[] {90};
+			FACING_ANGLES = new int[] { 90 };
 		}
 	}
-	
+
 	@Override
 	public int[] getFacingAngles() {
 		return FACING_ANGLES;
 	}
+
 	@Override
 	public List<TokenFootprint> getFootprints() {
 		if (footprintList == null) {
 			try {
 				footprintList = loadFootprints("net/rptools/maptool/model/hexGridHorizFootprints.xml", getOffsetTranslator());
 			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				MapTool.showError("Could not load Hex Grid footprints");
+				MapTool.showError("Could not load Hex Grid footprints", ioe);
 			}
 		}
 		return footprintList;
 	}
-	
+
 	@Override
 	public BufferedImage getCellHighlight() {
 		// rotate the default path highlight 90 degrees
 		AffineTransform at = new AffineTransform();
-		at.rotate(Math.toRadians(90.0),pathHighlight.getHeight()/2,pathHighlight.getHeight()/2);
-		
-		AffineTransformOp atOp = new AffineTransformOp(at,AffineTransformOp.TYPE_BILINEAR );
-				
+		at.rotate(Math.toRadians(90.0), pathHighlight.getHeight() / 2, pathHighlight.getHeight() / 2);
+
+		AffineTransformOp atOp = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+
 		return atOp.filter(pathHighlight, null);
 	}
-	
+
 	@Override
 	public double getCellHeight() {
-		return getURadius()*2;
+		return getURadius() * 2;
 	}
-	
+
 	@Override
 	public double getCellWidth() {
-		return getVRadius()*2; 
+		return getVRadius() * 2;
 	}
-	
+
 	@Override
 	public ZoneWalker createZoneWalker() {
 		return new AStarHorizHexEuclideanWalker(getZone());
 	}
-	
+
 	@Override
 	protected Dimension setCellOffset() {
-		return new Dimension((int)getCellOffsetV(), (int)getCellOffsetU());
+		return new Dimension((int) getCellOffsetV(), (int) getCellOffsetU());
 	}
-	
+
 	@Override
 	protected void orientHex(GeneralPath hex) {
 		// flip the half-hex over y = x
@@ -138,7 +137,7 @@ public class HexGridHorizontal extends HexGrid {
 		at.scale(1, -1);
 		hex.transform(at);
 	}
-	
+
 	@Override
 	protected void setGridDrawTranslation(Graphics2D g, double U, double V) {
 		g.translate(V, U);
@@ -148,38 +147,38 @@ public class HexGridHorizontal extends HexGrid {
 	protected double getRendererSizeV(ZoneRenderer renderer) {
 		return renderer.getSize().getWidth();
 	}
-	
+
 	@Override
 	protected double getRendererSizeU(ZoneRenderer renderer) {
 		return renderer.getSize().getHeight();
 	}
-	
+
 	@Override
 	protected int getOffV(ZoneRenderer renderer) {
-		return (int)(renderer.getViewOffsetX() + getOffsetX()*renderer.getScale());
+		return (int) (renderer.getViewOffsetX() + getOffsetX() * renderer.getScale());
 	}
-	
+
 	@Override
 	protected int getOffU(ZoneRenderer renderer) {
-		return (int)(renderer.getViewOffsetY() + getOffsetY()*renderer.getScale());
+		return (int) (renderer.getViewOffsetY() + getOffsetY() * renderer.getScale());
 	}
-	
+
 	@Override
 	public CellPoint convert(ZonePoint zp) {
 		CellPoint cp = convertZP(zp.y, zp.x);
 		return new CellPoint(cp.y, cp.x);
 	}
-	
+
 	@Override
 	protected int getOffsetU() {
 		return getOffsetY();
 	}
-	
+
 	@Override
 	protected int getOffsetV() {
 		return getOffsetX();
 	}
-	
+
 	@Override
 	public ZonePoint convert(CellPoint cp) {
 		ZonePoint zp = convertCP(cp.y, cp.x);
@@ -191,4 +190,3 @@ public class HexGridHorizontal extends HexGrid {
 		return OFFSET_TRANSLATOR;
 	}
 }
-
