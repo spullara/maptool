@@ -641,7 +641,11 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				if (isMovingWithKeys) {
 					return;
 				}
-				ZonePoint zp = renderer.getZone().getGrid().convert(cellUnderMouse);
+				ZonePoint zp;
+				if (tokenUnderMouse.isSnapToGrid())
+					zp = renderer.getZone().getGrid().convert(cellUnderMouse);
+				else
+					zp = new ScreenPoint(mouseX, mouseY).convertToZone(renderer);
 				ZonePoint last = renderer.getLastWaypoint(tokenUnderMouse.getId());
 //				System.out.println("  From " + last + " to " + zp);
 				handleDragToken(zp, zp.x - last.x, zp.y - last.y);
