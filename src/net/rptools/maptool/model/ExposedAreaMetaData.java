@@ -24,20 +24,18 @@ public class ExposedAreaMetaData {
 	}
 
 	public void addToExposedAreaHistory(Area newArea) {
-		if (newArea == null) {
-			newArea = new Area();
+		if (newArea != null && !newArea.isEmpty()) {
+			exposedAreaHistory.add(newArea);
 		}
-		this.exposedAreaHistory.add(newArea);
 	}
 
 	public void removeExposedAreaHistory(Area newArea) {
-		if (newArea == null) {
-			newArea = new Area();
+		if (newArea != null && !newArea.isEmpty()) {
+			exposedAreaHistory.subtract(newArea);
 		}
-		this.exposedAreaHistory.subtract(newArea);
 	}
 
 	public void clearExposedAreaHistory() {
-		this.exposedAreaHistory = new Area();
+		exposedAreaHistory = new Area();
 	}
 }

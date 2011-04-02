@@ -639,7 +639,7 @@ public class Zone extends BaseModel {
 				if (!tok.getHasSight()) {
 					continue;
 				}
-				
+
 				ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getExposedAreaGUID());
 				if (meta == null)
 					meta = new ExposedAreaMetaData();
@@ -739,7 +739,7 @@ public class Zone extends BaseModel {
 	}
 
 	public Area getExposedArea(PlayerView view) {
-		Area combined = new Area();
+		Area combined = new Area(getExposedArea());
 
 		//if ((MapTool.getServerPolicy().isUseIndividualFOW() && view.isGMView())
 		//		|| !MapTool.getServerPolicy().isUseIndividualFOW()) {
@@ -748,18 +748,18 @@ public class Zone extends BaseModel {
 		//}
 		List<Token> toks = view.getTokens();
 		if (toks == null || toks.isEmpty()) {
-			toks = getTokens();
+			return combined;
+//			toks = getTokens();
 		}
 		for (Token tok : toks) {
 			if (!tok.getHasSight() || !AppUtil.playerOwns(tok)) {
 				continue;
 			}
-			if (exposedAreaMeta.containsKey(tok.getExposedAreaGUID())) {
-				ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getExposedAreaGUID());
+			ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getExposedAreaGUID());
+			if (meta != null) {
 				combined.add(meta.getExposedAreaHistory());
 			}
 		}
-		combined.add(getExposedArea());
 		return combined;
 	}
 

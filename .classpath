@@ -19,6 +19,7 @@
 	<classpathentry kind="lib" path="lib/commons-io-1.4.jar" sourcepath="lib/src/commons-io-1.4-sources.jar"/>
 	<classpathentry kind="lib" path="lib/parser-1.1.b24.jar" sourcepath="/parser/src"/>
 	<classpathentry kind="lib" path="lib/rplib-1.0.b129.jar"/>
+	<classpathentry kind="lib" path="lib/rplib-1.0.b130.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/dicelib-1.0.b18.jar" sourcepath="/dicelib"/>
 	<classpathentry kind="lib" path="lib/js-1.7R1.jar">
