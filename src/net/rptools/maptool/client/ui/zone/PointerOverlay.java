@@ -28,6 +28,8 @@ import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.util.GraphicsUtil;
 
 /**
+ * Draws the various "pointer" shapes that users can call up using Spacebar/Ctrl+Spacebar/Shift+Spacebar. The
+ * paintOverlay() method is called by ZoneRenderer.renderTokens() and no one else.
  */
 public class PointerOverlay implements ZoneOverlay {
 	private final List<PointerPair> pointerList = new ArrayList<PointerPair>();

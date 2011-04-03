@@ -108,6 +108,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	private Token tokenBeingDragged;
 	private Token tokenUnderMouse;
 	private Token markerUnderMouse;
+	private int keysDown; // used to record whether Shift/Ctrl/Meta keys are down
 
 	private final TokenStackPanel tokenStackPanel = new TokenStackPanel();
 
@@ -578,6 +579,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			return;
 		}
 		tokenUnderMouse = renderer.getTokenAt(mouseX, mouseY);
+		keysDown = e.getModifiersEx();
 		renderer.setMouseOver(tokenUnderMouse);
 
 		if (tokenUnderMouse == null) {
@@ -1278,7 +1280,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		}
 		// Statsheet
 		if (tokenUnderMouse != null && !isDraggingToken && AppUtil.tokenIsVisible(renderer.getZone(), tokenUnderMouse, new PlayerView(MapTool.getPlayer().getRole()))) {
-			if (AppPreferences.getPortraitSize() > 0 && (tokenOnStatSheet == null || !tokenOnStatSheet.equals(tokenUnderMouse) || statSheet == null)) {
+			if (AppPreferences.getPortraitSize() > 0 && !SwingUtil.isShiftDown(keysDown) && (tokenOnStatSheet == null || !tokenOnStatSheet.equals(tokenUnderMouse) || statSheet == null)) {
 				tokenOnStatSheet = tokenUnderMouse;
 
 				// Portrait

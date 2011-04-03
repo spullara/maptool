@@ -159,6 +159,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	private final Map<Token, BufferedImage> replacementImageMap = new HashMap<Token, BufferedImage>();
 	private final Map<Token, BufferedImage> flipImageMap = new HashMap<Token, BufferedImage>();
 	private Token tokenUnderMouse;
+
 	private ScreenPoint pointUnderMouse;
 	private Zone.Layer activeLayer;
 	private String loadingProgress;
@@ -1302,16 +1303,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 		Area tmpArea = new Area(meta.getExposedAreaHistory());
 		tmpArea.add(zone.getExposedArea());
-		if (tmpArea.isEmpty() && zone.hasFog()) {
-			return;
-		}
 		if (zone.hasFog()) {
+			if (tmpArea.isEmpty())
+				return;
 			combined.intersect(tmpArea);
 		}
-
 		boolean isOwner = AppUtil.playerOwns(tokenUnderMouse);
 		boolean tokenIsPC = tokenUnderMouse.getType() == Token.Type.PC;
 		boolean strictOwnership = MapTool.getServerPolicy() == null ? false : MapTool.getServerPolicy().useStrictTokenManagement();
+		boolean showVisionAndHalo = isOwner || view.isGMView() || (tokenIsPC && !strictOwnership);
 //		String player = MapTool.getPlayer().getName();
 //		System.err.print("tokenUnderMouse.ownedBy(" + player + "): " + isOwner);
 //		System.err.print(", tokenIsPC: " + tokenIsPC);
@@ -1323,7 +1323,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		 * if we are the owner of the token in question, or if the token is a PC and strict token ownership is off...
 		 * then the vision arc should be displayed.
 		 */
-		if (isOwner || view.isGMView() || (tokenIsPC && !strictOwnership)) {
+		if (showVisionAndHalo) {
 			AffineTransform af = new AffineTransform();
 			af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
 			af.scale(getScale(), getScale());

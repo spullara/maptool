@@ -2211,7 +2211,6 @@ public class AppActions {
 	};
 
 	private static class MapPreviewFileChooser extends PreviewPanelFileChooser {
-
 		MapPreviewFileChooser() {
 			super();
 			addChoosableFileFilter(MapTool.getFrame().getMapFileFilter());
@@ -2234,8 +2233,7 @@ public class AppActions {
 					StaticMessageDialog progressDialog = new StaticMessageDialog(I18N.getText("msg.info.mapLoading"));
 
 					try {
-						// I'm going to get struck by lighting for writing code
-						// like this.
+						// I'm going to get struck by lighting for writing code like this.
 						// CLEAN ME CLEAN ME CLEAN ME ! I NEED A SWINGWORKER !
 						MapTool.getFrame().showFilledGlassPane(progressDialog);
 
@@ -2244,6 +2242,14 @@ public class AppActions {
 
 						if (map != null) {
 							AppPreferences.setLoadDir(mapFile.getParentFile());
+							if ((map.zone.getExposedArea() != null && !map.zone.getExposedArea().isEmpty()) ||
+									(map.zone.getExposedAreaMetaData() != null && !map.zone.getExposedAreaMetaData().isEmpty())) {
+								boolean ok = MapTool.confirm("<html>Map contains exposed areas of fog.<br>Do you want to reset all of the fog?");
+								if (ok == true) {
+									// This fires a ModelChangeEvent, but that shouldn't matter
+									map.zone.clearExposedArea();
+								}
+							}
 							MapTool.addZone(map.zone);
 
 							MapTool.getAutoSaveManager().restart();
