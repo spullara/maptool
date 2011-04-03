@@ -195,15 +195,7 @@ public class PersistenceUtil {
 			// XXX FJE This doesn't work the way I want it to.  But doing this the Right Way
 			// is too much work right now. :-}
 			Zone z = persistedMap.zone;
-			String n = z.getName();
-			String count = n.replaceFirst("Import (\\d+) of.*", "$1"); //$NON-NLS-1$
-			Integer next = 1;
-			try {
-				next = StringUtil.parseInteger(count) + 1;
-				n = n.replaceFirst("Import \\d+ of", "Import " + next + " of"); //$NON-NLS-1$
-			} catch (ParseException e) {
-				n = "Import " + next + " of " + n; //$NON-NLS-1$
-			}
+			String n = fixupZoneName(z.getName());
 			z.setName(n);
 			z.imported(); // Resets creation timestamp and init panel, among other things
 			z.optimize(); // Collapses overlaid or redundant drawables
@@ -217,6 +209,31 @@ public class PersistenceUtil {
 				pakFile.close();
 		}
 		return null;
+	}
+
+	/**
+	 * Determines whether the incoming map name is unique. If it is, it's returned as-is. If it's not unique, a newly
+	 * generated name is returned.
+	 * 
+	 * @param n
+	 *            name from imported map
+	 * @return new name to use for the map
+	 */
+	private static String fixupZoneName(String n) {
+		List<Zone> zones = MapTool.getCampaign().getZones();
+		for (Zone zone : zones) {
+			if (zone.getName().equals(n)) {
+				String count = n.replaceFirst("Import (\\d+) of.*", "$1"); //$NON-NLS-1$
+				Integer next = 1;
+				try {
+					next = StringUtil.parseInteger(count) + 1;
+					n = n.replaceFirst("Import \\d+ of", "Import " + next + " of"); //$NON-NLS-1$
+				} catch (ParseException e) {
+					n = "Import " + next + " of " + n; //$NON-NLS-1$
+				}
+			}
+		}
+		return n;
 	}
 
 	public static void saveCampaign(Campaign campaign, File campaignFile) throws IOException {
