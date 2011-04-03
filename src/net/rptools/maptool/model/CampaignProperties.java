@@ -57,8 +57,6 @@ public class CampaignProperties {
 	private Map<String, BarTokenOverlay> tokenBars;
 	private Map<String, String> characterSheets;
 
-	private boolean hasUsedFogToolbar = false;
-
 	/** Flag indicating that owners have special permissions */
 	private boolean initiativeOwnerPermissions = AppPreferences.getInitOwnerPermissions();
 
@@ -110,7 +108,6 @@ public class CampaignProperties {
 			tokenBars.put(overlay.getName(), overlay);
 		} // endfor
 
-		hasUsedFogToolbar = properties.hasUsedFogToolbar;
 		initiativeOwnerPermissions = properties.initiativeOwnerPermissions;
 		initiativeMovementLock = properties.initiativeMovementLock;
 
@@ -389,14 +386,6 @@ public class CampaignProperties {
 			}
 		}
 		return set;
-	}
-
-	public boolean hasUsedFogToolbar() {
-		return hasUsedFogToolbar;
-	}
-
-	public void setHasUsedFogToolbar(boolean b) {
-		hasUsedFogToolbar = b;
 	}
 
 	/** @return Getter for initiativeOwnerPermissions */

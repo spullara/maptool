@@ -3,8 +3,6 @@
  */
 package net.rptools.maptool.client.functions;
 
-import java.math.BigDecimal;
-import java.security.Policy.Parameters;
 import java.util.List;
 import java.util.Set;
 
@@ -19,65 +17,58 @@ import net.rptools.parser.function.AbstractFunction;
 
 /**
  * @author jfrazierjr
- *
+ * 
  */
 public class FogOfWarFunctions extends AbstractFunction {
-
 	private static final FogOfWarFunctions instance = new FogOfWarFunctions();
-	
+
 	private FogOfWarFunctions() {
 		super(0, 2, "exposePCOnlyArea", "exposeFOW");
 	}
-	
+
 	public static FogOfWarFunctions getInstance() {
 		return instance;
 	}
 
-	
+	@Override
 	public Object childEvaluate(Parser parser, String functionName, List<Object> parameters) throws ParserException {
-		
-		 if (!MapTool.getParser().isMacroTrusted()) {
-				throw new ParserException(I18N.getText("macro.function.general.noPerm", functionName));
-	        }
-		 if (parameters.size() > 1) {
-			 throw new ParserException(I18N.getText("macro.function.general.tooManyParam", functionName, 1, parameters.size()));
-		 }
-		 ZoneRenderer zoneRenderer = (parameters.size() == 1 && parameters.get(0) instanceof String)? getZoneRenderer( (String) parameters.get(0)):getZoneRenderer(null);
+		if (!MapTool.getParser().isMacroTrusted()) {
+			throw new ParserException(I18N.getText("macro.function.general.noPerm", functionName));
+		}
+		if (parameters.size() > 1) {
+			throw new ParserException(I18N.getText("macro.function.general.tooManyParam", functionName, 1, parameters.size()));
+		}
+		ZoneRenderer zoneRenderer = (parameters.size() == 1 && parameters.get(0) instanceof String) ? getZoneRenderer((String) parameters.get(0)) : getZoneRenderer(null);
 
-			/*
-			 * String empty = exposePCOnlyArea(optional String mapName)
-			 */
-		 if (functionName.equals("exposePCOnlyArea")) 
-		 {
-			 FogUtil.exposePCArea(zoneRenderer);
-			 return "";
-		 }
-			/*
-			 * String empty = exposeFOW(optional String mapName)
-			 */
-		 if (functionName.equals("exposeFOW")) 
-		 {
-			 FogUtil.exposeVisibleArea(zoneRenderer, getTokenSelectedSet(zoneRenderer));
-			 return "";
-		 }
-		 throw new ParserException(I18N.getText("macro.function.general.unknownFunction", functionName));
+		/*
+		 * String empty = exposePCOnlyArea(optional String mapName)
+		 */
+		if (functionName.equals("exposePCOnlyArea")) {
+			FogUtil.exposePCArea(zoneRenderer);
+			return "";
+		}
+		/*
+		 * String empty = exposeFOW(optional String mapName)
+		 */
+		if (functionName.equals("exposeFOW")) {
+			FogUtil.exposeVisibleArea(zoneRenderer, getTokenSelectedSet(zoneRenderer));
+			return "";
+		}
+		throw new ParserException(I18N.getText("macro.function.general.unknownFunction", functionName));
 	}
-	private Set<GUID> getTokenSelectedSet(final ZoneRenderer zr)
-	{
+
+	private Set<GUID> getTokenSelectedSet(final ZoneRenderer zr) {
 		Set<GUID> tokens = MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokenSet();
 		Set<GUID> ownedTokens = MapTool.getFrame().getCurrentZoneRenderer().getOwnedTokens(tokens);
-		return ownedTokens;		
+		return ownedTokens;
 	}
 
 	private ZoneRenderer getZoneRenderer(final String name) {
-		if(name == null)
-		{
+		if (name == null) {
 			return MapTool.getFrame().getCurrentZoneRenderer();
 		}
-		for(ZoneRenderer zr: MapTool.getFrame().getZoneRenderers())
-		{
-			if(zr.getZone().getName().equals(name.toString()))
-			{
+		for (ZoneRenderer zr : MapTool.getFrame().getZoneRenderers()) {
+			if (zr.getZone().getName().equals(name.toString())) {
 				return zr;
 			}
 		}

@@ -321,11 +321,9 @@ public class CommandPanel extends JPanel implements Observer {
 
 		constraints.gridx = 1;
 		constraints.gridy = 0;
-
 		panel.add(getEmotePopupButton(), constraints);
 
 		constraints.gridy = 1;
-
 		panel.add(getNotifyButton(), constraints);
 
 		return panel;
@@ -353,7 +351,6 @@ public class CommandPanel extends JPanel implements Observer {
 		characterLabel = new JLabel("", JLabel.LEFT);
 		characterLabel.setText("");
 		characterLabel.setBorder(BorderFactory.createEmptyBorder(1, 5, 1, 5));
-
 		return characterLabel;
 	}
 
@@ -462,7 +459,6 @@ public class CommandPanel extends JPanel implements Observer {
 		if (text.length() == 0) {
 			return;
 		}
-
 		// Command history
 		// Don't store up a bunch of repeats
 		if (commandHistory.size() == 0 || !text.equals(commandHistory.get(commandHistory.size() - 1))) {
@@ -478,7 +474,6 @@ public class CommandPanel extends JPanel implements Observer {
 			commandTextArea.setText("");
 			return;
 		}
-
 		// Make sure they aren't trying to break out of the div
 		// FIXME: as above, </{"div"}> can be used to get around this
 		int divCount = StringUtil.countOccurances(text, "<div");
@@ -492,7 +487,6 @@ public class CommandPanel extends JPanel implements Observer {
 			commandTextArea.setText("");
 			return;
 		}
-
 		if (text.charAt(0) != '/') {
 			// Assume a "SAY"
 			text = "/s " + text;
@@ -512,20 +506,17 @@ public class CommandPanel extends JPanel implements Observer {
 	public void cancelCommand() {
 		commandTextArea.setText("");
 		validate();
-
 		MapTool.getFrame().hideCommandPanel();
 	}
 
 	public void startMacro() {
 		MapTool.getFrame().showCommandPanel();
-
 		commandTextArea.requestFocusInWindow();
 		commandTextArea.setText("/");
 	}
 
 	public void startChat() {
 		MapTool.getFrame().showCommandPanel();
-
 		commandTextArea.requestFocusInWindow();
 	}
 
@@ -533,32 +524,26 @@ public class CommandPanel extends JPanel implements Observer {
 		if (textColorWell == null) {
 			textColorWell = new TextColorWell();
 		}
-
 		return textColorWell;
 	}
 
 	private class CommandHistoryUpAction extends AbstractAction {
-
 		public void actionPerformed(ActionEvent e) {
 			if (commandHistory.size() == 0) {
 				return;
 			}
-
 			if (commandHistoryIndex == commandHistory.size()) {
 				typedCommandBuffer = getCommandTextArea().getText();
 			}
-
 			commandHistoryIndex--;
 			if (commandHistoryIndex < 0) {
 				commandHistoryIndex = 0;
 			}
-
 			commandTextArea.setText(commandHistory.get(commandHistoryIndex));
 		}
 	}
 
 	private class CommandHistoryDownAction extends AbstractAction {
-
 		public void actionPerformed(ActionEvent e) {
 			if (commandHistory.size() == 0) {
 				return;
@@ -583,7 +568,6 @@ public class CommandPanel extends JPanel implements Observer {
 	private MessagePanel getMessagePanel() {
 		if (messagePanel == null) {
 			messagePanel = new MessagePanel();
-
 			// Update whenever the preferences change
 			MapTool.getEventDispatcher().addListener(MapTool.PreferencesEvent.Changed, new AppEventListener() {
 				public void handleAppEvent(AppEvent event) {
@@ -591,7 +575,6 @@ public class CommandPanel extends JPanel implements Observer {
 				}
 			});
 		}
-
 		return messagePanel;
 	}
 

@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.ui;
 
@@ -29,13 +26,9 @@ import net.rptools.maptool.language.I18N;
 /**
  */
 public class Toolbox {
-
 	private ZoneRenderer currentRenderer;
-
 	private Tool currentTool;
-
-	private final Map<Class, Tool> toolMap = new HashMap<Class, Tool>();
-
+	private final Map<Class<? extends Tool>, Tool> toolMap = new HashMap<Class<? extends Tool>, Tool>();
 	private final ButtonGroup buttonGroup = new ButtonGroup();
 
 	public void updateTools() {
@@ -44,7 +37,7 @@ public class Toolbox {
 		}
 	}
 
-	public void setSelectedTool(Class toolClass) {
+	public void setSelectedTool(Class<? extends Tool> toolClass) {
 		Tool tool = toolMap.get(toolClass);
 		if (tool != null && tool.isAvailable()) {
 			tool.setSelected(true);
@@ -56,40 +49,34 @@ public class Toolbox {
 		return currentTool;
 	}
 
-	public Tool getTool(Class toolClass) {
+	public Tool getTool(Class<? extends Tool> toolClass) {
 		return toolMap.get(toolClass);
 	}
 
-	public Tool createTool(Class toolClass) {
-
+	public Tool createTool(Class<? extends Tool> toolClass) {
 		Tool tool;
 		try {
-			Constructor constructor = toolClass.getDeclaredConstructor(new Class[] {});
-			tool = (Tool) constructor.newInstance(new Object[] {});
+			Constructor<? extends Tool> constructor = toolClass.getDeclaredConstructor(new Class[] {});
+			tool = constructor.newInstance(new Object[] {});
 
 			buttonGroup.add(tool);
 			toolMap.put(toolClass, tool);
 			tool.setToolbox(this);
+			return tool;
 		} catch (InstantiationException e) {
 			MapTool.showError(I18N.getText("msg.error.toolCannotInstantiate", toolClass.getName()), e);
-			return null;
 		} catch (IllegalAccessException e) {
 			MapTool.showError(I18N.getText("msg.error.toolNeedPublicConstructor", toolClass.getName()), e);
-			return null;
 		} catch (NoSuchMethodException nsme) {
 			MapTool.showError(I18N.getText("msg.error.toolNeedValidConstructor", toolClass.getName()), nsme);
-			return null;
 		} catch (InvocationTargetException ite) {
 			MapTool.showError(I18N.getText("msg.error.toolConstructorFailed", toolClass.getName()), ite);
-			return null;
 		}
-		return tool;
+		return null;
 	}
 
 	public void setTargetRenderer(final ZoneRenderer renderer) {
-
-		// Need to be synchronous with the timing of the invokes within this
-		// method
+		// Need to be synchronous with the timing of the invokes within this method
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				final Tool oldTool = currentTool;
@@ -103,7 +90,6 @@ public class Toolbox {
 						currentRenderer = renderer;
 					}
 				});
-
 				// Attach the old tool to the new renderer
 				setSelectedTool(oldTool);
 			}
@@ -111,13 +97,11 @@ public class Toolbox {
 	}
 
 	public void setSelectedTool(final Tool tool) {
-
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				if (tool == currentTool) {
 					return;
 				}
-
 				if (currentTool != null) {
 					if (currentRenderer != null) {
 						currentTool.removeListeners(currentRenderer);
@@ -128,7 +112,6 @@ public class Toolbox {
 						}
 					}
 				}
-
 				// Update
 				currentTool = tool;
 
@@ -141,7 +124,6 @@ public class Toolbox {
 							currentRenderer.addOverlay((ZoneOverlay) currentTool);
 						}
 					}
-
 					if (MapTool.getFrame() != null) {
 						MapTool.getFrame().setStatusMessage(I18N.getText(currentTool.getInstructions()));
 					}

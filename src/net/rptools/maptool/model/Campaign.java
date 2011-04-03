@@ -25,6 +25,7 @@ import net.rptools.lib.MD5Key;
 import net.rptools.lib.net.Location;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.ExportDialog;
+import net.rptools.maptool.client.ui.ToolbarPanel;
 import net.rptools.maptool.client.ui.token.BarTokenOverlay;
 import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
 import net.rptools.maptool.client.ui.token.ImageTokenOverlay;
@@ -75,11 +76,16 @@ public class Campaign {
 	private List<String> remoteRepositoryList;
 
 	private Map<String, Map<GUID, LightSource>> lightSourcesMap;
-
 	private Map<String, LookupTable> lookupTableMap;
 
 	// DEPRECATED: as of 1.3b19 here to support old serialized versions
 	private Map<GUID, LightSource> lightSourceMap;
+
+	/**
+	 * This flag indicates whether the manual fog tools have been used in this campaign while a server is not running.
+	 * See {@link ToolbarPanel#createFogPanel()} for details.
+	 */
+	private boolean hasUsedFogToolbar = false;
 
 	public Campaign() {
 		macroButtonLastIndex = 0;
@@ -321,16 +327,21 @@ public class Campaign {
 	}
 
 	public boolean containsAsset(MD5Key key) {
-
 		for (Zone zone : zones.values()) {
-
 			Set<MD5Key> assetSet = zone.getAllAssetIds();
 			if (assetSet.contains(key)) {
 				return true;
 			}
 		}
-
 		return false;
+	}
+
+	public boolean hasUsedFogToolbar() {
+		return hasUsedFogToolbar;
+	}
+
+	public void setHasUsedFogToolbar(boolean b) {
+		hasUsedFogToolbar = b;
 	}
 
 	public void mergeCampaignProperties(CampaignProperties properties) {

@@ -28,6 +28,7 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 import net.rptools.lib.image.ImageUtil;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.tool.BoardTool;
 import net.rptools.maptool.client.tool.FacingTool;
 import net.rptools.maptool.client.tool.GridTool;
@@ -56,21 +57,22 @@ import net.rptools.maptool.client.tool.drawing.RectangleTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTopologyTool;
 import net.rptools.maptool.client.tool.drawing.WallTemplateTool;
 import net.rptools.maptool.language.I18N;
+import net.rptools.maptool.model.Campaign;
 
 public class ToolbarPanel extends JToolBar {
 	private final ButtonGroup buttonGroup = new ButtonGroup();
 	private final JPanel optionPanel;
 	private final Toolbox toolbox;
 
-	public ToolbarPanel(Toolbox toolbox) {
+	public ToolbarPanel(Toolbox tbox) {
 		setRollover(true);
 
-		this.toolbox = toolbox;
+		toolbox = tbox;
 		optionPanel = new JPanel(new CardLayout());
 
 		final OptionPanel pointerGroupOptionPanel = createPointerPanel();
-		final JToggleButton pointerGroupButton = createButton("net/rptools/maptool/client/image/tool/pointer-blue.png", "net/rptools/maptool/client/image/tool/pointer-blue-off.png",
-				pointerGroupOptionPanel, I18N.getText("tools.interaction.tooltip"));
+		final JToggleButton pointerGroupButton = createButton("net/rptools/maptool/client/image/tool/pointer-blue.png",
+				"net/rptools/maptool/client/image/tool/pointer-blue-off.png", pointerGroupOptionPanel, I18N.getText("tools.interaction.tooltip"));
 
 		pointerGroupButton.setSelected(true);
 		pointerGroupOptionPanel.activate();
@@ -84,11 +86,14 @@ public class ToolbarPanel extends JToolBar {
 		horizontalSpacer.setVisible(false);
 
 		add(pointerGroupButton);
-		add(createButton("net/rptools/maptool/client/image/tool/draw-blue.png", "net/rptools/maptool/client/image/tool/draw-blue-off.png", createDrawPanel(), I18N.getText("tools.drawing.tooltip")));
-		add(createButton("net/rptools/maptool/client/image/tool/temp-blue.png", "net/rptools/maptool/client/image/tool/temp-blue-off.png", createTemplatePanel(),
-				I18N.getText("tools.template.tooltip")));
-		add(createButton("net/rptools/maptool/client/image/tool/fog-blue.png", "net/rptools/maptool/client/image/tool/fog-blue-off.png", createFogPanel(), I18N.getText("tools.fog.tooltip")));
-		add(createButton("net/rptools/maptool/client/image/tool/eye-blue.png", "net/rptools/maptool/client/image/tool/eye-blue-off.png", createTopologyPanel(), I18N.getText("tools.topo.tooltip")));
+		add(createButton("net/rptools/maptool/client/image/tool/draw-blue.png",
+				"net/rptools/maptool/client/image/tool/draw-blue-off.png", createDrawPanel(), I18N.getText("tools.drawing.tooltip")));
+		add(createButton("net/rptools/maptool/client/image/tool/temp-blue.png",
+				"net/rptools/maptool/client/image/tool/temp-blue-off.png", createTemplatePanel(), I18N.getText("tools.template.tooltip")));
+		add(createButton("net/rptools/maptool/client/image/tool/fog-blue.png",
+				"net/rptools/maptool/client/image/tool/fog-blue-off.png", createFogPanel(), I18N.getText("tools.fog.tooltip")));
+		add(createButton("net/rptools/maptool/client/image/tool/eye-blue.png",
+				"net/rptools/maptool/client/image/tool/eye-blue-off.png", createTopologyPanel(), I18N.getText("tools.topo.tooltip")));
 		add(vertSplit);
 		add(horizontalSplit);
 		add(vertSpacer);
@@ -98,10 +103,10 @@ public class ToolbarPanel extends JToolBar {
 		add(createZoneSelectionButton());
 
 		// Non visible tools
-		toolbox.createTool(GridTool.class);
-		toolbox.createTool(BoardTool.class);
-		toolbox.createTool(FacingTool.class);
-		toolbox.createTool(StampTool.class);
+		tbox.createTool(GridTool.class);
+		tbox.createTool(BoardTool.class);
+		tbox.createTool(FacingTool.class);
+		tbox.createTool(StampTool.class);
 
 		addPropertyChangeListener("orientation", new PropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent evt) {
@@ -134,49 +139,52 @@ public class ToolbarPanel extends JToolBar {
 		OptionPanel panel = new OptionPanel();
 		panel.add(PointerTool.class);
 		panel.add(MeasureTool.class);
-
 		return panel;
 	}
 
 	private OptionPanel createDrawPanel() {
 		OptionPanel panel = new OptionPanel();
-
 		panel.add(FreehandTool.class);
 		panel.add(LineTool.class);
 		panel.add(RectangleTool.class);
 		panel.add(OvalTool.class);
 		panel.add(TextTool.class);
-
 		return panel;
 	}
 
 	private OptionPanel createTemplatePanel() {
 		OptionPanel panel = new OptionPanel();
-
 		panel.add(RadiusTemplateTool.class);
 		panel.add(ConeTemplateTool.class);
 		panel.add(LineTemplateTool.class);
 		panel.add(BurstTemplateTool.class);
 		panel.add(BlastTemplateTool.class);
 		panel.add(WallTemplateTool.class);
-
 		return panel;
 	}
 
 	private OptionPanel createFogPanel() {
-		OptionPanel panel = new OptionPanel();
-
+		OptionPanel panel = new OptionPanel() {
+			@Override
+			protected void activate() {
+				super.activate();
+				Campaign c = MapTool.getCampaign();
+				if (c.hasUsedFogToolbar() == false && MapTool.isHostingServer() == false) {
+					MapTool.addLocalMessage("<span class='whisper' style='color: blue'>" + I18N.getText("ToolbarPanel.manualFogActivated") + "</span>");
+					MapTool.showWarning("ToolbarPanel.manualFogActivated");
+					c.setHasUsedFogToolbar(true);
+				}
+			}
+		};
 		panel.add(RectangleExposeTool.class);
 		panel.add(OvalExposeTool.class);
 		panel.add(PolygonExposeTool.class);
 		panel.add(FreehandExposeTool.class);
-
 		return panel;
 	}
 
 	private OptionPanel createTopologyPanel() {
 		OptionPanel panel = new OptionPanel();
-
 		panel.add(RectangleTopologyTool.class);
 		panel.add(HollowRectangleTopologyTool.class);
 		panel.add(OvalTopologyTool.class);
@@ -184,7 +192,6 @@ public class ToolbarPanel extends JToolBar {
 		panel.add(PolygonTopologyTool.class);
 		panel.add(PolyLineTopologyTool.class);
 //		panel.add(FillTopologyTool.class);
-
 		return panel;
 	}
 
@@ -242,7 +249,7 @@ public class ToolbarPanel extends JToolBar {
 			add(tool);
 		}
 
-		private void activate() {
+		protected void activate() {
 			if (currentTool == null) {
 				currentTool = firstTool;
 			}
