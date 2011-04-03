@@ -79,11 +79,12 @@ public class PersistenceUtil {
 	private static final String PROP_CAMPAIGN_VERSION = "campaignVersion"; //$NON-NLS-1$
 	private static final String ASSET_DIR = "assets/"; //$NON-NLS-1$
 
-	private static final String CAMPAIGN_VERSION = "1.3.83";
+	private static final String CAMPAIGN_VERSION = "1.3.85";
 	// Please add a single note regarding why the campaign version number has been updated:
 	// 1.3.70	ownerOnly added to model.Light (not backward compatible)
 	// 1.3.75	model.Token.visibleOnlyToOwner (actually added to b74 but I didn't catch it before release)
 	// 1.3.83	ExposedAreaData added to tokens in b78 but again not caught until b82 :(
+	// 1.3.85	Added CampaignProperties.hasUsedFogToolbar (old versions could ignore this field, but how to implement?)
 
 	private static final ModelVersionManager campaignVersionManager = new ModelVersionManager();
 	private static final ModelVersionManager assetnameVersionManager = new ModelVersionManager();

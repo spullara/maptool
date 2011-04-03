@@ -12,7 +12,6 @@ package net.rptools.maptool.model;
 
 import java.awt.Color;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -43,7 +42,7 @@ import net.rptools.maptool.client.ui.token.TwoToneBarTokenOverlay;
 import net.rptools.maptool.client.ui.token.XTokenOverlay;
 import net.rptools.maptool.client.ui.token.YieldTokenOverlay;
 
-public class CampaignProperties implements Serializable {
+public class CampaignProperties {
 	public static final String DEFAULT_TOKEN_PROPERTY_TYPE = "Basic";
 
 	private Map<String, List<TokenProperty>> tokenTypeMap;
@@ -57,6 +56,8 @@ public class CampaignProperties implements Serializable {
 	private Map<String, BooleanTokenOverlay> tokenStates;
 	private Map<String, BarTokenOverlay> tokenBars;
 	private Map<String, String> characterSheets;
+
+	private boolean hasUsedFogToolbar = false;
 
 	/** Flag indicating that owners have special permissions */
 	private boolean initiativeOwnerPermissions = AppPreferences.getInitOwnerPermissions();
@@ -109,6 +110,7 @@ public class CampaignProperties implements Serializable {
 			tokenBars.put(overlay.getName(), overlay);
 		} // endfor
 
+		hasUsedFogToolbar = properties.hasUsedFogToolbar;
 		initiativeOwnerPermissions = properties.initiativeOwnerPermissions;
 		initiativeMovementLock = properties.initiativeMovementLock;
 
@@ -387,6 +389,14 @@ public class CampaignProperties implements Serializable {
 			}
 		}
 		return set;
+	}
+
+	public boolean hasUsedFogToolbar() {
+		return hasUsedFogToolbar;
+	}
+
+	public void setHasUsedFogToolbar(boolean b) {
+		hasUsedFogToolbar = b;
 	}
 
 	/** @return Getter for initiativeOwnerPermissions */
