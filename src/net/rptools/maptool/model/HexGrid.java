@@ -206,11 +206,11 @@ public abstract class HexGrid extends Grid {
 		ZonePoint zp = convert(cp);
 		Shape shape = getCellShape();
 
-		zp.x -= shape.getBounds().width / 2 + getOffsetX();
-		zp.y -= shape.getBounds().height / 2 + getOffsetY();
-
 		int w = shape.getBounds().width;
 		int h = shape.getBounds().height;
+
+		zp.x -= w / 2 + getOffsetX();
+		zp.y -= h / 2 + getOffsetY();
 
 //		System.out.println(new Rectangle(zp.x, zp.y, w, h));
 		return new Rectangle(zp.x, zp.y, w, h);

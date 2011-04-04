@@ -100,7 +100,12 @@ public class TokenFootprint {
 	}
 
 	/**
-	 * Return a rectangle that exactly bounds the footprint, values are in ZonePoint space
+	 * Return a rectangle that exactly bounds the footprint, values are in {@link ZonePoint} space.
+	 * 
+	 * @param grid
+	 *            the {@link Grid} that the footprint corresponds to
+	 * @param cell
+	 *            origin cell of this footprint; <code>null</code> means that <code>(0,0)</code> will be used
 	 */
 	public Rectangle getBounds(Grid grid, CellPoint cell) {
 		cell = cell != null ? cell : new CellPoint(0, 0);

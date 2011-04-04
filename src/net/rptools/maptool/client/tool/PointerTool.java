@@ -78,6 +78,7 @@ import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.model.TokenProperty;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.Zone.Layer;
@@ -647,14 +648,19 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				if (isMovingWithKeys) {
 					return;
 				}
-				ZonePoint zp;
-				if (tokenUnderMouse.isSnapToGrid())
-					zp = renderer.getZone().getGrid().convert(cellUnderMouse);
-				else
-					zp = new ScreenPoint(mouseX, mouseY).convertToZone(renderer);
+				Grid grid = getZone().getGrid();
 				ZonePoint last = renderer.getLastWaypoint(tokenUnderMouse.getId());
-//				System.out.println("  From " + last + " to " + zp);
-				handleDragToken(zp, zp.x - last.x, zp.y - last.y);
+				ZonePoint zp = new ScreenPoint(mouseX, mouseY).convertToZone(renderer);
+				if (tokenUnderMouse.isSnapToGrid() && grid.getCapabilities().isSnapToGridSupported()) {
+					TokenFootprint tf = tokenUnderMouse.getFootprint(grid);
+					Rectangle r = tf.getBounds(grid);
+					zp.translate(-r.width / 2, -r.height / 2);
+					last.translate(-r.width / 2, -r.height / 2);
+				}
+				zp.translate(-dragOffsetX, -dragOffsetY);
+				int dx = zp.x - last.x;
+				int dy = zp.y - last.y;
+				handleDragToken(zp, dx, dy);
 				return;
 			}
 			if (tokenUnderMouse == null || !renderer.getSelectedTokenSet().contains(tokenUnderMouse.getId())) {
@@ -707,13 +713,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	 * @return true if the move was successful
 	 */
 	public boolean handleDragToken(ZonePoint zonePoint, int dx, int dy) {
-		// TODO: Optimize this (combine with calling code)
-		zonePoint.translate(-dragOffsetX, -dragOffsetY);
 		Grid grid = renderer.getZone().getGrid();
 		if (tokenBeingDragged.isSnapToGrid() && grid.getCapabilities().isSnapToGridSupported()) {
 			// cellUnderMouse is actually token position if the token is being dragged with keys.
 			CellPoint cellUnderMouse = grid.convert(zonePoint);
-			zonePoint = grid.convert(cellUnderMouse);
+			zonePoint.translate((int) grid.getCellWidth() / 2, (int) grid.getCellHeight() / 2);
+			zonePoint = grid.convert(grid.convert(zonePoint));
 			MapTool.getFrame().getCoordinateStatusBar().update(cellUnderMouse.x, cellUnderMouse.y);
 		} else {
 			// Nothing
