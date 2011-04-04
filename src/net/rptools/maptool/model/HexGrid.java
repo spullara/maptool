@@ -327,23 +327,22 @@ public abstract class HexGrid extends Grid {
 	@Override
 	public boolean validateMove(Token token, Rectangle areaToCheck, int dirx, int diry, Area exposedFog) {
 		// For a hex grid, we calculate the center of the areaToCheck and use that to calculate the CellPoint.
-		CellPoint cp = convertZP(areaToCheck.x + areaToCheck.width / 2, areaToCheck.y + areaToCheck.height / 2);
+		ZonePoint actual = new ZonePoint(areaToCheck.x + areaToCheck.width / 2, areaToCheck.y + areaToCheck.height / 2);
+
+		// The first step is to check the center of the destination hex; if it's not in the exposed fog, there's no reason to check
+		// the rest of the pieces since we can just return false right away.
+		if (!token.isSnapToGrid()) {
+			// If we're not SnapToGrid, use the actual mouse coordinates
+			return exposedFog.contains(actual.x, actual.y);
+		}
+		// If we are SnapToGrid, round off the position and check that instead.
+		CellPoint cp = convertZP(actual.x, actual.y);
 		if (cp.x == 3 && cp.y == 0)
 			cp.y = 0; // hook for setting breakpoint in debugger while testing
 
-		ZonePoint zp = convertCP(cp.x, cp.y);
-
-		// The first step is to check the center of the hex; if it's not in the exposed fog, there's no reason to check
-		// the rest of the pieces since we can just return false right away.
-		if (!exposedFog.contains(zp.x, zp.y))
+		ZonePoint snappedZP = convertCP(cp.x, cp.y);
+		if (!exposedFog.contains(snappedZP.x, snappedZP.y))
 			return false;
-
-		if (!token.isSnapToGrid()) {
-			// If the token is not SnapToGrid, draw a line from the old location to the new one and ensure that the line lies
-			// entirely within the exposed area of fog.
-			// Not currently implemented as there's no good way to do this using GeneralPath, Shape, and Area. :-/
-			return true;
-		}
 
 		// The next step is to check the triangle that covers the hex face we are leaving from and teh one we
 		// are entering through to see if either contain any fog.  If they do, the movement is disallowed.
@@ -355,16 +354,16 @@ public abstract class HexGrid extends Grid {
 		}
 		boolean result;
 		// can we move into the new cell?
-		result = checkOneSlice(zp, direction, exposedFog);
+		result = checkOneSlice(snappedZP, direction, exposedFog);
 
 		// If this one is false, don't bother checking the other one...
 		if (!result)
 			return false;
 
-		zp.translate(-dirx, -diry);
-		cp = convert(zp); // takes grid orientation and cellOffset into account
-		zp = convert(cp);
-		result = checkOneSlice(zp, calculator.oppositeDirection(direction), exposedFog); // can we exit our own cell?
+		snappedZP.translate(-dirx, -diry);
+		cp = convert(snappedZP); // takes grid orientation and cellOffset into account
+		snappedZP = convert(cp);
+		result = checkOneSlice(snappedZP, calculator.oppositeDirection(direction), exposedFog); // can we exit our own cell?
 		return result;
 	}
 

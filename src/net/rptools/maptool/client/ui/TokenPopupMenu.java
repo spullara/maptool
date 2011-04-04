@@ -106,7 +106,6 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		add(createHaloMenu());
 		addOwnedItem(createArrangeMenu());
 		addGMItem(createChangeToMenu(Zone.Layer.GM, Zone.Layer.OBJECT, Zone.Layer.BACKGROUND));
-
 		add(new JSeparator());
 
 		/*
@@ -118,25 +117,22 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		}
 		if (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision()) {
 			add(createExposeMenu());
-			// if (MapTool.getPlayer().isGM()) {
-			// addGMItem(createVisionMenu());
-			// }
-			// add(new JSeparator());
+//			if (MapTool.getPlayer().isGM()) {
+//				addGMItem(createVisionMenu());
+//			}
+//			add(new JSeparator());
 		}
 		addOwnedItem(createLightSourceMenu());
-
 		add(new JSeparator());
 
 		addToggledItem(new ShowPathsAction(), renderer.isPathShowing(tokenUnderMouse));
 		addToggledItem(new SnapToGridAction(tokenUnderMouse.isSnapToGrid(), renderer), tokenUnderMouse.isSnapToGrid());
 		addToggledGMItem(new VisibilityAction(), tokenUnderMouse.isVisible());
-
 		add(new JSeparator());
 
 		add(new JMenuItem(new CutAction()));
 		add(new JMenuItem(new CopyAction()));
 		add(new JMenuItem(new DeleteAction()));
-
 		add(new JSeparator());
 
 		add(new RevertLastMoveAction());

@@ -524,7 +524,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				renderer.selectToken(tokenUnderMouse.getId());
 				isNewTokenSelected = false;
 			}
-			if (tokenUnderMouse != null && renderer.getSelectedTokenSet().size() > 0) {
+			if (tokenUnderMouse != null && !renderer.getSelectedTokenSet().isEmpty()) {
 				if (tokenUnderMouse.isStamp()) {
 					new StampPopupMenu(renderer.getSelectedTokenSet(), e.getX(), e.getY(), renderer, tokenUnderMouse).showPopup(renderer);
 				} else if (AppUtil.playerOwns(tokenUnderMouse)) {
@@ -574,7 +574,11 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				return;
 			}
 			ZonePoint zp = new ScreenPoint(mouseX, mouseY).convertToZone(renderer);
-			ZonePoint last = renderer.getLastWaypoint(tokenUnderMouse.getId());
+			ZonePoint last;
+			if (tokenUnderMouse == null)
+				last = zp;
+			else
+				last = renderer.getLastWaypoint(tokenUnderMouse.getId());
 			handleDragToken(zp, zp.x - last.x, zp.y - last.y);
 			return;
 		}
@@ -1189,6 +1193,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			cp.y += dy;
 
 			zp = grid.convert(cp);
+			dx = zp.x - dragStartX;
+			dy = zp.y - dragStartY;
 		} else {
 			Rectangle tokenSize = tokenBeingDragged.getBounds(renderer.getZone());
 

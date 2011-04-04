@@ -10,6 +10,7 @@
  */
 package net.rptools.maptool.client.ui;
 
+import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -680,9 +681,7 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 	}
 
 	public class SnapToGridAction extends AbstractAction {
-
 		private final boolean snapToGrid;
-
 		private final ZoneRenderer renderer;
 
 		public SnapToGridAction(boolean snapToGrid, ZoneRenderer renderer) {
@@ -692,21 +691,26 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-
 			for (GUID guid : selectedTokenSet) {
 				Zone zone = renderer.getZone();
 				Token token = zone.getToken(guid);
 				if (token == null) {
 					continue;
 				}
-
 				token.setSnapToGrid(!snapToGrid);
 				Grid grid = zone.getGrid();
-				if (grid.getCapabilities().isSnapToGridSupported() && token.isSnapToGrid()) {
-					ZonePoint zp = new ZonePoint(token.getX(), token.getY());
-					zp = grid.convert(grid.convert(zp));
-					token.setX(zp.x);
-					token.setY(zp.y);
+				Dimension offset = grid.getCellOffset();
+				if (token.isSnapToGrid()) {
+					if (grid.getCapabilities().isSnapToGridSupported()) {
+						ZonePoint zp = new ZonePoint(token.getX() - offset.width, token.getY() - offset.height);
+						zp = grid.convert(grid.convert(zp));
+						token.setX(zp.x);
+						token.setY(zp.y);
+					}
+				} else {
+					// If SnapToGrid is now off, change the (x,y) coordinates based on the cell offset being used by the grid
+					token.setX(token.getX() + offset.width);
+					token.setY(token.getY() + offset.height);
 				}
 				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 			}
