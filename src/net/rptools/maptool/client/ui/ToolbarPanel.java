@@ -169,10 +169,10 @@ public class ToolbarPanel extends JToolBar {
 			protected void activate() {
 				super.activate();
 				Campaign c = MapTool.getCampaign();
-				if (c.hasUsedFogToolbar() == false && MapTool.isHostingServer() == false) {
+				boolean tokensSelected = !MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokenSet().isEmpty();
+				if (tokensSelected && c.hasUsedFogToolbar() == false && MapTool.isHostingServer() == false) {
 					MapTool.addLocalMessage("<span class='whisper' style='color: blue'>" + I18N.getText("ToolbarPanel.manualFogActivated") + "</span>");
 					MapTool.showWarning("ToolbarPanel.manualFogActivated");
-					c.setHasUsedFogToolbar(true);
 				}
 			}
 		};

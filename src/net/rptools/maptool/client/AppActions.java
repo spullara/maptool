@@ -1753,7 +1753,8 @@ public class AppActions {
 					//my addition
 					policy.setRestrictedImpersonation(serverProps.getRestrictedImpersonation());
 					policy.setMovementMetric(serverProps.getMovementMetric());
-					policy.setUseIndividualFOW(serverProps.getUseIndividualViews() && serverProps.getUseIndividualFOW());
+					boolean useIF = serverProps.getUseIndividualViews() && serverProps.getUseIndividualFOW();
+					policy.setUseIndividualFOW(useIF);
 
 					ServerConfig config = new ServerConfig(serverProps.getUsername(), serverProps.getGMPassword(), serverProps.getPlayerPassword(), serverProps.getPort(), serverProps.getRPToolsName());
 
@@ -1769,9 +1770,12 @@ public class AppActions {
 						if (serverProps.getUseUPnP()) {
 							UPnPUtil.openPort(serverProps.getPort());
 						}
+						// Right now set this is set to whatever the last server settings were.  If we wanted to turn it on and
+						// leave it turned on, the line would change to:
+//						campaign.setHasUsedFogToolbar(useIF || campaign.hasUsedFogToolbar());
+						campaign.setHasUsedFogToolbar(useIF);
 
-						// Make a copy of the campaign since we don't coordinate
-						// local changes well ... yet
+						// Make a copy of the campaign since we don't coordinate local changes well ... yet
 
 						/*
 						 * JFJ 2010-10-27 The below creates a NEW campaign with a copy of the existing campaign.
@@ -1780,9 +1784,8 @@ public class AppActions {
 						 * that campaign, zone(s), and token's are copied over when you start a new server instance.
 						 * 
 						 * You need to modify either Campaign(Campaign) or Zone(Zone) to get any data you need to
-						 * persist from the pre server campaign to the post server start up campaign.
+						 * persist from the pre-server campaign to the post server start up campaign.
 						 */
-
 						MapTool.startServer(dialog.getUsernameTextField().getText(), config, policy, new Campaign(campaign));
 
 						// Connect to server

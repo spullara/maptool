@@ -84,8 +84,14 @@ public class Campaign {
 	/**
 	 * This flag indicates whether the manual fog tools have been used in this campaign while a server is not running.
 	 * See {@link ToolbarPanel#createFogPanel()} for details.
+	 * <p>
+	 * <ul>
+	 * <li>null - server never started for this campaign
+	 * <li>false - server started and IndividualFog == off
+	 * <li>true - server started and IndividualFog == on
+	 * </ul>
 	 */
-	private boolean hasUsedFogToolbar = false;
+	private Boolean hasUsedFogToolbar = null;
 
 	public Campaign() {
 		macroButtonLastIndex = 0;
@@ -336,12 +342,18 @@ public class Campaign {
 		return false;
 	}
 
+	/**
+	 * Whether a server has been started using this campaign and, if so, whether the IndividualFog feature was turned on
+	 * at the time. This method returns <code>true</code> IFF a server has been started with the IF feature turned on.
+	 * 
+	 * @return <code>true</code> if IF feature has ever been used; <code>false</code> otherwise
+	 */
 	public boolean hasUsedFogToolbar() {
-		return hasUsedFogToolbar;
+		return hasUsedFogToolbar == null ? false : hasUsedFogToolbar.booleanValue();
 	}
 
 	public void setHasUsedFogToolbar(boolean b) {
-		hasUsedFogToolbar = b;
+		hasUsedFogToolbar = new Boolean(b);
 	}
 
 	public void mergeCampaignProperties(CampaignProperties properties) {
