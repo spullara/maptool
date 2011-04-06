@@ -61,12 +61,12 @@ import net.rptools.maptool.model.SquareGrid;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.DrawablePaint;
 import net.rptools.maptool.util.ImageManager;
+import net.rptools.maptool.util.StringUtil;
 
 import com.jeta.forms.components.panel.FormPanel;
 import com.jeta.forms.gui.form.FormAccessor;
 
 public class MapPropertiesDialog extends JDialog {
-
 	private static final int AUTO_REPEAT_THRESHOLD = 200;
 
 	public enum Status {
@@ -80,7 +80,6 @@ public class MapPropertiesDialog extends JDialog {
 	private PreviewPanelFileChooser imageFileChooser;
 	private MapPreviewPanel imagePreviewPanel;
 	private MapSelectorDialog mapSelectorDialog;
-
 	private FormPanel formPanel;
 
 	private DrawablePaint backgroundPaint;
@@ -88,14 +87,11 @@ public class MapPropertiesDialog extends JDialog {
 	private DrawablePaint fogPaint;
 
 	private Zone zone;
-
 	private PaintChooser paintChooser;
 
 	public MapPropertiesDialog(JFrame owner) {
 		super(owner, "Map Properties", true);
-
 		initialize();
-
 		pack();
 	}
 
@@ -108,12 +104,10 @@ public class MapPropertiesDialog extends JDialog {
 		if (b) {
 			SwingUtil.centerOver(this, MapTool.getFrame());
 		}
-
 		super.setVisible(b);
 	}
 
 	private void initialize() {
-
 		setLayout(new GridLayout());
 		formPanel = new FormPanel("net/rptools/maptool/client/ui/forms/mapPropertiesDialog.xml");
 
@@ -151,9 +145,7 @@ public class MapPropertiesDialog extends JDialog {
 		TextureChooserPanel textureChooserPanel = new TextureChooserPanel(paintChooser, MapTool.getFrame().getAssetPanel().getModel(), "mapPropertiesTextureChooser");
 		paintChooser.addPaintChooser(textureChooserPanel);
 		paintChooser.setPreferredSize(new Dimension(450, 400));
-
 		mapSelectorDialog = new MapSelectorDialog();
-
 		getRootPane().setDefaultButton(getOKButton());
 	}
 
@@ -172,9 +164,7 @@ public class MapPropertiesDialog extends JDialog {
 				MapTool.serverCommand().putAsset(mapAsset);
 			}
 		}
-
 		copyUIToZone();
-
 		status = Status.OK;
 		setVisible(false);
 	}
@@ -201,12 +191,10 @@ public class MapPropertiesDialog extends JDialog {
 
 	public void setZone(Zone zone) {
 		this.zone = zone;
-
 		copyZoneToUI();
 	}
 
 	private void copyZoneToUI() {
-
 		getNameTextField().setText(zone.getName());
 		getDistanceTextField().setText(Integer.toString(zone.getUnitsPerCell()));
 		getPixelsPerCellTextField().setText(Integer.toString(zone.getGrid().getSize()));
@@ -223,11 +211,10 @@ public class MapPropertiesDialog extends JDialog {
 	}
 
 	private void copyUIToZone() {
-
 		zone.setName(getNameTextField().getText().trim());
-		zone.setUnitsPerCell(Integer.parseInt(getDistanceTextField().getText()));
+		zone.setUnitsPerCell(StringUtil.parseInteger(getDistanceTextField().getText(), zone.getUnitsPerCell()));
 		zone.setGrid(createZoneGrid());
-		zone.setTokenVisionDistance(Integer.parseInt(getDefaultVisionTextField().getText()));
+		zone.setTokenVisionDistance(StringUtil.parseInteger(getDefaultVisionTextField().getText(), zone.getTokenVisionDistance()));
 
 		zone.setFogPaint(fogPaint);
 		zone.setBackgroundPaint(backgroundPaint);
@@ -257,12 +244,10 @@ public class MapPropertiesDialog extends JDialog {
 	}
 
 	private void initDistanceTextField() {
-
 		getDistanceTextField().setText("5");
 	}
 
 	private void initMapPreviewPanel() {
-
 		FormAccessor accessor = formPanel.getFormAccessor("previewPanel");
 		JPanel previewPanel = new JPanel(new GridLayout());
 		previewPanel.setBorder(BorderFactory.createLineBorder(Color.darkGray));
@@ -272,7 +257,6 @@ public class MapPropertiesDialog extends JDialog {
 	}
 
 	public JTextField getNameTextField() {
-
 		return formPanel.getTextField("name");
 	}
 
@@ -281,7 +265,6 @@ public class MapPropertiesDialog extends JDialog {
 	}
 
 	private void initOKButton() {
-
 		getOKButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				accept();
@@ -304,7 +287,6 @@ public class MapPropertiesDialog extends JDialog {
 	private void initBackgroundButton() {
 		getBackgroundButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
 				Paint paint = paintChooser.choosePaint(MapTool.getFrame(), backgroundPaint != null ? backgroundPaint.getPaint() : null, "Choose Background");
 				if (paint != null) {
 					backgroundPaint = DrawablePaint.convertPaint(paint);
@@ -317,25 +299,20 @@ public class MapPropertiesDialog extends JDialog {
 	private void initMapButton() {
 		getMapButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
 				Asset asset = mapSelectorDialog.chooseAsset();
 				if (asset == null) {
 					return;
 				}
-
 				mapAsset = asset;
 				getNameTextField().setText(asset.getName());
-
 				updatePreview();
 			}
 		});
-
 	}
 
 	private void initFogButton() {
 		getFogButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
 				Paint paint = paintChooser.choosePaint(MapTool.getFrame(), fogPaint != null ? fogPaint.getPaint() : null, "Choose Fog");
 				if (paint != null) {
 					fogPaint = DrawablePaint.convertPaint(paint);
@@ -343,7 +320,6 @@ public class MapPropertiesDialog extends JDialog {
 				updatePreview();
 			}
 		});
-
 	}
 
 	private void updatePreview() {
@@ -355,7 +331,6 @@ public class MapPropertiesDialog extends JDialog {
 	}
 
 	private void initCancelButton() {
-
 		getCancelButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				status = Status.CANCEL;
@@ -387,12 +362,10 @@ public class MapPropertiesDialog extends JDialog {
 
 	private MapPreviewPanel getMapPreviewPanel() {
 		if (imagePreviewPanel == null) {
-
 			imagePreviewPanel = new MapPreviewPanel();
 			imagePreviewPanel.setPreferredSize(new Dimension(150, 150));
 			imagePreviewPanel.setMinimumSize(new Dimension(150, 150));
 		}
-
 		return imagePreviewPanel;
 	}
 
@@ -426,7 +399,6 @@ public class MapPropertiesDialog extends JDialog {
 	}
 
 	private Grid createZoneGrid() {
-
 		Grid grid = null;
 		if (getHexHorizontalRadio().isSelected()) {
 			grid = GridFactory.createGrid(GridFactory.HEX_HORI, AppPreferences.getFaceEdge(), AppPreferences.getFaceVertex());
@@ -440,14 +412,11 @@ public class MapPropertiesDialog extends JDialog {
 		if (getNoGridRadio().isSelected()) {
 			grid = GridFactory.createGrid(GridFactory.NONE);
 		}
-
-		grid.setSize(Integer.parseInt(getPixelsPerCellTextField().getText()));
-
+		grid.setSize(StringUtil.parseInteger(getPixelsPerCellTextField().getText(), grid.getSize()));
 		return grid;
 	}
 
 	private class MapSelectorDialog extends JDialog {
-
 		private Asset selectedAsset;
 
 		public MapSelectorDialog() {
@@ -495,14 +464,12 @@ public class MapPropertiesDialog extends JDialog {
 						if (imageFile == null || imageFile.isDirectory()) {
 							return;
 						}
-
 						lastFilePath = new File(imageFile.getParentFile() + "/.");
 						try {
 							selectedAsset = AssetManager.createAsset(imageFile);
 
 							// Store for later use
 							AssetManager.putAsset(selectedAsset);
-
 							updatePreview();
 //							setBackgroundAsset(asset, getImageFileChooser().getSelectedThumbnailImage());
 						} catch (IOException ioe) {
@@ -512,7 +479,6 @@ public class MapPropertiesDialog extends JDialog {
 					}
 				}
 			});
-
 			return button;
 		}
 
@@ -540,19 +506,15 @@ public class MapPropertiesDialog extends JDialog {
 					setVisible(false);
 				}
 			});
-
 			return button;
 		}
 
 		public Asset chooseAsset() {
-
 			setVisible(true);
-
 			return selectedAsset;
 		}
 
 		private JComponent createImageExplorerPanel() {
-
 			final AssetPanel assetPanel = new AssetPanel("mapPropertiesImageExplorer", MapTool.getFrame().getAssetPanel().getModel(), JSplitPane.HORIZONTAL_SPLIT);
 			assetPanel.addImageSelectionListener(new SelectionListener() {
 				public void selectionPerformed(List<Object> selectedList) {
@@ -560,7 +522,6 @@ public class MapPropertiesDialog extends JDialog {
 					if (selectedList.size() != 1) {
 						return;
 					}
-
 					Integer imageIndex = (Integer) selectedList.get(0);
 
 //					if (getBackgroundAsset() != null) {
@@ -575,16 +536,13 @@ public class MapPropertiesDialog extends JDialog {
 					}
 				}
 			});
-
 			return assetPanel;
 		}
 	}
 
 	private class MapPreviewPanel extends JComponent {
-
 		@Override
 		protected void paintComponent(Graphics g) {
-
 			Dimension size = getSize();
 			Graphics2D g2d = (Graphics2D) g;
 
@@ -596,7 +554,6 @@ public class MapPropertiesDialog extends JDialog {
 				g2d.setPaint(backgroundPaint.getPaint(drawableObserver));
 				g.fillRect(0, 0, size.width, size.height);
 			}
-
 			// Fog
 			if (fogPaint != null) {
 				g2d.setPaint(fogPaint.getPaint());
@@ -605,7 +562,6 @@ public class MapPropertiesDialog extends JDialog {
 				g.fillRect(0, size.height - 10, size.width, 10);
 				g.fillRect(size.width - 10, 0, 10, size.height);
 			}
-
 			// Map
 			if (mapAsset != null) {
 				BufferedImage image = ImageManager.getImageAndWait(mapAsset.getId());
@@ -621,13 +577,9 @@ public class MapPropertiesDialog extends JDialog {
 	}
 
 	private final ImageObserver drawableObserver = new ImageObserver() {
-
 		public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
-
 			MapPropertiesDialog.this.imagePreviewPanel.repaint();
-
 			return true;
 		}
 	};
-
 }
