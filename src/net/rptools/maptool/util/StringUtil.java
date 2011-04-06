@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.util;
 
@@ -27,8 +24,26 @@ public class StringUtil {
 
 	public static String formatDecimal(double value) {
 		String result1;
-		result1 = nf.format(value);		// On a separate line to allow for breakpoints
+		result1 = nf.format(value); // On a separate line to allow for breakpoints
 		return result1;
+	}
+
+	/**
+	 * Returns <code>text</code> converted to a double-precision value, or the value of <code>def</code> if the string
+	 * cannot be converted. This method is locale-aware.
+	 * 
+	 * @param text
+	 *            string to convert to a number
+	 * @param def
+	 *            default value to use if a ParseException is thrown
+	 * @return the result
+	 */
+	public static Double parseDecimal(String text, Double def) {
+		try {
+			return parseDecimal(text);
+		} catch (ParseException e) {
+			return def;
+		}
 	}
 
 	public static Double parseDecimal(String text) throws ParseException {
@@ -36,6 +51,24 @@ public class StringUtil {
 		newValue = nf.parse(text).doubleValue();
 //		System.out.println("Decimal:  Input string is >>"+text+"<< and parsing produces "+newValue);
 		return newValue;
+	}
+
+	/**
+	 * Returns <code>text</code> converted to an integer value, or the value of <code>def</code> if the string cannot be
+	 * converted. This method is locale-aware (which doesn't mean much for integers).
+	 * 
+	 * @param text
+	 *            string to convert to a number
+	 * @param def
+	 *            default value to use if a ParseException is thrown
+	 * @return the result
+	 */
+	public static Integer parseInteger(String text, Integer def) {
+		try {
+			return parseInteger(text);
+		} catch (ParseException e) {
+			return def;
+		}
 	}
 
 	public static Integer parseInteger(String text) throws ParseException {
@@ -47,16 +80,17 @@ public class StringUtil {
 
 	public static String wrapText(String string, int wrapLength, int startPosition, String wrapChar) {
 
-		StringBuilder wrappedString = new StringBuilder();;
+		StringBuilder wrappedString = new StringBuilder();
+		;
 		String subString;
 		int newlinePos;
 		int length = string.length();
 
-		if ( length - startPosition <= wrapLength ) {
+		if (length - startPosition <= wrapLength) {
 			return string;
 		}
 
-		while(length - startPosition > wrapLength) {
+		while (length - startPosition > wrapLength) {
 
 			// look ahead one char (wrapLength + 1) in case it is a space or newline
 			subString = string.substring(startPosition, startPosition + wrapLength + 1);
@@ -65,38 +99,39 @@ public class StringUtil {
 			if (newlinePos == -1) {
 				// if there's no line break, then find the first space to break the line
 				newlinePos = subString.lastIndexOf(" ");
-				if(newlinePos == -1) {
+				if (newlinePos == -1) {
 					// if there are no spaces, then force the line break within the word.
-					newlinePos = wrapLength-1; // -1 because of 0 start point of position
+					newlinePos = wrapLength - 1; // -1 because of 0 start point of position
 				}
 			}
 
 			wrappedString.append(subString.substring(0, newlinePos));
 			wrappedString.append(wrapChar);
-			startPosition += newlinePos+1;
+			startPosition += newlinePos + 1;
 
 		}
 
 		// add the remainder of the string
-		wrappedString.append( string.substring(startPosition) );
+		wrappedString.append(string.substring(startPosition));
 
 		return wrappedString.toString();
 	}
 
 	/**
-	 * Gets copy of <b>string</b> wrapped with '\n' character
-	 * a the wraplength or the nearest space between words.
-	 * @param string The multiline string to be wrapped
-	 * @param wrapLength the number of characters before wrapping
+	 * Gets copy of <b>string</b> wrapped with '\n' character a the wraplength or the nearest space between words.
+	 * 
+	 * @param string
+	 *            The multiline string to be wrapped
+	 * @param wrapLength
+	 *            the number of characters before wrapping
 	 */
 	public static String wrapText(String string, int wrapLength) {
 		return wrapText(string, wrapLength, 0, "\n");
 	}
 
 	/**
-	 * Whether the string is null or all whitespace chars
-	 * (This should use {@link String#isEmpty()} but that's new to Java 6
-	 * and we're trying to stay compatible with Java 5 if possible.)
+	 * Whether the string is null or all whitespace chars (This should use {@link String#isEmpty()} but that's new to
+	 * Java 6 and we're trying to stay compatible with Java 5 if possible.)
 	 */
 	public static boolean isEmpty(String string) {
 		return string == null || string.trim().length() == 0;
@@ -107,7 +142,7 @@ public class StringUtil {
 		int count = 0;
 		int index = 0;
 		while ((index = source.indexOf(str, index)) >= 0) {
-			count ++;
+			count++;
 			index += str.length();
 		}
 		return count;
@@ -136,24 +171,22 @@ public class StringUtil {
 		return list;
 	}
 
-	public static  String getFirstWord(String line) {
+	public static String getFirstWord(String line) {
 		List<String> split = splitNextWord(line);
 		return split != null ? split.get(0) : null;
 	}
 
-	public static  String findMatch(String pattern, List<String> stringList) {
-		for(String listValue: stringList)
-		{
+	public static String findMatch(String pattern, List<String> stringList) {
+		for (String listValue : stringList) {
 			String upperValue = listValue.toUpperCase();
-			if(upperValue.startsWith(pattern.toUpperCase()))
-			{
+			if (upperValue.startsWith(pattern.toUpperCase())) {
 				return listValue;
 			}
 		}
 		return "";
 	}
 
-	public static  List<String> splitNextWord(String line) {
+	public static List<String> splitNextWord(String line) {
 
 		line = line.trim();
 		if (line.length() == 0) {
@@ -182,6 +215,6 @@ public class StringUtil {
 			builder.append(c);
 		}
 
-		return Arrays.asList(new String[]{line.substring(start, end), line.substring(Math.min(end+1, line.length()))});
+		return Arrays.asList(new String[] { line.substring(start, end), line.substring(Math.min(end + 1, line.length())) });
 	}
 }
