@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<stringAttribute key="ProfilerCPUSettings_filter_type" value="2"/>
+<stringAttribute key="ProfilerCPUSettings_filter_value" value="net.rptools.maptool.client.*,&#10;net.rptools.maptool.common.*,&#10;net.rptools.maptool.language.*,&#10;net.rptools.maptool.model.*,&#10;net.rptools.maptool.server.*,&#10;net.rptools.maptool.tool.*,&#10;net.rptools.maptool.transfer.*,&#10;net.rptools.maptool.util.*,&#10;net.rptools.lib.*"/>
+<stringAttribute key="ProfilerCPUSettings_profile_runnables" value="true"/>
+<stringAttribute key="ProfilerCPUSettings_root_classes" value="net.rptools.maptool.client.**&#10;net.rptools.maptool.common.**&#10;net.rptools.maptool.language.**&#10;net.rptools.maptool.model.**&#10;net.rptools.maptool.server.**&#10;net.rptools.maptool.tool.**&#10;net.rptools.maptool.transfer.**&#10;net.rptools.maptool.util.**&#10;net.rptools.lib.**&#10;"/>
+<stringAttribute key="ProfilerMemorySettings_mode" value="4"/>
+<stringAttribute key="ProfilerMemorySettings_stacktraces" value="-1"/>
+<stringAttribute key="ProfilerMemorySettings_track_every" value="10"/>
+<stringAttribute key="myeclipse.profiling.mode" value="1"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
 <listEntry value="/maptool/src/net/rptools/maptool/client/MapTool.java"/>
 </listAttribute>
@@ -25,6 +33,15 @@
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="net.rptools.maptool.client.MapTool"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="maptool"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea -DMAPTOOL_DEV=true -Xmx768M -Xss3M"/>
+<stringAttribute key="profiler.settings.cpu.exclude.wait.time" value="true"/>
+<stringAttribute key="profiler.settings.cpu.profiling.type" value="0"/>
+<stringAttribute key="profiler.settings.instr.scheme" value="2"/>
+<stringAttribute key="profiler.settings.instrument.empty.methods" value="true"/>
+<stringAttribute key="profiler.settings.instrument.method.invoke" value="true"/>
+<stringAttribute key="profiler.settings.istrument.getter.setter.methods" value="true"/>
+<stringAttribute key="profiler.settings.n.profiled.threads.limit" value="32"/>
+<stringAttribute key="profiler.settings.obj.alloc.stack.sampling.depth" value="-1"/>
+<stringAttribute key="profiler.settings.sampling.interval" value="10"/>
 <booleanAttribute key="yk-capture-cpu-on-exit" value="false"/>
 <booleanAttribute key="yk-capture-memory-on-exit" value="true"/>
 <stringAttribute key="yk-cpu-startup" value="none"/>

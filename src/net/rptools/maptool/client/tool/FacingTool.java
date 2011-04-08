@@ -114,9 +114,9 @@ public class FacingTool extends DefaultTool {
 			// if has fog(required) 
 			// and ((isGM with pref set) OR serverPolicy allows auto reveal by players)
 			if (renderer.getZone().hasFog() && ((AppPreferences.getAutoRevealVisionOnGMMovement() && MapTool.getPlayer().isGM())) || MapTool.getServerPolicy().isAutoRevealOnMovement()) {
-				visibleArea = MapTool.getFrame().getCurrentZoneRenderer().getZoneView().getVisibleArea(token);
+				visibleArea = renderer.getZoneView().getVisibleArea(token);
 				remoteSelected.add(token.getId());
-				MapTool.getFrame().getCurrentZoneRenderer().getZone().exposeArea(visibleArea,token);
+				renderer.getZone().exposeArea(visibleArea, token);
 			}
 			renderer.flushFog();
 		}

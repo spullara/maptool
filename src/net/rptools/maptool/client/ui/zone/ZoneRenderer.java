@@ -1291,11 +1291,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	}
 
 	/**
-	 * This outlines the area visible to the token under the cursor.
+	 * This outlines the area visible to the token under the cursor and shades it with the halo color, if there is one.
 	 */
-
 	private void renderVisionOverlay(Graphics2D g, PlayerView view) {
-		Area currentTokenVisionArea = zoneView.getVisibleArea(tokenUnderMouse);
+		Area currentTokenVisionArea = getVisibleArea(tokenUnderMouse);
 		if (currentTokenVisionArea == null)
 			return;
 		Area combined = new Area(currentTokenVisionArea);
@@ -1330,17 +1329,21 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 			Area area = combined.createTransformedArea(af);
 			g.setClip(this.getBounds());
-			SwingUtil.useAntiAliasing(g);
+			Object oldAA = SwingUtil.useAntiAliasing(g);
 			//g.setStroke(new BasicStroke(2));
 			g.setColor(new Color(255, 255, 255)); // outline around visible area
 			g.draw(area);
+			renderHaloArea(g, area);
+			SwingUtil.restoreAntiAliasing(g, oldAA);
+		}
+	}
 
-			boolean useHaloColor = tokenUnderMouse.getHaloColor() != null && AppPreferences.getUseHaloColorOnVisionOverlay();
-			if (tokenUnderMouse.getVisionOverlayColor() != null || useHaloColor) {
-				Color visionColor = useHaloColor ? tokenUnderMouse.getHaloColor() : tokenUnderMouse.getVisionOverlayColor();
-				g.setColor(new Color(visionColor.getRed(), visionColor.getGreen(), visionColor.getBlue(), AppPreferences.getHaloOverlayOpacity()));
-				g.fill(area);
-			}
+	private void renderHaloArea(Graphics2D g, Area visible) {
+		boolean useHaloColor = tokenUnderMouse.getHaloColor() != null && AppPreferences.getUseHaloColorOnVisionOverlay();
+		if (tokenUnderMouse.getVisionOverlayColor() != null || useHaloColor) {
+			Color visionColor = useHaloColor ? tokenUnderMouse.getHaloColor() : tokenUnderMouse.getVisionOverlayColor();
+			g.setColor(new Color(visionColor.getRed(), visionColor.getGreen(), visionColor.getBlue(), AppPreferences.getHaloOverlayOpacity()));
+			g.fill(visible);
 		}
 	}
 

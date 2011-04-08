@@ -763,6 +763,11 @@ public class Zone extends BaseModel {
 		return combined;
 	}
 
+	/**
+	 * This is the Global Exposed Area (GEA) discussed so much on the dev-team mailing list. :)
+	 * 
+	 * @return Area object representing exposed fog area visible to all tokens
+	 */
 	public Area getExposedArea() {
 		return exposedArea;
 	}
@@ -1306,14 +1311,21 @@ public class Zone extends BaseModel {
 		return exposedAreaMeta;
 	}
 
+	/**
+	 * Find the area of this map which has been exposed to the given token GUID.
+	 * 
+	 * @param tokenExposedAreaGUID
+	 *            token whose exposed area should be returned
+	 * @return area of fog cleared away for/by this token
+	 */
 	public ExposedAreaMetaData getExposedAreaMetaData(GUID tokenExposedAreaGUID) {
-		if (getExposedAreaMetaData().containsKey(tokenExposedAreaGUID)) {
-			return exposedAreaMeta.get(tokenExposedAreaGUID);
-		} else {
-			ExposedAreaMetaData meta = new ExposedAreaMetaData();
-			exposedAreaMeta.put(tokenExposedAreaGUID, meta);
+		ExposedAreaMetaData meta = exposedAreaMeta.get(tokenExposedAreaGUID);
+		if (meta != null) {
 			return meta;
 		}
+		meta = new ExposedAreaMetaData();
+		exposedAreaMeta.put(tokenExposedAreaGUID, meta);
+		return meta;
 	}
 
 	public void setExposedAreaMetaData(GUID tokenExposedAreaGUID, ExposedAreaMetaData meta) {
