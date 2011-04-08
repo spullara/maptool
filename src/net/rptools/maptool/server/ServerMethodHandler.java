@@ -51,7 +51,6 @@ import net.rptools.maptool.transfer.AssetProducer;
  */
 public class ServerMethodHandler extends AbstractMethodHandler implements ServerCommand {
 	private final MapToolServer server;
-
 	private final Object MUTEX = new Object();
 
 	public ServerMethodHandler(MapToolServer server) {
@@ -60,7 +59,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 
 	public void handleMethod(String id, String method, Object... parameters) {
 		ServerCommand.COMMAND cmd = Enum.valueOf(ServerCommand.COMMAND.class, method);
-		//System.out.println("ServerMethodHandler#handleMethod: " + id + " - " + cmd.name());
+//		System.out.println("ServerMethodHandler#handleMethod: " + id + " - " + cmd.name());
 
 		try {
 			RPCContext context = new RPCContext(id, method, parameters);
@@ -347,14 +346,12 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 	public void hideFoW(GUID zoneGUID, Area area, Set<GUID> selectedToks) {
 		Zone zone = server.getCampaign().getZone(zoneGUID);
 		zone.hideArea(area, selectedToks);
-
 		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.hideFoW.name(), RPCContext.getCurrent().parameters);
 	}
 
 	public void setFoW(GUID zoneGUID, Area area, Set<GUID> selectedToks) {
 		Zone zone = server.getCampaign().getZone(zoneGUID);
 		zone.setFogArea(area, selectedToks);
-
 		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.setFoW.name(), RPCContext.getCurrent().parameters);
 	}
 
@@ -383,7 +380,6 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 		InitiativeList list = zone.getInitiativeList();
 		TokenInitiative ti = list.getTokenInitiative(index);
 		if (!ti.getId().equals(tokenId)) {
-
 			// Index doesn't point to same token, try to find it
 			Token token = zone.getToken(tokenId);
 			List<Integer> tokenIndex = list.indexOf(token);
@@ -416,7 +412,6 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 	public void putLabel(GUID zoneGUID, Label label) {
 		Zone zone = server.getCampaign().getZone(zoneGUID);
 		zone.putLabel(label);
-
 		forwardToClients();
 	}
 
@@ -450,14 +445,12 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 	public void removeLabel(GUID zoneGUID, GUID labelGUID) {
 		Zone zone = server.getCampaign().getZone(zoneGUID);
 		zone.removeLabel(labelGUID);
-
 		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.removeLabel.name(), RPCContext.getCurrent().parameters);
 	}
 
 	public void removeToken(GUID zoneGUID, GUID tokenGUID) {
 		Zone zone = server.getCampaign().getZone(zoneGUID);
 		zone.removeToken(tokenGUID);
-
 		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.removeToken.name(), RPCContext.getCurrent().parameters);
 	}
 
@@ -504,14 +497,12 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 		grid.setSize(size);
 		grid.setOffset(offsetX, offsetY);
 		zone.setGridColor(color);
-
 		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.setZoneGridSize.name(), RPCContext.getCurrent().parameters);
 	}
 
 	public void setZoneHasFoW(GUID zoneGUID, boolean hasFog) {
 		Zone zone = server.getCampaign().getZone(zoneGUID);
 		zone.setHasFog(hasFog);
-
 		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.setZoneHasFoW.name(), RPCContext.getCurrent().parameters);
 	}
 
@@ -572,20 +563,17 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 	public void addTopology(GUID zoneGUID, Area area) {
 		Zone zone = server.getCampaign().getZone(zoneGUID);
 		zone.addTopology(area);
-
 		forwardToClients();
 	}
 
 	public void removeTopology(GUID zoneGUID, Area area) {
 		Zone zone = server.getCampaign().getZone(zoneGUID);
 		zone.removeTopology(area);
-
 		forwardToClients();
 	}
 
 	public void updateCampaignMacros(List<MacroButtonProperties> properties) {
 		MapTool.getCampaign().setMacroButtonPropertiesArray(new ArrayList<MacroButtonProperties>(properties));
-
 		forwardToClients();
 	}
 

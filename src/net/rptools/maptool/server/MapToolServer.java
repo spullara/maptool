@@ -89,7 +89,6 @@ public class MapToolServer {
 	 *            the connection ID
 	 */
 	public void releaseClientConnection(String id) {
-
 		ClientConnection connection = getClientConnection(id);
 		if (connection != null) {
 			try {
@@ -98,7 +97,6 @@ public class MapToolServer {
 				log.error("Could not release connection: " + id, e);
 			}
 		}
-
 		assetManagerMap.remove(id);
 		connectionMap.remove(id);
 	}
@@ -109,7 +107,6 @@ public class MapToolServer {
 	}
 
 	public void addObserver(ServerObserver observer) {
-
 		if (observer != null) {
 			conn.addObserver(observer);
 		}
@@ -162,11 +159,9 @@ public class MapToolServer {
 	public void stop() {
 		try {
 			conn.close();
-
 			if (heartbeatThread != null) {
 				heartbeatThread.shutdown();
 			}
-
 			if (assetProducerThread != null) {
 				assetProducerThread.shutdown();
 			}
@@ -179,23 +174,19 @@ public class MapToolServer {
 	private static final Random random = new Random();
 
 	private class HeartbeatThread extends Thread {
-
 		private boolean stop = false;
 		private static final int HEARTBEAT_DELAY = 7 * 60 * 1000; // 7 minutes
 		private static final int HEARTBEAT_FLUX = 20 * 1000; // 20 seconds
 
 		@Override
 		public void run() {
-
 			while (!stop) {
-
 				try {
 					Thread.sleep(HEARTBEAT_DELAY + (int) (HEARTBEAT_FLUX * random.nextFloat()));
 				} catch (InterruptedException ie) {
 					// This means stop
 					break;
 				}
-
 				// Pulse
 				MapToolRegistry.heartBeat(config.getPort());
 			}
@@ -210,34 +201,27 @@ public class MapToolServer {
 	////
 	// CLASSES
 	private class AssetProducerThread extends Thread {
-
 		private boolean stop = false;
 
 		@Override
 		public void run() {
-
 			while (!stop) {
 				try {
-
 					boolean lookForMore = false;
 					for (Entry<String, AssetTransferManager> entry : assetManagerMap.entrySet()) {
-
 						AssetChunk chunk = entry.getValue().nextChunk(ASSET_CHUNK_SIZE);
 						if (chunk != null) {
 							lookForMore = true;
-
 							getConnection().callMethod(entry.getKey(), MapToolConstants.Channel.IMAGE, ClientCommand.COMMAND.updateAssetTransfer.name(), chunk);
 						}
 					}
 					if (lookForMore) {
 						continue;
 					}
-
 					// Sleep for a bit
 					synchronized (this) {
 						Thread.sleep(500);
 					}
-
 				} catch (Exception e) {
 					e.printStackTrace();
 					// keep on going
@@ -253,7 +237,6 @@ public class MapToolServer {
 	////
 	// STANDALONE SERVER
 	public static void main(String[] args) throws IOException {
-
 		// This starts the server thread.
 		MapToolServer server = new MapToolServer(new ServerConfig(), new ServerPolicy());
 	}

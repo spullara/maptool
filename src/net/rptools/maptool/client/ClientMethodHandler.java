@@ -63,11 +63,9 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 	public void handleMethod(final String id, final String method, final Object... parameters) {
 		final ClientCommand.COMMAND cmd = Enum.valueOf(ClientCommand.COMMAND.class, method);
 
-		// System.out.println("ClientMethodHandler#handleMethod: " +
-		// cmd.name());
+//		System.out.println("ClientMethodHandler#handleMethod: " + cmd.name());
 
-		// These commands are safe to do in the background, any events that
-		// cause model updates need
+		// These commands are safe to do in the background, any events that cause model updates need
 		// to be on the EDT (See next section)
 		switch (cmd) {
 		case putAsset:
@@ -169,7 +167,6 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					}
 					zone = MapTool.getCampaign().getZone(zoneGUID);
 					zone.setFogArea(area, selectedToks);
-
 					MapTool.getFrame().refresh();
 					return;
 
@@ -184,7 +181,6 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					}
 					zone = MapTool.getCampaign().getZone(zoneGUID);
 					zone.hideArea(area, selectedToks);
-
 					MapTool.getFrame().refresh();
 					return;
 
@@ -219,9 +215,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					zoneGUID = (GUID) parameters[0];
 					zone = MapTool.getCampaign().getZone(zoneGUID);
 					Token token = (Token) parameters[1];
-
 					zone.putToken(token);
-
 					MapTool.getFrame().refresh();
 					return;
 
@@ -229,9 +223,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					zoneGUID = (GUID) parameters[0];
 					zone = MapTool.getCampaign().getZone(zoneGUID);
 					Label label = (Label) parameters[1];
-
 					zone.putLabel(label);
-
 					MapTool.getFrame().refresh();
 					return;
 
@@ -239,9 +231,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					zoneGUID = (GUID) parameters[0];
 					zone = MapTool.getCampaign().getZone(zoneGUID);
 					GUID tokenGUID = (GUID) parameters[1];
-
 					zone.removeToken(tokenGUID);
-
 					MapTool.getFrame().refresh();
 					return;
 
@@ -249,9 +239,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					zoneGUID = (GUID) parameters[0];
 					zone = MapTool.getCampaign().getZone(zoneGUID);
 					GUID labelGUID = (GUID) parameters[1];
-
 					zone.removeLabel(labelGUID);
-
 					MapTool.getFrame().refresh();
 					return;
 
@@ -281,9 +269,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					Drawable drawable = (Drawable) parameters[2];
 
 					zone = MapTool.getCampaign().getZone(zoneGUID);
-
 					zone.addDrawable(new DrawnElement(drawable, pen));
-
 					MapTool.getFrame().refresh();
 					return;
 
@@ -295,7 +281,6 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 						return;
 					}
 					zone.removeDrawable(drawableId);
-
 					if (MapTool.getFrame().getCurrentZoneRenderer().getZone().getId().equals(zoneGUID) && zoneGUID != null) {
 						MapTool.getFrame().refresh();
 					}
@@ -574,7 +559,6 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 
 				case enforceNotification:
 					Boolean enforce = (Boolean) parameters[0];
-
 					MapTool.getFrame().getCommandPanel().disableNotifyButton(enforce);
 					return;
 
