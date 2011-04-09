@@ -56,7 +56,6 @@ public class ScreenPoint extends Point2D.Double {
 	public ZonePoint convertToZoneRnd(ZoneRenderer renderer) {
 		double scale = renderer.getScale();
 		double rndAdj = 0.5 * scale;
-
 		return convertToZone(renderer, this.x + rndAdj, this.y + rndAdj);
 	}
 
@@ -80,27 +79,57 @@ public class ScreenPoint extends Point2D.Double {
 		return new ScreenPoint(sX, sY);
 	}
 
+	/**
+	 * Converts a ZonePoint to a screen coordinate (ScreenPoint) and rounding both axis values to longs.
+	 * 
+	 * @param renderer
+	 *            the ZoneRenderer to use for scaling the coordinate
+	 * @param x
+	 *            X axis coordinate
+	 * @param y
+	 *            Y axis coordinate
+	 * @return new ScreenPoint
+	 */
 	public static ScreenPoint fromZonePointRnd(ZoneRenderer renderer, double x, double y) {
 		ScreenPoint sp = fromZonePoint(renderer, x, y);
 		sp.x = Math.round(sp.x);
 		sp.y = Math.round(sp.y);
-
 		return sp;
 	}
 
+	/**
+	 * Same as {@link #fromZonePointRnd(ZoneRenderer, double, double)} but always rounds up.
+	 * 
+	 * @param renderer
+	 *            the ZoneRenderer to use for scaling the coordinate
+	 * @param x
+	 *            X axis coordinate
+	 * @param y
+	 *            Y axis coordinate
+	 * @return new ScreenPoint
+	 */
 	public static ScreenPoint fromZonePointHigh(ZoneRenderer renderer, double x, double y) {
 		ScreenPoint sp = fromZonePoint(renderer, x, y);
 		sp.x = Math.ceil(sp.x);
 		sp.y = Math.ceil(sp.y);
-
 		return sp;
 	}
 
+	/**
+	 * Same as {@link #fromZonePointRnd(ZoneRenderer, double, double)} but always rounds down.
+	 * 
+	 * @param renderer
+	 *            the ZoneRenderer to use for scaling the coordinate
+	 * @param x
+	 *            X axis coordinate
+	 * @param y
+	 *            Y axis coordinate
+	 * @return new ScreenPoint
+	 */
 	public static ScreenPoint fromZonePointLow(ZoneRenderer renderer, double x, double y) {
 		ScreenPoint sp = fromZonePoint(renderer, x, y);
 		sp.x = Math.floor(sp.x);
 		sp.y = Math.floor(sp.y);
-
 		return sp;
 	}
 

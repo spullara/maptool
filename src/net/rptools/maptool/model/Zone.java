@@ -475,8 +475,8 @@ public class Zone extends BaseModel {
 	 * <li>If the view is a GM view, return true.
 	 * <li>If Vision is <b>Day</b> or <b>Night</b> and we're not using IndividualFOW, return intersection of point with
 	 * exposedArea.
-	 * <li>If Vision is off or we ARE using IndividualFOW, combine exposed areas of all owned tokens and return
-	 * intersection of point with the combined area.
+	 * <li>If Vision is off or we ARE using IndividualFOW, combine exposed areas of all owned tokens (with
+	 * HasSight==true) and return intersection of point with the combined area.
 	 * </ol>
 	 * 
 	 * @param point
@@ -488,18 +488,15 @@ public class Zone extends BaseModel {
 			return true;
 		}
 		if (MapTool.getServerPolicy().isUseIndividualFOW() && getVisionType() != VisionType.OFF) {
-			Area combined = new Area();
-			List<Token> toks = (view.getTokens() != null && !view.getTokens().isEmpty()) ? view.getTokens() : this.getTokens();
-			// Should this use FindTokenFunctions.OwnedFilter and zone.getTokenList()?
-			for (Token tok : toks) {
-				if (!AppUtil.playerOwns(tok)) {
-					continue;
-				}
-				if (exposedAreaMeta.containsKey(tok.getExposedAreaGUID())) {
-					combined.add(exposedAreaMeta.get(tok.getExposedAreaGUID()).getExposedAreaHistory());
+			Area combined = new Area(exposedArea);
+			List<Token> toks = view.getTokens(); // only owned and HasSight tokens are returned
+			if (toks != null && !toks.isEmpty()) {
+				for (Token tok : toks) {
+					ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getExposedAreaGUID());
+					if (meta != null)
+						combined.add(meta.getExposedAreaHistory());
 				}
 			}
-			combined.add(exposedArea);
 			return combined.contains(point.x, point.y);
 		} else {
 			return exposedArea.contains(point.x, point.y);
@@ -741,24 +738,19 @@ public class Zone extends BaseModel {
 	public Area getExposedArea(PlayerView view) {
 		Area combined = new Area(getExposedArea());
 
-		//if ((MapTool.getServerPolicy().isUseIndividualFOW() && view.isGMView())
-		//		|| !MapTool.getServerPolicy().isUseIndividualFOW()) {
-		//	combined = getExposedArea();
-		//	return combined;
-		//}
 		List<Token> toks = view.getTokens();
+		// Don't need to worry about StrictTokenOwnership since the PlayerView only contains tokens we own by calling AppUtil.playerOwns()
 		if (toks == null || toks.isEmpty()) {
 			return combined;
-//			toks = getTokens();
 		}
 		for (Token tok : toks) {
-			if (!tok.getHasSight() || !AppUtil.playerOwns(tok)) {
-				continue;
-			}
+			// Don't need this IF statement; see net.rptools.maptool.client.ui.zone.ZoneRenderer.getPlayerView(Role)
+//			if (!tok.getHasSight() || !AppUtil.playerOwns(tok)) {
+//				continue;
+//			}
 			ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getExposedAreaGUID());
-			if (meta != null) {
+			if (meta != null)
 				combined.add(meta.getExposedAreaHistory());
-			}
 		}
 		return combined;
 	}

@@ -689,6 +689,13 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		return getPlayerView(role);
 	}
 
+	/**
+	 * The returned {@link PlayerView} contains a list of tokens that includes all selected tokens that this player owns
+	 * and that have their <code>HasSight</code> checkbox enabled.
+	 * 
+	 * @param role
+	 * @return
+	 */
 	public PlayerView getPlayerView(Player.Role role) {
 		List<Token> selectedTokens = null;
 		if (getSelectedTokenSet() != null && !getSelectedTokenSet().isEmpty()) {
@@ -905,17 +912,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 		// Calculations
 		timer.start("calcs");
+		exposedFogArea = new Area(zone.getExposedArea());
+		AffineTransform af = new AffineTransform();
+		af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
+		af.scale(getScale(), getScale());
 		if (zoneView.isUsingVision() && zoneView.getVisibleArea(view) != null && visibleScreenArea == null) {
-			AffineTransform af = new AffineTransform();
-			af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
-			af.scale(getScale(), getScale());
 			visibleScreenArea = zoneView.getVisibleArea(view).createTransformedArea(af);
 		}
-		exposedFogArea = new Area(zone.getExposedArea());
 		if (exposedFogArea != null) {
-			AffineTransform af = new AffineTransform();
-			af.translate(getViewOffsetX(), getViewOffsetY());
-			af.scale(getScale(), getScale());
 			exposedFogArea.transform(af);
 		} else {
 			// fully exposed (screen area)
@@ -1020,16 +1024,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 		/**
 		 * FJE It's probably not appropriate for labels to be above everything, including tokens. Above drawables, yes.
-		 * Above tokens, no.
+		 * Above tokens, no. (Although in that case labels could be completely obscured. Hm.)
 		 */
-		timer.start("labels");
+		// Drawing labels is slooooow. :(
+		// Perhaps we should draw the fog first and use hard fog to determine whether labels need to be drawn?
+		// (This method has it's own 'timer' calls)
 		renderLabels(g2d, view);
-		timer.stop("labels");
 
-		// this check is redundant for now, since renderFog checks also
-		if (zone.hasFog()) {
-			renderFog(g2d, view);
-		}
+		// (This method has it's own 'timer' calls)
+		renderFog(g2d, view);
 
 		// if (zone.visionType ...)
 		if (view.isGMView()) {
@@ -1041,7 +1044,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			renderPlayerVisionOverlay(g2d, view);
 			timer.stop("visionOverlayPlayer");
 		}
-
 		timer.start("overlays");
 		for (int i = 0; i < overlayList.size(); i++) {
 			ZoneOverlay overlay = overlayList.get(i);
@@ -1348,14 +1350,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	}
 
 	private void renderLabels(Graphics2D g, PlayerView view) {
+		timer.start("labels-1");
 		labelLocationList.clear();
 		for (Label label : zone.getLabels()) {
 			ZonePoint zp = new ZonePoint(label.getX(), label.getY());
 			if (!zone.isPointVisible(zp, view)) {
 				continue;
 			}
+			timer.start("labels-1.1");
 			ScreenPoint sp = ScreenPoint.fromZonePointRnd(this, zp.x, zp.y);
-
 			Rectangle bounds = null;
 			if (label.isShowBackground()) {
 				bounds = GraphicsUtil.drawBoxedString(g, label.getLabel(), (int) sp.x, (int) sp.y, SwingUtilities.CENTER, GraphicsUtil.GREY_LABEL, label.getForegroundColor());
@@ -1367,20 +1370,24 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				int y = (int) (sp.y - fm.getAscent());
 
 				g.setColor(label.getForegroundColor());
-				g.drawString(label.getLabel(), x, y + fm.getAscent());
+				g.drawString(label.getLabel(), x, (int) sp.y);
 
 				bounds = new Rectangle(x, y, strWidth, fm.getHeight());
 			}
 			labelLocationList.add(new LabelLocation(bounds, label));
+			timer.stop("labels-1.1");
 		}
+		timer.stop("labels-1");
 	}
 
+	// Private cache variables just for renderFog() and no one else. :)
 	Integer fogX = null;
 	Integer fogY = null;
 
-	private void renderFog(Graphics2D g, PlayerView view) {
+	private Area renderFog(Graphics2D g, PlayerView view) {
 		Dimension size = getSize();
 		Area fogClip = new Area(new Rectangle(0, 0, size.width, size.height));
+		Area combined = null;
 
 		// Optimization for panning
 		if (!flushFog && fogX != null && fogY != null && (fogX != getViewOffsetX() || fogY != getViewOffsetY())) {
@@ -1420,9 +1427,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			boolean newImage = false;
 			if (cacheNotValid) {
 				newImage = true;
-				timer.start("renderFog:allocateBufferedImage");
+				timer.start("renderFog-allocateBufferedImage");
 				fogBuffer = new BufferedImage(size.width, size.height, view.isGMView() ? Transparency.TRANSLUCENT : Transparency.BITMASK);
-				timer.stop("renderFog:allocateBufferedImage");
+				timer.stop("renderFog-allocateBufferedImage");
 			}
 			Graphics2D buffG = fogBuffer.createGraphics();
 			buffG.setClip(fogClip);
@@ -1430,19 +1437,19 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 			// XXX Is this even needed?  Immediately below is another call to fillRect() with the same dimensions!
 			if (!newImage) {
-				timer.start("renderFog:clearOldImage");
+				timer.start("renderFog-clearOldImage");
 //				Composite oldComposite = buffG.getComposite();
 				buffG.setComposite(AlphaComposite.Clear);
 				buffG.fillRect(0, 0, size.width, size.height);
 //				buffG.setComposite(oldComposite);
-				timer.stop("renderFog:clearOldImage");
+				timer.stop("renderFog-clearOldImage");
 			}
-			timer.start("renderFog:fill");
+			timer.start("renderFog-fill");
 			// Fill
 			buffG.setPaint(zone.getFogPaint().getPaint(getViewOffsetX(), getViewOffsetY(), getScale()));
 			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, view.isGMView() ? .6f : 1f)); // JFJ this fixes the GM exposed area view.
 			buffG.fillRect(0, 0, size.width, size.height);
-			timer.stop("renderFog:fill");
+			timer.stop("renderFog-fill");
 
 			// Cut out the exposed area
 			AffineTransform af = new AffineTransform();
@@ -1453,13 +1460,18 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 //			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, view.isGMView() ? .6f : 1f));
 			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
 
-			timer.start("renderFog:visibleArea");
+			timer.start("renderFog-visibleArea");
 			Area visibleArea = zoneView.getVisibleArea(view);
-			timer.stop("renderFog:visibleArea");
+			timer.stop("renderFog-visibleArea");
 
-			timer.start("renderFog:combined");
-			Area combined = zone.getExposedArea(view);
-			timer.stop("renderFog:combined");
+			String msg = null;
+			if (timer.isEnabled()) {
+				List<Token> list = view.getTokens();
+				msg = "renderFog-combined(" + (list == null ? 0 : list.size()) + ")";
+			}
+			timer.start(msg);
+			combined = zone.getExposedArea(view);
+			timer.stop(msg);
 
 			timer.start("renderFogArea");
 			renderFogArea(buffG, view, combined, visibleArea);
@@ -1474,6 +1486,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		}
 		timer.stop("renderFog");
 		g.drawImage(fogBuffer, 0, 0, this);
+		return combined;
 	}
 
 	private void renderFogArea(final Graphics2D buffG, final PlayerView view, Area softFog, Area visibleArea) {
@@ -2139,23 +2152,27 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		List<Token> tokenPostProcessing = new ArrayList<Token>(tokenList.size());
 		for (Token token : tokenList) {
 			timer.start("tokenlist-1");
-			if (token.isStamp() && isTokenMoving(token)) {
-				continue;
+			try {
+				if (token.isStamp() && isTokenMoving(token)) {
+					continue;
+				}
+				// Don't bother if it's not visible
+				// NOTE: Not going to use zone.isTokenVisible as it is very slow.  In fact, it's faster
+				// to just draw the tokens and let them be clipped
+				if (!token.isVisible() && !isGMView) {
+					continue;
+				}
+				if (token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token)) {
+					continue;
+				}
+			} finally {
+				// This ensures that the timer is always stopped
+				timer.stop("tokenlist-1");
 			}
-			// Don't bother if it's not visible
-			// NOTE: Not going to use zone.isTokenVisible as it is very slow.  In fact, it's faster
-			// to just draw the tokens and let them be clipped
-			if (!token.isVisible() && !isGMView) {
-				continue;
-			}
-			if (token.isVisibleOnlyToOwner() && !AppUtil.playerOwns(token)) {
-				continue;
-			}
-			timer.stop("tokenlist-1");
-
 			timer.start("tokenlist-1.1");
 			TokenLocation location = tokenLocationCache.get(token);
 			if (location != null && !location.maybeOnscreen(viewport)) {
+				timer.stop("tokenlist-1.1");
 				continue;
 			}
 			timer.stop("tokenlist-1.1");
@@ -2196,22 +2213,23 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			timer.stop("tokenlist-1d");
 
 			timer.start("tokenlist-1e");
-			location = new TokenLocation(tokenBounds, origBounds, token, x, y, footprintBounds.width, footprintBounds.height, scaledWidth, scaledHeight);
-			tokenLocationCache.put(token, location);
-
-			// Too small ?
-			if (location.scaledHeight < 1 || location.scaledWidth < 1) {
-				continue;
-			}
-
-			// Vision visibility
-			if (!isGMView && token.isToken() && zoneView.isUsingVision()) {
-				if (!GraphicsUtil.intersects(visibleScreenArea, location.bounds)) {
+			try {
+				location = new TokenLocation(tokenBounds, origBounds, token, x, y, footprintBounds.width, footprintBounds.height, scaledWidth, scaledHeight);
+				tokenLocationCache.put(token, location);
+				// Too small ?
+				if (location.scaledHeight < 1 || location.scaledWidth < 1) {
 					continue;
 				}
+				// Vision visibility
+				if (!isGMView && token.isToken() && zoneView.isUsingVision()) {
+					if (!GraphicsUtil.intersects(visibleScreenArea, location.bounds)) {
+						continue;
+					}
+				}
+			} finally {
+				// This ensures that the timer is always stopped
+				timer.stop("tokenlist-1e");
 			}
-			timer.stop("tokenlist-1e");
-
 			// Markers
 			timer.start("renderTokens:Markers");
 			if (token.isMarker() && canSeeMarker(token)) {
@@ -2585,10 +2603,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 					// Add image to cache
 					labelRenderingCache.put(tokId, labelRender);
 				}
-
 				// Create LabelRenderer using cached label.
-				delayRendering(new LabelRenderer(name, bounds.getBounds().x + bounds.getBounds().width / 2, bounds.getBounds().y + bounds.getBounds().height + offset, SwingUtilities.CENTER,
-						background, foreground, tokId));
+				Rectangle r = bounds.getBounds();
+				delayRendering(new LabelRenderer(name, r.x + r.width / 2, r.y + r.height + offset, SwingUtilities.CENTER, background, foreground, tokId));
 			}
 		}
 		timer.stop("tokenlist-12");

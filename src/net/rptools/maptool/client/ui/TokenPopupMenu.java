@@ -232,12 +232,12 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 		public void actionPerformed(ActionEvent e) {
 			Zone zone = getRenderer().getZone();
-			Token sourceToken = getRenderer().getZone().getToken(tokID);
+			Token sourceToken = zone.getToken(tokID);
 			ExposedAreaMetaData sourceMeta = zone.getExposedAreaMetaData(sourceToken.getExposedAreaGUID());
 			for (GUID tok : selectedTokenSet) {
-				Token targetToken = getRenderer().getZone().getToken(tok);
+				Token targetToken = zone.getToken(tok);
 				ExposedAreaMetaData targetMeta = zone.getExposedAreaMetaData(targetToken.getExposedAreaGUID());
-				targetMeta.addToExposedAreaHistory((Area) sourceMeta.getExposedAreaHistory().clone());
+				targetMeta.addToExposedAreaHistory(sourceMeta.getExposedAreaHistory());
 				getRenderer().flush(targetToken);
 				zone.setExposedAreaMetaData(targetToken.getExposedAreaGUID(), targetMeta);
 				MapTool.serverCommand().updateExposedAreaMeta(zone.getId(), targetToken.getExposedAreaGUID(), targetMeta);
@@ -246,6 +246,11 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		}
 	}
 
+	/**
+	 * If this object is supposed to merge all exposed areas together and apply that to the currently selected tokens,
+	 * why is it using a nested loop? Should one loop be used to create the exposed area object, then a second
+	 * (non-nested) loop be used to modify the exposed area of all selected tokens?
+	 */
 	private class AddPartyExposedAreaAction extends AbstractAction {
 		public AddPartyExposedAreaAction() {
 			I18N.setAction("token.popup.menu.fow.party", this, true);
@@ -253,13 +258,13 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 		public void actionPerformed(ActionEvent e) {
 			Zone zone = getRenderer().getZone();
-			List<Token> allToks = getRenderer().getZone().getTokens();
+			List<Token> allToks = zone.getTokens();
 			for (Token tokenSource : allToks) {
 				ExposedAreaMetaData sourceMeta = zone.getExposedAreaMetaData(tokenSource.getExposedAreaGUID());
 				for (GUID tok : selectedTokenSet) {
 					Token token = zone.getToken(tok);
 					ExposedAreaMetaData meta = zone.getExposedAreaMetaData(token.getExposedAreaGUID());
-					meta.addToExposedAreaHistory((Area) sourceMeta.getExposedAreaHistory().clone());
+					meta.addToExposedAreaHistory(sourceMeta.getExposedAreaHistory());
 					getRenderer().flush(token);
 					zone.setExposedAreaMetaData(token.getExposedAreaGUID(), meta);
 					MapTool.serverCommand().updateExposedAreaMeta(zone.getId(), token.getExposedAreaGUID(), meta);
@@ -278,10 +283,9 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 			Zone zone = getRenderer().getZone();
 			Area area = zone.getExposedArea();
 			for (GUID tok : selectedTokenSet) {
-				Token token = getRenderer().getZone().getToken(tok);
+				Token token = zone.getToken(tok);
 				ExposedAreaMetaData meta = zone.getExposedAreaMetaData(token.getExposedAreaGUID());
-				meta.addToExposedAreaHistory((Area) area.clone());
-				zone.setExposedAreaMetaData(token.getExposedAreaGUID(), meta);
+				meta.addToExposedAreaHistory(area);
 				getRenderer().flush(token);
 				zone.setExposedAreaMetaData(token.getExposedAreaGUID(), meta);
 				MapTool.serverCommand().updateExposedAreaMeta(zone.getId(), token.getExposedAreaGUID(), meta);
@@ -313,7 +317,6 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 	private class ExposeVisibleAreaAction extends AbstractAction {
 		public ExposeVisibleAreaAction() {
-			// putValue(Action.NAME, "Visible area (Ctrl - I)");
 			I18N.setAction("token.popup.menu.expose.visible", this, true);
 		}
 
@@ -325,7 +328,6 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 	private class ExposeVisibleAreaOnlyAction extends AbstractAction {
 		public ExposeVisibleAreaOnlyAction() {
-			// putValue(Action.NAME, "Player visible area only (Ctrl - Shift - O)");
 			I18N.setAction("token.popup.menu.expose.currentonly", this, true);
 		}
 
@@ -338,7 +340,6 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 	private class ExposeLastPathAction extends AbstractAction {
 		public ExposeLastPathAction() {
-			// putValue(Action.NAME, "Last path (Ctrl - P)");
 			I18N.setAction("token.popup.menu.expose.lastpath", this, true);
 			setEnabled(getTokenUnderMouse().getLastPath() != null);
 		}
