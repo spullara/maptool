@@ -47,6 +47,7 @@ import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.ExposedAreaMetaData;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
+import net.rptools.maptool.model.GridCapabilities;
 import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Player.Role;
 import net.rptools.maptool.model.Token;
@@ -208,10 +209,15 @@ public class FogUtil {
 	}
 
 	public static void exposeLastPath(ZoneRenderer renderer, Set<GUID> tokenSet) {
-		if (!renderer.getZone().getGrid().getCapabilities().isPathingSupported() || !renderer.getZone().getGrid().getCapabilities().isSnapToGridSupported()) {
+		Zone zone = renderer.getZone();
+		Grid grid = zone.getGrid();
+		GridCapabilities caps = grid.getCapabilities();
+		ZoneView zoneView = renderer.getZoneView();
+
+		if (!caps.isPathingSupported() || !caps.isSnapToGridSupported()) {
 			return;
 		}
-		Zone zone = renderer.getZone();
+		Set<GUID> filteredToks = new HashSet<GUID>(2);
 		for (GUID tokenGUID : tokenSet) {
 			Token token = zone.getToken(tokenGUID);
 			if (token == null) {
@@ -222,7 +228,7 @@ public class FogUtil {
 			}
 			if (!token.isSnapToGrid()) {
 				// We don't support this currently
-				log.warn("Exposing a token's path is not supported for non-SnapToGrid maps");
+				log.warn("Exposing a token's path is not supported for non-SnapToGrid tokens and maps");
 				continue;
 			}
 			@SuppressWarnings("unchecked")
@@ -230,15 +236,15 @@ public class FogUtil {
 			if (lastPath == null) {
 				continue;
 			}
-			Grid grid = zone.getGrid();
 			Area visionArea = new Area();
-
 			Token tokenClone = new Token(token);
 			Map<GUID, ExposedAreaMetaData> fullMeta = zone.getExposedAreaMetaData();
-			ExposedAreaMetaData meta = zone.getExposedAreaMetaData().get(token.getExposedAreaGUID());
-			if (!fullMeta.containsKey(token.getExposedAreaGUID())) {
+			GUID exposedGUID = token.getExposedAreaGUID();
+			ExposedAreaMetaData meta = fullMeta.get(exposedGUID);
+
+			if (meta == null) {
 				meta = new ExposedAreaMetaData();
-				fullMeta.put(token.getExposedAreaGUID(), meta);
+				fullMeta.put(exposedGUID, meta);
 			}
 			for (CellPoint cell : lastPath.getCellPath()) {
 				ZonePoint zp = grid.convert(cell);
@@ -246,20 +252,22 @@ public class FogUtil {
 				tokenClone.setX(zp.x);
 				tokenClone.setY(zp.y);
 
-				Area currVisionArea = renderer.getZoneView().getVisibleArea(tokenClone);
+				Area currVisionArea = zoneView.getVisibleArea(tokenClone);
 				if (currVisionArea != null) {
 					visionArea.add(currVisionArea);
 					meta.addToExposedAreaHistory(currVisionArea);
 				}
-				renderer.getZoneView().flush(tokenClone);
+				zoneView.flush(tokenClone);
 			}
-			renderer.flush(token);
-			Set<GUID> filteredToks = new HashSet<GUID>();
+			renderer.flush(token); // calls ZoneView.flush() -- too bad, I'd like to eliminate it...
+
+			filteredToks.clear();
 			filteredToks.add(token.getId());
-			zone.exposeArea(visionArea, filteredToks);
+//			zone.exposeArea(visionArea, filteredToks);
+			zone.exposeArea(visionArea, token);
 			zone.putToken(token);
 			MapTool.serverCommand().exposeFoW(zone.getId(), visionArea, filteredToks);
-			MapTool.serverCommand().updateExposedAreaMeta(zone.getId(), token.getExposedAreaGUID(), meta);
+			MapTool.serverCommand().updateExposedAreaMeta(zone.getId(), exposedGUID, meta);
 		}
 	}
 

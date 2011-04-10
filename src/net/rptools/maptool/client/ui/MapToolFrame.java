@@ -31,6 +31,7 @@ import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -38,7 +39,6 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.AbstractAction;
@@ -118,8 +118,6 @@ import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetAvailableListener;
 import net.rptools.maptool.model.GUID;
-import net.rptools.maptool.model.ObservableList;
-import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZoneFactory;
@@ -356,7 +354,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 		commandPanel = new CommandPanel();
 		MapTool.getMessageList().addObserver(commandPanel);
-		MapTool.getMessageList().addObserver(createChatIconMessageObserver());
 
 		rendererBorderPanel = new JPanel(new GridLayout());
 		rendererBorderPanel.setBorder(BorderFactory.createLineBorder(Color.darkGray));
@@ -394,8 +391,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		restorePreferences();
 		updateKeyStrokes();
 
-		// This will cause the frame to be set to visible (BAD jide, BAD! No
-		// cookie for you!)
+		// This will cause the frame to be set to visible (BAD jide, BAD! No cookie for you!)
 		configureDocking();
 
 		new WindowPreferences(AppConstants.APP_NAME, "mainFrame", this);
@@ -814,19 +810,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			});
 		}
 		return chatActionLabel;
-	}
-
-	private Observer createChatIconMessageObserver() {
-		return new Observer() {
-			public void update(java.util.Observable o, Object arg) {
-				ObservableList<TextMessage> textList = MapTool.getMessageList();
-				ObservableList.Event event = (ObservableList.Event) arg;
-
-//				if (rightSplitPane.isBottomHidden() && event == ObservableList.Event.append) {
-//					getChatActionLabel().setVisible(true);
-//				}
-			}
-		};
 	}
 
 	public boolean isCommandPanelVisible() {
@@ -1478,15 +1461,14 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		Timer tm = new Timer(500, new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
 				long currentTime = System.currentTimeMillis();
-				Set<String> removeThese = new TreeSet<String>();
 				LinkedMap chatTimers = chatTyperTimers.getChatTypers();
-				Set<?> keySet = chatTimers.keySet();
+				List<String> removeThese = new ArrayList<String>(chatTimers.size());
 
 				@SuppressWarnings("unchecked")
-				Set<String> playerTimers = (Set<String>) keySet;
+				Set<String> playerTimers = chatTimers.keySet();
 				for (String player : playerTimers) {
 					long playerTime = (Long) chatTimers.get(player);
-					if ((currentTime - playerTime >= (chatNotifyDuration * 1000))) {
+					if (currentTime - playerTime >= (chatNotifyDuration * 1000)) {
 						// set up a temp place and remove them after the loop
 						removeThese.add(player);
 					}

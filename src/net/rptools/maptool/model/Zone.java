@@ -32,6 +32,7 @@ import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.PlayerView;
+import net.rptools.maptool.client.ui.zone.ZoneView;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.InitiativeList.TokenInitiative;
 import net.rptools.maptool.model.drawing.DrawableColorPaint;
@@ -575,21 +576,24 @@ public class Zone extends BaseModel {
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
 
-	public void exposeArea(Area area, Token token) {
-		if (area == null) {
+	public void exposeArea(Area area, Token tok) {
+		if (area == null || area.isEmpty()) {
 			return;
 		}
-		if (token != null) {
-			if ((MapTool.getServerPolicy().isUseIndividualFOW() && AppUtil.playerOwns(token)) || MapTool.isPersonalServer()) {
-				ExposedAreaMetaData meta = exposedAreaMeta.get(token.getExposedAreaGUID());
-				if (meta == null)
+		if (tok != null) {
+			if ((MapTool.getServerPolicy().isUseIndividualFOW() && AppUtil.playerOwns(tok)) || MapTool.isPersonalServer()) {
+				GUID tea = tok.getExposedAreaGUID();
+				ExposedAreaMetaData meta = exposedAreaMeta.get(tea);
+				if (meta == null) {
 					meta = new ExposedAreaMetaData();
+					exposedAreaMeta.put(tea, meta);
+				}
 				meta.addToExposedAreaHistory(area);
-				exposedAreaMeta.put(token.getExposedAreaGUID(), meta);
 				MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush();
-				putToken(token);
+				putToken(tok);
 			}
 		}
+		// Should we really be adding it to the GEA???
 		exposedArea.add(area);
 		fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
 	}
@@ -602,33 +606,34 @@ public class Zone extends BaseModel {
 	 * @param selectedToks
 	 */
 	public void exposeArea(Area area, Set<GUID> selectedToks) {
-		if (area == null) {
+		if (area == null || area.isEmpty()) {
 			return;
 		}
 		if (getVisionType() == VisionType.OFF) {
+			// Why is this done here and then again below???
 			exposedArea.add(area);
 		}
 		if (selectedToks != null && !selectedToks.isEmpty() && MapTool.getServerPolicy().isUseIndividualFOW()) {
-			List<Token> allToks = new ArrayList<Token>();
+			boolean isAllowed = MapTool.getPlayer().isGM() || !MapTool.getServerPolicy().useStrictTokenManagement();
+			String playerId = MapTool.getPlayer().getName();
+			ZoneView zoneView = MapTool.getFrame().getZoneRenderer(this).getZoneView();
+			ExposedAreaMetaData meta = null;
 
 			for (GUID guid : selectedToks) {
-				allToks.add(getToken(guid));
-			}
-			for (Token tok : allToks) {
-				if (!AppUtil.playerOwns(tok)) {
-					continue;
+				Token tok = getToken(guid);
+				if ((isAllowed || tok.isOwner(playerId)) && tok.getHasSight()) {
+					GUID tea = tok.getExposedAreaGUID();
+					meta = exposedAreaMeta.get(tea);
+					if (meta == null) {
+						meta = new ExposedAreaMetaData();
+						exposedAreaMeta.put(tea, meta);
+					}
+					meta.addToExposedAreaHistory(area);
 				}
-				if (!tok.getHasSight()) {
-					continue;
-				}
-
-				ExposedAreaMetaData meta = exposedAreaMeta.get(tok.getExposedAreaGUID());
-				if (meta == null)
-					meta = new ExposedAreaMetaData();
-				meta.addToExposedAreaHistory(area);
-				exposedAreaMeta.put(tok.getExposedAreaGUID(), meta);
-				MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush();
 			}
+			// If 'meta' is not null, it means at least one token's TEA was modified so we need to flush the ZoneView
+			if (meta != null)
+				zoneView.flush();
 		} else {
 			exposedArea.add(area);
 		}
@@ -721,7 +726,7 @@ public class Zone extends BaseModel {
 	}
 
 	public Area getExposedArea(PlayerView view) {
-		Area combined = new Area(getExposedArea());
+		Area combined = new Area(exposedArea);
 
 		List<Token> toks = view.getTokens();
 		// Don't need to worry about StrictTokenOwnership since the PlayerView only contains tokens we own by calling AppUtil.playerOwns()

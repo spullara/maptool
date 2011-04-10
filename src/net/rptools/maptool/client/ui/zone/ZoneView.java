@@ -37,6 +37,7 @@ import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.SightType;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.Zone.Filter;
 
 public class ZoneView implements ModelChangeListener {
 	private final Zone zone;
@@ -60,7 +61,10 @@ public class ZoneView implements ModelChangeListener {
 
 	public Area getVisibleArea(PlayerView view) {
 		calculateVisibleArea(view);
-		return visibleAreaMap.get(view) != null ? visibleAreaMap.get(view).visibleArea : new Area();
+		ZoneView.VisibleAreaMeta visible = visibleAreaMap.get(view);
+		if (visible == null)
+			System.out.println("ZoneView: visible == null.  Please report this on our forum @ forum.rptools.net.  Thank you!");
+		return visible != null ? visible.visibleArea : new Area();
 	}
 
 	public boolean isUsingVision() {
@@ -381,7 +385,6 @@ public class ZoneView implements ModelChangeListener {
 		if (token.getHasSight()) {
 			visibleAreaMap.clear();
 		}
-
 		// TODO: This fixes a bug with changing vision type, I don't like it though, it needs to be optimized back out
 //		lightSourceCache.clear();
 	}
@@ -397,30 +400,30 @@ public class ZoneView implements ModelChangeListener {
 		visibleAreaMap.put(view, meta);
 
 		// Calculate it
-		List<Token> tokenList = view.isUsingTokenView() ? view.getTokens() : zone.getAllTokens();
+		final boolean isGMview = view.isGMView();
+		final boolean checkOwnership = MapTool.getServerPolicy().isUseIndividualViews() || MapTool.isPersonalServer();
+		List<Token> tokenList = view.isUsingTokenView() ? view.getTokens() : zone.getTokensFiltered(new Filter() {
+			public boolean matchToken(Token t) {
+				return t.isToken() && t.getHasSight() && (isGMview || t.isVisible());
+			}
+		});
 		for (Token token : tokenList) {
-			if (!token.getHasSight()) {
-				continue;
-			}
-			// Don't bother if it's not visible
-			if (!view.isGMView() && !token.isVisible()) {
-				continue;
-			}
+			boolean weOwnIt = AppUtil.playerOwns(token);
 			// Permission
-			if (MapTool.getServerPolicy().isUseIndividualViews() || MapTool.isPersonalServer()) {
-				if (!AppUtil.playerOwns(token)) {
+			if (checkOwnership) {
+				if (!weOwnIt) {
 					continue;
 				}
 			} else {
-				// Party members only, unless you are the GM
+				// If we're viewing the map as a player and the token is not a PC or we're not the GM, then skip it.
 				// This used to be the code:
 //				if ((token.getType() != Token.Type.PC && !view.isGMView() || (!view.isGMView() && MapTool.getPlayer().getRole() == Role.GM))) {
-				if (!view.isGMView() && (token.getType() != Token.Type.PC || MapTool.getPlayer().isGM())) {
+				if (!isGMview && (token.getType() != Token.Type.PC || MapTool.getPlayer().isGM())) {
 					continue;
 				}
 			}
 			// player ownership permission
-			if (!AppUtil.playerOwns(token) && token.isVisibleOnlyToOwner()) {
+			if (token.isVisibleOnlyToOwner() && !weOwnIt) {
 				continue;
 			}
 			Area tokenVision = getVisibleArea(token);

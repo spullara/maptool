@@ -20,6 +20,8 @@ import java.util.Set;
 
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
 import net.rptools.lib.MD5Key;
+import net.rptools.maptool.client.ui.MapToolFrame;
+import net.rptools.maptool.client.ui.tokenpanel.InitiativePanel;
 import net.rptools.maptool.client.ui.zone.FogUtil;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.ZoneRendererFactory;
@@ -377,6 +379,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 				case setTokenLocation:
 					// Only the table should process this
 					if (MapTool.getPlayer().getName().equalsIgnoreCase("Table")) {
+						System.out.println("Inside ClientMethodHandler.handleMethod().setTokenLocation");
 						zoneGUID = (GUID) parameters[0];
 						keyToken = (GUID) parameters[1];
 
@@ -452,14 +455,17 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					CampaignProperties properties = (CampaignProperties) parameters[0];
 
 					MapTool.getCampaign().replaceCampaignProperties(properties);
-					if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
-						MapTool.getFrame().getCurrentZoneRenderer().getZoneView().flush();
-						MapTool.getFrame().getCurrentZoneRenderer().repaint();
+					MapToolFrame frame = MapTool.getFrame();
+					ZoneRenderer zr = frame.getCurrentZoneRenderer();
+					if (zr != null) {
+						zr.getZoneView().flush();
+						zr.repaint();
 					}
 					AssetManager.updateRepositoryList();
 
-					MapTool.getFrame().getInitiativePanel().setOwnerPermissions(properties.isInitiativeOwnerPermissions());
-					MapTool.getFrame().getInitiativePanel().setMovementLock(properties.isInitiativeMovementLock());
+					InitiativePanel ip = frame.getInitiativePanel();
+					ip.setOwnerPermissions(properties.isInitiativeOwnerPermissions());
+					ip.setMovementLock(properties.isInitiativeMovementLock());
 					MapTool.getFrame().getLookupTablePanel().updateView();
 					return;
 

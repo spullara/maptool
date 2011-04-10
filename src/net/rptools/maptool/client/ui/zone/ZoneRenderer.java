@@ -278,9 +278,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		invalidateCurrentViewCache();
 
 		scale.addPropertyChangeListener(new PropertyChangeListener() {
-
 			public void propertyChange(PropertyChangeEvent evt) {
-
 				if (Scale.PROPERTY_SCALE.equals(evt.getPropertyName())) {
 					tokenLocationCache.clear();
 					flushFog = true;
@@ -289,7 +287,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 					// flushFog = true;
 				}
 				visibleScreenArea = null;
-
 				repaint();
 			}
 		});
@@ -385,12 +382,16 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	public void commitMoveSelectionSet(GUID keyTokenId) {
 		// TODO: Quick hack to handle updating server state
 		SelectionSet set = selectionSetMap.get(keyTokenId);
+		removeMoveSelectionSet(keyTokenId);
+		MapTool.serverCommand().stopTokenMove(getZone().getId(), keyTokenId);
 		if (set == null) {
 			return;
 		}
-		removeMoveSelectionSet(keyTokenId);
-		MapTool.serverCommand().stopTokenMove(getZone().getId(), keyTokenId);
+		CodeTimer moveTimer = new CodeTimer("ZoneRenderer.commitMoveSelectionSet");
+		moveTimer.setEnabled(AppState.isCollectProfilingData() || log.isDebugEnabled());
+		moveTimer.setThreshold(1);
 
+		moveTimer.start("setup");
 		Token keyToken = zone.getToken(keyTokenId);
 		CellPoint originPoint = zone.getGrid().convert(new ZonePoint(keyToken.getX(), keyToken.getY()));
 		Path<? extends AbstractPoint> path = set.getWalker() != null ? set.getWalker().getPath() : set.gridlessPath;
@@ -398,6 +399,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		Set<GUID> selectionSet = set.getTokens();
 		List<GUID> filteredTokens = new ArrayList<GUID>();
 		BigDecimal tmc = null;
+		moveTimer.stop("setup");
+
+		moveTimer.start("eachtoken");
 		for (GUID tokenGUID : selectionSet) {
 			Token token = zone.getToken(tokenGUID);
 			// If the token has been deleted, the GUID will still be in the set but getToken() will return null.
@@ -422,9 +426,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				filteredTokens.add(tokenGUID);
 			}
 		}
-		if (filteredTokens != null) {
-			// run onTokenMove for each token in the
-			// filtered selection list, canceling if
+		moveTimer.stop("eachtoken");
+
+		moveTimer.start("onTokenMove");
+		if (!filteredTokens.isEmpty()) {
+			// run tokenMoved() for each token in the filtered selection list, canceling if it returns 1.0
 			for (GUID tokenGUID : filteredTokens) {
 				Token token = zone.getToken(tokenGUID);
 				tmc = TokenMoveFunctions.tokenMoved(token, path, filteredTokens);
@@ -434,8 +440,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				}
 			}
 		}
-		// Multiple tokens, the list of tokens and call
-		// onMultipleTokensMove macro function.
+		moveTimer.stop("onTokenMove");
+
+		moveTimer.start("onMultipleTokensMove");
+		// Multiple tokens, the list of tokens and call onMultipleTokensMove() macro function.
 		if (filteredTokens != null && filteredTokens.size() > 1) {
 			tmc = TokenMoveFunctions.multipleTokensMoved(filteredTokens);
 			// now determine if the macro returned false and if so
@@ -447,7 +455,19 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				}
 			}
 		}
+		moveTimer.stop("onMultipleTokensMove");
+
+		moveTimer.start("updateTokenTree");
 		MapTool.getFrame().updateTokenTree();
+		moveTimer.stop("updateTokenTree");
+
+		if (moveTimer.isEnabled()) {
+			String results = moveTimer.toString();
+			MapTool.getProfilingNoteFrame().addText(results);
+			if (log.isDebugEnabled())
+				log.debug(results);
+			moveTimer.clear();
+		}
 	}
 
 	/**
@@ -652,6 +672,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		if (timer == null)
 			timer = new CodeTimer("ZoneRenderer.renderZone");
 		timer.setEnabled(AppState.isCollectProfilingData() || log.isDebugEnabled());
+		timer.clear();
 		timer.setThreshold(10);
 
 		Graphics2D g2d = (Graphics2D) g;
@@ -913,11 +934,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		AffineTransform af = new AffineTransform();
 		af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
 		af.scale(getScale(), getScale());
-		if (zoneView.isUsingVision() && zoneView.getVisibleArea(view) != null && visibleScreenArea == null) {
-			visibleScreenArea = zoneView.getVisibleArea(view).createTransformedArea(af);
+		if (visibleScreenArea == null && zoneView.isUsingVision()) {
+			Area a = zoneView.getVisibleArea(view);
+			if (a != null && !a.isEmpty())
+				visibleScreenArea = a.createTransformedArea(af);
 		}
 		if (exposedFogArea != null) {
 			exposedFogArea.transform(af);
+			// XXX Can we clip the exposedFogArea to the visibleScreenArea?  Would that help speed things up at all?
 		} else {
 			// fully exposed (screen area)
 			exposedFogArea = new Area(new Rectangle(0, 0, getSize().width, getSize().height));
@@ -1048,13 +1072,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		}
 		timer.stop("overlays");
 
+		timer.start("renderCoordinates");
 		renderCoordinates(g2d, view);
+		timer.stop("renderCoordinates");
 
+		timer.start("lightSourceIconOverlay.paintOverlay");
 		if (Zone.Layer.TOKEN.isEnabled()) {
 			if (view.isGMView() && AppState.isShowLightSources()) {
 				lightSourceIconOverlay.paintOverlay(this, g2d);
 			}
 		}
+		timer.start("lightSourceIconOverlay.paintOverlay");
 //		g2d.setColor(Color.red);
 //		for (AreaMeta meta : getTopologyAreaData().getAreaList()) {
 //			Area area = new Area(meta.getArea().getBounds()).createTransformedArea(AffineTransform.getScaleInstance(getScale(), getScale()));
@@ -1189,7 +1217,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	private Map<Paint, Area> renderedAuraMap;
 
 	private void renderAuras(Graphics2D g, PlayerView view) {
-
 		// Setup
 		timer.start("auras-1");
 		Graphics2D newG = (Graphics2D) g.create();
@@ -1815,9 +1842,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 							showLabels = showLabels || zoneView.getVisibleArea(view).intersects(tokenRectangle);
 						}
 					} else { // !isUseIndividualFOW()
-						showLabels = showLabels || (visibleScreenArea == null && !zone.hasFog()); // no vision - fog
-						showLabels = showLabels || (visibleScreenArea == null && zone.hasFog() && exposedFogArea.intersects(bounds)); // no vision + fog
-						showLabels = showLabels || (visibleScreenArea != null && visibleScreenArea.intersects(bounds) && exposedFogArea.intersects(bounds)); // vision
+						boolean hasFog = zone.hasFog();
+						boolean fogIntersects = exposedFogArea.intersects(bounds);
+						showLabels = showLabels || (visibleScreenArea == null && !hasFog); // no vision - fog
+						showLabels = showLabels || (visibleScreenArea == null && hasFog && fogIntersects); // no vision + fog
+						showLabels = showLabels || (visibleScreenArea != null && visibleScreenArea.intersects(bounds) && fogIntersects); // vision
 					}
 					if (showLabels) {
 						// if the token is visible on the screen it will be in the location cache
@@ -2646,7 +2675,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	}
 
 	/**
-	 * Convenience method to return a set of tokens filtered by ownership
+	 * Convenience method to return a set of tokens filtered by ownership.
 	 * 
 	 * @param tokenSet
 	 *            the set of GUIDs to filter

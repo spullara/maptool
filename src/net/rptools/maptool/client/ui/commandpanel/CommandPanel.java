@@ -269,9 +269,6 @@ public class CommandPanel extends JPanel implements Observer {
 						if (ours == null)
 							ours = new ChatTypingListener();
 						commandTextArea.addKeyListener(ours);
-						// Don't make the panel visible.  That will happen when there's actually
-						// something to display as the result of a key event.
-//						MapTool.getFrame().getChatTypingPanel().setVisible(true);
 					}
 				}
 			});
@@ -403,8 +400,8 @@ public class CommandPanel extends JPanel implements Observer {
 	}
 
 	/**
-	 * Key listener for command area to handle live typing notification. Implements an idle timer that removes the
-	 * typing notification after the duration set in AppPreferences expires.
+	 * KeyListener for command area to handle live typing notification. Implements an idle timer that removes the typing
+	 * notification after the duration set in AppPreferences expires.
 	 */
 	private class ChatTypingListener extends KeyAdapter {
 		@Override

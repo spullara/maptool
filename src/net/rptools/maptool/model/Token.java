@@ -458,12 +458,13 @@ public class Token extends BaseModel {
 			// TODO: make this a psf
 			return tokenType != null ? Type.valueOf(tokenType) : Type.NPC;
 		} catch (IllegalArgumentException iae) {
+			tokenType = Type.NPC.name();
 			return Type.NPC;
 		}
 	}
 
 	public void setType(Type type) {
-		this.tokenType = type.name();
+		tokenType = type.name();
 		if (type == Type.PC) {
 			hasSight = true;
 		}

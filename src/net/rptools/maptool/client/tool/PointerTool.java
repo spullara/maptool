@@ -209,8 +209,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		// and ((isGM with pref set) OR serverPolicy allows auto reveal by players)
 		if (renderer.getZone().hasFog() && ((AppPreferences.getAutoRevealVisionOnGMMovement() && MapTool.getPlayer().isGM()) || MapTool.getServerPolicy().isAutoRevealOnMovement())) {
 			Set<GUID> exposeSet = new HashSet<GUID>();
+			Zone zone = renderer.getZone();
 			for (GUID tokenGUID : renderer.getOwnedTokens(renderer.getSelectedTokenSet())) {
-				Token token = renderer.getZone().getToken(tokenGUID);
+				Token token = zone.getToken(tokenGUID);
 				if (token == null) {
 					continue;
 				}
@@ -496,14 +497,15 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				if (isDraggingToken) {
 					SwingUtil.showPointer(renderer);
 					stopTokenDrag();
-				}
-				// SELECT SINGLE TOKEN
-				Token token = renderer.getTokenAt(e.getX(), e.getY());
-				if (token != null && SwingUtilities.isLeftMouseButton(e) && !isDraggingToken && !SwingUtil.isShiftDown(e)) {
-					// Only if it isn't already being moved
-					if (!renderer.isTokenMoving(token)) {
-						renderer.clearSelectedTokens();
-						renderer.selectToken(token.getId());
+				} else {
+					// SELECT SINGLE TOKEN
+					if (SwingUtilities.isLeftMouseButton(e) && !SwingUtil.isShiftDown(e)) {
+						Token token = renderer.getTokenAt(e.getX(), e.getY());
+						// Only if it isn't already being moved
+						if (token != null && !renderer.isTokenMoving(token)) {
+							renderer.clearSelectedTokens();
+							renderer.selectToken(token.getId());
+						}
 					}
 				}
 			} finally {
