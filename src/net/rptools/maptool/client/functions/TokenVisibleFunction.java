@@ -219,7 +219,6 @@ public class TokenVisibleFunction extends AbstractFunction {
 		val = args.get(0);
 		setOwnerOnlyVisible(token, val); // Already calls serverCommand().putToken()
 		MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
-
 		return val;
 	}
 

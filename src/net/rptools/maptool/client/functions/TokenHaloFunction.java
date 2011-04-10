@@ -19,6 +19,7 @@ import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.StringUtil;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
@@ -92,62 +93,11 @@ public class TokenHaloFunction extends AbstractFunction {
 				Color color = MapToolUtil.getColor(hex);
 				token.setHaloColor(color);
 			}
-//			else if (col.startsWith("#") || col.startsWith("0x")) { // It's a hexadecimal color representation
-//				String hex;
-//				if (col.startsWith("#")) {
-//					hex = col.substring(1);
-//				} else {
-//					hex = col.substring(2);
-//				}
-//				if (hex.length() == 3) {
-//					try {
-//						Color color = new Color(Integer.parseInt(hex.substring(0, 1), 16) * 15,
-//												Integer.parseInt(hex.substring(1, 2), 16) * 15,
-//												Integer.parseInt(hex.substring(2, 3), 16) * 15);
-//						token.setHaloColor(color);
-//					} catch (NumberFormatException e) {
-//						throw new ParserException(I18N.getText("macro.function.haloFunctions.invalidColor", col));
-//					}
-//				} else if (hex.length() == 6) {
-//					try {
-//						Color color = new Color(Integer.parseInt(hex.substring(0, 2), 16),
-//												Integer.parseInt(hex.substring(2, 4), 16),
-//												Integer.parseInt(hex.substring(4, 6), 16));
-//						token.setHaloColor(color);
-//					} catch (NumberFormatException e) {
-//						throw new ParserException(I18N.getText("macro.function.haloFunctions.invalidColor", col));
-//					}
-//				} else if (hex.length() == 8) {
-//					try {
-//						Color color = new Color(Integer.parseInt(hex.substring(2, 4), 16),
-//												Integer.parseInt(hex.substring(4, 6), 16),
-//												Integer.parseInt(hex.substring(6, 8), 16));
-//						token.setHaloColor(color);
-//					} catch (NumberFormatException e) {
-//						throw new ParserException(I18N.getText("macro.function.haloFunctions.invalidColor", col));
-//					}
-//				} else {
-//					throw new ParserException(I18N.getText("macro.function.haloFunctions.invalidColor", col));
-//				}
-//			} else {
-//				// Try to find the halo color in the array
-//				boolean found = false;
-//				String cname = (String) value;
-//				for (Object[] colval : COLOR_ARRAY) {
-//					if (cname.equalsIgnoreCase((String) colval[0])) {
-//						token.setHaloColor((Color) colval[1]);
-//						found = true;
-//						break;
-//					}
-//				}
-//				if (!found) {
-//					throw new ParserException(I18N.getText("macro.function.haloFunctions.invalidColor", col));
-//				}
-//			}
 		}
 		// TODO: This works for now but could result in a lot of resending of data
-		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
-		MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
+		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
+		zone.putToken(token);
+		MapTool.serverCommand().putToken(zone.getId(), token);
 	}
 
 	/**

@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License.  You may
- * obtain a copy of the License at
- *  
- *	http://www.apache.org/licenses/LICENSE-2.0
- *   
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied.  See the License for the specific language governing
- * permissions and limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.functions;
 
@@ -87,9 +84,11 @@ public class TokenLocationFunctions extends AbstractFunction {
 				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 1, parameters.get(0).toString()));
 			}
 			token.setZOrder(((BigDecimal) parameters.get(0)).intValue());
-			MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
-			MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
-			MapTool.getFrame().getCurrentZoneRenderer().flushLight();
+			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+			Zone zone = renderer.getZone();
+			zone.putToken(token);
+			MapTool.serverCommand().putToken(zone.getId(), token);
+			renderer.flushLight();
 			return BigDecimal.valueOf(token.getZOrder());
 		}
 		if (functionName.equals("getDistance")) {
@@ -549,9 +548,11 @@ public class TokenLocationFunctions extends AbstractFunction {
 			useDistance = val.equals(BigDecimal.ZERO) ? false : true;
 		}
 		moveToken(token, x, y, useDistance);
-		MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
-		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
-		MapTool.getFrame().getCurrentZoneRenderer().flushLight();
+		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+		Zone zone = renderer.getZone();
+		zone.putToken(token);
+		MapTool.serverCommand().putToken(zone.getId(), token);
+		renderer.flushLight();
 		return "";
 	}
 

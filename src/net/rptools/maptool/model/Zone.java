@@ -15,6 +15,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -226,13 +227,12 @@ public class Zone extends BaseModel {
 	/**
 	 * Note: When adding new fields to this class, make sure to update all constructors, {@link #imported()},
 	 * {@link #readResolve()}, and potentially {@link #optimize()}.
+	 * <p>
+	 * JFJ 2010-10-27 Don't forget that since there are new zones AND new tokens created here from the old one being
+	 * passed in, if you have any data that needs to transfer over, you will need to manually copy it as is done below
+	 * for various items.
 	 */
 	public Zone(Zone zone) {
-		/*
-		 * JFJ 2010-10-27 Don't forget that since there are new zones AND new tokens created here from the old one being
-		 * passed in, if you have any data that needs to transfer over, you will need to manually copy it as is done
-		 * below for various items.
-		 */
 		backgroundPaint = zone.backgroundPaint;
 		mapAsset = zone.mapAsset;
 		fogPaint = zone.fogPaint;
@@ -246,10 +246,8 @@ public class Zone extends BaseModel {
 		} catch (CloneNotSupportedException cnse) {
 			cnse.printStackTrace();
 		}
-
 		unitsPerCell = zone.unitsPerCell;
 		tokenVisionDistance = zone.tokenVisionDistance;
-
 		imageScaleX = zone.imageScaleX;
 		imageScaleY = zone.imageScaleY;
 
@@ -257,29 +255,24 @@ public class Zone extends BaseModel {
 			drawables = new LinkedList<DrawnElement>();
 			drawables.addAll(zone.drawables);
 		}
-
 		if (zone.objectDrawables != null) {
 			objectDrawables = new LinkedList<DrawnElement>();
 			objectDrawables.addAll(zone.objectDrawables);
 		}
-
 		if (zone.backgroundDrawables != null) {
 			backgroundDrawables = new LinkedList<DrawnElement>();
 			backgroundDrawables.addAll(zone.backgroundDrawables);
 		}
-
 		if (zone.gmDrawables != null) {
 			gmDrawables = new LinkedList<DrawnElement>();
 			gmDrawables.addAll(zone.gmDrawables);
 		}
-
 		if (zone.labels != null) {
 			Iterator<GUID> i = zone.labels.keySet().iterator();
 			while (i.hasNext()) {
 				this.putLabel(new Label(zone.labels.get(i.next())));
 			}
 		}
-
 		// Copy the tokens, save a map between old and new for the initiative list.
 		if (zone.initiativeList == null)
 			zone.initiativeList = new InitiativeList(zone);
@@ -291,13 +284,7 @@ public class Zone extends BaseModel {
 			while (i.hasNext()) {
 				Token old = zone.tokenMap.get(i.next());
 				Token token = new Token(old);
-//				token.setZoneId(getId());
-//				ExposedAreaMetaData oldMeta = zone.getExposedAreaMetaData(old.getExposedAreaGUID());
-//				if (oldMeta != null) {
-//					exposedAreaMeta.put(old.getExposedAreaGUID(), new ExposedAreaMetaData(oldMeta.getExposedAreaHistory()));
-//				}
-
-				this.putToken(token);
+				putToken(token);
 				List<Integer> list = zone.initiativeList.indexOf(old);
 				for (Integer integer : list) {
 					int index = integer.intValue();
@@ -306,7 +293,6 @@ public class Zone extends BaseModel {
 				}
 			}
 		}
-
 		// Set the initiative list using the newly create tokens.
 		if (saveInitiative.length > 0) {
 			for (int i = 0; i < saveInitiative.length; i++) {
@@ -599,7 +585,6 @@ public class Zone extends BaseModel {
 				if (meta == null)
 					meta = new ExposedAreaMetaData();
 				meta.addToExposedAreaHistory(area);
-//				meta.addToExposedAreaHistory(MapTool.getFrame().getZoneRenderer(getId()).getZoneView().getVisibleArea(token));
 				exposedAreaMeta.put(token.getExposedAreaGUID(), meta);
 				MapTool.getFrame().getZoneRenderer(this.getId()).getZoneView().flush();
 				putToken(token);
@@ -895,7 +880,6 @@ public class Zone extends BaseModel {
 		// LATER: optimize this
 		tokenOrderedList.remove(token);
 		tokenOrderedList.add(token);
-
 		Collections.sort(tokenOrderedList, TOKEN_Z_ORDER_COMPARATOR);
 
 		if (newToken) {
@@ -910,30 +894,27 @@ public class Zone extends BaseModel {
 	 * fires a single <code>ModelChangeEvent</code> using <code>Event.TOKEN_ADDED</code> and passes the list of added
 	 * tokens as a parameter. Ditto for <code>Event.TOKEN_CHANGED</code>.
 	 * <p>
-	 * <b>Note that this code is NOT ready for prime time</b> and shouldn't be used until all references to code that
-	 * handle token {add,change} events have been updated to accept an array as a parameter instead of a single token
-	 * reference.
-	 * <p>
-	 * Marked as "deprecated" to ensure no one calls it accidentally. At least until the updates are done.
+	 * Not currently invoked by other code, but event handling changes for multiple tokens has been made.
 	 * 
 	 * @param tokens
 	 *            List of Tokens to be added to this zone
 	 */
-	@Deprecated
 	public void putTokens(List<Token> tokens) {
-		// Create a couple of booleans to represent whether tokens were added and/or changed
+		System.out.println("putToken() called with list of " + tokens.size() + " tokens.");
+
+		Collection<Token> values = tokenMap.values();
+
 		List<Token> addedTokens = new LinkedList<Token>(tokens);
-		addedTokens.removeAll(tokenMap.values());
+		addedTokens.removeAll(values);
 
 		List<Token> changedTokens = new LinkedList<Token>(tokens);
-		changedTokens.retainAll(tokenMap.values());
+		changedTokens.retainAll(values);
 
 		for (Token t : tokens) {
 			tokenMap.put(t.getId(), t);
 		}
 		tokenOrderedList.removeAll(tokens);
 		tokenOrderedList.addAll(tokens);
-
 		Collections.sort(tokenOrderedList, TOKEN_Z_ORDER_COMPARATOR);
 
 		if (!addedTokens.isEmpty())

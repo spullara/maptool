@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License.  You may
- * obtain a copy of the License at
- *  
- *	http://www.apache.org/licenses/LICENSE-2.0
- *   
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied.  See the License for the specific language governing
- * permissions and limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.functions;
 
@@ -22,6 +19,7 @@ import java.util.List;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Token;
@@ -59,14 +57,16 @@ public class TokenSightFunctions extends AbstractFunction {
 		if (functionName.equals("getSightType")) {
 			return tokenInContext.getSightType();
 		}
+		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+		Zone zone = renderer.getZone();
 		if (functionName.equals("setHasSight")) {
 			if (parameters.size() < 1) {
 				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 1, parameters.size()));
 			}
 			tokenInContext.setHasSight(!parameters.get(0).equals(BigDecimal.ZERO));
-			MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(tokenInContext);
-			MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), tokenInContext);
-			MapTool.getFrame().getCurrentZoneRenderer().flushLight();
+			zone.putToken(tokenInContext);
+			MapTool.serverCommand().putToken(zone.getId(), tokenInContext);
+			renderer.flushLight();
 			return "";
 		}
 		if (functionName.equals("setSightType")) {
@@ -74,9 +74,9 @@ public class TokenSightFunctions extends AbstractFunction {
 				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 1, parameters.size()));
 			}
 			tokenInContext.setSightType(parameters.get(0).toString());
-			MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(tokenInContext);
-			MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), tokenInContext);
-			MapTool.getFrame().getCurrentZoneRenderer().flushLight();
+			zone.putToken(tokenInContext);
+			MapTool.serverCommand().putToken(zone.getId(), tokenInContext);
+			renderer.flushLight();
 			return "";
 		}
 		if (functionName.equals("canSeeToken")) {
@@ -86,7 +86,6 @@ public class TokenSightFunctions extends AbstractFunction {
 			if (parameters.size() > 2) {
 				throw new ParserException(I18N.getText("macro.function.general.tooManyParam", functionName, 2, parameters.size()));
 			}
-			Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 			if (parameters.size() == 2) {
 				try {
 					tokenInContext = FindTokenFunctions.findToken(parameters.get(1).toString(), zone.getName());
@@ -100,7 +99,7 @@ public class TokenSightFunctions extends AbstractFunction {
 			if (!tokenInContext.getHasSight()) {
 				return "[]";
 			}
-			Area tokensVisibleArea = MapTool.getFrame().getCurrentZoneRenderer().getZoneView().getVisibleArea(tokenInContext);
+			Area tokensVisibleArea = renderer.getZoneView().getVisibleArea(tokenInContext);
 			if (tokensVisibleArea == null) {
 				return "[]";
 			}
@@ -169,7 +168,6 @@ public class TokenSightFunctions extends AbstractFunction {
 				sb.replace(sb.length() - 2, sb.length(), "");
 			}
 			sb.append("]");
-
 			return sb.toString();
 		}
 		return "";

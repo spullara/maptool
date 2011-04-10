@@ -382,8 +382,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		repaint();
 	}
 
-	@SuppressWarnings("unchecked")
-	// this is for Path<?>
 	public void commitMoveSelectionSet(GUID keyTokenId) {
 		// TODO: Quick hack to handle updating server state
 		SelectionSet set = selectionSetMap.get(keyTokenId);
@@ -455,7 +453,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	/**
 	 * @param token
 	 */
-	@SuppressWarnings("unchecked")
 	private void denyMovement(final Token token) {
 		Path<?> path = token.getLastPath();
 		if (path != null) {
@@ -3440,7 +3437,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			MapTool.serverCommand().putToken(zone.getId(), token);
 			selectThese.add(token.getId());
 		}
-
 		// For convenience, select them
 		clearSelectedTokens();
 		selectTokens(selectThese);
@@ -3454,7 +3450,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 //			msg.setChannel(Channel.ME);
 //			MapTool.addMessage(msg);
 		}
-
 		// Copy them to the clipboard so that we can quickly copy them onto the map
 		AppActions.copyTokens(tokens);
 		requestFocusInWindow();
@@ -3498,7 +3493,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 			}
 			if (evt == Zone.Event.TOKEN_CHANGED || evt == Zone.Event.TOKEN_REMOVED || evt == Zone.Event.TOKEN_ADDED) {
-				flush((Token) event.getArg());
+				if (event.getArg() instanceof List<?>) {
+					@SuppressWarnings("unchecked")
+					List<Token> list = (List<Token>) (event.getArg());
+					for (Token token : list) {
+						flush(token);
+					}
+				} else {
+					flush((Token) event.getArg());
+				}
 			}
 			if (evt == Zone.Event.FOG_CHANGED) {
 				flushFog = true;

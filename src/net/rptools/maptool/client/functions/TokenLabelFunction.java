@@ -16,6 +16,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.Zone;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
@@ -134,8 +135,9 @@ public class TokenLabelFunction extends AbstractFunction {
 			throw new ParserException(I18N.getText("macro.function.general.tooManyParam", "setLabel", 2, args.size()));
 		}
 		setLabel(token, args.get(0).toString());
-		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
-		MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
+		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
+		MapTool.serverCommand().putToken(zone.getId(), token);
+		zone.putToken(token);
 		return args.get(0);
 	}
 }

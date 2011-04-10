@@ -27,6 +27,7 @@ import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.vbl.AreaTree;
 import net.rptools.maptool.model.AttachedLightSource;
+import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.Direction;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Light;
@@ -443,7 +444,15 @@ public class ZoneView implements ModelChangeListener {
 				tokenVisibleAreaCache.clear();
 			}
 			if (evt == Zone.Event.TOKEN_CHANGED || evt == Zone.Event.TOKEN_REMOVED) {
-				flush((Token) event.getArg());
+				if (event.getArg() instanceof List<?>) {
+					@SuppressWarnings("unchecked")
+					List<Token> list = (List<Token>) (event.getArg());
+					for (Token token : list) {
+						flush(token);
+					}
+				} else {
+					flush((Token) event.getArg());
+				}
 			}
 			if (evt == Zone.Event.TOKEN_ADDED || evt == Zone.Event.TOKEN_CHANGED) {
 				Object o = event.getArg();
@@ -451,8 +460,9 @@ public class ZoneView implements ModelChangeListener {
 				if (o instanceof Token) {
 					tokens = new ArrayList<Token>(1);
 					tokens.add((Token) o);
-				} else
+				} else {
 					tokens = (List<Token>) o;
+				}
 				processTokenAddChangeEvent(tokens);
 			}
 			if (evt == Zone.Event.TOKEN_REMOVED) {
@@ -476,11 +486,12 @@ public class ZoneView implements ModelChangeListener {
 	 */
 	private void processTokenAddChangeEvent(List<Token> tokens) {
 		boolean hasSight = false;
+		Campaign c = MapTool.getCampaign();
 
 		for (Token token : tokens) {
 			boolean hasLightSource = token.hasLightSources() && (token.isVisible() || (MapTool.getPlayer().isGM() && !AppState.isShowAsPlayer()));
 			for (AttachedLightSource als : token.getLightSources()) {
-				LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
+				LightSource lightSource = c.getLightSource(als.getLightSourceId());
 				if (lightSource != null) {
 					Set<GUID> lightSet = lightSourceMap.get(lightSource.getType());
 					if (hasLightSource) {
@@ -494,30 +505,6 @@ public class ZoneView implements ModelChangeListener {
 				}
 			}
 			hasSight |= token.getHasSight();
-			/* FJE This is the old code. The idea behind changing it was to optimize the code path. */
-//			if (hasLightSource) {
-//				for (AttachedLightSource als : token.getLightSources()) {
-//					LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
-//					if (lightSource != null) {
-//						Set<GUID> lightSet = lightSourceMap.get(lightSource.getType());
-//						if (lightSet == null) {
-//							lightSet = new HashSet<GUID>();
-//							lightSourceMap.put(lightSource.getType(), lightSet);
-//						}
-//						lightSet.add(token.getId());
-//					}
-//				}
-//			} else {
-//				for (AttachedLightSource als : token.getLightSources()) {
-//					LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
-//					if (lightSource != null) {
-//						Set<GUID> lightSet = lightSourceMap.get(lightSource.getType());
-//						if (lightSet != null) {
-//							lightSet.remove(token.getId());
-//						}
-//					}
-//				}
-//			}
 		}
 		if (hasSight)
 			visibleAreaMap.clear();
