@@ -31,7 +31,9 @@ import java.util.Set;
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.MapToolFrame;
 import net.rptools.maptool.client.ui.zone.PlayerView;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.ZoneView;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.InitiativeList.TokenInitiative;
@@ -530,24 +532,24 @@ public class Zone extends BaseModel {
 			return false;
 		}
 		// Token is visible, and there is fog
-		int x = token.getX();
-		int y = token.getY();
 		Rectangle tokenSize = token.getBounds(this);
 		Area combined = new Area(exposedArea);
 		PlayerView view = MapTool.getFrame().getZoneRenderer(this).getPlayerView();
 		if (MapTool.getServerPolicy().isUseIndividualFOW() && getVisionType() != VisionType.OFF) {
-			List<Token> toks = (view.getTokens() != null && !view.getTokens().isEmpty()) ? view.getTokens() : this.getTokens();
-			// Should this use FindTokenFunctions.OwnedFilter and zone.getTokenList()?
-			for (Token tok : toks) {
-				if (!AppUtil.playerOwns(tok)) {
-					continue;
-				}
-				if (exposedAreaMeta.containsKey(tok.getExposedAreaGUID())) {
-					combined.add(exposedAreaMeta.get(tok.getExposedAreaGUID()).getExposedAreaHistory());
+			List<Token> toks = view.getTokens();
+			if (toks != null && !toks.isEmpty()) {
+				// Should this use FindTokenFunctions.OwnedFilter and zone.getTokenList()?
+				for (Token tok : toks) {
+					if (!AppUtil.playerOwns(tok)) {
+						continue;
+					}
+					if (exposedAreaMeta.containsKey(tok.getExposedAreaGUID())) {
+						combined.add(exposedAreaMeta.get(tok.getExposedAreaGUID()).getExposedAreaHistory());
+					}
 				}
 			}
 		}
-		return combined.intersects(x, y, tokenSize.width, tokenSize.height);
+		return combined.intersects(tokenSize);
 	}
 
 	public void clearTopology() {
@@ -616,7 +618,9 @@ public class Zone extends BaseModel {
 		if (selectedToks != null && !selectedToks.isEmpty() && MapTool.getServerPolicy().isUseIndividualFOW()) {
 			boolean isAllowed = MapTool.getPlayer().isGM() || !MapTool.getServerPolicy().useStrictTokenManagement();
 			String playerId = MapTool.getPlayer().getName();
-			ZoneView zoneView = MapTool.getFrame().getZoneRenderer(this).getZoneView();
+			MapToolFrame frame = MapTool.getFrame();
+			ZoneRenderer zr = frame.getZoneRenderer(getId()); // FIXME 'zr' was null -- how can this happen?  Fix is to use getId() instead of 'this'
+			ZoneView zoneView = zr.getZoneView();
 			ExposedAreaMetaData meta = null;
 
 			for (GUID guid : selectedToks) {

@@ -548,8 +548,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		}
 		super.mouseMoved(e);
 
+//		mouseX = e.getX(); // done by super.mouseMoved()
+//		mouseY = e.getY();
 		if (isShowingPointer) {
-			ZonePoint zp = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
+			ZonePoint zp = new ScreenPoint(mouseX, mouseY).convertToZone(renderer);
 			Pointer pointer = MapTool.getFrame().getPointerOverlay().getPointer(MapTool.getPlayer().getName());
 			if (pointer != null) {
 				pointer.setX(zp.x);
@@ -568,8 +570,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			repaint();
 			return;
 		}
-		mouseX = e.getX();
-		mouseY = e.getY();
 
 		if (isDraggingToken) {
 			// FJE If we're dragging the token, wouldn't mouseDragged() be called instead?  Can this code ever be executed?
@@ -1118,7 +1118,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	 */
 	private void handleKeyRotate(int direction, boolean freeRotate) {
 		Set<GUID> tokenGUIDSet = renderer.getSelectedTokenSet();
-		if (tokenGUIDSet.size() == 0) {
+		if (tokenGUIDSet.isEmpty()) {
 			return;
 		}
 		for (GUID tokenGUID : tokenGUIDSet) {

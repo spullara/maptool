@@ -193,12 +193,13 @@ public class FogUtil {
 		Set<GUID> tokenSet = new HashSet<GUID>();
 		List<Token> tokList = renderer.getZone().getPlayerTokens();
 		String playerName = MapTool.getPlayer().getName();
+		boolean isGM = MapTool.getPlayer().getRole() == Role.GM;
 
 		for (Token token : tokList) {
-			boolean owner = token.isOwner(playerName) || MapTool.getPlayer().getRole() == Role.GM;
 			if (!token.getHasSight()) {
 				continue;
 			}
+			boolean owner = token.isOwner(playerName) || isGM;
 			if ((!MapTool.isPersonalServer() || MapTool.getServerPolicy().isUseIndividualViews()) && !owner) {
 				continue;
 			}

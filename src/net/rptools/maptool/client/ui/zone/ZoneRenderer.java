@@ -891,27 +891,25 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		g2d.setFont(AppStyle.labelFont);
 		Object oldAA = SwingUtil.useAntiAliasing(g2d);
 
+		Rectangle viewRect = new Rectangle(getSize().width, getSize().height);
+		Area viewArea = new Area(viewRect);
 		// much of the raster code assumes the user clip is set
 		boolean resetClip = false;
 		if (g2d.getClipBounds() == null) {
-			g2d.setClip(0, 0, getBounds().width, getBounds().height);
+			g2d.setClip(0, 0, viewRect.width, viewRect.height);
 			resetClip = true;
 		}
 		// Are we still waiting to show the zone ?
 		if (isLoading()) {
-			Dimension size = getSize();
 			g2d.setColor(Color.black);
-			g2d.fillRect(0, 0, size.width, size.height);
-
-			GraphicsUtil.drawBoxedString(g2d, loadingProgress, size.width / 2, size.height / 2);
+			g2d.fillRect(0, 0, viewRect.width, viewRect.height);
+			GraphicsUtil.drawBoxedString(g2d, loadingProgress, viewRect.width / 2, viewRect.height / 2);
 			return;
 		}
 		if (MapTool.getCampaign().isBeingSerialized()) {
-			Dimension size = getSize();
 			g2d.setColor(Color.black);
-			g2d.fillRect(0, 0, size.width, size.height);
-
-			GraphicsUtil.drawBoxedString(g2d, "    Please Wait    ", size.width / 2, size.height / 2);
+			g2d.fillRect(0, 0, viewRect.width, viewRect.height);
+			GraphicsUtil.drawBoxedString(g2d, "    Please Wait    ", viewRect.width / 2, viewRect.height / 2);
 			return;
 		}
 		if (zone == null) {
@@ -964,7 +962,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 		timer.start("calcs-2");
 		{
-			Area viewBounds = new Area(new Rectangle(0, 0, getSize().width, getSize().height));
 			// renderMoveSelectionSet() requires exposedFogArea to be properly set
 			exposedFogArea = new Area(zone.getExposedArea());
 			if (exposedFogArea != null && zone.hasFog()) {
@@ -973,9 +970,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				else {
 					try {
 						// Try to calculate the inverse transform and apply it.
-						viewBounds.transform(af.createInverse());
+						viewArea.transform(af.createInverse());
 						// If it works, restrict the exposedFogArea to the resulting rectangle.
-						exposedFogArea.intersect(viewBounds);
+						exposedFogArea.intersect(viewArea);
 					} catch (NoninvertibleTransformException nte) {
 						// If it doesn't work, ignore the intersection and produce an error (should never happen, right?)
 						nte.printStackTrace();
@@ -983,7 +980,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				}
 				exposedFogArea.transform(af);
 			} else {
-				exposedFogArea = viewBounds;
+				exposedFogArea = viewArea;
 			}
 		}
 		timer.stop("calcs-2");
@@ -1129,8 +1126,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		}
 		timer.start("overlays");
 		for (int i = 0; i < overlayList.size(); i++) {
+			String msg = null;
 			ZoneOverlay overlay = overlayList.get(i);
+			if (timer.isEnabled()) {
+				msg = "overlays:" + overlay.getClass().getSimpleName();
+				timer.start(msg);
+			}
 			overlay.paintOverlay(this, g2d);
+			if (timer.isEnabled())
+				timer.stop(msg);
 		}
 		timer.stop("overlays");
 
@@ -1144,7 +1148,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				lightSourceIconOverlay.paintOverlay(this, g2d);
 			}
 		}
-		timer.start("lightSourceIconOverlay.paintOverlay");
+		timer.stop("lightSourceIconOverlay.paintOverlay");
 //		g2d.setColor(Color.red);
 //		for (AreaMeta meta : getTopologyAreaData().getAreaList()) {
 //			Area area = new Area(meta.getArea().getBounds()).createTransformedArea(AffineTransform.getScaleInstance(getScale(), getScale()));
@@ -1336,24 +1340,18 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		if (zone.hasFog()) {
 			Area clip = new Area(new Rectangle(getSize().width, getSize().height));
 
-			Area viewArea = new Area();
-			if (view.getTokens() != null && !view.getTokens().isEmpty()) {
-				for (Token tok : view.getTokens()) {
-//					if (!AppUtil.playerOwns(tok)) {	// Already done -- PlayerView only includes owned tokens
-//						continue;
-//					}
+			Area viewArea = new Area(exposedFogArea);
+			List<Token> tokens = view.getTokens();
+			if (tokens != null && !tokens.isEmpty()) {
+				for (Token tok : tokens) {
 					ExposedAreaMetaData exposedMeta = zone.getExposedAreaMetaData(tok.getExposedAreaGUID());
 					viewArea.add(exposedMeta.getExposedAreaHistory());
 				}
 			}
-			viewArea.add(zone.getExposedArea());
 			if (!viewArea.isEmpty()) {
 				clip.intersect(new Area(viewArea.getBounds2D()));
 			}
-//			AffineTransform af = new AffineTransform();
-//			af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
-//			af.scale(+1, +1);
-//			clip.transform(af);
+			// Note: the viewArea doesn't need to be transform()'d because exposedFogArea has been already.
 			g2.setClip(clip);
 		}
 		renderVisionOverlay(g2, view);
@@ -1598,7 +1596,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		{
 			if (visibleScreenArea != null) {
 //				buffG.setClip(softFog);
-//				buffG.setTransform(new AffineTransform()); // XXX Read the javadoc for .setTransform()
+				buffG.setTransform(new AffineTransform());
 				buffG.setComposite(AlphaComposite.Src);
 				buffG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 				buffG.setStroke(new BasicStroke(1));

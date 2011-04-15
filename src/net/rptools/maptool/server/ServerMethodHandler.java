@@ -305,7 +305,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 	}
 
 	public void exposeFoW(GUID zoneGUID, Area area, Set<GUID> selectedToks) {
-		Zone zone = server.getCampaign().getZone(zoneGUID);
+		Zone zone = server.getCampaign().getZone(zoneGUID); // this can return a zone that's not in MapToolFrame.zoneRenderList???
 		zone.exposeArea(area, selectedToks);
 		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.exposeFoW.name(), RPCContext.getCurrent().parameters);
 	}
