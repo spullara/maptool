@@ -33,8 +33,10 @@ net.rptools.maptool.server.*,
 net.rptools.maptool.tool.*,
 net.rptools.maptool.transfer.*,
 net.rptools.maptool.util.*,
-net.rptools.lib.*</entry>
+net.rptools.lib.*,
+java.awt.geom.Area,
+java.awt.geom.AffineTransform</entry>
 <entry key="ProfilerMemorySettings_version">1.0</entry>
-<entry key="ProfilerCPUSettings_version">1.0</entry>
 <entry key="ProfilerCPUSettings_profile_runnables">true</entry>
+<entry key="ProfilerCPUSettings_version">1.0</entry>
 </properties>

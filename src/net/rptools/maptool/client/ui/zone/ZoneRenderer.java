@@ -40,6 +40,7 @@ import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.QuadCurve2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -929,24 +930,63 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		timer.stop("setup");
 
 		// Calculations
-		timer.start("calcs");
-		exposedFogArea = new Area(zone.getExposedArea());
+		timer.start("calcs-1");
 		AffineTransform af = new AffineTransform();
 		af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
 		af.scale(getScale(), getScale());
+
+//		@formatter:off
+		/*	This is the new code that doesn't work.  See below for newer code that _might_ work. ;-)
+		if (visibleScreenArea == null && zoneView.isUsingVision()) {
+			Area a = zoneView.getVisibleArea(view);
+			if (a != null && !a.isEmpty())
+				visibleScreenArea = a;
+		}
+		exposedFogArea = new Area(zone.getExposedArea());
+		if (visibleScreenArea != null) {
+			if (exposedFogArea != null)
+				exposedFogArea.transform(af);
+			visibleScreenArea.transform(af);
+		}
+		if (exposedFogArea == null || !zone.hasFog()) {
+			// fully exposed (screen area)
+			exposedFogArea = new Area(new Rectangle(0, 0, getSize().width, getSize().height));
+		}
+		*/
+//		@formatter:on
+
 		if (visibleScreenArea == null && zoneView.isUsingVision()) {
 			Area a = zoneView.getVisibleArea(view);
 			if (a != null && !a.isEmpty())
 				visibleScreenArea = a.createTransformedArea(af);
 		}
-		if (exposedFogArea != null) {
-			exposedFogArea.transform(af);
-			// XXX Can we clip the exposedFogArea to the visibleScreenArea?  Would that help speed things up at all?
-		} else {
-			// fully exposed (screen area)
-			exposedFogArea = new Area(new Rectangle(0, 0, getSize().width, getSize().height));
+		timer.stop("calcs-1");
+
+		timer.start("calcs-2");
+		{
+			Area viewBounds = new Area(new Rectangle(0, 0, getSize().width, getSize().height));
+			// renderMoveSelectionSet() requires exposedFogArea to be properly set
+			exposedFogArea = new Area(zone.getExposedArea());
+			if (exposedFogArea != null && zone.hasFog()) {
+				if (visibleScreenArea != null && !visibleScreenArea.isEmpty())
+					exposedFogArea.intersect(visibleScreenArea);
+				else {
+					try {
+						// Try to calculate the inverse transform and apply it.
+						viewBounds.transform(af.createInverse());
+						// If it works, restrict the exposedFogArea to the resulting rectangle.
+						exposedFogArea.intersect(viewBounds);
+					} catch (NoninvertibleTransformException nte) {
+						// If it doesn't work, ignore the intersection and produce an error (should never happen, right?)
+						nte.printStackTrace();
+					}
+				}
+				exposedFogArea.transform(af);
+			} else {
+				exposedFogArea = viewBounds;
+			}
 		}
-		timer.stop("calcs");
+		timer.stop("calcs-2");
 
 		// Rendering pipeline
 		if (zone.drawBoard()) {
@@ -955,19 +995,27 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			timer.stop("board");
 		}
 		if (Zone.Layer.BACKGROUND.isEnabled()) {
-			timer.start("drawableBackground");
-			renderDrawableOverlay(g2d, backgroundDrawableRenderer, view, zone.getBackgroundDrawnElements());
-			timer.stop("drawableBackground");
-
-			timer.start("tokensBackground");
-			renderTokens(g2d, zone.getBackgroundStamps(), view);
-			timer.stop("tokensBackground");
+			List<DrawnElement> drawables = zone.getBackgroundDrawnElements();
+			if (!drawables.isEmpty()) {
+				timer.start("drawableBackground");
+				renderDrawableOverlay(g2d, backgroundDrawableRenderer, view, drawables);
+				timer.stop("drawableBackground");
+			}
+			List<Token> background = zone.getBackgroundStamps();
+			if (!background.isEmpty()) {
+				timer.start("tokensBackground");
+				renderTokens(g2d, background, view);
+				timer.stop("tokensBackground");
+			}
 		}
 		if (Zone.Layer.OBJECT.isEnabled()) {
 			// Drawables on the object layer are always below the grid, and...
-			timer.start("drawableObjects");
-			renderDrawableOverlay(g2d, objectDrawableRenderer, view, zone.getObjectDrawnElements());
-			timer.stop("drawableObjects");
+			List<DrawnElement> drawables = zone.getObjectDrawnElements();
+			if (!drawables.isEmpty()) {
+				timer.start("drawableObjects");
+				renderDrawableOverlay(g2d, objectDrawableRenderer, view, drawables);
+				timer.stop("drawableObjects");
+			}
 		}
 		timer.start("grid");
 		renderGrid(g2d, view);
@@ -975,9 +1023,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 		if (Zone.Layer.OBJECT.isEnabled()) {
 			// ... Images on the object layer are always ABOVE the grid.
-			timer.start("tokensStamp");
-			renderTokens(g2d, zone.getStampTokens(), view);
-			timer.stop("tokensStamp");
+			List<Token> stamps = zone.getStampTokens();
+			if (!stamps.isEmpty()) {
+				timer.start("tokensStamp");
+				renderTokens(g2d, stamps, view);
+				timer.stop("tokensStamp");
+			}
 		}
 		if (Zone.Layer.TOKEN.isEnabled()) {
 			timer.start("lights");
@@ -1008,26 +1059,36 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		 * </ol>
 		 */
 		if (Zone.Layer.TOKEN.isEnabled()) {
-			timer.start("drawableTokens");
-			renderDrawableOverlay(g2d, tokenDrawableRenderer, view, zone.getDrawnElements());
-			timer.stop("drawableTokens");
+			List<DrawnElement> drawables = zone.getDrawnElements();
+			if (!drawables.isEmpty()) {
+				timer.start("drawableTokens");
+				renderDrawableOverlay(g2d, tokenDrawableRenderer, view, drawables);
+				timer.stop("drawableTokens");
+			}
 		}
 		if (view.isGMView()) {
 			if (Zone.Layer.GM.isEnabled()) {
-				timer.start("drawableGM");
-				renderDrawableOverlay(g2d, gmDrawableRenderer, view, zone.getGMDrawnElements());
-				timer.stop("drawableGM");
-
-				timer.start("tokensGM");
-				renderTokens(g2d, zone.getGMStamps(), view);
-				timer.stop("tokensGM");
+				List<DrawnElement> drawables = zone.getGMDrawnElements();
+				if (!drawables.isEmpty()) {
+					timer.start("drawableGM");
+					renderDrawableOverlay(g2d, gmDrawableRenderer, view, drawables);
+					timer.stop("drawableGM");
+				}
+				List<Token> stamps = zone.getGMStamps();
+				if (!stamps.isEmpty()) {
+					timer.start("tokensGM");
+					renderTokens(g2d, stamps, view);
+					timer.stop("tokensGM");
+				}
 			}
 		}
 		if (Zone.Layer.TOKEN.isEnabled()) {
-			timer.start("tokens");
-			renderTokens(g2d, zone.getTokens(), view);
-			timer.stop("tokens");
-
+			List<Token> tokens = zone.getTokens();
+			if (!tokens.isEmpty()) {
+				timer.start("tokens");
+				renderTokens(g2d, tokens, view);
+				timer.stop("tokens");
+			}
 			timer.start("unowned movement");
 			renderMoveSelectionSets(g2d, view, getUnOwnedMovementSet(view));
 			timer.stop("unowned movement");
@@ -1053,7 +1114,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		renderLabels(g2d, view);
 
 		// (This method has it's own 'timer' calls)
-		renderFog(g2d, view);
+		if (zone.hasFog())
+			renderFog(g2d, view);
 
 		// if (zone.visionType ...)
 		if (view.isGMView()) {
@@ -1145,7 +1207,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 							areaList = new ArrayList<Area>();
 							colorMap.put(light.getPaint().getPaint(), areaList);
 						}
-
 						areaList.add(new Area(light.getArea()));
 					}
 				} else {
@@ -1154,12 +1215,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				}
 			}
 			timer.stop("lights-3");
-			timer.start("lights-4");
 
+			timer.start("lights-4");
 			// Combine same colors to avoid ugly overlap
 			// Avoid combining _all_ of the lights as the area adds are very expensive, just combine those that overlap
 			for (List<Area> areaList : colorMap.values()) {
-
 				List<Area> sourceList = new LinkedList<Area>(areaList);
 				areaList.clear();
 
@@ -1171,19 +1231,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 						if (currArea.getBounds().intersects(area.getBounds())) {
 							iter.remove();
-
 							area.add(currArea);
 							sourceList.add(area);
-
 							continue outter;
 						}
 					}
-
-					// If we are here, we didn't find any other area to merge
-					// with
+					// If we are here, we didn't find any other area to merge with
 					areaList.add(area);
 				}
-
 				// Cut out the bright light
 				if (areaList.size() > 0) {
 					for (Area area : areaList) {
@@ -1193,14 +1248,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 					}
 				}
 			}
-
 			renderedLightMap = new LinkedHashMap<Paint, List<Area>>();
 			for (Entry<Paint, List<Area>> entry : colorMap.entrySet()) {
 				renderedLightMap.put(entry.getKey(), entry.getValue());
 			}
 			timer.stop("lights-4");
 		}
-
 		// Draw
 		timer.start("lights-5");
 		for (Entry<Paint, List<Area>> entry : renderedLightMap.entrySet()) {
@@ -1210,7 +1263,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			}
 		}
 		timer.stop("lights-5");
-
 		newG.dispose();
 	}
 
@@ -1281,29 +1333,28 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	 */
 	private void renderPlayerVisionOverlay(Graphics2D g, PlayerView view) {
 		Graphics2D g2 = (Graphics2D) g.create();
-		if (zone.hasFog() && exposedFogArea != null) {
+		if (zone.hasFog()) {
 			Area clip = new Area(new Rectangle(getSize().width, getSize().height));
 
 			Area viewArea = new Area();
 			if (view.getTokens() != null && !view.getTokens().isEmpty()) {
 				for (Token tok : view.getTokens()) {
-					if (!AppUtil.playerOwns(tok)) {
-						continue;
-					}
+//					if (!AppUtil.playerOwns(tok)) {	// Already done -- PlayerView only includes owned tokens
+//						continue;
+//					}
 					ExposedAreaMetaData exposedMeta = zone.getExposedAreaMetaData(tok.getExposedAreaGUID());
 					viewArea.add(exposedMeta.getExposedAreaHistory());
 				}
 			}
 			viewArea.add(zone.getExposedArea());
 			if (!viewArea.isEmpty()) {
-				clip.intersect(viewArea);
+				clip.intersect(new Area(viewArea.getBounds2D()));
 			}
-
-			AffineTransform af = new AffineTransform();
-			//af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
-			af.scale(+1, +1);
-			Area newClip = clip.createTransformedArea(af);
-			g2.setClip(newClip);
+//			AffineTransform af = new AffineTransform();
+//			af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
+//			af.scale(+1, +1);
+//			clip.transform(af);
+			g2.setClip(clip);
 		}
 		renderVisionOverlay(g2, view);
 		g2.dispose();
@@ -1457,7 +1508,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			}
 			Graphics2D buffG = fogBuffer.createGraphics();
 			buffG.setClip(fogClip);
-			SwingUtil.useAntiAliasing(buffG); // XXX We're not saving the return value and restoring it???
+			SwingUtil.useAntiAliasing(buffG);
 
 			// XXX Is this even needed?  Immediately below is another call to fillRect() with the same dimensions!
 			if (!newImage) {
@@ -1470,15 +1521,16 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			}
 			timer.start("renderFog-fill");
 			// Fill
-			buffG.setPaint(zone.getFogPaint().getPaint(getViewOffsetX(), getViewOffsetY(), getScale()));
+			double scale = getScale();
+			buffG.setPaint(zone.getFogPaint().getPaint(fogX, fogY, scale));
 			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, view.isGMView() ? .6f : 1f)); // JFJ this fixes the GM exposed area view.
 			buffG.fillRect(0, 0, size.width, size.height);
 			timer.stop("renderFog-fill");
 
 			// Cut out the exposed area
 			AffineTransform af = new AffineTransform();
-			af.translate(getViewOffsetX(), getViewOffsetY());
-			af.scale(getScale(), getScale());
+			af.translate(fogX, fogY);
+			af.scale(scale, scale);
 
 			buffG.setTransform(af);
 //			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, view.isGMView() ? .6f : 1f));
@@ -1514,39 +1566,27 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	}
 
 	private void renderFogArea(final Graphics2D buffG, final PlayerView view, Area softFog, Area visibleArea) {
-		// FJE Multiple uses of 'zone.hasFog()' in here but we can't get here unless that's true -- right?
-		boolean hasFog = zone.hasFog();
 		if (zoneView.isUsingVision()) {
 			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC));
-			if (visibleArea != null) {
+			if (visibleArea != null && !visibleArea.isEmpty()) {
 				buffG.setColor(new Color(0, 0, 0, AppPreferences.getFogOverlayOpacity()));
 
-				if (hasFog) {
-					// Fill in the exposed area
-					buffG.fill(softFog);
+				// Fill in the exposed area
+				buffG.fill(softFog);
 
-					buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
-					Shape oldClip = buffG.getClip();
-					buffG.setClip(softFog);
+				buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
 
-					buffG.fill(visibleArea);
-
-					buffG.setClip(oldClip);
-				} else {
-					buffG.setColor(new Color(255, 255, 255, 40)); // was 255,255,255,40
-					buffG.fill(visibleArea);
-				}
+				Shape oldClip = buffG.getClip();
+				buffG.setClip(softFog);
+				buffG.fill(visibleArea);
+				buffG.setClip(oldClip);
 			} else {
-				if (hasFog) {
-					buffG.setColor(new Color(0, 0, 0, 80));
-					buffG.fill(softFog);
-				}
+				buffG.setColor(new Color(0, 0, 0, 80));
+				buffG.fill(softFog);
 			}
 		} else {
-			if (hasFog) {
-				buffG.fill(softFog);
-				buffG.setClip(softFog);
-			}
+			buffG.fill(softFog);
+			buffG.setClip(softFog);
 		}
 	}
 
@@ -1558,7 +1598,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		{
 			if (visibleScreenArea != null) {
 //				buffG.setClip(softFog);
-				buffG.setTransform(new AffineTransform());
+//				buffG.setTransform(new AffineTransform()); // XXX Read the javadoc for .setTransform()
 				buffG.setComposite(AlphaComposite.Src);
 				buffG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 				buffG.setStroke(new BasicStroke(1));
@@ -2735,6 +2775,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		selectedTokenSet.remove(tokenGUID);
 		MapTool.getFrame().resetTokenPanels();
 		HTMLFrameFactory.selectedListChanged();
+//		flushFog = true; // could call flushFog() but also clears visibleScreenArea and I don't know if we want that...
 		repaint();
 	}
 
@@ -2744,10 +2785,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		}
 		addToSelectionHistory(selectedTokenSet);
 		selectedTokenSet.add(tokenGUID);
-
-		repaint();
 		MapTool.getFrame().resetTokenPanels();
 		HTMLFrameFactory.selectedListChanged();
+//		flushFog = true;
+		repaint();
 		return true;
 	}
 
@@ -2795,10 +2836,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		 */
 		if (selectedTokenSetHistory.size() > 0) {
 			selectedTokenSet = selectedTokenSetHistory.remove(0);
-			// user may have deleted some of the tokens that are contained in
-			// the selection history.
-			// find them and filter them otherwise the selectionSet will have
-			// orphaned GUIDs and
+			// user may have deleted some of the tokens that are contained in the selection history.
+			// find them and filter them otherwise the selectionSet will have orphaned GUIDs and
 			// they will cause NPE
 			Set<GUID> invalidTokenSet = new HashSet<GUID>();
 			for (GUID guid : selectedTokenSet) {
