@@ -800,7 +800,7 @@ public class MapTool {
 		// Clean up
 		clientFrame.setCurrentZoneRenderer(null);
 		clientFrame.clearZoneRendererList();
-        clientFrame.getInitiativePanel().setZone(null);
+		clientFrame.getInitiativePanel().setZone(null);
 		clientFrame.clearTokenTree();
 		if (campaign == null) {
 			return;
@@ -809,7 +809,7 @@ public class MapTool {
 		for (Zone zone : campaign.getZones()) {
 			ZoneRenderer renderer = ZoneRendererFactory.newRenderer(zone);
 			clientFrame.addZoneRenderer(renderer);
-			if ((zone.getId().equals(defaultRendererId) || currRenderer == null) && (getPlayer().isGM() || zone.isVisible())) {
+			if ((currRenderer == null || zone.getId().equals(defaultRendererId)) && (getPlayer().isGM() || zone.isVisible())) {
 				currRenderer = renderer;
 			}
 			eventDispatcher.fireEvent(ZoneEvent.Added, campaign, null, zone);

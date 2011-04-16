@@ -166,8 +166,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	private String loadingProgress;
 	private boolean isLoaded;
 	private BufferedImage fogBuffer;
-	// I don't like this, at all, but it'll work for now, basically keep track
-	// of when the fog cache
+	// I don't like this, at all, but it'll work for now, basically keep track of when the fog cache
 	// needs to be flushed in the case of switching views
 	private boolean flushFog = true;
 	private Area exposedFogArea; // In screen space
@@ -204,13 +203,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		try {
 			getDropTarget().addDropTargetListener(this);
 		} catch (TooManyListenersException e1) {
-			// Should never happen because the transfer handler fixes this
-			// problem.
+			// Should never happen because the transfer handler fixes this problem.
 		}
 
 		// Focus
 		addMouseListener(new MouseAdapter() {
-
 			@Override
 			public void mousePressed(MouseEvent e) {
 				requestFocusInWindow();
@@ -226,13 +223,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			}
 		});
 		addMouseMotionListener(new MouseMotionAdapter() {
-
 			@Override
 			public void mouseMoved(MouseEvent e) {
 				pointUnderMouse = new ScreenPoint(e.getX(), e.getY());
 			}
 		});
-
 		// fps.start();
 	}
 
