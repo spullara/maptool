@@ -15,7 +15,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -116,7 +115,6 @@ import net.rptools.maptool.client.ui.zone.ZoneMiniMapPanel;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Asset;
-import net.rptools.maptool.model.AssetAvailableListener;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
@@ -139,33 +137,27 @@ import com.jidesoft.docking.DockableFrame;
  */
 public class MapToolFrame extends DefaultDockableHolder implements WindowListener, AppEventListener {
 	private static final Logger log = Logger.getLogger(MapToolFrame.class);
-
 	private static final String INITIAL_LAYOUT_XML = "net/rptools/maptool/client/ui/ilayout.xml";
 	private static final String MAPTOOL_LOGO_IMAGE = "net/rptools/maptool/client/image/maptool-logo.png";
 	private static final String CREDITS_HTML = "net/rptools/maptool/client/credits.html";
 	private static final String MINILOGO_IMAGE = "net/rptools/maptool/client/image/minilogo.png";
-
 	private static final long serialVersionUID = 3905523813025329458L;
+	private static final String DOCKING_PROFILE_NAME = "maptoolDocking";
 
-	// TODO: parameterize this (or make it a preference)
 	private static final int WINDOW_WIDTH = 800;
 	private static final int WINDOW_HEIGHT = 600;
 
-	private static final String DOCKING_PROFILE_NAME = "maptoolDocking";
-
 	private final Pen pen = new Pen(Pen.DEFAULT);
+	private final Map<MTFrame, DockableFrame> frameMap = new HashMap<MTFrame, DockableFrame>();
 
 	/**
 	 * Are the drawing measurements being painted?
 	 */
 	private boolean paintDrawingMeasurement = true;
-
-	private final Map<MTFrame, DockableFrame> frameMap = new HashMap<MTFrame, DockableFrame>();
-
 	private ImageChooserDialog imageChooserDialog;
+	private ZoneRenderer currentRenderer;
 
 	// Components
-	private ZoneRenderer currentRenderer;
 	private final AssetPanel assetPanel;
 	private final ClientConnectionPanel connectionPanel;
 	private final InitiativePanel initiativePanel;
@@ -198,17 +190,13 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private final ChatTyperObserver chatTyperObserver;
 
 	private final GlassPane glassPane;
-
 	private TokenPanelTreeModel tokenPanelTreeModel;
-
 	private final TextureChooserPanel textureChooserPanel;
-
 	private LookupTablePanel lookupTablePanel;
 
-	// Components
+	// External filename support
 	private JFileChooser loadPropsFileChooser;
 	private JFileChooser loadFileChooser;
-
 	private JFileChooser saveCmpgnFileChooser;
 	private JFileChooser savePropsFileChooser;
 	private JFileChooser saveFileChooser;
@@ -216,12 +204,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private final FileFilter campaignFilter = new MTFileFilter("cmpgn", I18N.getText("file.ext.cmpgn"));
 	private final FileFilter mapFilter = new MTFileFilter("rpmap", I18N.getText("file.ext.rpmap"));
 	private final FileFilter propertiesFilter = new MTFileFilter("mtprops", I18N.getText("file.ext.mtprops"));
-
-	// Macro import/export support
 	private final FileFilter macroFilter = new MTFileFilter("mtmacro", I18N.getText("file.ext.mtmacro"));
 	private final FileFilter macroSetFilter = new MTFileFilter("mtmacset", I18N.getText("file.ext.mtmacset"));
-
-	// Table import/export support
 	private final FileFilter tableFilter = new MTFileFilter("mttable", I18N.getText("file.ext.mttable"));
 
 	private EditTokenDialog tokenPropertiesDialog;
@@ -299,7 +283,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		} catch (IOException ioe) {
 			System.err.println(I18N.getText("msg.error.loadingIconImage"));
 		}
-
 		// Notify duration
 		initializeNotifyDuration();
 
@@ -308,12 +291,10 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		assetPanel = createAssetPanel();
 		connectionPanel = createConnectionPanel();
 		toolbox = new Toolbox();
-
 		initiativePanel = createInitiativePanel();
 
 		zoneRendererList = new CopyOnWriteArrayList<ZoneRenderer>();
 		pointerOverlay = new PointerOverlay();
-
 		colorPicker = new ColorPicker(this);
 		textureChooserPanel = new TextureChooserPanel(colorPicker.getPaintChooser(), assetPanel.getModel(), "imageExplorerTextureChooser");
 		colorPicker.getPaintChooser().addPaintChooser(textureChooserPanel);
@@ -327,7 +308,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			credits = credits.replace("%VERSION%", version);
 			logo = ImageUtil.getImage(MAPTOOL_LOGO_IMAGE);
 		} catch (Exception ioe) {
-			System.err.println(I18N.getText("msg.error.credits"));
+			log.error(I18N.getText("msg.error.credits"), ioe);
+			ioe.printStackTrace();
 		}
 		aboutDialog = new AboutDialog(this, logo, credits);
 		aboutDialog.setSize(354, 400);
@@ -346,9 +328,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 		zoneRendererPanel = new JPanel(new PositionalLayout(5));
 		zoneRendererPanel.setBackground(Color.black);
-		// zoneRendererPanel.add(zoneMiniMapPanel,
-		// PositionalLayout.Position.SE);
-		//zoneRendererPanel.add(getChatTypingLabel(), PositionalLayout.Position.NW);
+//		zoneRendererPanel.add(zoneMiniMapPanel, PositionalLayout.Position.SE);
+//		zoneRendererPanel.add(getChatTypingLabel(), PositionalLayout.Position.NW);
 		zoneRendererPanel.add(getChatTypingPanel(), PositionalLayout.Position.NW);
 		zoneRendererPanel.add(getChatActionLabel(), PositionalLayout.Position.SW);
 
@@ -400,7 +381,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		chatTyperTimers.addObserver(chatTyperObserver);
 		chatTimer = getChatTimer();
 		setChatTypingLabelColor(AppPreferences.getChatNotificationColor());
-
 	}
 
 	public ChatNotificationTimers getChatNotificationTimers() {
@@ -485,7 +465,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	}
 
 	private void configureDocking() {
-
 		initializeFrames();
 
 		getDockingManager().setProfileKey(DOCKING_PROFILE_NAME);
@@ -512,14 +491,11 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		try {
 			getDockingManager().loadInitialLayout(MapToolFrame.class.getClassLoader().getResourceAsStream(INITIAL_LAYOUT_XML));
 		} catch (ParserConfigurationException e) {
-			MapTool.showError("msg.error.layoutParse");
-			e.printStackTrace();
+			MapTool.showError("msg.error.layoutParse", e);
 		} catch (SAXException s) {
-			MapTool.showError("msg.error.layoutParse");
-			s.printStackTrace();
+			MapTool.showError("msg.error.layoutParse", s);
 		} catch (IOException e) {
-			MapTool.showError("msg.error.layoutParse");
-			e.printStackTrace();
+			MapTool.showError("msg.error.layoutParse", e);
 		}
 		getDockingManager().loadLayoutDataFromFile(AppUtil.getAppHome("config").getAbsolutePath() + "/layout.dat");
 	}
@@ -544,7 +520,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		frameMap.put(MTFrame.CAMPAIGN, createDockingFrame(MTFrame.CAMPAIGN, campaign, new ImageIcon(AppStyle.campaignPanelImage)));
 		frameMap.put(MTFrame.SELECTION, createDockingFrame(MTFrame.SELECTION, selection, new ImageIcon(AppStyle.selectionPanelImage)));
 		frameMap.put(MTFrame.IMPERSONATED, createDockingFrame(MTFrame.IMPERSONATED, impersonate, new ImageIcon(AppStyle.impersonatePanelImage)));
-
 	}
 
 	private JScrollPane scrollPaneFactory(JPanel panel) {
@@ -557,7 +532,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		DockableFrame frame = new DockableFrame(mtFrame.name(), icon);
 		frame.add(component);
 		frame.addDockableFrameListener(new MapToolDockListener());
-
 		return frame;
 	}
 
@@ -640,7 +614,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			loadPropsFileChooser.addChoosableFileFilter(propertiesFilter);
 			loadPropsFileChooser.setDialogTitle(I18N.getText("msg.title.importProperties"));
 		}
-
 		loadPropsFileChooser.setFileFilter(propertiesFilter);
 		return loadPropsFileChooser;
 	}
@@ -684,29 +657,24 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	}
 
 	public void showControlPanel(JPanel... panels) {
-
 		JPanel layoutPanel = new JPanel(new GridBagLayout());
 		layoutPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 
 		int i = 0;
 		for (JPanel panel : panels) {
-
 			GridBagConstraints gbc = new GridBagConstraints();
 			gbc.gridx = 1;
 			gbc.gridy = i;
 			gbc.weightx = 1;
 			gbc.fill = GridBagConstraints.BOTH;
-
 			layoutPanel.add(panel, gbc);
 			i++;
 		}
 		layoutPanel.setSize(layoutPanel.getPreferredSize());
-
 		zoneRendererPanel.add(layoutPanel, PositionalLayout.Position.NE);
 		zoneRendererPanel.setComponentZOrder(layoutPanel, 0);
 		zoneRendererPanel.revalidate();
 		zoneRendererPanel.repaint();
-
 		visibleControlPanel = layoutPanel;
 	}
 
@@ -726,11 +694,9 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	public void hideControlPanel() {
 		if (visibleControlPanel != null) {
-
 			if (zoneRendererPanel != null) {
 				zoneRendererPanel.remove(visibleControlPanel);
 			}
-
 			visibleControlPanel = null;
 			refresh();
 		}
@@ -747,7 +713,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private void showGlassPane(JComponent component, int x, int y, boolean modal) {
 		component.setSize(component.getPreferredSize());
 		component.setLocation(x, y);
-
 		glassPane.setLayout(null);
 		glassPane.add(component);
 		glassPane.setModel(modal);
@@ -860,11 +825,9 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 				if (path == null) {
 					return;
 				}
-
 				Object row = path.getLastPathComponent();
 				int rowIndex = tree.getRowForLocation(e.getX(), e.getY());
 				if (SwingUtilities.isLeftMouseButton(e)) {
-
 					if (!SwingUtil.isShiftDown(e)) {
 						tree.clearSelection();
 					}
@@ -885,27 +848,22 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 					}
 				}
 				if (SwingUtilities.isRightMouseButton(e)) {
-
 					if (!isRowSelected(tree.getSelectionRows(), rowIndex) && !SwingUtil.isShiftDown(e)) {
 						tree.clearSelection();
 						tree.addSelectionInterval(rowIndex, rowIndex);
 					}
-
 					final int x = e.getX();
 					final int y = e.getY();
 					EventQueue.invokeLater(new Runnable() {
 						public void run() {
-
 							Token firstToken = null;
 							Set<GUID> selectedTokenSet = new HashSet<GUID>();
 							for (TreePath path : tree.getSelectionPaths()) {
-
 								if (path.getLastPathComponent() instanceof Token) {
 									Token token = (Token) path.getLastPathComponent();
 									if (firstToken == null) {
 										firstToken = token;
 									}
-
 									if (AppUtil.playerOwns(token)) {
 										selectedTokenSet.add(token.getId());
 									}
@@ -927,13 +885,11 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 				}
 			}
 		});
-
 		MapTool.getEventDispatcher().addListener(new AppEventListener() {
 			public void handleAppEvent(AppEvent event) {
 				tokenPanelTreeModel.setZone((Zone) event.getNewValue());
 			}
 		}, MapTool.ZoneEvent.Activated);
-
 		return tree;
 	}
 
@@ -956,7 +912,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		if (selectedRows == null) {
 			return false;
 		}
-
 		for (int selectedRow : selectedRows) {
 			if (row == selectedRow) {
 				return true;
@@ -966,8 +921,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	}
 
 	private ClientConnectionPanel createConnectionPanel() {
-		final ClientConnectionPanel panel = new ClientConnectionPanel();
-
+		ClientConnectionPanel panel = new ClientConnectionPanel();
 		return panel;
 	}
 
@@ -1000,13 +954,11 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 						}
 					}
 				}
-
 				if (SwingUtilities.isRightMouseButton(e) && MapTool.getPlayer().isGM()) {
 					List<Object> idList = panel.getSelectedIds();
 					if (idList == null || idList.size() == 0) {
 						return;
 					}
-
 					final int index = (Integer) idList.get(0);
 
 					JPopupMenu menu = new JPopupMenu();
@@ -1016,17 +968,14 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 						}
 
 						public void actionPerformed(ActionEvent e) {
-
 							createZone(panel.getAsset(index));
 						}
 					}));
-
 					panel.showImagePanelPopup(menu, e.getX(), e.getY());
 				}
 			}
 
 			private void createZone(Asset asset) {
-
 				Zone zone = ZoneFactory.createZone();
 				zone.setName(asset.getName());
 				BufferedImage image = ImageManager.getImageAndWait(asset.getId());
@@ -1038,7 +987,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 				}
 				MapPropertiesDialog newMapDialog = new MapPropertiesDialog(MapTool.getFrame());
 				newMapDialog.setZone(zone);
-
 				newMapDialog.setVisible(true);
 
 				if (newMapDialog.getStatus() == MapPropertiesDialog.Status.OK) {
@@ -1112,9 +1060,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	public void addAssetRoot(File rootDir) {
 		assetPanel.addAssetRoot(new AssetDirectory(rootDir, AppConstants.IMAGE_FILE_FILTER));
-		// if (mainSplitPane.isLeftHidden()) {
-		// mainSplitPane.showLeft();
-		// }
 	}
 
 	public Pen getPen() {
@@ -1141,7 +1086,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	public void removeZoneRenderer(ZoneRenderer renderer) {
 		boolean isCurrent = renderer == getCurrentZoneRenderer();
-
 		zoneRendererList.remove(renderer);
 		if (isCurrent) {
 			boolean rendererSet = false;
@@ -1156,7 +1100,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 				setCurrentZoneRenderer(null);
 			}
 		}
-
 		zoneMiniMapPanel.flush();
 		zoneMiniMapPanel.repaint();
 	}
@@ -1175,7 +1118,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			ImageManager.flush();
 //			zoneRendererList.remove(currentRenderer);
 		}
-
 		// Handle new renderers
 		// TODO: should this be here ?
 		if (renderer != null && !zoneRendererList.contains(renderer)) {
@@ -1258,8 +1200,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	public void showFullScreen() {
 		GraphicsConfiguration graphicsConfig = getGraphicsConfiguration();
-		GraphicsDevice device = graphicsConfig.getDevice();
-
 		Rectangle bounds = graphicsConfig.getBounds();
 
 		fullScreenFrame = new FullScreenFrame();
@@ -1272,14 +1212,12 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		} else {
 			fullScreenFrame.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
 		}
-
 		fullScreenFrame.setJMenuBar(menuBar);
 		// Menu bar is visible anyways on MAC so leave menu items on it
 		if (!MapTool.MAC_OS_X)
 			menuBar.setVisible(false);
 
 		fullScreenFrame.setVisible(true);
-
 		this.setVisible(false);
 	}
 
@@ -1291,22 +1229,18 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		if (fullScreenFrame == null) {
 			return;
 		}
-
 		rendererBorderPanel.add(zoneRendererPanel);
 		setJMenuBar(menuBar);
 		menuBar.setVisible(true);
 		this.setVisible(true);
 
 		fullScreenFrame.dispose();
-
 		fullScreenFrame = null;
 	}
 
 	public class FullScreenFrame extends JFrame {
-
 		public FullScreenFrame() {
 			setUndecorated(true);
-
 		}
 	}
 
@@ -1315,35 +1249,28 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		if (evt.getId() != MapTool.ZoneEvent.Activated) {
 			return;
 		}
-
 		final Zone zone = (Zone) evt.getNewValue();
-		AssetAvailableListener listener = new AssetAvailableListener() {
-			public void assetAvailable(net.rptools.lib.MD5Key key) {
-				ZoneRenderer renderer = getCurrentZoneRenderer();
-				if (renderer.getZone() == zone) {
-					ImageManager.getImage(key, renderer);
-				}
-			}
-		};
-
+//		AssetAvailableListener listener = new AssetAvailableListener() {
+//			public void assetAvailable(net.rptools.lib.MD5Key key) {
+//				ZoneRenderer renderer = getCurrentZoneRenderer();
+//				if (renderer.getZone() == zone) {
+//					ImageManager.getImage(key, renderer);
+//				}
+//			}
+//		};
 		// Let's add all the assets, starting with the backgrounds
 		for (Token token : zone.getBackgroundStamps()) {
 			MD5Key key = token.getImageAssetId();
-
 			ImageManager.getImage(key);
 		}
-
 		// Now the stamps
 		for (Token token : zone.getStampTokens()) {
 			MD5Key key = token.getImageAssetId();
-
 			ImageManager.getImage(key);
 		}
-
 		// Now add the rest
 		for (Token token : zone.getAllTokens()) {
 			MD5Key key = token.getImageAssetId();
-
 			ImageManager.getImage(key);
 		}
 	}
@@ -1353,11 +1280,9 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	}
 
 	public void windowClosing(WindowEvent e) {
-
 		if (!confirmClose()) {
 			return;
 		}
-
 		closingMaintenance();
 	}
 
@@ -1373,12 +1298,12 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	public void closingMaintenance() {
 		if (AppPreferences.getSaveReminder()) {
 			if (MapTool.getPlayer().isGM()) {
-				int result = JOptionPane.showConfirmDialog(MapTool.getFrame(), I18N.getText("msg.confirm.saveCampaign"), I18N.getText("msg.title.saveCampaign"), JOptionPane.YES_NO_CANCEL_OPTION);
+				int result = MapTool.confirmImpl(I18N.getText("msg.title.saveCampaign"), JOptionPane.YES_NO_CANCEL_OPTION, I18N.getText("msg.confirm.saveCampaign"), (Object[]) null);
+//				int result = JOptionPane.showConfirmDialog(MapTool.getFrame(), I18N.getText("msg.confirm.saveCampaign"), I18N.getText("msg.title.saveCampaign"), JOptionPane.YES_NO_CANCEL_OPTION);
 
 				if (result == JOptionPane.CANCEL_OPTION || result == JOptionPane.CLOSED_OPTION) {
 					return;
 				}
-
 				if (result == JOptionPane.YES_OPTION) {
 					AppActions.SAVE_CAMPAIGN.actionPerformed(new ActionEvent(this, 0, "close"));
 					return;
@@ -1389,12 +1314,10 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 				}
 			}
 		}
-
 		close();
 	}
 
 	public void close() {
-
 		ServerDisconnectHandler.disconnectExpected = true;
 		MapTool.disconnect();
 
@@ -1402,7 +1325,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 		// If closing cleanly, remove the autosave file
 		MapTool.getAutoSaveManager().purge();
-
 		setVisible(false);
 
 		EventQueue.invokeLater(new Runnable() {
@@ -1429,7 +1351,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	}
 
 	// Windows OS defaults F10 to the menu bar, noooooo!! We want for macro buttons.
-	// XXX Doesn't work for Mac OSX. Shouldn't this keystroke be configurable via the properties file?
+	// XXX Shouldn't this keystroke be configurable via the properties file anyway?
+	// XXX Doesn't work for Mac OSX and isn't called in that case.
 	private void removeWindowsF10() {
 		InputMap imap = menuBar.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
 		Object action = imap.get(KeyStroke.getKeyStroke("F10"));
@@ -1493,7 +1416,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 				}
 			}
 		}
-
 		for (KeyStroke keyStroke : keyStrokeMap.keySet()) {
 			final MacroButton button = keyStrokeMap.get(keyStroke);
 			c.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, button);
@@ -1525,12 +1447,10 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	// currently only used after loading a campaign
 	public void resetPanels() {
 		MacroButtonHotKeyManager.clearKeyStrokes();
-
 		campaignPanel.reset();
 		globalPanel.reset();
 		impersonatePanel.reset();
 		selectionPanel.reset();
-
 		updateKeyStrokes();
 	}
 
@@ -1576,7 +1496,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			loadMacroFileChooser.addChoosableFileFilter(macroFilter);
 			loadMacroFileChooser.setDialogTitle(I18N.getText("msg.title.importMacro"));
 		}
-
 		loadMacroFileChooser.setFileFilter(macroFilter);
 		return loadMacroFileChooser;
 	}
@@ -1588,7 +1507,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			loadMacroSetFileChooser.addChoosableFileFilter(macroSetFilter);
 			loadMacroSetFileChooser.setDialogTitle(I18N.getText("msg.title.importMacroSet"));
 		}
-
 		loadMacroSetFileChooser.setFileFilter(macroSetFilter);
 		return loadMacroSetFileChooser;
 	}
@@ -1596,6 +1514,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	// end of Macro import/export support
 
 	private JFileChooser saveTableFileChooser;
+	private JFileChooser loadTableFileChooser;
 
 	public JFileChooser getSaveTableFileChooser() {
 		if (saveTableFileChooser == null) {
@@ -1608,8 +1527,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		return saveTableFileChooser;
 	}
 
-	private JFileChooser loadTableFileChooser;
-
+	// Should the load FileChooser really be different from the save?  That means recording two separate default directories
+	// and when a user loads a file, don't they expect the save dialog to start at the same place??
 	public JFileChooser getLoadTableFileChooser() {
 		if (loadTableFileChooser == null) {
 			loadTableFileChooser = new JFileChooser();
@@ -1617,7 +1536,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			loadTableFileChooser.addChoosableFileFilter(tableFilter);
 			loadTableFileChooser.setDialogTitle("Import Table");
 		}
-
 		loadTableFileChooser.setFileFilter(tableFilter);
 		return loadTableFileChooser;
 	}
@@ -1626,7 +1544,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	@SuppressWarnings("serial")
 	private static class MTButtonHotKeyAction extends AbstractAction {
-
 		private final MacroButton macroButton;
 
 		public MTButtonHotKeyAction(MacroButton button) {
@@ -1642,6 +1559,5 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 				macroButton.getProperties().executeMacro();
 			}
 		}
-
 	}
 }

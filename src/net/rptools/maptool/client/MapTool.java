@@ -157,14 +157,11 @@ public class MapTool {
 	private static final Dimension THUMBNAIL_SIZE = new Dimension(100, 100);
 
 	private static ThumbnailManager thumbnailManager;
-
 	private static String version;
-
 	private static Campaign campaign;
 
 	private static ObservableList<Player> playerList;
 	private static ObservableList<TextMessage> messageList;
-
 	private static Player player;
 
 	private static ClientConnection conn;
@@ -177,22 +174,14 @@ public class MapTool {
 	private static ServerPolicy serverPolicy;
 
 	private static BackupManager backupManager;
-
 	private static AssetTransferManager assetTransferManager;
-
 	private static ServiceAnnouncer announcer;
-
 	private static AutoSaveManager autoSaveManager;
-
 	private static SoundManager soundManager;
 	private static TaskBarFlasher taskbarFlasher;
-
 	private static EventDispatcher eventDispatcher;
-
 	private static AppConfiguration configuration;
-
 	private static MapToolLineParser parser = new MapToolLineParser();
-
 	private static String lastWhisperer;
 
 	/**
@@ -374,10 +363,29 @@ public class MapTool {
 	 * @return <code>true</code> if the user clicks the OK button, <code>false</code> otherwise
 	 */
 	public static boolean confirm(String message, Object... params) {
+//		String msg = I18N.getText(message, params);
+//		log.debug(message);
+		String title = I18N.getText("msg.title.messageDialogConfirm");
+//		return JOptionPane.showConfirmDialog(clientFrame, msg, title, JOptionPane.OK_OPTION) == JOptionPane.OK_OPTION;
+		return confirmImpl(title, JOptionPane.OK_OPTION, message, params) == JOptionPane.OK_OPTION;
+	}
+
+	/**
+	 * Displays a confirmation dialog that uses the message as a key to the properties file, and the additional values
+	 * as parameters to the formatting of the key lookup.
+	 * 
+	 * @param title
+	 * @param buttons
+	 * @param message
+	 *            key from the properties file (preferred) or hard-coded string to display
+	 * @param params
+	 *            optional arguments for the formatting of the property value
+	 * @return <code>true</code> if the user clicks the OK button, <code>false</code> otherwise
+	 */
+	public static int confirmImpl(String title, int buttons, String message, Object... params) {
 		String msg = I18N.getText(message, params);
 		log.debug(message);
-		String title = I18N.getText("msg.title.messageDialogConfirm");
-		return JOptionPane.showConfirmDialog(clientFrame, msg, title, JOptionPane.OK_OPTION) == JOptionPane.OK_OPTION;
+		return JOptionPane.showConfirmDialog(clientFrame, msg, title, buttons);
 	}
 
 	/**
