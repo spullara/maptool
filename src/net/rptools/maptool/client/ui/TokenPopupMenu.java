@@ -198,12 +198,13 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		//menu.add(new AddGlobalExposedAreaAction());
 		menu.add(new AddPartyExposedAreaAction());
 
-		if (getRenderer().getZone().getTokens() != null && getRenderer().getZone().getTokens().size() != 0) {
+		Zone zone = getRenderer().getZone();
+		List<Token> tokens = zone.getTokens();
+		if (tokens != null && !tokens.isEmpty()) {
 			String tokenViewMenu = I18N.getText("token.popup.menu.fow.tokens");
 			JMenu subMenu = new JMenu(tokenViewMenu);
 			int subItemCount = 0;
-			Zone zone = getRenderer().getZone();
-			for (Token tok : zone.getTokens()) {
+			for (Token tok : tokens) {
 				if (tok.getHasSight() && tok.isVisible()) {
 					ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tok.getExposedAreaGUID());
 					if (!meta.getExposedAreaHistory().isEmpty()) {
@@ -218,7 +219,6 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		}
 		menu.addSeparator();
 		menu.add(new ClearSelectedExposedAreaAction());
-
 		return menu;
 	}
 
@@ -251,8 +251,8 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	}
 
 	/**
-	 * If this object is supposed to merge all exposed areas together and apply that to the currently selected tokens,
-	 * why is it using a nested loop? Should one loop be used to create the exposed area object, then a second
+	 * XXX If this object is supposed to merge all exposed areas together and apply that to the currently selected
+	 * tokens, why is it using a nested loop? Should one loop be used to create the exposed area object, then a second
 	 * (non-nested) loop be used to modify the exposed area of all selected tokens?
 	 */
 	private class AddPartyExposedAreaAction extends AbstractAction {
@@ -263,20 +263,30 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			Zone zone = getRenderer().getZone();
+			ZoneRenderer renderer = getRenderer();
+			Zone zone = renderer.getZone();
+
+			// This is ALL tokens; perhaps it should be owned tokens?  Or just PC tokens?  Or only those with HasSight?
+			// Or can players not use this feature at all so the above don't matter?
 			List<Token> allToks = zone.getTokens();
+
+			// First create an Area that includes the exposed areas of all tokens
+			Area tokenArea = new Area();
 			for (Token tokenSource : allToks) {
 				ExposedAreaMetaData sourceMeta = zone.getExposedAreaMetaData(tokenSource.getExposedAreaGUID());
-				for (GUID tok : selectedTokenSet) {
-					Token token = zone.getToken(tok);
-					ExposedAreaMetaData meta = zone.getExposedAreaMetaData(token.getExposedAreaGUID());
-					meta.addToExposedAreaHistory(sourceMeta.getExposedAreaHistory());
-					getRenderer().flush(token);
-					zone.setExposedAreaMetaData(token.getExposedAreaGUID(), meta);
-					MapTool.serverCommand().updateExposedAreaMeta(zone.getId(), token.getExposedAreaGUID(), meta);
-				}
+				tokenArea.add(sourceMeta.getExposedAreaHistory());
 			}
-			getRenderer().repaint();
+			// Now go back and add that Area to all selected tokens
+			for (GUID tok : selectedTokenSet) {
+				Token token = zone.getToken(tok);
+				GUID tGUID = token.getExposedAreaGUID();
+				ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tGUID);
+				meta.addToExposedAreaHistory(tokenArea);
+				renderer.flush(token);
+				zone.setExposedAreaMetaData(tGUID, meta);
+				MapTool.serverCommand().updateExposedAreaMeta(zone.getId(), tGUID, meta);
+			}
+			renderer.repaint();
 		}
 	}
 
