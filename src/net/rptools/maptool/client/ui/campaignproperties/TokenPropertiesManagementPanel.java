@@ -220,7 +220,7 @@ public class TokenPropertiesManagementPanel extends AbeillePanel<CampaignPropert
 
 	/**
 	 * Given a string (normally from the JTextArea which holds the properties for a Property Type)
-	 * this method converts those lines into a List of TokenProperty objects.  It checks for
+	 * this method converts those lines into a List of EditTokenProperty objects.  It checks for
 	 * duplicates along the way, ignoring any it finds.  (Should produce a list of warnings to
 	 * indicate which ones are duplicates.  See the Light/Sight code for examples.)
 	 *

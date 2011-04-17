@@ -90,6 +90,8 @@ import com.jidesoft.swing.Selectable;
  * This dialog is used to display all of the token states and notes to the user.
  */
 public class EditTokenDialog extends AbeillePanel<Token> {
+	private static final long serialVersionUID = 1295729281890170792L;
+
 	private boolean tokenSaved;
 	private GenericDialog dialog;
 	private ImageAssetPanel imagePanel;
@@ -122,10 +124,11 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 
 	public void showDialog(Token token) {
 		dialog = new GenericDialog(I18N.getString("EditTokenDialog.msg.title"), MapTool.getFrame(), this) {
+			private static final long serialVersionUID = 5439449816096482201L;
+
 			@Override
 			public void closeDialog() {
-				// TODO: I don't like this. There should really be a
-				// AbeilleDialog class that does this
+				// TODO: I don't like this. There should really be a AbeilleDialog class that does this
 				unbind();
 				super.closeDialog();
 			}
@@ -278,14 +281,12 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 	public void initTokenIconPanel() {
 		getTokenIconPanel().setPreferredSize(new Dimension(100, 100));
 		getTokenIconPanel().setMinimumSize(new Dimension(100, 100));
-
 	}
 
 	public ImageAssetPanel getTokenIconPanel() {
 		if (imagePanel == null) {
 			imagePanel = new ImageAssetPanel();
 			imagePanel.setAllowEmptyImage(false);
-
 			replaceComponent("mainPanel", "tokenImage", imagePanel);
 		}
 		return imagePanel;
@@ -377,27 +378,22 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 			MapTool.showError("msg.error.emptyTokenName");
 			return false;
 		}
-
 		if (getSpeechTable().isEditing()) {
 			getSpeechTable().getCellEditor().stopCellEditing();
 		}
-
 		if (getPropertyTable().isEditing()) {
 			getPropertyTable().getCellEditor().stopCellEditing();
 		}
-
 		// Commit the changes to the token properties
 		if (!super.commit()) {
 			return false;
 		}
-
 		// SIZE
 		token.setSnapToScale(getSizeCombo().getSelectedIndex() != 0);
 		if (getSizeCombo().getSelectedIndex() > 0) {
 			Grid grid = MapTool.getFrame().getCurrentZoneRenderer().getZone().getGrid();
 			token.setFootprint(grid, (TokenFootprint) getSizeCombo().getSelectedItem());
 		}
-
 		// Other
 		token.setPropertyType((String) getPropertyTypeCombo().getSelectedItem());
 		token.setSightType((String) getSightTypeCombo().getSelectedItem());
@@ -429,12 +425,9 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 				bar.setValue((int) (TokenBarFunction.getBigDecimalValue(token.getState(bar.getName())).doubleValue() * 100));
 			}
 		}
-
 		// Ownership
-		// If the token is owned by all and we are a player don't alter the
-		// ownership list.
+		// If the token is owned by all and we are a player don't alter the ownership list.
 		if (MapTool.getPlayer().isGM() || !token.isOwnedByAll()) {
-
 			token.clearAllOwners();
 
 			for (int i = 0; i < getOwnerList().getModel().getSize(); i++) {
@@ -443,7 +436,6 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 					token.addOwner((String) selectable.getObject());
 				}
 			}
-
 			// If we are not a GM and the only non GM owner make sure we can't
 			// take our selves off of the owners list
 			if (!MapTool.getPlayer().isGM()) {
@@ -486,7 +478,6 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 			token.setWidth(image.getWidth(null));
 			token.setHeight(image.getHeight(null));
 		}
-
 		// PORTRAIT
 		if (getPortraitPanel().getImageId() != null) {
 			// Make sure the server has the image
@@ -503,10 +494,10 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		// OTHER
 		tokenSaved = true;
 
-		// // Character Sheet
-		// Map<String, Object> properties = controller.getData();
-		// for (String prop : token.getPropertyNames())
-		// token.setProperty(prop, properties.get(prop));
+		// Character Sheet
+//		Map<String, Object> properties = controller.getData();
+//		for (String prop : token.getPropertyNames())
+//			token.setProperty(prop, properties.get(prop));
 
 		// Update UI
 		MapTool.getFrame().updateTokenTree();
@@ -552,7 +543,6 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 				}
 			}
 		}
-
 		// Add the group panels and bar panel to the states panel
 		JPanel panel = getStatesPanel();
 		panel.removeAll();
@@ -586,7 +576,6 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 			}
 			panel.add(new JCheckBox(state.getName()), new CellConstraints(x * 2 + 1, y * 2 + 1));
 		}
-
 		// Add sliders to the bar panel
 		if (MapTool.getCampaign().getTokenBarsMap().size() > 0) {
 			layout = (FormLayout) barPanel.getLayout();
@@ -627,7 +616,6 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 				count += 1;
 			}
 		}
-
 	}
 
 	public JPanel getStatesPanel() {
@@ -744,72 +732,33 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		replaceComponent("propertiesPanel", "propertiesTable", pane);
 	}
 
-	// /**
-	// * Set the currently displayed token.
-	// *
-	// * @param aToken
-	// * The token to be displayed
-	// */
-	// public void setToken(Token aToken) {
-	//
-	// if (aToken == token)
-	// return;
-	// if (token != null) {
-	// token.removeModelChangeListener(this);
-	// }
-	//
-	// token = aToken;
-	//
-	// if (token != null) {
-	// token.addModelChangeListener(this);
-	//
-	// List<String> typeList = new ArrayList<String>();
-	// typeList.addAll(MapTool.getCampaign().getTokenTypes());
-	// Collections.sort(typeList);
-	// getPropertyTypeCombo().setModel(new
-	// DefaultComboBoxModel(typeList.toArray()));
-	//
-	// setFields();
-	// updateView();
-	// }
-	//
-	// getTabbedPane().setSelectedIndex(0);
-	// }
-
-	// private void updateView() {
-	//
-	// Player player = MapTool.getPlayer();
-	//
-	// boolean isEnabled = player.isGM() || token.isOwner(player.getName());
-	//
-	// getTabbedPane().setEnabledAt(INDX_PROPERTIES, isEnabled);
-	// getTabbedPane().setEnabledAt(INDX_STATE, isEnabled);
-	// getTabbedPane().setEnabledAt(INDX_SPEECH, isEnabled);
-	// getTabbedPane().setEnabledAt(INDX_OWNERSHIP, isEnabled);
-	// getTabbedPane().setEnabledAt(INDX_CONFIG, isEnabled);
-	//
-	// // Set the editable & enabled state
-	// boolean editable = player.isGM() ||
-	// !MapTool.getServerPolicy().useStrictTokenManagement() ||
-	// token.isOwner(player.getName());
-	// getOKButton().setEnabled(editable);
-	//
-	// getNotesTextArea().setEditable(editable);
-	// getNameTextField().setEditable(editable);
-	// getShapeCombo().setEnabled(editable);
-	// getSizeCombo().setEnabled(editable);
-	// getSnapToGridCheckBox().setEnabled(editable);
-	// getVisibleCheckBox().setEnabled(editable);
-	// getTypeCombo().setSelectedItem(token.getType());
-	//
-	// getGMNotesPanel().setVisible(player.isGM());
-	// getGMNameTextField().setVisible(player.isGM());
-	// getGMNameLabel().setVisible(player.isGM());
-	// getTypeCombo().setEnabled(player.isGM());
-	// getVisibleCheckBox().setVisible(player.isGM());
-	// getVisibleLabel().setVisible(player.isGM());
-	//
-	// }
+//	/**
+//	 * Set the currently displayed token.
+//	 * 
+//	 * @param aToken
+//	 *            The token to be displayed
+//	 */
+//	public void setToken(Token aToken) {
+//		if (aToken == token)
+//			return;
+//		if (token != null) {
+//			token.removeModelChangeListener(this);
+//		}
+//		token = aToken;
+//
+//		if (token != null) {
+//			token.addModelChangeListener(this);
+//
+//			List<String> typeList = new ArrayList<String>();
+//			typeList.addAll(MapTool.getCampaign().getTokenTypes());
+//			Collections.sort(typeList);
+//			getPropertyTypeCombo().setModel(new DefaultComboBoxModel(typeList.toArray()));
+//
+//			setFields();
+//			updateView();
+//		}
+//		getTabbedPane().setSelectedIndex(0);
+//	}
 
 	/** @return Getter for tokenSaved */
 	public boolean isTokenSaved() {
@@ -868,7 +817,9 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 
 	// //
 	// MODELS
-	private class TokenPropertyTableModel extends AbstractPropertyTableModel {
+	private class TokenPropertyTableModel extends AbstractPropertyTableModel<net.rptools.maptool.client.ui.token.EditTokenDialog.TokenPropertyTableModel.EditTokenProperty> {
+		private static final long serialVersionUID = 2822797264738675580L;
+
 		private Map<String, String> propertyMap;
 		private List<net.rptools.maptool.model.TokenProperty> propertyList;
 
@@ -909,8 +860,8 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		}
 
 		@Override
-		public Property getProperty(int index) {
-			return new TokenProperty(getPropertyList().get(index).getName());
+		public EditTokenProperty getProperty(int index) {
+			return new EditTokenProperty(getPropertyList().get(index).getName());
 		}
 
 		@Override
@@ -918,10 +869,12 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 			return getPropertyList() != null ? getPropertyList().size() : 0;
 		}
 
-		private class TokenProperty extends Property {
+		class EditTokenProperty extends Property {
+			private static final long serialVersionUID = 4129033551005743554L;
+
 			private final String key;
 
-			public TokenProperty(String key) {
+			public EditTokenProperty(String key) {
 				super(key, key, String.class, (String) getPropertyTypeCombo().getSelectedItem());
 				this.key = key;
 			}
@@ -944,6 +897,8 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 	}
 
 	private class OwnerListModel extends AbstractListModel {
+		private static final long serialVersionUID = 2375600545516097234L;
+
 		List<Selectable> ownerList = new ArrayList<Selectable>();
 
 		public OwnerListModel() {
@@ -978,6 +933,8 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 	}
 
 	private static class SpeechTableModel extends KeyValueTableModel {
+		private static final long serialVersionUID = 1601750325218502846L;
+
 		public SpeechTableModel(Token token) {
 			List<Association<String, String>> rowList = new ArrayList<Association<String, String>>();
 			for (String speechName : token.getSpeechNames()) {
@@ -1008,6 +965,8 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 	}
 
 	private static class KeyValueTableModel extends AbstractTableModel {
+		private static final long serialVersionUID = -1006405977882120853L;
+
 		private Association<String, String> newRow = new Association<String, String>("", "");
 		private List<Association<String, String>> rowList;
 

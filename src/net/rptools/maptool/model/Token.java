@@ -1000,7 +1000,7 @@ public class Token extends BaseModel {
 
 //		// Short name ?
 //		if (value == null) {
-//			for (TokenProperty property : MapTool.getCampaign().getCampaignProperties().getTokenPropertyList(getPropertyType())) {
+//			for (EditTokenProperty property : MapTool.getCampaign().getCampaignProperties().getTokenPropertyList(getPropertyType())) {
 //				if (property.getShortName().equals(key)) {
 //					value = getPropertyMap().get(property.getShortName().toUpperCase());
 //				}

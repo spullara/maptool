@@ -38,13 +38,16 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.swing.AbeillePanel;
 import net.rptools.maptool.client.swing.ImageChooserDialog;
+import net.rptools.maptool.client.ui.lookuptable.EditLookupTablePanel.LookupTableTableModel;
 import net.rptools.maptool.client.ui.token.ImageAssetPanel;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.LookupTable.LookupEntry;
 
-public class EditLookupTablePanel extends AbeillePanel {
+public class EditLookupTablePanel extends AbeillePanel<LookupTableTableModel> {
+	private static final long serialVersionUID = 2341539768448195059L;
+
 	private LookupTable lookupTable;
 	private ImageAssetPanel tableImageAssetPanel;
 	private int defaultRowHeight;
@@ -54,7 +57,6 @@ public class EditLookupTablePanel extends AbeillePanel {
 
 	public EditLookupTablePanel() {
 		super("net/rptools/maptool/client/ui/forms/editLookupTablePanel.xml");
-
 		panelInit();
 	}
 
@@ -64,7 +66,6 @@ public class EditLookupTablePanel extends AbeillePanel {
 		getTableDefinitionTable().setDefaultRenderer(ImageAssetPanel.class, new ImageCellRenderer());
 		getTableDefinitionTable().setModel(createLookupTableModel(new LookupTable()));
 		getTableDefinitionTable().addMouseListener(new MouseAdapter() {
-
 			@Override
 			public void mousePressed(MouseEvent e) {
 				int column = getTableDefinitionTable().columnAtPoint(e.getPoint());
@@ -116,11 +117,9 @@ public class EditLookupTablePanel extends AbeillePanel {
 		replaceComponent("mainForm", "tableImage", tableImageAssetPanel);
 	}
 
-	public void attach(LookupTable lookupTable) {
-		newTable = lookupTable == null;
-
-		this.lookupTable = newTable ? new LookupTable() : lookupTable;
-
+	public void attach(LookupTable luTable) {
+		newTable = luTable == null;
+		lookupTable = newTable ? new LookupTable() : luTable;
 		accepted = false;
 
 		getTableNameTextField().setText(this.lookupTable.getName());
@@ -209,12 +208,12 @@ public class EditLookupTablePanel extends AbeillePanel {
 				lookupTable.clearEntries();
 				for (int i = 0; i < tableModel.getRowCount(); i++) {
 					String range = ((String) tableModel.getValueAt(i, 0)).trim();
-					String value = ((String) tableModel.getValueAt(i, 1)).trim();
-					String imageId = (String) tableModel.getValueAt(i, 2);
-
 					if (range.length() == 0) {
 						continue;
 					}
+					String value = ((String) tableModel.getValueAt(i, 1)).trim();
+					String imageId = (String) tableModel.getValueAt(i, 2);
+
 					int min = 0;
 					int max = 0;
 
@@ -279,13 +278,17 @@ public class EditLookupTablePanel extends AbeillePanel {
 	}
 
 	private class ImageCellRenderer extends ImageAssetPanel implements TableCellRenderer {
+		private static final long serialVersionUID = 183503471819640825L;
+
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 			setImageId(value != null && ((String) value).length() > 0 ? new MD5Key((String) value) : null, EditLookupTablePanel.this);
 			return this;
 		}
 	}
 
-	private static class LookupTableTableModel extends AbstractTableModel {
+	static class LookupTableTableModel extends AbstractTableModel {
+		private static final long serialVersionUID = -6310344745803084970L;
+
 		private List<String> newRow = new ArrayList<String>();
 		private final List<List<String>> rowList;
 		private final String[] cols;

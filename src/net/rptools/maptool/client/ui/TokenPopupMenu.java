@@ -67,6 +67,8 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 public class TokenPopupMenu extends AbstractTokenPopupMenu {
+	private static final long serialVersionUID = -622385975780832588L;
+
 	// TODO: This is temporary -- it should be changed to use {@link MapToolUtil#getColorNames()}
 	// @formatter:off
     private static final Object[][] COLOR_ARRAY = new Object[][] {
@@ -221,6 +223,8 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	}
 
 	private class AddTokensExposedAreaAction extends AbstractAction {
+		private static final long serialVersionUID = 8452765509474109699L;
+
 		private final GUID tokID;
 
 		public AddTokensExposedAreaAction(GUID theTokId) {
@@ -252,6 +256,8 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	 * (non-nested) loop be used to modify the exposed area of all selected tokens?
 	 */
 	private class AddPartyExposedAreaAction extends AbstractAction {
+		private static final long serialVersionUID = 3672180436608883849L;
+
 		public AddPartyExposedAreaAction() {
 			I18N.setAction("token.popup.menu.fow.party", this, true);
 		}
@@ -274,7 +280,10 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private class AddGlobalExposedAreaAction extends AbstractAction {
+		private static final long serialVersionUID = -3558008167872719635L;
+
 		public AddGlobalExposedAreaAction() {
 			I18N.setAction("token.popup.menu.fow.global", this, true);
 		}
@@ -295,6 +304,8 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	}
 
 	private class ClearSelectedExposedAreaAction extends AbstractAction {
+		private static final long serialVersionUID = 7969000504336361693L;
+
 		public ClearSelectedExposedAreaAction() {
 			I18N.setAction("token.popup.menu.fow.clearselected", this, true);
 		}
@@ -316,6 +327,8 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	}
 
 	private class ExposeVisibleAreaAction extends AbstractAction {
+		private static final long serialVersionUID = 1773049658219864418L;
+
 		public ExposeVisibleAreaAction() {
 			I18N.setAction("token.popup.menu.expose.visible", this, true);
 		}
@@ -327,6 +340,8 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	}
 
 	private class ExposeVisibleAreaOnlyAction extends AbstractAction {
+		private static final long serialVersionUID = 7889640443069061220L;
+
 		public ExposeVisibleAreaOnlyAction() {
 			I18N.setAction("token.popup.menu.expose.currentonly", this, true);
 		}
@@ -339,6 +354,8 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	}
 
 	private class ExposeLastPathAction extends AbstractAction {
+		private static final long serialVersionUID = 6840373835089920277L;
+
 		public ExposeLastPathAction() {
 			I18N.setAction("token.popup.menu.expose.lastpath", this, true);
 			setEnabled(getTokenUnderMouse().getLastPath() != null);
@@ -354,14 +371,15 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		return createColorAreaMenu("token.popup.menu.halo", getTokenUnderMouse().getHaloColor(), SetHaloAction.class, SetColorChooserAction.class);
 	}
 
-	private JMenu createColorAreaMenu(String title, Color selectedColor, Class standardColorActionClass, Class customColorActionClass) {
+	private JMenu createColorAreaMenu(String title, Color selectedColor, Class<SetHaloAction> standardColorActionClass, Class<SetColorChooserAction> customColorActionClass) {
 		JMenu haloMenu = new JMenu(I18N.getText(title));
 		try {
-			Constructor standardColorActionConstructor = standardColorActionClass.getConstructor(new Class[] { TokenPopupMenu.class, ZoneRenderer.class, Set.class, Color.class, String.class });
-			Constructor customColorActionConstructor = customColorActionClass.getConstructor(new Class[] { TokenPopupMenu.class, ZoneRenderer.class, Set.class, String.class });
+			Constructor<SetHaloAction> standardColorActionConstructor = standardColorActionClass.getConstructor(new Class[] { TokenPopupMenu.class, ZoneRenderer.class, Set.class, Color.class,
+					String.class });
+			Constructor<SetColorChooserAction> customColorActionConstructor = customColorActionClass.getConstructor(new Class[] { TokenPopupMenu.class, ZoneRenderer.class, Set.class, String.class });
 
-			JCheckBoxMenuItem noneMenu = new JCheckBoxMenuItem((Action) standardColorActionConstructor.newInstance(new Object[] { this, getRenderer(), selectedTokenSet, null, "None" }));
-			JCheckBoxMenuItem customMenu = new JCheckBoxMenuItem((Action) customColorActionConstructor.newInstance(new Object[] { this, getRenderer(), selectedTokenSet, "Custom" }));
+			JCheckBoxMenuItem noneMenu = new JCheckBoxMenuItem(standardColorActionConstructor.newInstance(new Object[] { this, getRenderer(), selectedTokenSet, null, "None" }));
+			JCheckBoxMenuItem customMenu = new JCheckBoxMenuItem(customColorActionConstructor.newInstance(new Object[] { this, getRenderer(), selectedTokenSet, "Custom" }));
 
 			if (selectedColor == null) {
 				noneMenu.setSelected(true);
@@ -377,7 +395,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 				Color bgColor = (Color) row[1];
 				Color fgColor = (Color) row[2];
 
-				JCheckBoxMenuItem item = new JCheckBoxMenuItem((Action) standardColorActionConstructor.newInstance(new Object[] { this, getRenderer(), selectedTokenSet, bgColor, name }));
+				JCheckBoxMenuItem item = new JCheckBoxMenuItem(standardColorActionConstructor.newInstance(new Object[] { this, getRenderer(), selectedTokenSet, bgColor, name }));
 				item.setBackground(bgColor);
 				item.setForeground(fgColor);
 
@@ -494,7 +512,10 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		show(component, x, y);
 	}
 
+	@SuppressWarnings("unused")
 	private static class PlayerOwnershipMenu extends JCheckBoxMenuItem implements ActionListener {
+		private static final long serialVersionUID = -6109869878632628827L;
+
 		private final Set<GUID> tokenSet;
 		private final Zone zone;
 		private final boolean selected;
@@ -510,6 +531,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 			addActionListener(this);
 		}
 
+		@SuppressWarnings("unchecked")
 		public void actionPerformed(ActionEvent e) {
 			for (GUID guid : tokenSet) {
 				Token token = zone.getToken(guid);
@@ -556,6 +578,8 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	}
 
 	private class SetHaloAction extends AbstractAction {
+		private static final long serialVersionUID = 936075111485618012L;
+
 		protected Color color;
 		protected Set<GUID> tokenSet;
 		protected ZoneRenderer renderer;
@@ -589,6 +613,8 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	}
 
 	private class SetColorChooserAction extends AbstractAction {
+		private static final long serialVersionUID = 2212977067043864272L;
+
 		protected Color currentColor;
 		protected Set<GUID> tokenSet;
 		protected ZoneRenderer renderer;
@@ -629,7 +655,10 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private class SetVisionOverlayColorChooserAction extends SetColorChooserAction {
+		private static final long serialVersionUID = 5809668032069953020L;
+
 		public SetVisionOverlayColorChooserAction(ZoneRenderer renderer, Set<GUID> tokenSet, String name) {
 			super(renderer, tokenSet, name);
 			this.currentColor = renderer.getZone().getToken(tokenSet.iterator().next()).getVisionOverlayColor();
@@ -646,8 +675,11 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private class SetVisionOverlayColorAction extends SetHaloAction {
-		public SetVisionOverlayColorAction(ZoneRenderer renderer, Set tokenSet, Color color, String name) {
+		private static final long serialVersionUID = 5116100872119403176L;
+
+		public SetVisionOverlayColorAction(ZoneRenderer renderer, Set<GUID> tokenSet, Color color, String name) {
 			super(renderer, tokenSet, color, name);
 		}
 
@@ -658,6 +690,8 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	}
 
 	private class ChangeBarAction extends AbstractAction {
+		private static final long serialVersionUID = 3992963841229973540L;
+
 		public ChangeBarAction(String bar) {
 			putValue(ACTION_COMMAND_KEY, bar);
 			putValue(NAME, bar);
@@ -710,6 +744,8 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	 * Internal class used to handle token state changes.
 	 */
 	private class ChangeStateAction extends AbstractAction {
+		private static final long serialVersionUID = 8403066587828844564L;
+
 		/**
 		 * Initialize a state action for a given state.
 		 * 
@@ -763,6 +799,8 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	}
 
 	private class ChangeInitiativeState extends AbstractAction {
+		private static final long serialVersionUID = -5968571073361988758L;
+
 		String name;
 
 		public ChangeInitiativeState(String aName) {
@@ -810,7 +848,10 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private class AllOwnershipAction extends AbstractAction {
+		private static final long serialVersionUID = -2995489619896660807L;
+
 		public void actionPerformed(ActionEvent e) {
 			Zone zone = getRenderer().getZone();
 
@@ -824,7 +865,10 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private class RemoveAllOwnershipAction extends AbstractAction {
+		private static final long serialVersionUID = -6767778461889310579L;
+
 		public void actionPerformed(ActionEvent e) {
 			Zone zone = getRenderer().getZone();
 
@@ -839,6 +883,8 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	}
 
 	private class ShowPathsAction extends AbstractAction {
+		private static final long serialVersionUID = 5704307506738212375L;
+
 		public ShowPathsAction() {
 			putValue(Action.NAME, "Show Path");
 		}
@@ -856,6 +902,8 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	}
 
 	private class RevertLastMoveAction extends AbstractAction {
+		private static final long serialVersionUID = 8967703198797674025L;
+
 		public RevertLastMoveAction() {
 			putValue(Action.NAME, "Revert Last Move");
 
@@ -879,7 +927,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 				if (token == null) {
 					continue;
 				}
-				Path path = token.getLastPath();
+				Path<?> path = token.getLastPath();
 				if (path == null) {
 					continue;
 				}
@@ -912,6 +960,8 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	}
 
 	public class RunMacroAction extends AbstractAction {
+		private static final long serialVersionUID = -5836981653612993828L;
+
 		private final MacroButtonProperties macro;
 
 		public RunMacroAction(String key, MacroButtonProperties macro) {
@@ -929,6 +979,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	}
 
 	public class SayAction extends AbstractAction {
+		private static final long serialVersionUID = -4560161692286043464L;
 		private final String speech;
 
 		public SayAction(String key, String speech) {

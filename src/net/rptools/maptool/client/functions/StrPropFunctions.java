@@ -518,10 +518,9 @@ public class StrPropFunctions extends AbstractFunction {
 
 	/** Checks number and types of parameters (pass null type to suppress typechecking for that slot). */
 	public void checkVaryingParameters(
-			String funcName, int minParams, int maxParams, List<Object> parameters, Class[] expected)
+			String funcName, int minParams, int maxParams, List<Object> parameters, Class<?>[] expected)
 	throws ParameterException {
 		if (parameters.size() < minParams || parameters.size() > maxParams) {
-			String msg;
 			if (minParams == maxParams) {
 				throw new ParameterException(I18N.getText("macro.function.strLst.incorrectParamExact", funcName, minParams));
 			} else {
@@ -539,6 +538,8 @@ public class StrPropFunctions extends AbstractFunction {
 		}
 	}
 }
+
+// @formatter:off
 
 /* Here is a test macro
 
@@ -713,3 +714,4 @@ They are [c(cnt, ", "): indexKeyStrProp(prop, roll.count-1) +" is "+ indexValueS
 <br>Eliminating {k} from [prop] yields [deleteStrProp(prop, k)]
 
  */
+// @formatter:on

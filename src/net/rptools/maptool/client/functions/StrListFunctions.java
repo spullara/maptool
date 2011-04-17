@@ -552,17 +552,15 @@ public class StrListFunctions extends AbstractFunction {
 
 	/** Checks number and types of parameters (pass null type to suppress typechecking for that slot). */
 	public void checkVaryingParameters(
-			String funcName, int minParams, int maxParams, List<Object> parameters, Class[] expected)
+			String funcName, int minParams, int maxParams, List<Object> parameters, Class<?>[] expected)
 	throws ParameterException {
 		if (parameters.size() < minParams || parameters.size() > maxParams) {
-			String msg;
 			if (minParams == maxParams) {
 				throw new ParameterException(I18N.getText("macro.function.strLst.incorrectParamExact", funcName, minParams));
 			} else {
 				throw new ParameterException(I18N.getText("macro.function.strLst.incorrectParam", funcName, minParams, maxParams));
 			}
 		}
-
 		int numToCheck = expected.length;
 		if (numToCheck > parameters.size()) numToCheck = parameters.size();
 
@@ -572,10 +570,12 @@ public class StrListFunctions extends AbstractFunction {
 						parameters.get(i), parameters.get(i).getClass().getSimpleName()));
 		}
 	}
-
 }
 
-/* Here is a test macro
+// @formatter:off
+
+/*
+Here is a test macro
 
 <b>Tests</b>
 [h: OK = "OK"] [h: Fail = "<font color=red><b>Fail</b></font>"]
@@ -711,7 +711,6 @@ public class StrListFunctions extends AbstractFunction {
 <br>replace 3 with "D" --> [listReplace(list, 3, "D", ";")]
 <br>replace 5 with "F" --> [listReplace(list, 5, "F", ";")]
 <br>replace 1 with "" --> [listReplace(list, 1, "", ";")]
-
  */
 
-
+// @formatter:on
