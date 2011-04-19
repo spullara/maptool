@@ -1085,14 +1085,14 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			}
 		});
 
-		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.CTRL_DOWN_MASK), new AbstractAction() {
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_I, AppActions.menuShortcut), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				if (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision()) {
 					FogUtil.exposeVisibleArea(renderer, renderer.getOwnedTokens(renderer.getSelectedTokenSet()));
 				}
 			}
 		});
-		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK), new AbstractAction() {
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, AppActions.menuShortcut | InputEvent.SHIFT_DOWN_MASK), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				//  Only let the GM's do this
 				if (MapTool.getPlayer().isGM()) {
@@ -1101,7 +1101,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				}
 			}
 		});
-		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK), new AbstractAction() {
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P, AppActions.menuShortcut), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				if (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision()) {
 					FogUtil.exposeLastPath(renderer, renderer.getOwnedTokens(renderer.getSelectedTokenSet()));
