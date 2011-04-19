@@ -141,18 +141,16 @@ public class AppActions {
 	private static int getMenuShortcutKeyMask() {
 		int key = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 		String prop = System.getProperty("os.name", "unknown");
-		if ("Darwin".equals(prop)) {
-			// TODO Should we install our own AWTKeyStroke class?  Only if menu shortcut is CTRL...
+		if ("darwin".equalsIgnoreCase(prop)) {
+			// TODO Should we install our own AWTKeyStroke class?  If we do it should only be if menu shortcut is CTRL...
 			if (key == Event.CTRL_MASK)
 				key = Event.META_MASK;
 			/*
-			 * In order for SoyLatte/OpenJDK to work on Mac OS X, the user must have the X11 package installed. If
-			 * they're running headless, they don't need it. Otherwise, they must already have it or we wouldn't have
-			 * gotten this far. :) However, in order for the Command key to work, the X11 Preferences must be set to
-			 * "Enabled the Meta Key" in X11 applications. Essentially, if this checkbox is turned on, the Command key
-			 * (called Meta in X11) will be intercepted by the X1 package and not sent on to the application. Our next
-			 * step will be better integration with the Mac desktop to eliminate the X11 menu altogether. It might be
-			 * nice to give them a one-time warning about this...
+			 * In order for OpenJDK to work on Mac OS X, the user must have the X11 package installed unless they're
+			 * running headless. However, in order for the Command key to work, the X11 Preferences must be set to
+			 * "Enable the Meta Key" in X11 applications. Essentially, if this option is turned on, the Command key
+			 * (called Meta in X11) will be intercepted by the X11 package and not sent to the application. The next
+			 * step for MapTool will be better integration with the Mac desktop to eliminate the X11 menu altogether.
 			 */
 		}
 		return key;

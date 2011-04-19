@@ -82,7 +82,6 @@ public class AppMenuBar extends JMenuBar {
 			fileMenu.addSeparator();
 			fileMenu.add(new JMenuItem(AppActions.EXIT));
 		}
-
 		return fileMenu;
 	}
 
