@@ -63,7 +63,7 @@ public class TokenProperty implements Serializable {
 		this.ownerOnly = ownerOnly;
 	}
 
-	public boolean isShowOnStateSheet() {
+	public boolean isShowOnStatSheet() {
 		return highPriority;
 	}
 	public void setShowOnStatSheet(boolean showOnStatSheet) {

@@ -45,6 +45,7 @@ import com.jeta.forms.components.colors.JETAColorWell;
 /**
  */
 public class TextTool extends DefaultTool implements ZoneOverlay {
+	private static final long serialVersionUID = -8944323545051996907L;
 
 	private Label selectedLabel;
 
@@ -65,7 +66,6 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
 	protected void attachTo(ZoneRenderer renderer) {
 		renderer.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
 		super.attachTo(renderer);
-
 		selectedLabel = null;
 	}
 
@@ -86,7 +86,6 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
 	}
 
 	public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
-
 		if (selectedLabel != null && renderer.getLabelBounds(selectedLabel) != null) {
 			AppStyle.selectedBorder.paintWithin(g, renderer.getLabelBounds(selectedLabel));
 		}
@@ -98,7 +97,6 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
 
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-
 				if (selectedLabel != null) {
 					renderer.getZone().removeLabel(selectedLabel.getId());
 					MapTool.serverCommand().removeLabel(renderer.getZone().getId(), selectedLabel.getId());
@@ -113,7 +111,6 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
 	// MOUSE
 	@Override
 	public void mousePressed(MouseEvent e) {
-
 		Label label = renderer.getLabelAt(e.getX(), e.getY());
 		if (label != selectedLabel) {
 			selectedNewLabel = true;
@@ -121,26 +118,20 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
 		} else {
 			selectedNewLabel = false;
 		}
-
 		if (label != null) {
 			ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, label.getX(), label.getY());
-
 			dragOffsetX = (int) (e.getX() - sp.x);
 			dragOffsetY = (int) (e.getY() - sp.y);
 		}
-
 		super.mousePressed(e);
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-
 		if (SwingUtilities.isLeftMouseButton(e)) {
-
 			if (!isDragging) {
 				Label label = renderer.getLabelAt(e.getX(), e.getY());
 				if (label == null) {
-
 					if (selectedLabel == null) {
 						ZonePoint zp = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
 						label = new Label("", zp.x, zp.y);
@@ -157,58 +148,47 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
 						return;
 					}
 				}
-
 				EditLabelDialog dialog = new EditLabelDialog(label);
 				dialog.setVisible(true);
 
 				if (!dialog.isAccepted()) {
 					return;
 				}
-
 				renderer.getZone().putLabel(label);
 			}
-
 			if (selectedLabel != null) {
 				MapTool.serverCommand().putLabel(renderer.getZone().getId(), selectedLabel);
-
 				renderer.repaint();
 			}
 		}
-
 		isDragging = false;
-
 		super.mouseReleased(e);
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-
 		super.mouseDragged(e);
-
 		if (!isDragging) {
 			// Setup
 			Label label = renderer.getLabelAt(e.getX(), e.getY());
 			if (selectedLabel == null || selectedLabel != label) {
 				selectedLabel = label;
 			}
-
 			if (selectedLabel == null || SwingUtilities.isRightMouseButton(e)) {
 				return;
 			}
 		}
-
 		isDragging = true;
 
 		ZonePoint zp = new ScreenPoint(e.getX() - dragOffsetX, e.getY() - dragOffsetY).convertToZone(renderer);
 
 		selectedLabel.setX(zp.x);
 		selectedLabel.setY(zp.y);
-
 		renderer.repaint();
-
 	}
 
 	public class EditLabelDialog extends JDialog {
+		private static final long serialVersionUID = 7621373725343873527L;
 
 		private boolean accepted;
 
@@ -220,9 +200,7 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
 			panel.bind(label);
 
 			add(panel);
-
 			getRootPane().setDefaultButton(panel.getOKButton());
-
 			pack();
 		}
 
@@ -240,6 +218,7 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
 	}
 
 	public class EditLabelPanel extends AbeillePanel<Label> {
+		private static final long serialVersionUID = 3307411310513003924L;
 
 		private final EditLabelDialog dialog;
 
@@ -247,7 +226,6 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
 			super("net/rptools/maptool/client/ui/forms/editLabelDialog.xml");
 
 			this.dialog = dialog;
-
 			panelInit();
 
 			getLabelTextField().setSelectionStart(0);

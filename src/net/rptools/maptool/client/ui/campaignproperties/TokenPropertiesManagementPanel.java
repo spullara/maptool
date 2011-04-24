@@ -195,7 +195,7 @@ public class TokenPropertiesManagementPanel extends AbeillePanel<CampaignPropert
 		StringBuilder builder = new StringBuilder();
 
 		for (TokenProperty property : propertyList) {
-			if (property.isShowOnStateSheet()) {
+			if (property.isShowOnStatSheet()) {
 				builder.append("*");
 			}
 			if (property.isOwnerOnly()) {

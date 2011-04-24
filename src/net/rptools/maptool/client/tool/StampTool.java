@@ -779,6 +779,8 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				stopTokenDrag();
 			}
 		});
+
+		// TODO Should these keystrokes be based on the grid type, like they are in PointerTool?
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD6, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				handleKeyMove(1, 0, false);

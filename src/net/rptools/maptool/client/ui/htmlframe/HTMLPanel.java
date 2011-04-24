@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License.  You may
- * obtain a copy of the License at
- *  
- *	http://www.apache.org/licenses/LICENSE-2.0
- *   
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied.  See the License for the specific language governing
- * permissions and limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.ui.htmlframe;
 
@@ -29,8 +26,8 @@ import javax.swing.KeyStroke;
 
 import net.rptools.maptool.client.swing.MessagePanelEditorKit;
 
-@SuppressWarnings("serial")
 public class HTMLPanel extends JPanel {
+	private static final long serialVersionUID = -2574631956909778786L;
 
 	private final HTMLPane pane = new HTMLPane();
 	private final JPanel closePanel = new JPanel();
@@ -70,7 +67,6 @@ public class HTMLPanel extends JPanel {
 				container.closeRequest();
 			}
 		});
-
 		// Add an action listener so we can get notified about form events.
 		pane.addActionListener(container);
 	}
@@ -123,5 +119,4 @@ public class HTMLPanel extends JPanel {
 		}
 		revalidate();
 	}
-
 }

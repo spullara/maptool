@@ -139,7 +139,6 @@ public class MapPropertiesDialog extends JDialog {
 				cancel();
 			}
 		});
-
 		// Color picker
 		paintChooser = new PaintChooser();
 		TextureChooserPanel textureChooserPanel = new TextureChooserPanel(paintChooser, MapTool.getFrame().getAssetPanel().getModel(), "mapPropertiesTextureChooser");
@@ -219,7 +218,6 @@ public class MapPropertiesDialog extends JDialog {
 		zone.setFogPaint(fogPaint);
 		zone.setBackgroundPaint(backgroundPaint);
 		zone.setMapAsset(mapAsset != null ? mapAsset.getId() : null);
-
 		// TODO: Handle grid type changes
 	}
 
@@ -252,7 +250,6 @@ public class MapPropertiesDialog extends JDialog {
 		JPanel previewPanel = new JPanel(new GridLayout());
 		previewPanel.setBorder(BorderFactory.createLineBorder(Color.darkGray));
 		previewPanel.add(getMapPreviewPanel());
-
 		accessor.replaceBean("mapPreviewPanel", previewPanel);
 	}
 
@@ -417,6 +414,8 @@ public class MapPropertiesDialog extends JDialog {
 	}
 
 	private class MapSelectorDialog extends JDialog {
+		private static final long serialVersionUID = -854043369053089633L;
+
 		private Asset selectedAsset;
 
 		public MapSelectorDialog() {
@@ -541,6 +540,8 @@ public class MapPropertiesDialog extends JDialog {
 	}
 
 	private class MapPreviewPanel extends JComponent {
+		private static final long serialVersionUID = 3761329103161077644L;
+
 		@Override
 		protected void paintComponent(Graphics g) {
 			Dimension size = getSize();

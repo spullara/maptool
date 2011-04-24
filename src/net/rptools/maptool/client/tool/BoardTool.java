@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.tool;
 
@@ -42,6 +39,7 @@ import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.DrawablePaint;
@@ -50,31 +48,30 @@ import net.rptools.maptool.util.ImageManager;
 
 import com.jeta.forms.components.panel.FormPanel;
 
-
-/** Allows user to re-position the background map (internally called the 'board').
- *  This entire class should be 'transient'... should this be in the var names,
- *  or in the reference to the BoardTool instance?
+/**
+ * Allows user to re-position the background map (internally called the 'board'). This entire class should be
+ * 'transient'... should this be in the var names, or in the reference to the BoardTool instance?
  */
 public class BoardTool extends DefaultTool {
 	private static final long serialVersionUID = 98389912045059L;
 
 	// Context variables
-	private static Zone    zone;
+	private static Zone zone;
 	private static boolean oldShowGrid;
 
 	// Status variables
-	private static Point     boardPosition = new Point(0,0);
-	private static Dimension snap = new Dimension(1,1);
+	private static Point boardPosition = new Point(0, 0);
+	private static Dimension snap = new Dimension(1, 1);
 
 	// Action control variables
-	private Point     dragStart;
+	private Point dragStart;
 	private Dimension dragOffset;
-	private Point     boardStart;
+	private Point boardStart;
 
 	// UI button fields
-	private final JTextField   boardPositionXTextField;
-	private final JTextField   boardPositionYTextField;
-	private final FormPanel    controlPanel;
+	private final JTextField boardPositionXTextField;
+	private final JTextField boardPositionYTextField;
+	private final FormPanel controlPanel;
 	private final JRadioButton snapNoneButton;
 	private final JRadioButton snapGridButton;
 	private final JRadioButton snapTileButton;
@@ -82,16 +79,15 @@ public class BoardTool extends DefaultTool {
 	/**
 	 * Initialize the panel and set up the actions.
 	 */
-	public BoardTool () {
+	public BoardTool() {
 		try {
 			setIcon(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/board.png")));
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
-
 		// Create the control panel
 		controlPanel = new FormPanel("net/rptools/maptool/client/ui/forms/adjustBoardControlPanel.xml");
-//        controlPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+//		controlPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 
 		boardPositionXTextField = controlPanel.getTextField("offsetX");
 		boardPositionXTextField.addKeyListener(new UpdateBoardListener());
@@ -99,32 +95,19 @@ public class BoardTool extends DefaultTool {
 		boardPositionYTextField = controlPanel.getTextField("offsetY");
 		boardPositionYTextField.addKeyListener(new UpdateBoardListener());
 
+		ActionListener enforceRules = new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				enforceButtonRules();
+			}
+		};
 		snapNoneButton = controlPanel.getRadioButton("snapNone");
-		snapNoneButton.addActionListener(
-				new ActionListener() {
-					public void actionPerformed(ActionEvent evt ) {
-						enforceButtonRules();
-					}
-				}
-		);
+		snapNoneButton.addActionListener(enforceRules);
 
 		snapGridButton = controlPanel.getRadioButton("snapGrid");
-		snapGridButton.addActionListener(
-				new ActionListener() {
-					public void actionPerformed(ActionEvent evt ) {
-						enforceButtonRules();
-					}
-				}
-		);
+		snapGridButton.addActionListener(enforceRules);
 
 		snapTileButton = controlPanel.getRadioButton("snapTile");
-		snapTileButton.addActionListener(
-				new ActionListener() {
-					public void actionPerformed(ActionEvent evt ) {
-						enforceButtonRules();
-					}
-				}
-		);
+		snapTileButton.addActionListener(enforceRules);
 
 		JButton closeButton = (JButton) controlPanel.getComponentByName("closeButton");
 		closeButton.addActionListener(new ActionListener() {
@@ -138,19 +121,18 @@ public class BoardTool extends DefaultTool {
 	protected void installKeystrokes(Map<KeyStroke, Action> actionMap) {
 		super.installKeystrokes(actionMap);
 
-		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0),    new boardPositionAction(Direction.Up));
-		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0),  new boardPositionAction(Direction.Left));
-		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0),  new boardPositionAction(Direction.Down));
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), new boardPositionAction(Direction.Up));
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), new boardPositionAction(Direction.Left));
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), new boardPositionAction(Direction.Down));
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), new boardPositionAction(Direction.Right));
 	}
-
 
 	/**
 	 * Figure out how big the repeating board tile image is.
 	 */
 
 	private Dimension getTileSize() {
-		Zone      zone = renderer.getZone();
+		Zone zone = renderer.getZone();
 		Dimension tileSize = null;
 
 		if (zone != null) {
@@ -161,16 +143,14 @@ public class BoardTool extends DefaultTool {
 				tileSize = new Dimension(bgTexture.getWidth(null), bgTexture.getHeight(null));
 			}
 		}
-
 		return tileSize;
 	}
 
 	/**
-	 * Moves the board to the nearest snap intersection.
-	 * Modifies GUI.
+	 * Moves the board to the nearest snap intersection. Modifies GUI.
 	 */
 	private void snapBoard() {
-		boardPosition.x = (Math.round(boardPosition.x / snap.width)  * snap.width);
+		boardPosition.x = (Math.round(boardPosition.x / snap.width) * snap.width);
 		boardPosition.y = (Math.round(boardPosition.y / snap.height) * snap.height);
 		updateGUI();
 	}
@@ -178,8 +158,10 @@ public class BoardTool extends DefaultTool {
 	/**
 	 * Sets the snap mode with independent x/y snaps and adjusts the board position appropriately.
 	 * 
-	 * @param x     the new x snap amount
-	 * @param y     the new y snap amount
+	 * @param x
+	 *            the new x snap amount
+	 * @param y
+	 *            the new y snap amount
 	 */
 	private void setSnap(int x, int y) {
 		snap.width = x;
@@ -193,9 +175,8 @@ public class BoardTool extends DefaultTool {
 	}
 
 	/**
-	 * Copies the current board (map image as set in "New Map/Edit Map")
-	 * info to the tool so we have the appropriate starting info.
-	 * Should be called each time the tool is un-hidden.
+	 * Copies the current board (map image as set in "New Map/Edit Map") info to the tool so we have the appropriate
+	 * starting info. Should be called each time the tool is un-hidden.
 	 */
 	private void copyBoardToControlPanel() {
 		boardPosition.x = zone.getBoardX();
@@ -221,8 +202,8 @@ public class BoardTool extends DefaultTool {
 	}
 
 	/**
-	 * Parses the text field of the component into a number, returning
-	 * the default value if the text field is _not_ a number.
+	 * Parses the text field of the component into a number, returning the default value if the text field is _not_ a
+	 * number.
 	 */
 	private int getInt(JTextComponent component, int defaultValue) {
 		// Get the string from the component, then
@@ -231,8 +212,7 @@ public class BoardTool extends DefaultTool {
 	}
 
 	/**
-	 * Parses a string into a number, returning
-	 * the default value if the string is _not_ a number.
+	 * Parses a string into a number, returning the default value if the string is _not_ a number.
 	 */
 	private int getInt(String value, int defaultValue) {
 		try {
@@ -243,16 +223,13 @@ public class BoardTool extends DefaultTool {
 	}
 
 	/*
-	 *     private double getDouble(String value, double defaultValue) {
-    	try {
-    		return value.length() > 0 ? Double.parseDouble(value.trim()) : defaultValue;
-    	} catch (NumberFormatException e) {
-    		return 0;
-    	}
-    }
+	 * private double getDouble(String value, double defaultValue) { try { return value.length() > 0 ?
+	 * Double.parseDouble(value.trim()) : defaultValue; } catch (NumberFormatException e) { return 0; } }
 	 */
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see maptool.client.Tool#attachTo(maptool.client.ZoneRenderer)
 	 */
 	@Override
@@ -265,9 +242,9 @@ public class BoardTool extends DefaultTool {
 
 		// Find out if it is already aligned to grid or background tile, and
 		// default to keeping that same alignment.
-		final int       offset   = zone.getBoardX();
+		final int offset = zone.getBoardX();
 		final Dimension tileSize = getTileSize();
-		final int       gridSize = zone.getGrid().getSize();
+		final int gridSize = zone.getGrid().getSize();
 
 		if ((tileSize != null) && ((offset % tileSize.width) == 0)) {
 			setSnap(tileSize.width, tileSize.height);
@@ -279,11 +256,12 @@ public class BoardTool extends DefaultTool {
 			setSnap(1, 1);
 			snapNoneButton.setSelected(true);
 		}
-
 		MapTool.getFrame().showControlPanel(controlPanel);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see maptool.client.Tool#detachFrom(maptool.client.ZoneRenderer)
 	 */
 	@Override
@@ -298,17 +276,13 @@ public class BoardTool extends DefaultTool {
 	// MOUSE LISTENER
 
 	@Override
-	public void mousePressed(java.awt.event.MouseEvent e){
-
+	public void mousePressed(java.awt.event.MouseEvent e) {
 		if (SwingUtilities.isLeftMouseButton(e)) {
 			ZonePoint zp = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
-			dragStart  = new Point(
-					zp.x - renderer.getZone().getGrid().getOffsetX(),
-					zp.y - renderer.getZone().getGrid().getOffsetY()
-			);
+			Grid grid = renderer.getZone().getGrid();
+			dragStart = new Point(zp.x - grid.getOffsetX(), zp.y - grid.getOffsetY());
 			boardStart = new Point(boardPosition);
-			dragOffset = new Dimension(0,0);
-
+			dragOffset = new Dimension(0, 0);
 		} else {
 			super.mousePressed(e);
 		}
@@ -317,12 +291,11 @@ public class BoardTool extends DefaultTool {
 	////
 	// MOUSE MOTION LISTENER
 	@Override
-	public void mouseDragged(java.awt.event.MouseEvent e){
-
+	public void mouseDragged(java.awt.event.MouseEvent e) {
 		if (SwingUtilities.isLeftMouseButton(e)) {
 			ZonePoint zp = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
 
-			dragOffset.width  = zp.x - dragStart.x;
+			dragOffset.width = zp.x - dragStart.x;
 			dragOffset.height = zp.y - dragStart.y;
 
 			boardPosition.x = boardStart.x + dragOffset.width;
@@ -330,14 +303,13 @@ public class BoardTool extends DefaultTool {
 			snapBoard();
 			updateGUI();
 			zone.setBoard(boardPosition);
-
 		} else {
 			super.mouseDragged(e);
 		}
 	}
 
 	@Override
-	public void mouseMoved(java.awt.event.MouseEvent e){
+	public void mouseMoved(java.awt.event.MouseEvent e) {
 		mouseX = e.getX();
 		mouseY = e.getY();
 	}
@@ -345,7 +317,9 @@ public class BoardTool extends DefaultTool {
 	/**
 	 * A simple enum for correlating keys with directions
 	 */
-	private static enum Direction { Left, Right, Up, Down };
+	private static enum Direction {
+		Left, Right, Up, Down
+	};
 
 	/**
 	 * Constructs actions to attach to key-presses.
@@ -373,7 +347,6 @@ public class BoardTool extends DefaultTool {
 				boardPosition.y += snap.height;
 				break;
 			}
-
 			updateGUI();
 			zone.setBoard(boardPosition);
 		}
@@ -384,9 +357,11 @@ public class BoardTool extends DefaultTool {
 	private class UpdateBoardListener implements KeyListener, ChangeListener, FocusListener {
 		public void keyPressed(KeyEvent e) {
 		}
+
 		public void keyReleased(KeyEvent e) {
 			copyControlPanelToBoard();
 		}
+
 		public void keyTyped(KeyEvent e) {
 		}
 
@@ -397,6 +372,7 @@ public class BoardTool extends DefaultTool {
 		public void focusLost(FocusEvent e) {
 			copyControlPanelToBoard();
 		}
+
 		public void focusGained(FocusEvent e) {
 		}
 	}
@@ -404,18 +380,17 @@ public class BoardTool extends DefaultTool {
 	private void enforceButtonRules() {
 		if (snapGridButton.isSelected()) {
 			final int gridSize = zone.getGrid().getSize();
-			setSnap(gridSize,gridSize);
+			setSnap(gridSize, gridSize);
 		} else if (snapTileButton.isSelected()) {
 			final Dimension tileSize = getTileSize();
 			if (tileSize != null)
 				setSnap(tileSize.width, tileSize.height);
 			else
-				setSnap(1,1);
+				setSnap(1, 1);
 		} else {
 			setSnap(1, 1);
 		}
 		updateGUI();
 		zone.setBoard(boardPosition);
 	}
-
 }

@@ -34,7 +34,7 @@ import net.rptools.maptool.util.TokenUtil;
 /**
  */
 public class FacingTool extends DefaultTool {
-	private double facing;
+	private static final long serialVersionUID = -2807604658989763950L;
 
 	// TODO: This shouldn't be necessary, just get it from the renderer
 	private Token tokenUnderMouse;
@@ -120,6 +120,7 @@ public class FacingTool extends DefaultTool {
 			}
 			renderer.flushFog();
 		}
+		// XXX Instead of calling exposeFoW() when visibleArea is null, shouldn't we just skip it?
 		MapTool.serverCommand().exposeFoW(renderer.getZone().getId(), visibleArea == null ? new Area() : visibleArea, remoteSelected);
 		renderer.repaint(); // TODO: shrink this
 	}

@@ -78,10 +78,13 @@ import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.StringUtil;
 
 public class CommandPanel extends JPanel implements Observer {
+	private static final long serialVersionUID = 8710948417044703674L;
+
+	private final List<String> commandHistory = new LinkedList<String>();
+
 	private JLabel characterLabel;
 	private JTextPane commandTextArea;
 	private MessagePanel messagePanel;
-	private final List<String> commandHistory = new LinkedList<String>();
 	private int commandHistoryIndex;
 	private TextColorWell textColorWell;
 	private JToggleButton scrollLockButton;
@@ -370,7 +373,7 @@ public class CommandPanel extends JPanel implements Observer {
 				}
 			};
 			commandTextArea.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-			commandTextArea.setPreferredSize(new Dimension(50, 40));
+			commandTextArea.setPreferredSize(new Dimension(50, 40)); // XXX should be resizable
 			commandTextArea.setFont(new Font("sans-serif", 0, AppPreferences.getFontSize()));
 			commandTextArea.addKeyListener(new ChatTypingListener());
 			SwingUtil.useAntiAliasing(commandTextArea);
@@ -541,6 +544,8 @@ public class CommandPanel extends JPanel implements Observer {
 	}
 
 	private class CommandHistoryDownAction extends AbstractAction {
+		private static final long serialVersionUID = 7070274680351186504L;
+
 		public void actionPerformed(ActionEvent e) {
 			if (commandHistory.size() == 0) {
 				return;
@@ -584,6 +589,7 @@ public class CommandPanel extends JPanel implements Observer {
 	}
 
 	public static class TextColorWell extends JPanel {
+		private static final long serialVersionUID = -9006587537198176935L;
 
 		//Set the Color from the saved chat color from AppPreferences
 		private Color color = AppPreferences.getChatColor();
@@ -592,6 +598,7 @@ public class CommandPanel extends JPanel implements Observer {
 			setMinimumSize(new Dimension(15, 15));
 			setPreferredSize(new Dimension(15, 15));
 			setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+			setToolTipText("Set the color of your speech text");
 
 			addMouseListener(new MouseAdapter() {
 				@Override
@@ -602,8 +609,6 @@ public class CommandPanel extends JPanel implements Observer {
 					}
 				}
 			});
-
-			setToolTipText("Set the color of your speech text");
 		}
 
 		public void setColor(Color newColor) {
@@ -624,24 +629,22 @@ public class CommandPanel extends JPanel implements Observer {
 	}
 
 	private class AvatarPanel extends JComponent {
-
+		private static final long serialVersionUID = -8027749503951260361L;
 		private static final int PADDING = 5;
 
-		private Image image;
 		private final Dimension preferredSize;
+
+		private Image image;
 		private Rectangle cancelBounds;
 
 		public AvatarPanel(Dimension preferredSize) {
 			this.preferredSize = preferredSize;
-
 			setImage(null);
-
 			addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
 					if (cancelBounds != null && cancelBounds.contains(e.getPoint())) {
 						JTextPane commandArea = getCommandTextArea();
-
 						commandArea.setText("/im");
 						MapTool.getFrame().getCommandPanel().commitCommand();
 					}
@@ -652,7 +655,6 @@ public class CommandPanel extends JPanel implements Observer {
 		public void setImage(Image image) {
 			this.image = image;
 			setPreferredSize(image != null ? preferredSize : new Dimension(0, 0));
-
 			invalidate();
 			repaint();
 		}
@@ -667,7 +669,6 @@ public class CommandPanel extends JPanel implements Observer {
 			if (image == null) {
 				return;
 			}
-
 			Dimension imgSize = new Dimension(image.getWidth(null), image.getHeight(null));
 			SwingUtil.constrainTo(imgSize, size.width - PADDING * 2, size.height - PADDING * 2);
 
@@ -753,5 +754,4 @@ public class CommandPanel extends JPanel implements Observer {
 			commandTextArea.addKeyListener(new ChatTypingListener());
 		}
 	}
-
 }
