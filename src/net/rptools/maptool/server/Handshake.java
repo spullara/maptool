@@ -58,7 +58,8 @@ public class Handshake {
 			// UNIQUE NAME
 			response.code = Code.ERROR;
 			response.message = I18N.getString("Handshake.msg.duplicateName");
-		} else if (!MapTool.isDevelopment() && !MapTool.getVersion().equals(request.version)) {
+		} else if (!MapTool.isDevelopment() && !MapTool.getVersion().equals(request.version) && !"DEVELOPMENT".equals(request.version)) {
+			// Allows a version running without a 'version.txt' to act as client or server to any other version
 
 			// CORRECT VERSION
 			response.code = Code.ERROR;

@@ -631,7 +631,6 @@ public class MapTool {
 				MapTool.showError("msg.error.versionFileMissing");
 			}
 		}
-
 		return version;
 	}
 
