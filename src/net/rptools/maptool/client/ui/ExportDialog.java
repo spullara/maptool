@@ -51,6 +51,7 @@ import net.rptools.maptool.model.drawing.DrawablePaint;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.util.ImageManager;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import com.jeta.forms.components.panel.FormPanel;
@@ -166,13 +167,11 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 					if (form.getRadioButton(button.toString()) == null) {
 						throw new Exception("Export Dialog has a mis-matched enum: " + button.toString());
 					}
-					button.addActionListener(
-							new ActionListener() {
-								public void actionPerformed(ActionEvent evt) {
-									enforceButtonRules();
-								}
-							}
-							);
+					button.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent evt) {
+							enforceButtonRules();
+						}
+					});
 				} catch (Exception ex) {
 					MapTool.showError("dialog.screenshot.radio.button.uiImplementationError", ex);
 				}
@@ -488,22 +487,28 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 		// TODO: Make this less fragile
 		switch (interactPanel.getTabbedPane("tabs").getSelectedIndex()) {
 		case 0:
-			File file = new File(interactPanel.getText("locationTextField"));
+			File file = new File(interactPanel.getText("locationTextField").trim());
 
 			// PNG only supported for now
-			if (!file.getName().toLowerCase().endsWith(".png")) {
+			if (file.getName().endsWith("/")) {
+				MapTool.showError("Filename must not end with a slash ('/')");
+				return;
+			} else if (!file.getName().toLowerCase().endsWith(".png")) {
 				file = new File(file.getAbsolutePath() + ".png");
 			}
 			exportLocation = new LocalLocation(file);
 			break;
 		case 1:
-			String username = interactPanel.getText("username");
-			String password = interactPanel.getText("password");
-			String host = interactPanel.getText("host");
-			String path = interactPanel.getText("path");
+			String username = interactPanel.getText("username").trim();
+			String password = interactPanel.getText("password").trim();
+			String host = interactPanel.getText("host").trim();
+			String path = interactPanel.getText("path").trim();
 
 			// PNG only supported for now
-			if (!path.toLowerCase().endsWith(".png")) {
+			if (path.endsWith("/")) {
+				MapTool.showError("Path must not end with a slash ('/')");
+				return;
+			} else if (!path.toLowerCase().endsWith(".png")) {
 				path += ".png";
 			}
 			exportLocation = new FTPLocation(username, password, host, path);
@@ -558,9 +563,7 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 					MapTool.getFrame().setStatusMessage(I18N.getString("dialog.screenshot.msg.screenshotSaving"));
 					exportLocation.putContent(new BufferedInputStream(new ByteArrayInputStream(imageOut.toByteArray())));
 				} finally {
-					if (imageOut != null) {
-						imageOut.close();
-					}
+					IOUtils.closeQuietly(imageOut);
 				}
 				MapTool.getFrame().setStatusMessage(I18N.getString("dialog.screenshot.msg.screenshotSaved"));
 				break;
@@ -668,7 +671,7 @@ public class ExportDialog extends JDialog implements IIOWriteProgressListener {
 	 */
 	private void resetExportSettings() {
 		FormAccessor fa = interactPanel.getFormAccessor();
-		Iterator iter = fa.beanIterator(true);
+		Iterator<?> iter = fa.beanIterator(true);
 		while (iter.hasNext()) {
 			Object obj = iter.next();
 			if (obj instanceof JToggleButton) {

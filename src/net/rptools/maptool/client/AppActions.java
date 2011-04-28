@@ -184,7 +184,7 @@ public class AppActions {
 				d.setVisible(true);
 				MapTool.getCampaign().setExportDialog(d);
 			} catch (Exception ex) {
-				MapTool.showError(I18N.getString("Cannot create the ExportDialog object"), ex);
+				MapTool.showError("Cannot create the ExportDialog object", ex);
 			}
 		}
 	};

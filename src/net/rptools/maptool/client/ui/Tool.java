@@ -37,6 +37,8 @@ import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 
 public abstract class Tool extends JToggleButton implements ActionListener, KeyListener {
+	private static final long serialVersionUID = -6365594431759083634L;
+
 	private Toolbox toolbox;
 
 	protected Map<KeyStroke, Action> keyActionMap = new HashMap<KeyStroke, Action>();
@@ -146,6 +148,8 @@ public abstract class Tool extends JToggleButton implements ActionListener, KeyL
 	 * @version $Revision$ $Date$ $Author$
 	 */
 	private class EscapeAction extends AbstractAction {
+		private static final long serialVersionUID = -514197544905143826L;
+
 		/**
 		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 		 */
