@@ -21,9 +21,11 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.StyleSheet;
 
 public class HTMLPanelRenderer extends JTextPane {
+	private static final long serialVersionUID = -7535450508528232780L;
+
 	private final CellRendererPane rendererPane = new CellRendererPane();
-	private Dimension size;
 	private final StyleSheet styleSheet;
+	private Dimension size;
 
 	public HTMLPanelRenderer() {
 		setContentType("text/html");

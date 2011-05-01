@@ -2048,12 +2048,10 @@ public class AppActions {
 
 		@Override
 		public void execute(ActionEvent ae) {
-
 			if (AppState.getCampaignFile() == null) {
 				SAVE_CAMPAIGN_AS.actionPerformed(ae);
 				return;
 			}
-
 			saveCampaign(MapTool.getCampaign(), AppState.getCampaignFile(), ae.getActionCommand());
 		}
 	};
