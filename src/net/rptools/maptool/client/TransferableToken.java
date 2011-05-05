@@ -20,14 +20,9 @@ import java.io.IOException;
 
 import net.rptools.maptool.model.Token;
 
-
-
-/**
- */
 public class TransferableToken implements Transferable {
-
     public static final DataFlavor dataFlavor = new DataFlavor(Token.class, "Token");
-    
+
     private Token token;
     
     public TransferableToken(Token token) {

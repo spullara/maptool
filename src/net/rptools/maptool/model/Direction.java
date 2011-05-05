@@ -14,7 +14,6 @@
 package net.rptools.maptool.model;
 
 public enum Direction {
-
 	NW,
 	N,
 	NE,

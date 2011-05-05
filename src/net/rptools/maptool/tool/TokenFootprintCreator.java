@@ -23,46 +23,36 @@ import net.rptools.maptool.model.TokenFootprint;
 import com.thoughtworks.xstream.XStream;
 
 public class TokenFootprintCreator {
-	
 	public static void main(String[] args) {
-		
 //		List<TokenFootprint> footprintList = makeHorizHex();				
 		List<TokenFootprint> footprintList = makeVertHex();				
 //		List<TokenFootprint> footprintList = makeSquare();				
 //		List<TokenFootprint> footprintList = makeGridless();				
-		
 		XStream xstream = new XStream();
 		System.out.println(xstream.toXML(footprintList));
 	}
 
 	private static Point[] points(int[][] points) {
-		
 		Point[] pa = new Point[points.length];
-		
 		for (int i = 0; i < points.length; i++) {
 			pa[i] = new Point(points[i][0], points[i][1]);
 		}
-		
 		return pa;
 	}
 	
 	private static Point[] squarePoints(int size) {
-		
 		Point[] pa = new Point[size*size-1];
 		
 		int indx = 0;
 		for (int y = 0; y < size; y++) {
-			
 			for (int x = 0; x < size; x++) {
 				if ( y == 0 && x == 0) {
 					continue;
 				}
-				
 				pa[indx] = new Point(x, y);
 				indx ++;
 			}
 		}
-		
 		return pa;
 	}
 	
@@ -81,7 +71,6 @@ public class TokenFootprintCreator {
 	private static List<TokenFootprint> makeVertHex() {
 		List<TokenFootprint> footprintList = Arrays.asList(new TokenFootprint[]{
 			// HEXES
-
 			new TokenFootprint("1/6", false, .408),
 			new TokenFootprint("1/4", false, .500),
 			new TokenFootprint("1/3", false, .577),
@@ -92,7 +81,6 @@ public class TokenFootprintCreator {
 				{0, 1},
 				{1, 0},
 			})),
-			
 			new TokenFootprint("Huge", points(new int[][] {
 					{-1, -1},
 					{-1,  0},
@@ -101,7 +89,6 @@ public class TokenFootprintCreator {
 					{ 1, -1},
 					{ 1,  0}
 			})),
-			
 			new TokenFootprint("Humongous", points(new int[][] {
 				{-2, -1},
 				{-2,  0},
@@ -129,7 +116,6 @@ public class TokenFootprintCreator {
 	private static List<TokenFootprint> makeHorizHex() {
 		List<TokenFootprint> footprintList = Arrays.asList(new TokenFootprint[]{
 			// Horizontal Hex Grid - Flipped x <> y from Vert grid
-
 			new TokenFootprint("1/6", false, .408),
 			new TokenFootprint("1/4", false, .500),
 			new TokenFootprint("1/3", false, .577),
@@ -140,7 +126,6 @@ public class TokenFootprintCreator {
 				{1, 0},
 				{0, 1},
 			})),
-			
 			new TokenFootprint("Huge", points(new int[][] {
 				{0, 1},
 				{1, 0},
@@ -149,7 +134,6 @@ public class TokenFootprintCreator {
 				{0, -1},
 				{-1, 1}  // Only one actually different as the others had mirrors already
 			})),
-			
 			new TokenFootprint("Humongous", points(new int[][] {
 					{-1, -2},
 					{ 0, -2},
@@ -176,7 +160,6 @@ public class TokenFootprintCreator {
 
 	private static List<TokenFootprint> makeGridless() {
 		List<TokenFootprint> footprintList = Arrays.asList(new TokenFootprint[]{
-
 				new TokenFootprint("-11", false, 0.086),
 				new TokenFootprint("-10", false, 0.107),
 				new TokenFootprint("-9", false, 0.134),

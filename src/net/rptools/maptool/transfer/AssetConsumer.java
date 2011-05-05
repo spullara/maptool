@@ -23,7 +23,6 @@ import java.io.Serializable;
  * @author trevor
  */
 public class AssetConsumer {
-
 	private File destinationDir;
 	private AssetHeader header;
 	private long currentPosition;
@@ -44,12 +43,10 @@ public class AssetConsumer {
 		}
 		this.destinationDir = destinationDir;
 		this.header = header;
-		
 		// Setup
 		if (!destinationDir.exists()) {
 			destinationDir.mkdirs();
 		}
-
 		// Cleanup
 		if (getFilename().exists()) {
 			getFilename().delete();
@@ -73,17 +70,11 @@ public class AssetConsumer {
 	 * @throws IOException
 	 */
 	public void update(AssetChunk chunk) throws IOException {
-
 		File file = getFilename();
-		
 		FileOutputStream out = new FileOutputStream (file, true);
-		
 		byte[] data = chunk.getData();
-
 		out.write(data);
-		
 		out.close();
-		
 		currentPosition += data.length;
 	}
 	

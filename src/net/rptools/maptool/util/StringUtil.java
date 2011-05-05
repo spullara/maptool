@@ -79,9 +79,7 @@ public class StringUtil {
 	}
 
 	public static String wrapText(String string, int wrapLength, int startPosition, String wrapChar) {
-
 		StringBuilder wrappedString = new StringBuilder();
-		;
 		String subString;
 		int newlinePos;
 		int length = string.length();
@@ -89,9 +87,7 @@ public class StringUtil {
 		if (length - startPosition <= wrapLength) {
 			return string;
 		}
-
 		while (length - startPosition > wrapLength) {
-
 			// look ahead one char (wrapLength + 1) in case it is a space or newline
 			subString = string.substring(startPosition, startPosition + wrapLength + 1);
 			// restart if newline character is found
@@ -104,16 +100,12 @@ public class StringUtil {
 					newlinePos = wrapLength - 1; // -1 because of 0 start point of position
 				}
 			}
-
 			wrappedString.append(subString.substring(0, newlinePos));
 			wrappedString.append(wrapChar);
 			startPosition += newlinePos + 1;
-
 		}
-
 		// add the remainder of the string
 		wrappedString.append(string.substring(startPosition));
-
 		return wrappedString.toString();
 	}
 
@@ -138,7 +130,6 @@ public class StringUtil {
 	}
 
 	public static int countOccurances(String source, String str) {
-
 		int count = 0;
 		int index = 0;
 		while ((index = source.indexOf(str, index)) >= 0) {
@@ -149,25 +140,19 @@ public class StringUtil {
 	}
 
 	public static List<String> getWords(String line) {
-
 		List<String> list = new ArrayList<String>();
-
 		while (line != null && line.trim().length() > 0) {
-
 			line = line.trim();
 			System.out.println("'" + line + "'");
 			List<String> split = splitNextWord(line);
 
 			String nextWord = split.get(0);
 			line = split.get(1);
-
 			if (nextWord == null) {
 				continue;
 			}
-
 			list.add(nextWord);
 		}
-
 		return list;
 	}
 
@@ -187,20 +172,16 @@ public class StringUtil {
 	}
 
 	public static List<String> splitNextWord(String line) {
-
 		line = line.trim();
 		if (line.length() == 0) {
 			return null;
 		}
-
 		StringBuilder builder = new StringBuilder();
-
 		boolean quoted = line.charAt(0) == '"';
 
 		int start = quoted ? 1 : 0;
 		int end = start;
 		for (; end < line.length(); end++) {
-
 			char c = line.charAt(end);
 			if (quoted) {
 				if (c == '"') {
@@ -211,10 +192,8 @@ public class StringUtil {
 					break;
 				}
 			}
-
 			builder.append(c);
 		}
-
 		return Arrays.asList(new String[] { line.substring(start, end), line.substring(Math.min(end + 1, line.length())) });
 	}
 }

@@ -16,7 +16,6 @@ package net.rptools.maptool.transfer;
 import java.io.Serializable;
 
 public class AssetHeader implements Serializable {
-
 	private Serializable id;
 	private String name;
 	private long size;

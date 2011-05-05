@@ -16,18 +16,15 @@ package net.rptools.maptool.model;
 import java.awt.geom.Area;
 
 public abstract class Vision {
-
 	public enum Anchor {
 		CORNER,
 		CENTER
 	}
-	
 	protected String name;
 	protected int distance;
 	private int angle; // degrees
 	private boolean enabled = true;
 	private int lastGridSize;
-
 	private transient Area area;
 	
 	public boolean isEnabled() {

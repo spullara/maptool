@@ -27,9 +27,7 @@ import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import com.thoughtworks.xstream.XStream;
 
 public class LightSourceCreator {
-
 	public static void main(String[] args) {
-
 		Map<String, List<LightSource>> lightSourcesMap = new HashMap<String, List<LightSource>>();
 		
 		List<LightSource> lightSourceList = new ArrayList<LightSource>();

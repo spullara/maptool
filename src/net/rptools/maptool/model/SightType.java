@@ -17,7 +17,6 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 
 public class SightType {
-
 	private String name;
 	private double multiplier;
 	private LightSource personalLightSource;

@@ -25,7 +25,6 @@ import java.io.Serializable;
  * @author trevor
  */
 public class AssetProducer {
-
 	private Serializable id;
 	private String name;
 	private File assetFile;
@@ -56,21 +55,17 @@ public class AssetProducer {
 	 * @throws IOException
 	 */
 	public AssetChunk nextChunk(int size) throws IOException {
-		
 		if (currentPosition + size > length) {
 			size = (int)(length - currentPosition);
 		}
-		
 		byte[] data = new byte[size];
 		FileInputStream in = new FileInputStream(assetFile);
 		
 		in.skip(currentPosition);
 		in.read(data, 0, size);
-
 		in.close();
 		
 		currentPosition += size;
-		
 		return new AssetChunk(id, data);
 	}
 

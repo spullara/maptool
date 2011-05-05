@@ -24,7 +24,6 @@ import net.rptools.maptool.model.ZonePoint;
  * @author Jay
  */
 public class WallTemplate extends LineTemplate {
-
     /**
      * Set the path vertex, it isn't needed by the wall template but the superclass needs it to paint.
      */

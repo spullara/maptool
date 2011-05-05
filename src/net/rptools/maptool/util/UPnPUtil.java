@@ -41,7 +41,6 @@ public class UPnPUtil {
 			// some IO Exception occurred during communication with device
 			MapTool.showError("While searching for gateway devices", ex);
 		}
-
 		if (IGDs != null) {
 			if (log.isInfoEnabled())
 				log.info("UPnP:  Found device: "	+ IGDs[0].getIGDRootDevice().getModelName());
@@ -59,7 +58,6 @@ public class UPnPUtil {
 		if (IGDs == null) {
 			findIGDs();
 		}
-
 		if (IGDs != null) {
 			// TODO Allow the option of selecting one IGD from a list
 			ourIGD = IGDs[0];
@@ -67,7 +65,6 @@ public class UPnPUtil {
 			MapTool.showError("UPnP Error - No Internet Gateway Devices found.<br><br>UPnP port mapping will not be available.");
 			return false;
 		}
-
 		try {
 			InetAddress rptools = InetAddress.getByName("www.rptools.net");
 			InetAddress localAddy = ResolveLocalHostname.getLocalHost(rptools);
@@ -76,14 +73,12 @@ public class UPnPUtil {
 			mapped = ourIGD.addPortMapping(
 					"MapTool", null,
 					port, port, localHostIP, 0, "TCP");
-
 		} catch (UPNPResponseException respEx) {
 			// oops the IGD did not like something !!
 			MapTool.showError("While configuring UPnP (1)", respEx);
 		} catch (Exception e) {
 			MapTool.showError("While configuring UPnP (2)", e);
 		}
-
 		if (mapped) {
 			if (log.isInfoEnabled())
 				log.info("UPnP: Port " + port + " mapped");
@@ -95,7 +90,6 @@ public class UPnPUtil {
 
 	public static boolean closePort(int port) {
 		try{
-
 			if (IGDs != null) {
 				// TODO If openPort() is modified to allow selection of one IGD from a list,
 				// this code will need to be updated as well.
@@ -117,7 +111,6 @@ public class UPnPUtil {
 					}
 				}
 			}
-
 		} catch (Exception e) {
 			MapTool.showError("While closing UPnP port", e);
 			return false;

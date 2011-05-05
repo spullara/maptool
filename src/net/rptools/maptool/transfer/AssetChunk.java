@@ -16,7 +16,6 @@ package net.rptools.maptool.transfer;
 import java.io.Serializable;
 
 public class AssetChunk implements Serializable {
-
 	private Serializable id;
 	private byte[] data;
 	
@@ -32,6 +31,4 @@ public class AssetChunk implements Serializable {
 	public Serializable getId() {
 		return id;
 	}
-	
-	
 }

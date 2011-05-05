@@ -23,9 +23,7 @@ import java.awt.image.PixelGrabber;
 import net.rptools.maptool.model.Token;
 
 public class TokenUtil {
-
 	public static int getIndexNearestTo(int[] array, int value) {
-		
     	int delta = -1;
     	int closest = -1;
     	for (int i = 0; i < array.length; i++) {
@@ -39,11 +37,9 @@ public class TokenUtil {
 	}
 	
 	public static Token.TokenShape guessTokenType(Image image) {
-		
 		if (image instanceof BufferedImage) {
 			return guessTokenType((BufferedImage) image);
 		}
-		
 		int pixelCount = 0;
         int width = image.getWidth(null);
         int height = image.getHeight(null);
@@ -58,13 +54,11 @@ public class TokenUtil {
             System.err.println("interrupted waiting for pixels!");
             return Token.TokenShape.TOP_DOWN;
         }
-
         if ((pg.getStatus() & ImageObserver.ABORT) != 0) 
         {
             System.err.println("image fetch aborted or errored");
             return Token.TokenShape.TOP_DOWN;
         }
-        
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 // Get the next pixel
@@ -74,14 +68,11 @@ public class TokenUtil {
 				}
             }
         }
-        
         return guessTokenType(new Dimension(image.getWidth(null) ,image.getHeight(null)), pixelCount);
 	}
 	
 	public static Token.TokenShape guessTokenType(BufferedImage image) {
-		
 		int pixelCount = 0;
-		
 		for (int row = 0; row < image.getHeight(); row++) {
 			for (int col = 0; col < image.getWidth(); col++) {
 				int pixel = image.getRGB(col, row);
@@ -90,16 +81,13 @@ public class TokenUtil {
 				}
 			}
 		}
-		
 		return guessTokenType(new Dimension(image.getWidth(), image.getHeight()), pixelCount);
 	}
 	
 	private static Token.TokenShape guessTokenType(Dimension size, int pixelCount) {
-		
 		double circlePixelCount = (int)(Math.PI * (size.width/2) * (size.height/2));
 		double squarePixelCount = size.width * size.height;
 		double topDownPixelCount = circlePixelCount * 3 / 4; // arbitrary
-		
 		double circleResult = Math.abs(1-(pixelCount / circlePixelCount));
 		double squareResult = Math.abs(1-(pixelCount / squarePixelCount));
 		double topDownResult = Math.abs(1-(pixelCount / topDownPixelCount));

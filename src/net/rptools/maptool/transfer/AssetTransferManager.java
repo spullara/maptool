@@ -23,10 +23,8 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class AssetTransferManager {
-
 	private Map<Serializable, AssetConsumer> consumerMap = new HashMap<Serializable, AssetConsumer>();
 	private List<ConsumerListener> consumerListenerList = new CopyOnWriteArrayList<ConsumerListener>();
-	
 	private List<AssetProducer> producerList = new LinkedList<AssetProducer>();
 	
 	/**
@@ -51,19 +49,14 @@ public class AssetTransferManager {
 	 * @throws IOException
 	 */
 	public synchronized AssetChunk nextChunk(int size) throws IOException {
-		
 		if (producerList.size() == 0) {
 			return null;
 		}
-		
 		AssetProducer producer = producerList.remove(0);
-		
 		AssetChunk chunk = producer.nextChunk(size);
-		
 		if (!producer.isComplete()) {
 			producerList.add(producer);
 		}
-		
 		return chunk;
 	}
 	
@@ -75,9 +68,7 @@ public class AssetTransferManager {
 		if (consumerMap.get(consumer.getId()) != null) {
 			throw new IllegalArgumentException("Asset is already being downloaded: " + consumer.getId());
 		}
-		
 		consumerMap.put(consumer.getId(), consumer);
-
 		for (ConsumerListener listener : consumerListenerList) {
 			listener.assetAdded(consumer.getId());
 		}
@@ -89,16 +80,13 @@ public class AssetTransferManager {
 	 * @throws IOException
 	 */
 	public synchronized void update(AssetChunk chunk) throws IOException {
-		
 		AssetConsumer consumer = consumerMap.get(chunk.getId());
 		if (consumer == null) {
 			throw new IllegalArgumentException("Not expecting chunk: " + chunk.getId());
 		}
-		
 		consumer.update(chunk);
 		if (consumer.isComplete()) {
 			consumerMap.remove(consumer.getId());
-
 			for (ConsumerListener listener : consumerListenerList) {
 				listener.assetComplete(consumer.getId(), consumer.getName(), consumer.getFilename());
 			}
@@ -113,7 +101,6 @@ public class AssetTransferManager {
 	 * Get a list of current asset consumers, this is a good way to know what's going on in the system
 	 */
 	public synchronized List<AssetConsumer> getAssetConsumers() {
-		
 		return new ArrayList<AssetConsumer>(consumerMap.values());
 	}
 	
@@ -124,5 +111,4 @@ public class AssetTransferManager {
 	public void removeConsumerListener(ConsumerListener listener) {
 		consumerListenerList.remove(listener);
 	}
-	
 }

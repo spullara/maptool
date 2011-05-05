@@ -22,13 +22,11 @@ import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.HexGrid;
 import net.rptools.maptool.model.HexGridHorizontal;
 
-
 /**
  * Provides methods to handle hexgrid issues that don't exist with a square grid.
  * @author Tylere
  */
 public class HexGridUtil {
-
 	/** 
 	 * Convert to u-v coordinates where the v-axis points
 	 * along the direction of edge to edge hexes
@@ -60,14 +58,10 @@ public class HexGridUtil {
 	}
 
 	public static CellPoint getWaypoint(HexGrid grid, CellPoint cp, int width, int height) {
-	
 		if( width == height ) {
 			int[] cpUV = toUVCoords(cp, grid); 
 			return fromUVCoords(cpUV[0], cpUV[1] + (int)((width-1)/2), grid);
 		}
-		
 		return cp;
 	}
-	
-
 }

@@ -16,7 +16,6 @@ package net.rptools.maptool.model;
 import java.io.Serializable;
 
 public class TokenProperty implements Serializable {
-
 	private String name;
 	private String shortName;
 	private boolean highPriority; // showOnStatSheet; so that 1.3b28 files load in 1.3b29
