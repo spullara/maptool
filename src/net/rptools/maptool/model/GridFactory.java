@@ -13,9 +13,13 @@
  */
 package net.rptools.maptool.model;
 
-
+/**
+ * Given a string describing the type of desired grid, this factory
+ * creates and returns an object of the appropriate type.
+ * <p>
+ * (Ugh.  This really should use an SPI-like factory interface.)
+ */
 public class GridFactory {
-
 	public static final String HEX_VERT = "Vertical Hex";
 	public static final String HEX_HORI = "Horizontal Hex";
 	public static final String SQUARE = "Square";
@@ -24,45 +28,36 @@ public class GridFactory {
 	public static Grid createGrid(String type) {
 		return createGrid(type,true,false);
 	}
+
 	public static Grid createGrid(String type, boolean faceEdges, boolean faceVertices) {
-	
 		if (isHexVertical(type)) {
 			return new HexGridVertical(faceEdges, faceVertices);
 		}
-		
 		if (isHexHorizontal(type)) {
 			return new HexGridHorizontal(faceEdges, faceVertices);
 		}
-		
 		if (isSquare(type)) {
 			return new SquareGrid(faceEdges, faceVertices);
 		}
-		
 		if (isNone(type)) {
 			return new GridlessGrid();
 		}
-		
 		throw new IllegalArgumentException("Unknown grid type: " + type);
 	}
 	
 	public static String getGridType(Grid grid) {
-		
 		if (grid instanceof HexGridVertical) {
 			return HEX_VERT;
 		}
-		
 		if (grid instanceof HexGridHorizontal) {
 			return HEX_HORI;
 		}
-
 		if (grid instanceof SquareGrid) {
 			return SQUARE;
 		}
-		
 		if (grid instanceof GridlessGrid) {
 			return NONE;
 		}
-		
 		throw new IllegalArgumentException("Don't know type of grid: " + grid.getClass().getName());
 	}
 

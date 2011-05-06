@@ -37,14 +37,6 @@ public class Toolbox {
 		}
 	}
 
-	public void setSelectedTool(Class<? extends Tool> toolClass) {
-		Tool tool = toolMap.get(toolClass);
-		if (tool != null && tool.isAvailable()) {
-			tool.setSelected(true);
-			setSelectedTool(tool);
-		}
-	}
-
 	public Tool getSelectedTool() {
 		return currentTool;
 	}
@@ -58,6 +50,7 @@ public class Toolbox {
 		try {
 			Constructor<? extends Tool> constructor = toolClass.getDeclaredConstructor(new Class[] {});
 			tool = constructor.newInstance(new Object[] {});
+//			tool = constructor.newInstance((Object) null);
 
 			buttonGroup.add(tool);
 			toolMap.put(toolClass, tool);
@@ -96,6 +89,14 @@ public class Toolbox {
 		});
 	}
 
+	public void setSelectedTool(Class<? extends Tool> toolClass) {
+		Tool tool = toolMap.get(toolClass);
+		if (tool != null && tool.isAvailable()) {
+			tool.setSelected(true);
+			setSelectedTool(tool);
+		}
+	}
+
 	public void setSelectedTool(final Tool tool) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -105,6 +106,7 @@ public class Toolbox {
 				if (currentTool != null) {
 					if (currentRenderer != null) {
 						currentTool.removeListeners(currentRenderer);
+//						currentTool.addGridBasedKeys(currentRenderer, false);
 						currentTool.detachFrom(currentRenderer);
 
 						if (currentTool instanceof ZoneOverlay) {
@@ -117,6 +119,9 @@ public class Toolbox {
 
 				if (currentTool != null) {
 					if (currentRenderer != null) {
+						// We have a renderer at this point so we can figure out the grid type and add its keystrokes
+						// to the PointerTool.
+//						currentTool.addGridBasedKeys(currentRenderer, true);
 						currentTool.addListeners(currentRenderer);
 						currentTool.attachTo(currentRenderer);
 

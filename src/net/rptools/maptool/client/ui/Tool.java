@@ -35,6 +35,7 @@ import javax.swing.KeyStroke;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
+import net.rptools.maptool.model.Grid;
 
 public abstract class Tool extends JToggleButton implements ActionListener, KeyListener {
 	private static final long serialVersionUID = -6365594431759083634L;
@@ -75,7 +76,7 @@ public abstract class Tool extends JToggleButton implements ActionListener, KeyL
 
 	public abstract String getInstructions();
 
-	void addListeners(JComponent comp) {
+	protected void addListeners(JComponent comp) {
 		if (comp == null) {
 			return;
 		}
@@ -119,6 +120,10 @@ public abstract class Tool extends JToggleButton implements ActionListener, KeyL
 		// No op
 	}
 
+	protected void addGridBasedKeys(Grid grid, boolean enable) {
+		// do nothing; only overridden by PointerTool currently
+	}
+
 	private InputMap createInputMap(Map<KeyStroke, Action> keyActionMap) {
 		ComponentInputMap inputMap = new ComponentInputMap((JPanel) MapTool.getFrame().getContentPane());
 		for (KeyStroke keyStroke : keyActionMap.keySet()) {
@@ -131,6 +136,7 @@ public abstract class Tool extends JToggleButton implements ActionListener, KeyL
 		ActionMap actionMap = new ActionMap();
 		for (KeyStroke keyStroke : keyActionMap.keySet()) {
 			actionMap.put(keyStroke.toString(), keyActionMap.get(keyStroke));
+//			System.out.println(keyStroke.toString() + ":  " + keyActionMap.get(keyStroke).toString());
 		}
 		return actionMap;
 	}
@@ -145,7 +151,6 @@ public abstract class Tool extends JToggleButton implements ActionListener, KeyL
 	 * Perform the escape action on a tool.
 	 * 
 	 * @author jgorrell
-	 * @version $Revision$ $Date$ $Author$
 	 */
 	private class EscapeAction extends AbstractAction {
 		private static final long serialVersionUID = -514197544905143826L;

@@ -12,12 +12,20 @@ package net.rptools.maptool.model;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.swing.Action;
+import javax.swing.KeyStroke;
 
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.client.walker.astar.AStarVertHexEuclideanWalker;
@@ -65,6 +73,56 @@ public class HexGridVertical extends HexGrid {
 	}
 
 	@Override
+	public int[] getFacingAngles() {
+		return FACING_ANGLES;
+	}
+
+	/*
+	 * For a horizontal hex grid we want the following layout:
+	 * @formatter:off
+	 *
+	 *		7	8	9
+	 *	-		5		-
+	 *		1	2	3
+	 *
+	 * @formatter:off
+	 * (non-Javadoc)
+	 * @see net.rptools.maptool.model.Grid#installMovementKeys(net.rptools.maptool.client.tool.PointerTool, java.util.Map)
+	 */
+	@Override
+	public void installMovementKeys(PointerTool callback, Map<KeyStroke, Action> actionMap) {
+		if (movementKeys == null) {
+			movementKeys = new HashMap<KeyStroke, Action>(16); // parameter is 9/0.75 (load factor)
+			Rectangle r = getCellShape().getBounds();
+			double w = r.width * 0.707;
+			double h = r.height * 0.707;
+			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD7, 0), new MovementKey(callback, -w, -h));
+			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD8, 0), new MovementKey(callback, 0, -h));
+			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD9, 0), new MovementKey(callback, w, -h));
+//			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD4, 0), new MovementKey(callback, -1, 0));
+//			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD5, 0), new MovementKey(callback, 0, 0));
+//			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD6, 0), new MovementKey(callback, 1, 0));
+			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD1, 0), new MovementKey(callback, -w, h));
+			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD2, 0), new MovementKey(callback, 0, h));
+			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD3, 0), new MovementKey(callback, w, h));
+//			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), new MovementKey(callback, -1, 0));
+//			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), new MovementKey(callback, 1, 0));
+			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), new MovementKey(callback, 0, -h));
+			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), new MovementKey(callback, 0, h));
+		}
+		actionMap.putAll(movementKeys);
+	}
+
+	@Override
+	public void uninstallMovementKeys(Map<KeyStroke, Action> actionMap) {
+		if (movementKeys != null) {
+			for (KeyStroke key : movementKeys.keySet()) {
+				actionMap.remove(key);
+			}
+		}
+	}
+
+	@Override
 	public List<TokenFootprint> getFootprints() {
 		if (footprintList == null) {
 			try {
@@ -74,11 +132,6 @@ public class HexGridVertical extends HexGrid {
 			}
 		}
 		return footprintList;
-	}
-
-	@Override
-	public int[] getFacingAngles() {
-		return FACING_ANGLES;
 	}
 
 	@Override

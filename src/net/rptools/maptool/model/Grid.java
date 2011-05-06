@@ -13,13 +13,20 @@ package net.rptools.maptool.model;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
 import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.KeyStroke;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.maptool.client.AppPreferences;
+import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.model.TokenFootprint.OffsetTranslator;
@@ -52,6 +59,8 @@ public abstract class Grid implements Cloneable {
 	private Zone zone;
 	private Area cellShape;
 
+	protected Map<KeyStroke, Action> movementKeys = null;
+
 	public Grid() {
 		setSize(AppPreferences.getDefaultGridSize());
 	}
@@ -79,6 +88,10 @@ public abstract class Grid implements Cloneable {
 	 */
 	public void setFacings(boolean faceEdges, boolean faceVertices) {
 		// Handle it in the individual grid types
+	}
+
+	public int[] getFacingAngles() {
+		return null;
 	}
 
 	protected List<TokenFootprint> loadFootprints(String path, OffsetTranslator... translators) throws IOException {
@@ -136,10 +149,6 @@ public abstract class Grid implements Cloneable {
 	 *         For HexGrids Use getCellOffset() to move ZonePoint from center to top right
 	 */
 	public abstract ZonePoint convert(CellPoint cp);
-
-	public int[] getFacingAngles() {
-		return null;
-	}
 
 	public abstract GridCapabilities getCapabilities();
 
@@ -290,6 +299,39 @@ public abstract class Grid implements Cloneable {
 	 */
 	public double getSecondDimension() {
 		return 0;
+	}
+
+	/**
+	 * Installs a list of which which actions go with which keystrokes for the purpose of moving the token.
+	 * 
+	 * @param callback
+	 *            The object whose methods are invoked when the event occurs
+	 * @param actionMap
+	 *            the map of existing keystrokes we want to add ourselves to
+	 */
+	abstract public void installMovementKeys(PointerTool callback, Map<KeyStroke, Action> actionMap);
+
+	abstract public void uninstallMovementKeys(Map<KeyStroke, Action> actionMap);
+
+	protected class MovementKey extends AbstractAction {
+		private static final long serialVersionUID = -4103031698708914986L;
+		private final double dx, dy;
+		private final PointerTool tool; // I'd like to store this in the Grid, but then it has to be final :(
+
+		public MovementKey(PointerTool callback, double x, double y) {
+			tool = callback;
+			dx = x;
+			dy = y;
+		}
+
+		@Override
+		public String toString() {
+			return "[" + dx + "," + dy + "]";
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			tool.handleKeyMove(dx, dy);
+		}
 	}
 
 	static class DirectionCalculator {

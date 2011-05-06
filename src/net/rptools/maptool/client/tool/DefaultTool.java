@@ -53,12 +53,14 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 
 	@Override
 	protected void attachTo(ZoneRenderer renderer) {
+		super.attachTo(renderer);
 		this.renderer = renderer;
 	}
 
 	@Override
 	protected void detachFrom(ZoneRenderer renderer) {
 		this.renderer = null;
+		super.detachFrom(renderer);
 	}
 
 	public boolean isDraggingMap() {

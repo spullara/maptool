@@ -12,15 +12,22 @@ package net.rptools.maptool.model;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.swing.Action;
+import javax.swing.KeyStroke;
 
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.client.walker.astar.AStarHorizHexEuclideanWalker;
@@ -84,6 +91,48 @@ public class HexGridHorizontal extends HexGrid {
 	@Override
 	public int[] getFacingAngles() {
 		return FACING_ANGLES;
+	}
+
+	/*
+	 * For a horizontal hex grid we want the following layout:
+	 * @formatter:off
+	 *
+	 *		7	-	9
+	 *	4		5		6
+	 *		1	-	3
+	 *
+	 * @formatter:off
+	 * (non-Javadoc)
+	 * @see net.rptools.maptool.model.Grid#installMovementKeys(net.rptools.maptool.client.tool.PointerTool, java.util.Map)
+	 */
+	@Override
+	public void installMovementKeys(PointerTool callback, Map<KeyStroke, Action> actionMap) {
+		if (movementKeys == null) {
+			movementKeys = new HashMap<KeyStroke, Action>(12); // parameter is 9/0.75 (load factor)
+			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD7, 0), new MovementKey(callback, -1, -1));
+//			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD8, 0), new MovementKey(callback, 0, -1));
+			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD9, 0), new MovementKey(callback, 1, -1));
+			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD4, 0), new MovementKey(callback, -1, 0));
+//			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD5, 0), new MovementKey(callback, 0, 0));
+			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD6, 0), new MovementKey(callback, 1, 0));
+			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD1, 0), new MovementKey(callback, -1, 1));
+//			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD2, 0), new MovementKey(callback, 0, 1));
+			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD3, 0), new MovementKey(callback, 1, 1));
+			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), new MovementKey(callback, -1, 0));
+			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), new MovementKey(callback, 1, 0));
+//			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), new MovementKey(callback, 0, -1));
+//			movementKeys.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), new MovementKey(callback, 0, 1));
+		}
+		actionMap.putAll(movementKeys);
+	}
+
+	@Override
+	public void uninstallMovementKeys(Map<KeyStroke, Action> actionMap) {
+		if (movementKeys != null) {
+			for (KeyStroke key : movementKeys.keySet()) {
+				actionMap.remove(key);
+			}
+		}
 	}
 
 	@Override
