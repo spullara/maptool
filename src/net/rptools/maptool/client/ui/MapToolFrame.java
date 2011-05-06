@@ -722,6 +722,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	public void showFilledGlassPane(JComponent component) {
 		glassPane.setLayout(new GridLayout());
 		glassPane.add(component);
+//		glassPane.setActionMap(null);
+//		glassPane.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, null);
 		glassPane.setVisible(true);
 	}
 

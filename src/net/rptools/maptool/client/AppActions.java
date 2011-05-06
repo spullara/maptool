@@ -2062,8 +2062,10 @@ public class AppActions {
 			@Override
 			protected Object doInBackground() throws Exception {
 				try {
+					MapTool.getAutoSaveManager().pause();
 					if (AppState.isSaving()) {
 						MapTool.confirm("Campaign currently being auto-saved.  Try again later.", (Object[]) null);
+						MapTool.getAutoSaveManager().restart();
 						return null;
 					}
 					AppState.setIsSaving(true);
@@ -2085,6 +2087,7 @@ public class AppActions {
 					MapTool.showError("msg.error.failedSaveCampaign", t);
 				} finally {
 					AppState.setIsSaving(false);
+					MapTool.getAutoSaveManager().restart();
 				}
 				return null;
 			}
