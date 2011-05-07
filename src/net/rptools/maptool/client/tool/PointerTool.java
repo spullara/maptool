@@ -701,14 +701,13 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					return;
 				}
 				Grid grid = getZone().getGrid();
+				TokenFootprint tf = tokenUnderMouse.getFootprint(grid);
+				Rectangle r = tf.getBounds(grid);
 				ZonePoint last = renderer.getLastWaypoint(tokenUnderMouse.getId());
-				ZonePoint zp = new ScreenPoint(mouseX, mouseY).convertToZone(renderer);
-				// FIXME Stupid, ugly bug fix.  How the hell can 'last' even be null in the first place?!
 				if (last == null)
-					last = zp;
+					last = new ZonePoint(tokenUnderMouse.getX() + r.width / 2, tokenUnderMouse.getY() + r.height / 2);
+				ZonePoint zp = new ScreenPoint(mouseX, mouseY).convertToZone(renderer);
 				if (tokenUnderMouse.isSnapToGrid() && grid.getCapabilities().isSnapToGridSupported()) {
-					TokenFootprint tf = tokenUnderMouse.getFootprint(grid);
-					Rectangle r = tf.getBounds(grid);
 					zp.translate(-r.width / 2, -r.height / 2);
 					last.translate(-r.width / 2, -r.height / 2);
 				}
