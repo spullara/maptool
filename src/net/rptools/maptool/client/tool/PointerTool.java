@@ -47,6 +47,7 @@ import java.util.Set;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
@@ -76,6 +77,8 @@ import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.ExposedAreaMetaData;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
+import net.rptools.maptool.model.MovementKey;
+import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenFootprint;
@@ -90,8 +93,14 @@ import net.rptools.maptool.util.StringUtil;
 import net.rptools.maptool.util.TokenUtil;
 
 /**
+ * This is the pointer tool from the top-level of the toolbar. It allows tokens to be selected and moved, it triggers
+ * the statsheet to be displayed, it handles keystroke movement of tokens using the NumPad keys, and it handles
+ * positioning the Speech and Thought bubbles when the Spacebar is held down (possibly in combination with Shift or
+ * Ctrl).
  */
 public class PointerTool extends DefaultTool implements ZoneOverlay {
+	private static final long serialVersionUID = 8606021718606275084L;
+
 	private boolean isShowingTokenStackPopup;
 	private boolean isShowingPointer;
 	private boolean isDraggingToken;
@@ -112,23 +121,20 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	private int keysDown; // used to record whether Shift/Ctrl/Meta keys are down
 
 	private final TokenStackPanel tokenStackPanel = new TokenStackPanel();
-
 	private final HTMLPanelRenderer htmlRenderer = new HTMLPanelRenderer();
+	private final Font boldFont = AppStyle.labelFont.deriveFont(Font.BOLD);
+	private final LayerSelectionDialog layerSelectionDialog;
 
 	private BufferedImage statSheet;
 	private Token tokenOnStatSheet;
 
 	private static int PADDING = 7;
 
-	private final Font boldFont = AppStyle.labelFont.deriveFont(Font.BOLD);
-
 	// Offset from token's X,Y when dragging. Values are in cell coordinates.
 	private int dragOffsetX;
 	private int dragOffsetY;
 	private int dragStartX;
 	private int dragStartY;
-
-	private final LayerSelectionDialog layerSelectionDialog;
 
 	public PointerTool() {
 		try {
@@ -158,6 +164,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	protected void attachTo(ZoneRenderer renderer) {
 		super.attachTo(renderer);
 
+		// XXX Can we simply remove this?  Would that leave the layer the same when the PointerTool is made active after using another tool?
 		renderer.setActiveLayer(Zone.Layer.TOKEN);
 
 		if (MapTool.getPlayer().isGM()) {
@@ -165,6 +172,43 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		}
 		htmlRenderer.attach(renderer);
 		layerSelectionDialog.updateViewList();
+	}
+
+	/**
+	 * When implementation is completed, this method will accept a ZoneRenderer parameter and determine that zone's grid
+	 * style, then query the grid for the keystroke movement it wants to use. Those keystrokes are then added to the
+	 * InputMap and ActionMap for the component by calling the superclass's addListeners() method.
+	 * 
+	 * @param comp
+	 */
+	protected void addListeners_NOT_USED(JComponent comp) {
+		if (comp != null && comp instanceof ZoneRenderer) {
+			Grid grid = ((ZoneRenderer) comp).getZone().getGrid();
+			addGridBasedKeys(grid, true);
+		}
+		super.addListeners(comp);
+	}
+
+	/**
+	 * Let the grid decide which keys perform which kind of movement. This allows hex grids to handle the six-sided
+	 * shapes intelligently depending on whether the grid is a vertical or horizontal grid. This also moves us one step
+	 * closer to defining the keys in an external file...
+	 * <p>
+	 * Boy, this is ugly. As I pin down fixes for code leading up to MT1.4 I find myself performing criminal acts on the
+	 * code base. :(
+	 */
+	@Override
+	protected void addGridBasedKeys(Grid grid, boolean enable) { // XXX Currently not called from anywhere
+		try {
+			if (enable) {
+				grid.installMovementKeys(this, keyActionMap);
+			} else {
+				grid.uninstallMovementKeys(keyActionMap);
+			}
+		} catch (Exception e) {
+			// If there was an exception just ignore those keystrokes...
+			MapTool.showError("exception adding grid-based keys; shouldn't get here!", e); // this gives me a hook to set a breakpoint
+		}
 	}
 
 	@Override
@@ -187,12 +231,13 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	public void startTokenDrag(Token keyToken) {
 		tokenBeingDragged = keyToken;
 
-		if (!MapTool.getPlayer().isGM() && (MapTool.getServerPolicy().isMovementLocked() || MapTool.getFrame().getInitiativePanel().isMovementLocked(keyToken))) {
+		Player p = MapTool.getPlayer();
+		if (!p.isGM() && (MapTool.getServerPolicy().isMovementLocked() || MapTool.getFrame().getInitiativePanel().isMovementLocked(keyToken))) {
 			// Not allowed
 			return;
 		}
-		renderer.addMoveSelectionSet(MapTool.getPlayer().getName(), tokenBeingDragged.getId(), renderer.getOwnedTokens(renderer.getSelectedTokenSet()), false);
-		MapTool.serverCommand().startTokenMove(MapTool.getPlayer().getName(), renderer.getZone().getId(), tokenBeingDragged.getId(), renderer.getOwnedTokens(renderer.getSelectedTokenSet()));
+		renderer.addMoveSelectionSet(p.getName(), tokenBeingDragged.getId(), renderer.getOwnedTokens(renderer.getSelectedTokenSet()), false);
+		MapTool.serverCommand().startTokenMove(p.getName(), renderer.getZone().getId(), tokenBeingDragged.getId(), renderer.getOwnedTokens(renderer.getSelectedTokenSet()));
 
 		isDraggingToken = true;
 	}
@@ -286,10 +331,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 		public void handleMouseMotionEvent(MouseEvent event) {
 			Token token = getTokenAt(event.getX(), event.getY());
-			if (token == null) {
-				return;
-			}
-			if (!AppUtil.playerOwns(token)) {
+			if (token == null || !AppUtil.playerOwns(token)) {
 				return;
 			}
 			renderer.clearSelectedTokens();
@@ -381,7 +423,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		if (isDraggingToken) {
 			return;
 		}
-		dragStartX = e.getX();
+		dragStartX = e.getX(); // These same two lines are in super.mousePressed().  Why do them here?
 		dragStartY = e.getY();
 
 		// Properties
@@ -423,7 +465,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					renderer.clearSelectedTokens();
 				}
 				// XXX Isn't Windows standard to use Ctrl-click to add one element and Shift-click to extend?
-				// XXX Similarly, OSX uses Cmd-click to add one element and Shift-click to extend...
+				// XXX Similarly, OSX uses Cmd-click to add one element and Shift-click to extend...  Change it later.
 				if (SwingUtil.isShiftDown(e) && renderer.getSelectedTokenSet().contains(token.getId())) {
 					renderer.deselectToken(token.getId());
 				} else {
@@ -580,8 +622,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			ZonePoint last;
 			if (tokenUnderMouse == null)
 				last = zp;
-			else
+			else {
 				last = renderer.getLastWaypoint(tokenUnderMouse.getId());
+				// XXX This shouldn't be possible, but it happens?!
+				if (last == null)
+					last = zp;
+			}
 			handleDragToken(zp, zp.x - last.x, zp.y - last.y);
 			return;
 		}
@@ -621,6 +667,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				renderer.repaint();
 			}
 		}
+		// XXX Updating the status bar is done in super.mouseDragged() -- maybe just call that here?  But it also causes repaint events...
 		CellPoint cellUnderMouse = renderer.getCellAt(new ScreenPoint(mouseX, mouseY));
 		if (cellUnderMouse != null) {
 			MapTool.getFrame().getCoordinateStatusBar().update(cellUnderMouse.x, cellUnderMouse.y);
@@ -646,6 +693,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				renderer.repaint();
 				return;
 			}
+			if (tokenUnderMouse == null || !renderer.getSelectedTokenSet().contains(tokenUnderMouse.getId())) {
+				return;
+			}
 			if (isDraggingToken) {
 				if (isMovingWithKeys) {
 					return;
@@ -653,6 +703,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				Grid grid = getZone().getGrid();
 				ZonePoint last = renderer.getLastWaypoint(tokenUnderMouse.getId());
 				ZonePoint zp = new ScreenPoint(mouseX, mouseY).convertToZone(renderer);
+				// FIXME Stupid, ugly bug fix.  How the hell can 'last' even be null in the first place?!
+				if (last == null)
+					last = zp;
 				if (tokenUnderMouse.isSnapToGrid() && grid.getCapabilities().isSnapToGridSupported()) {
 					TokenFootprint tf = tokenUnderMouse.getFootprint(grid);
 					Rectangle r = tf.getBounds(grid);
@@ -663,9 +716,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				int dx = zp.x - last.x;
 				int dy = zp.y - last.y;
 				handleDragToken(zp, dx, dy);
-				return;
-			}
-			if (tokenUnderMouse == null || !renderer.getSelectedTokenSet().contains(tokenUnderMouse.getId())) {
 				return;
 			}
 			if (!isDraggingToken && renderer.isTokenMoving(tokenUnderMouse)) {
@@ -719,7 +769,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		if (tokenBeingDragged.isSnapToGrid() && grid.getCapabilities().isSnapToGridSupported()) {
 			// cellUnderMouse is actually token position if the token is being dragged with keys.
 			CellPoint cellUnderMouse = grid.convert(zonePoint);
-			zonePoint.translate((int) grid.getCellWidth() / 2, (int) grid.getCellHeight() / 2);
+//			zonePoint.translate((int) grid.getCellWidth() / 2, (int) grid.getCellHeight() / 2);
+			zonePoint.translate(grid.getCellOffset().width / 2, grid.getCellOffset().height / 2);
 			zonePoint = grid.convert(grid.convert(zonePoint));
 			MapTool.getFrame().getCoordinateStatusBar().update(cellUnderMouse.x, cellUnderMouse.y);
 		} else {
@@ -873,17 +924,17 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	 * <td>Shift T
 	 * <td>Cycle backward through tokens
 	 * <tr>
-	 * <td>Ctrl I
+	 * <td>Meta I
 	 * <td>Expose fog from visible area
 	 * <tr>
-	 * <td>Ctrl P
+	 * <td>Meta P
 	 * <td>Expose fog from last path
 	 * <tr>
-	 * <td>Ctrl Shift O
+	 * <td>Meta Shift O
 	 * <td>Expose only PC area (reinsert other fog)
 	 * <tr>
 	 * <td>NumPad digits
-	 * <td>Move token:<br>
+	 * <td>Move token (specifics based on the grid type are not implemented yet):<br>
 	 * <table>
 	 * <tr>
 	 * <td>7 (up/left)
@@ -912,7 +963,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	 * <td>Rotate token right by facing amount (depends on grid)
 	 * <tr>
 	 * <td>Ctrl Shift Right
-	 * <td>Rotate token right by 5-deg increments
+	 * <td>Rotate token right by 5¼ increments
 	 * <tr>
 	 * <td>Left
 	 * <td>Move token left
@@ -921,7 +972,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	 * <td>Rotate token left by facing amount (depends on grid)
 	 * <tr>
 	 * <td>Ctrl Shift Left
-	 * <td>Rotate token left by 5-deg increments
+	 * <td>Rotate token left by 5¼ increments
 	 * </table>
 	 */
 	@Override
@@ -932,9 +983,11 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		actionMap.put(AppActions.COPY_TOKENS.getKeyStroke(), AppActions.COPY_TOKENS);
 		actionMap.put(AppActions.PASTE_TOKENS.getKeyStroke(), AppActions.PASTE_TOKENS);
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_R, AppActions.menuShortcut), new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
 			public void actionPerformed(ActionEvent e) {
 				// TODO: Combine all this crap with the Stamp tool
-				if (renderer.getSelectedTokenSet().size() == 0) {
+				if (renderer.getSelectedTokenSet().isEmpty()) {
 					return;
 				}
 				Toolbox toolbox = MapTool.getFrame().getToolbox();
@@ -948,6 +1001,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 		// TODO: Optimize this by making it non anonymous
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
 			public void actionPerformed(java.awt.event.ActionEvent e) {
 				ZoneRenderer renderer = (ZoneRenderer) e.getSource();
 
@@ -977,6 +1032,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, ActionEvent.SHIFT_MASK, false), new PointerActionListener(Pointer.Type.THOUGHT_BUBBLE));
 
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0), new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
 			public void actionPerformed(ActionEvent e) {
 				if (!isDraggingToken) {
 					return;
@@ -985,7 +1042,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				stopTokenDrag();
 			}
 		});
+		// Other NumPad keys are handled by individual grid types
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD5, 0), new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
 			public void actionPerformed(ActionEvent e) {
 				if (!isDraggingToken) {
 					return;
@@ -994,98 +1054,67 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				stopTokenDrag();
 			}
 		});
-		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD6, 0), new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				handleKeyMove(1, 0);
-			}
-		});
-		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD4, 0), new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				handleKeyMove(-1, 0);
-			}
-		});
-		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD8, 0), new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				handleKeyMove(0, -1);
-			}
-		});
-		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD2, 0), new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				handleKeyMove(0, 1);
-			}
-		});
-		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD7, 0), new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				handleKeyMove(-1, -1);
-			}
-		});
-		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD9, 0), new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				handleKeyMove(1, -1);
-			}
-		});
-		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD1, 0), new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				handleKeyMove(-1, 1);
-			}
-		});
-		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD3, 0), new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				handleKeyMove(1, 1);
-			}
-		});
-		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				handleKeyMove(0, 1);
-			}
-		});
-		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				handleKeyMove(1, 0);
-			}
-		});
+		int size = 1;
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD7, 0), new MovementKey(this, -size, -size));
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD8, 0), new MovementKey(this, 0, -size));
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD9, 0), new MovementKey(this, size, -size));
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD4, 0), new MovementKey(this, -size, 0));
+//		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD5, 0), new MovementKey(this, 0, 0));
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD6, 0), new MovementKey(this, size, 0));
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD1, 0), new MovementKey(this, -size, size));
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD2, 0), new MovementKey(this, 0, size));
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD3, 0), new MovementKey(this, size, size));
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), new MovementKey(this, -size, 0));
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), new MovementKey(this, size, 0));
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), new MovementKey(this, 0, -size));
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), new MovementKey(this, 0, size));
+
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, InputEvent.SHIFT_DOWN_MASK), new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
 			public void actionPerformed(ActionEvent e) {
 				handleKeyRotate(-1, false); // clockwise
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK), new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
 			public void actionPerformed(ActionEvent e) {
 				handleKeyRotate(-1, true); // clockwise
 			}
 		});
-		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				handleKeyMove(-1, 0);
-			}
-		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, InputEvent.SHIFT_DOWN_MASK), new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
 			public void actionPerformed(ActionEvent e) {
 				handleKeyRotate(1, false); // counter-clockwise
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK), new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
 			public void actionPerformed(ActionEvent e) {
 				handleKeyRotate(1, true); // counter-clockwise
 			}
 		});
-		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				handleKeyMove(0, -1);
-			}
-		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_T, 0), new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
 			public void actionPerformed(ActionEvent e) {
 				renderer.cycleSelectedToken(1);
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.SHIFT_DOWN_MASK), new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
 			public void actionPerformed(ActionEvent e) {
 				renderer.cycleSelectedToken(-1);
 			}
 		});
 
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_I, AppActions.menuShortcut), new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
 			public void actionPerformed(ActionEvent e) {
 				if (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision()) {
 					FogUtil.exposeVisibleArea(renderer, renderer.getOwnedTokens(renderer.getSelectedTokenSet()));
@@ -1093,6 +1122,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, AppActions.menuShortcut | InputEvent.SHIFT_DOWN_MASK), new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
 			public void actionPerformed(ActionEvent e) {
 				//  Only let the GM's do this
 				if (MapTool.getPlayer().isGM()) {
@@ -1102,6 +1133,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P, AppActions.menuShortcut), new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
 			public void actionPerformed(ActionEvent e) {
 				if (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision()) {
 					FogUtil.exposeLastPath(renderer, renderer.getOwnedTokens(renderer.getSelectedTokenSet()));
@@ -1158,7 +1191,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		renderer.repaint();
 	}
 
-	private void handleKeyMove(int dx, int dy) {
+	public void handleKeyMove(double dx, double dy) {
 		Token keyToken = null;
 		if (!isDraggingToken) {
 			// Start
@@ -1191,27 +1224,25 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			dragOffsetX = 0;
 			dragOffsetY = 0;
 		}
-		ZonePoint zp = null;
+		int x = dragStartX + (int) dx;
+		int y = dragStartY + (int) dy;
+		ZonePoint zp = new ZonePoint(x, y);
 		Grid grid = renderer.getZone().getGrid();
 		if (tokenBeingDragged.isSnapToGrid() && grid.getCapabilities().isSnapToGridSupported()) {
-			CellPoint cp = grid.convert(new ZonePoint(dragStartX, dragStartY));
-
-			cp.x += dx;
-			cp.y += dy;
-
+			CellPoint cp = grid.convert(zp);
+//			cp.x += dx;
+//			cp.y += dy;
 			zp = grid.convert(cp);
 			dx = zp.x - dragStartX;
 			dy = zp.y - dragStartY;
-		} else {
-			Rectangle tokenSize = tokenBeingDragged.getBounds(renderer.getZone());
-
-			int x = dragStartX + (tokenSize.width * dx);
-			int y = dragStartY + (tokenSize.height * dy);
-
-			zp = new ZonePoint(x, y);
+//		} else {
+//			Rectangle tokenSize = tokenBeingDragged.getBounds(renderer.getZone());
+//			int x = dragStartX + (int) dx;
+//			int y = dragStartY + (int) dy;
+//			zp = new ZonePoint(x, y);
 		}
 		isMovingWithKeys = true;
-		handleDragToken(zp, dx, dy);
+		handleDragToken(zp, (int) dx, (int) dy);
 	}
 
 	private void setWaypoint() {
@@ -1223,6 +1254,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	// //
 	// POINTER KEY ACTION
 	private class PointerActionListener extends AbstractAction {
+		private static final long serialVersionUID = 8348513388262364724L;
+
 		Pointer.Type type;
 
 		public PointerActionListener(Pointer.Type type) {
@@ -1250,6 +1283,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	// //
 	// STOP POINTER ACTION
 	private class StopPointerActionListener extends AbstractAction {
+		private static final long serialVersionUID = -8508019800264211345L;
+
 		public void actionPerformed(ActionEvent e) {
 			if (isShowingPointer) {
 				isShowingPointer = false;
@@ -1312,11 +1347,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				SwingUtil.constrainTo(imgSize, AppPreferences.getPortraitSize());
 
 				// Stats
-				Dimension statSize = null;
 				Map<String, String> propertyMap = new LinkedHashMap<String, String>();
 				if (AppPreferences.getShowStatSheet()) {
 					for (TokenProperty property : MapTool.getCampaign().getTokenPropertyList(tokenUnderMouse.getPropertyType())) {
-						if (property.isShowOnStateSheet()) {
+						if (property.isShowOnStatSheet()) {
 							if (property.isGMOnly() && !MapTool.getPlayer().isGM()) {
 								continue;
 							}
@@ -1337,12 +1371,17 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 						}
 					}
 				}
-				if (tokenUnderMouse.getPortraitImage() != null || propertyMap.size() > 0) {
+				Dimension statSize = null;
+				int rm = AppStyle.miniMapBorder.getRightMargin();
+				int lm = AppStyle.miniMapBorder.getLeftMargin();
+				int tm = AppStyle.miniMapBorder.getTopMargin();
+				int bm = AppStyle.miniMapBorder.getBottomMargin();
+				if (tokenUnderMouse.getPortraitImage() != null || !propertyMap.isEmpty()) {
 					Font font = AppStyle.labelFont;
 					FontMetrics valueFM = g.getFontMetrics(font);
 					FontMetrics keyFM = g.getFontMetrics(boldFont);
 					int rowHeight = Math.max(valueFM.getHeight(), keyFM.getHeight());
-					if (propertyMap.size() > 0) {
+					if (!propertyMap.isEmpty()) {
 						// Figure out size requirements
 						int height = propertyMap.size() * (rowHeight + PADDING);
 						int width = -1;
@@ -1355,10 +1394,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 						statSize = new Dimension(width + PADDING * 3, height);
 					}
 					// Create the space for the image
-					int width = imgSize.width + (statSize != null ? statSize.width + AppStyle.miniMapBorder.getRightMargin() : 0) + AppStyle.miniMapBorder.getLeftMargin()
-							+ AppStyle.miniMapBorder.getRightMargin();
-					int height = Math.max(imgSize.height, (statSize != null ? statSize.height + AppStyle.miniMapBorder.getRightMargin() : 0)) + AppStyle.miniMapBorder.getTopMargin()
-							+ AppStyle.miniMapBorder.getBottomMargin();
+					int width = imgSize.width + (statSize != null ? statSize.width + rm : 0) + lm + rm;
+					int height = Math.max(imgSize.height, (statSize != null ? statSize.height + bm : 0)) + tm + bm;
 					statSheet = new BufferedImage(width, height, BufferedImage.BITMASK);
 					Graphics2D statsG = statSheet.createGraphics();
 					statsG.setClip(new Rectangle(0, 0, width, height));
@@ -1367,8 +1404,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 					// Draw the stats first, right aligned
 					if (statSize != null) {
-						Rectangle bounds = new Rectangle(width - statSize.width - AppStyle.miniMapBorder.getRightMargin(), statSize.height == height ? 0 : height - statSize.height
-								- AppStyle.miniMapBorder.getBottomMargin(), statSize.width, statSize.height);
+						Rectangle bounds = new Rectangle(width - statSize.width - rm, statSize.height == height ? 0 : height - statSize.height - bm, statSize.width, statSize.height);
 						statsG.setPaint(new TexturePaint(AppStyle.panelTexture, new Rectangle(0, 0, AppStyle.panelTexture.getWidth(), AppStyle.panelTexture.getHeight())));
 						statsG.fill(bounds);
 						AppStyle.miniMapBorder.paintAround(statsG, bounds);
@@ -1395,7 +1431,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 						}
 					}
 					// Draw the portrait
-					Rectangle bounds = new Rectangle(AppStyle.miniMapBorder.getLeftMargin(), height - imgSize.height - AppStyle.miniMapBorder.getBottomMargin(), imgSize.width, imgSize.height);
+					Rectangle bounds = new Rectangle(lm, height - imgSize.height - bm, imgSize.width, imgSize.height);
 
 					statsG.setPaint(new TexturePaint(AppStyle.panelTexture, new Rectangle(0, 0, AppStyle.panelTexture.getWidth(), AppStyle.panelTexture.getHeight())));
 					statsG.fill(bounds);
@@ -1404,7 +1440,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					AppStyle.shadowBorder.paintWithin(statsG, bounds);
 
 					// Label
-					GraphicsUtil.drawBoxedString(statsG, tokenUnderMouse.getName(), bounds.width / 2 + AppStyle.miniMapBorder.getLeftMargin(), height - 15);
+					GraphicsUtil.drawBoxedString(statsG, tokenUnderMouse.getName(), bounds.width / 2 + lm, height - 15);
 
 					statsG.dispose();
 				}
@@ -1478,7 +1514,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			if (!StringUtil.isEmpty(marker.getGMName())) {
 				builder.append(" - ").append(marker.getGMName());
 			}
-			builder.append(":</span></b><br>");
+			builder.append("</span></b><br>");
 			builder.append(marker.getGMNotes());
 		}
 		if (marker.getPortraitImage() != null) {
@@ -1488,7 +1524,13 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				SwingUtil.constrainTo(imgSize, AppConstants.NOTE_PORTRAIT_SIZE);
 			}
 			builder.append("</td><td valign=top>");
-			builder.append("<img src=asset://").append(marker.getPortraitImage()).append(" width=").append(imgSize.width).append(" height=").append(imgSize.height).append("></tr></table>");
+			builder.append("<img src='asset://")
+					.append(marker.getPortraitImage())
+					.append("' width=")
+					.append(imgSize.width)
+					.append(" height=")
+					.append(imgSize.height)
+					.append("></tr></table>");
 		}
 		String notes = builder.toString();
 		notes = notes.replaceAll("\n", "<br>");

@@ -13,14 +13,12 @@ package net.rptools.maptool.model;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
 import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
@@ -312,27 +310,6 @@ public abstract class Grid implements Cloneable {
 	abstract public void installMovementKeys(PointerTool callback, Map<KeyStroke, Action> actionMap);
 
 	abstract public void uninstallMovementKeys(Map<KeyStroke, Action> actionMap);
-
-	protected class MovementKey extends AbstractAction {
-		private static final long serialVersionUID = -4103031698708914986L;
-		private final double dx, dy;
-		private final PointerTool tool; // I'd like to store this in the Grid, but then it has to be final :(
-
-		public MovementKey(PointerTool callback, double x, double y) {
-			tool = callback;
-			dx = x;
-			dy = y;
-		}
-
-		@Override
-		public String toString() {
-			return "[" + dx + "," + dy + "]";
-		}
-
-		public void actionPerformed(ActionEvent e) {
-			tool.handleKeyMove(dx, dy);
-		}
-	}
 
 	static class DirectionCalculator {
 		private static final int NW = 1;
