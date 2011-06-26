@@ -130,7 +130,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 	private static int PADDING = 7;
 
-	// Offset from token's X,Y when dragging. Values are in cell coordinates.
+	// Offset from token's X,Y when dragging. Values are in zone coordinates.
 	private int dragOffsetX;
 	private int dragOffsetY;
 	private int dragStartX;
@@ -760,7 +760,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	/**
 	 * Move the keytoken being dragged to this zone point
 	 * 
-	 * @param zonePoint
+	 * @param zonePoint The new ZonePoint for the token.
+	 * @param dx The amount being moved in the X direction
+	 * @param dy The amount being moved in the Y direction
 	 * @return true if the move was successful
 	 */
 	public boolean handleDragToken(ZonePoint zonePoint, int dx, int dy) {
@@ -768,8 +770,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		if (tokenBeingDragged.isSnapToGrid() && grid.getCapabilities().isSnapToGridSupported()) {
 			// cellUnderMouse is actually token position if the token is being dragged with keys.
 			CellPoint cellUnderMouse = grid.convert(zonePoint);
-//			zonePoint.translate((int) grid.getCellWidth() / 2, (int) grid.getCellHeight() / 2);
 			zonePoint.translate(grid.getCellOffset().width / 2, grid.getCellOffset().height / 2);
+			// Convert the zone point to a cell point and back to force the snap to grid on drag
 			zonePoint = grid.convert(grid.convert(zonePoint));
 			MapTool.getFrame().getCoordinateStatusBar().update(cellUnderMouse.x, cellUnderMouse.y);
 		} else {
@@ -1190,6 +1192,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		renderer.repaint();
 	}
 
+	/**
+	 * Handle the movement of tokens by keypresses.
+	 * 
+	 * @param dx The X movement in Cell units
+	 * @param dy The Y movement in Cell units
+	 */
 	public void handleKeyMove(double dx, double dy) {
 		Token keyToken = null;
 		if (!isDraggingToken) {
@@ -1215,6 +1223,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			if (keyToken == null) {
 				return;
 			}
+			// Note these are zone space coordinates
 			dragStartX = keyToken.getX();
 			dragStartY = keyToken.getY();
 			startTokenDrag(keyToken);
@@ -1223,22 +1232,27 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			dragOffsetX = 0;
 			dragOffsetY = 0;
 		}
-		int x = dragStartX + (int) dx;
-		int y = dragStartY + (int) dy;
-		ZonePoint zp = new ZonePoint(x, y);
+		// The zone point the token will be moved to after adjusting for dx/dy
+		ZonePoint zp = new ZonePoint(dragStartX, dragStartY);
 		Grid grid = renderer.getZone().getGrid();
 		if (tokenBeingDragged.isSnapToGrid() && grid.getCapabilities().isSnapToGridSupported()) {
 			CellPoint cp = grid.convert(zp);
-//			cp.x += dx;
-//			cp.y += dy;
+			cp.x += dx;
+			cp.y += dy;
 			zp = grid.convert(cp);
-			dx = zp.x - dragStartX;
-			dy = zp.y - dragStartY;
-//		} else {
-//			Rectangle tokenSize = tokenBeingDragged.getBounds(renderer.getZone());
-//			int x = dragStartX + (int) dx;
-//			int y = dragStartY + (int) dy;
-//			zp = new ZonePoint(x, y);
+			dx = zp.x - tokenBeingDragged.getX();
+			dy = zp.y - tokenBeingDragged.getY();
+		} else {
+			// Scalar for dx/dy in zone space.  Defaulting to essentially 1 pixel.
+			int moveFactor = 1;
+			if (tokenBeingDragged.isSnapToGrid()) {
+				// Move in grid size increments.  Allows tokens set snap-to-grid on gridless maps
+				// to move in whole cell size increments.
+				moveFactor = grid.getSize();
+			}
+			int x = dragStartX + (int) (dx * moveFactor);
+			int y = dragStartY + (int) (dy * moveFactor);
+			zp = new ZonePoint(x, y);
 		}
 		isMovingWithKeys = true;
 		handleDragToken(zp, (int) dx, (int) dy);
