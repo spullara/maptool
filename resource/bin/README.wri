@@ -153,6 +153,14 @@ and over again, please remove the existing log file and then reproduce
 the error.  Then zip up the log file and attach it to a post in the
 MapTool forum.
 
+For Windows users you may want to periodically execute the "Backup"
+batch file in the top-level MapTool directory.  It will copy MapTool
+registry entries into a file named "mtsave.reg".  Java saves
+application preferences and global macros in the registry so this
+batch file is necessary if you want an easy way to back up those
+entries so they can be restored in case of a hard drive replacement or
+similar change.
+
 For any other issues, please come to http://forums.RPTools.net/ and
 check the forums.  In particular, use the error message as a search
 string to see if your question has been asked and answered previously.
