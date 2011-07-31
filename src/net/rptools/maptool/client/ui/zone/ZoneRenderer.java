@@ -2419,7 +2419,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				Stroke oldStroke = clippedG.getStroke();
 				clippedG.setStroke(new BasicStroke(AppPreferences.getHaloLineWidth()));
 				clippedG.setColor(token.getHaloColor());
-				clippedG.draw(new Rectangle2D.Double(location.x, location.y, location.scaledWidth, location.scaledHeight));
+				clippedG.draw(location.bounds);
 				clippedG.setStroke(oldStroke);
 			}
 			timer.stop("tokenlist-4");

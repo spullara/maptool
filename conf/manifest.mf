@@ -9,12 +9,12 @@ Class-Path: lib/BareBonesBrowserLaunch.jar lib/abeille-formsrt-2.0.jar
  ing-1.1.1.jar lib/decktool-1.0.b1.jar lib/dicelib-1.0.b18.jar lib/ezm
  orph-1.0.5.jar lib/hessian-3.1.6.jar lib/jide-common-2.7.3.jar lib/ji
  de-components-2.7.3.jar lib/jide-dialogs-2.7.3.jar lib/jide-dock-2.7.
- 3.jar lib/jide-editor-2.7.3.jar lib/jide-grids-2.7.3.jar lib/jide-oss
- -2.7.3.jar lib/jide-properties-2.7.3.jar lib/jl1.0.jar lib/js-1.7R1.j
- ar lib/json-lib-2.2.2-jdk15.jar lib/log4j-1.2.15.jar lib/maptool.reso
- urce-1.0.b18.jar lib/parser-1.1.b23.jar lib/parser-1.1.b24.jar lib/re
- nderpack-1.2004.jar lib/rplib-1.0.b131.jar lib/sbbi-upnplib-1.0.4.jar
-  lib/servicediscoverylib-1.0.b5.jar lib/swing-worker-0.1.jar lib/tiny
- laf-1.3.04.jar lib/withay-util.jar lib/xpp3_min-1.1.4c.jar lib/xstrea
- m-1.3.1.jar lib/yasb-0.2-21012007.jar
+ 3.jar lib/jide-editor-2.7.3.jar lib/jide-grids-2.7.3.jar lib/jide-pro
+ perties-2.7.3.jar lib/jl1.0.jar lib/js-1.7R1.jar lib/json-lib-2.2.2-j
+ dk15.jar lib/log4j-1.2.15.jar lib/maptool.resource-1.0.b18.jar lib/pa
+ rser-1.1.b23.jar lib/parser-1.1.b24.jar lib/renderpack-1.2004.jar lib
+ /rplib-1.0.b132.jar lib/sbbi-upnplib-1.0.4.jar lib/servicediscoveryli
+ b-1.0.b5.jar lib/swing-worker-0.1.jar lib/tinylaf-1.3.04.jar lib/with
+ ay-util.jar lib/xpp3_min-1.1.4c.jar lib/xstream-1.3.1.jar lib/yasb-0.
+ 2-21012007.jar
 
