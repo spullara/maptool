@@ -1260,6 +1260,10 @@ public class Zone extends BaseModel {
 		if (boardPosition == null) {
 			boardPosition = new Point(0, 0);
 		}
+		Zone.Layer.TOKEN.setEnabled(true);
+		Zone.Layer.GM.setEnabled(true);
+		Zone.Layer.OBJECT.setEnabled(true);
+		Zone.Layer.BACKGROUND.setEnabled(true);
 
 		// 1.3b47 -> 1.3b48
 		if (visionType == null) {
