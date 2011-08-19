@@ -2050,11 +2050,14 @@ public class AppActions {
 
 		@Override
 		public void execute(final ActionEvent ae) {
+			Observer callback = null;
+			if (ae.getSource() instanceof Observer)
+				callback = (Observer) ae.getSource();
 			if (AppState.getCampaignFile() == null) {
-				doSaveCampaignAs(null);
+				doSaveCampaignAs(callback);
 				return;
 			}
-			doSaveCampaign(MapTool.getCampaign(), AppState.getCampaignFile(), null);
+			doSaveCampaign(MapTool.getCampaign(), AppState.getCampaignFile(), callback);
 		}
 	};
 

@@ -1316,7 +1316,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 							}
 						}
 					};
-					AppActions.SAVE_CAMPAIGN.actionPerformed(new ActionEvent(this, 0, "close"));
+					ActionEvent ae = new ActionEvent(callback, 0, "close");
+					AppActions.SAVE_CAMPAIGN.actionPerformed(ae);
 					return;
 				}
 			} else {
