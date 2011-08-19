@@ -320,7 +320,6 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
 	 *            Setter for the list to set
 	 */
 	public void setList(InitiativeList theList) {
-
 		// Remove the old list
 		if (list == theList)
 			return;
@@ -333,7 +332,6 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
 			list.addPropertyChangeListener(this);
 			round.setText(list.getRound() >= 0 ? Integer.toString(list.getRound()) : "");
 		}
-
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				model.setList(list);
@@ -375,7 +373,6 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
 	 *            The new zone
 	 */
 	public void setZone(Zone aZone) {
-
 		// Clean up listeners
 		if (aZone == zone)
 			return;

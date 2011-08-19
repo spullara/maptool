@@ -290,7 +290,8 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 
 	public void clearAllDrawings(GUID zoneGUID, Zone.Layer layer) {
 		Zone zone = server.getCampaign().getZone(zoneGUID);
-		zone.getDrawnElements(layer).clear();
+		List<DrawnElement> list = zone.getDrawnElements(layer);
+		zone.clearDrawables(list); // FJE Empties the DrawableUndoManager and empties the list
 		forwardToAllClients();
 	}
 
@@ -543,6 +544,18 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 	}
 
 	public void undoDraw(GUID zoneGUID, GUID drawableGUID) {
+		// This is a problem.  The contents of the UndoManager are not synchronized across machines
+		// so if one machine uses Meta-Z to undo a drawing, that drawable will be removed on all
+		// machines, but there is no attempt to keep the UndoManager in sync.  So that same drawable
+		// will still be in the UndoManager queue on other machines.  Ideally we should be filtering
+		// the local Undomanager queue based on the drawable (removing it when we find it), but
+		// the Swing UndoManager doesn't provide that capability so we would need to subclass it.
+		// And if we're going to do that, we may as well fix the other problems:  the UndoManager should
+		// be per-map and per-layer (?) and not a singleton instance for the entire application!  But
+		// now we're talking a pretty intrusive set of changes:  when a zone is deleted, the UndoManagers
+		// would need to be cleared and duplicating a zone means doing a deep copy on the UndoManager
+		// or flushing it entirely in the new zone.  We'll save all of this for a separate patch against 1.3 or
+		// for 1.4.
 		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.undoDraw.name(), zoneGUID, drawableGUID);
 		Zone zone = server.getCampaign().getZone(zoneGUID);
 		zone.removeDrawable(drawableGUID);

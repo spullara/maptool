@@ -31,6 +31,7 @@ import java.util.Set;
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.tool.drawing.DrawableUndoManager;
 import net.rptools.maptool.client.ui.MapToolFrame;
 import net.rptools.maptool.client.ui.zone.PlayerView;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -868,6 +869,16 @@ public class Zone extends BaseModel {
 				return;
 			}
 		}
+	}
+
+	public void clearDrawables(List<DrawnElement> drawableList) {
+		ListIterator<DrawnElement> i = drawableList.listIterator();
+		while (i.hasNext()) {
+			DrawnElement drawable = i.next();
+			fireModelChangeEvent(new ModelChangeEvent(this, Event.DRAWABLE_REMOVED, drawable));
+		}
+		drawableList.clear();
+		DrawableUndoManager.getInstance().clear(); // clears the *entire* undo queue, but finer grained control isn't available!
 	}
 
 	///////////////////////////////////////////////////////////////////////////

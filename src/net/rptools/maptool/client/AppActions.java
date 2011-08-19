@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Observer;
 import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
@@ -663,6 +664,7 @@ public class AppActions {
 				return;
 			}
 			// LATER: Integrate this with the undo stuff
+			// FJE ServerMethodHandler.clearAllDrawings() now empties the DrawableUndoManager as well.
 			MapTool.serverCommand().clearAllDrawings(renderer.getZone().getId(), layer);
 		}
 
@@ -2047,27 +2049,42 @@ public class AppActions {
 		}
 
 		@Override
-		public void execute(ActionEvent ae) {
+		public void execute(final ActionEvent ae) {
 			if (AppState.getCampaignFile() == null) {
-				SAVE_CAMPAIGN_AS.actionPerformed(ae);
+				doSaveCampaignAs(null);
 				return;
 			}
-			saveCampaign(MapTool.getCampaign(), AppState.getCampaignFile(), ae.getActionCommand());
+			doSaveCampaign(MapTool.getCampaign(), AppState.getCampaignFile(), null);
 		}
 	};
 
-	private static void saveCampaign(final Campaign campaign, final File file, final String command) {
+	public static final Action SAVE_CAMPAIGN_AS = new DefaultClientAction() {
+		{
+			init("action.saveCampaignAs");
+		}
+
+		@Override
+		public boolean isAvailable() {
+			return MapTool.isHostingServer() || MapTool.getPlayer().isGM();
+		}
+
+		@Override
+		public void execute(final ActionEvent ae) {
+			doSaveCampaignAs(null);
+		}
+	};
+
+	private static void doSaveCampaign(final Campaign campaign, final File file, final Observer callback) {
 		MapTool.getFrame().showFilledGlassPane(new StaticMessageDialog(I18N.getText("msg.info.campaignSaving")));
 		new SwingWorker<Object, Object>() {
 			@Override
 			protected Object doInBackground() throws Exception {
+				MapTool.getAutoSaveManager().pause();
+				if (AppState.isSaving()) {
+					MapTool.getAutoSaveManager().restart();
+					return "Campaign currently being auto-saved.  Try again later."; // string error message
+				}
 				try {
-					MapTool.getAutoSaveManager().pause();
-					if (AppState.isSaving()) {
-						MapTool.confirm("Campaign currently being auto-saved.  Try again later.", (Object[]) null);
-						MapTool.getAutoSaveManager().restart();
-						return null;
-					}
 					AppState.setIsSaving(true);
 
 					long start = System.currentTimeMillis();
@@ -2081,6 +2098,7 @@ public class AppActions {
 					} catch (InterruptedException e) {
 						// Nothing to do
 					}
+					return null; // 'null' means everything worked; no errors
 				} catch (IOException ioe) {
 					MapTool.showError("msg.error.failedSaveCampaign", ioe);
 				} catch (Throwable t) {
@@ -2089,64 +2107,49 @@ public class AppActions {
 					AppState.setIsSaving(false);
 					MapTool.getAutoSaveManager().restart();
 				}
-				return null;
+				return "Failed due to exception"; // string error message
 			}
 
 			@Override
 			protected void done() {
 				MapTool.getFrame().hideGlassPane();
-
-				if (command != null) {
-					// TODO: make this prettier.  I need to be able to tell the save command to exit the program
-					// on completion, so I'm hijacking the command value of the action.  Very.  Ugly.  Presumably it
-					// would be better passing some sort of Runnable to execute on completion.  But this will work for now
-					if ("close".equals(command)) {
-						MapTool.getFrame().close();
-					}
+				Object obj = null;
+				try {
+					obj = get();
+					if (obj instanceof String)
+						MapTool.showWarning((String) obj);
+				} catch (Exception e) {
+					MapTool.showError("Exception during SwingWorker.get()?", e);
+				}
+				if (callback != null) {
+					callback.update(null, obj);
 				}
 			}
 		}.execute();
 	}
 
-	public static final Action SAVE_CAMPAIGN_AS = new DefaultClientAction() {
-		{
-			init("action.saveCampaignAs");
-		}
+	public static void doSaveCampaignAs(final Observer callback) {
+		Campaign campaign = MapTool.getCampaign();
+		JFileChooser chooser = MapTool.getFrame().getSaveCmpgnFileChooser();
 
-		@Override
-		public boolean isAvailable() {
-			return MapTool.isHostingServer() || MapTool.getPlayer().isGM();
-		}
+		saveStatus = chooser.showSaveDialog(MapTool.getFrame());
+		if (saveStatus == JFileChooser.APPROVE_OPTION) {
+			File campaignFile = chooser.getSelectedFile();
 
-		@Override
-		public void execute(ActionEvent ae) {
-
-			Campaign campaign = MapTool.getCampaign();
-
-			JFileChooser chooser = MapTool.getFrame().getSaveCmpgnFileChooser();
-
-			saveStatus = chooser.showSaveDialog(MapTool.getFrame());
-			if (saveStatus == JFileChooser.APPROVE_OPTION) {
-
-				File campaignFile = chooser.getSelectedFile();
-
-				if (campaignFile.exists() && !MapTool.confirm("msg.confirm.overwriteExistingCampaign")) {
-					return;
-				}
-
-				if (campaignFile.getName().indexOf(".") < 0) {
-					campaignFile = new File(campaignFile.getAbsolutePath() + AppConstants.CAMPAIGN_FILE_EXTENSION);
-				}
-
-				saveCampaign(campaign, campaignFile, ae.getActionCommand());
-
-				AppState.setCampaignFile(campaignFile);
-				AppPreferences.setSaveDir(campaignFile.getParentFile());
-				AppMenuBar.getMruManager().addMRUCampaign(AppState.getCampaignFile());
-				MapTool.getFrame().setTitleViaRenderer(MapTool.getFrame().getCurrentZoneRenderer());
+			if (campaignFile.exists() && !MapTool.confirm("msg.confirm.overwriteExistingCampaign")) {
+				return;
 			}
+			if (campaignFile.getName().indexOf(".") < 0) {
+				campaignFile = new File(campaignFile.getAbsolutePath() + AppConstants.CAMPAIGN_FILE_EXTENSION);
+			}
+			doSaveCampaign(campaign, campaignFile, callback);
+
+			AppState.setCampaignFile(campaignFile);
+			AppPreferences.setSaveDir(campaignFile.getParentFile());
+			AppMenuBar.getMruManager().addMRUCampaign(AppState.getCampaignFile());
+			MapTool.getFrame().setTitleViaRenderer(MapTool.getFrame().getCurrentZoneRenderer());
 		}
-	};
+	}
 
 	public static final DeveloperClientAction SAVE_MAP_AS = new DeveloperClientAction() {
 		{
@@ -2564,7 +2567,6 @@ public class AppActions {
 
 		@Override
 		public void execute(ActionEvent ae) {
-
 			if (!MapTool.getFrame().confirmClose()) {
 				return;
 			} else {

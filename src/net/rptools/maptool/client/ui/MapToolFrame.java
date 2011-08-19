@@ -1307,11 +1307,20 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 					return;
 				}
 				if (result == JOptionPane.YES_OPTION) {
+					final Observer callback = new Observer() {
+						public void update(java.util.Observable o, Object arg) {
+							if (arg instanceof String) {
+								// There was an error during the save -- don't terminate MapTool!
+							} else {
+								MapTool.getFrame().close();
+							}
+						}
+					};
 					AppActions.SAVE_CAMPAIGN.actionPerformed(new ActionEvent(this, 0, "close"));
 					return;
 				}
 			} else {
-				if (!MapTool.confirm(I18N.getText("msg.confirm.disconnecting"))) {
+				if (!MapTool.confirm("msg.confirm.disconnecting")) {
 					return;
 				}
 			}

@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.tool.drawing;
 
@@ -32,10 +29,9 @@ import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.model.drawing.ShapeDrawable;
 
-
 /**
  * @author drice
- *
+ * 
  */
 public class RectangleTool extends AbstractDrawingTool implements MouseMotionListener {
 	private static final long serialVersionUID = 3258413928311830323L;
@@ -64,27 +60,22 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
 	@Override
 	public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
 		if (rectangle != null) {
-
 			Pen pen = getPen();
-
 			if (pen.isEraser()) {
 				pen = new Pen(pen);
 				pen.setEraser(false);
 				pen.setPaint(new DrawableColorPaint(Color.white));
 				pen.setBackgroundPaint(new DrawableColorPaint(Color.white));
 			}
-
 			paintTransformed(g, renderer, new ShapeDrawable(rectangle, false), pen);
-
-			ToolHelper.drawBoxedMeasurement(renderer, g, ScreenPoint.fromZonePoint(renderer, rectangle.x, rectangle.y), ScreenPoint.fromZonePoint(renderer, rectangle.x + rectangle.width, rectangle.y+rectangle.height));
+			ToolHelper.drawBoxedMeasurement(renderer, g, ScreenPoint.fromZonePoint(renderer, rectangle.x, rectangle.y),
+					ScreenPoint.fromZonePoint(renderer, rectangle.x + rectangle.width, rectangle.y + rectangle.height));
 		}
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-
 		ZonePoint zp = getPoint(e);
-
 		if (SwingUtilities.isLeftMouseButton(e)) {
 			if (rectangle == null) {
 				originPoint = zp;
@@ -97,9 +88,8 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
 					renderer.repaint();
 					return;
 				}
-
 				// Draw Rectangle with initial point as Center
-				if ( e.isAltDown()) {
+				if (e.isAltDown()) {
 					if (zp.x > originPoint.x)
 						rectangle.x -= rectangle.width;
 
@@ -109,20 +99,17 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
 					rectangle.width *= 2;
 					rectangle.height *= 2;
 				}
-
+				System.out.println("Adding Rectangle to zone: " + rectangle);
 				completeDrawable(renderer.getZone().getId(), getPen(), new ShapeDrawable(rectangle, false));
 				rectangle = null;
 			}
-
 			setIsEraser(isEraser(e));
 		}
-
 		super.mousePressed(e);
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-
 		if (rectangle == null) {
 			super.mouseDragged(e);
 		}
@@ -134,11 +121,10 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
 
 		if (rectangle != null) {
 			ZonePoint p = getPoint(e);
-
 			rectangle = createRect(originPoint, p);
 
 			// Draw Rectangle with initial point as Center
-			if ( e.isAltDown()) {
+			if (e.isAltDown()) {
 				if (p.x > originPoint.x)
 					rectangle.x -= rectangle.width;
 
@@ -148,7 +134,6 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
 				rectangle.width *= 2;
 				rectangle.height *= 2;
 			}
-
 			renderer.repaint();
 		}
 	}
