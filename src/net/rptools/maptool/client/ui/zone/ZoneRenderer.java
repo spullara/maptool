@@ -720,6 +720,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 					iter.remove();
 				}
 			}
+			if (selectedTokens.isEmpty())
+				selectedTokens = zone.getPlayerOwnedTokensWithSight(MapTool.getPlayer());
 		} else {
 			selectedTokens = zone.getPlayerOwnedTokensWithSight(MapTool.getPlayer());
 		}
