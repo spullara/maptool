@@ -720,6 +720,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 					iter.remove();
 				}
 			}
+		} else {
+			selectedTokens = zone.getPlayerOwnedTokensWithSight(MapTool.getPlayer());
 		}
 		return new PlayerView(role, selectedTokens);
 	}
@@ -1561,6 +1563,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 					renderFogArea(buffG, view, combined, visibleArea);
 					renderFogOutline(buffG, view, combined);
 				} else {
+					// 'combined' already includes the area encompassed by 'tempArea', so just
+					// use 'combined' instead in this block of code?
+					tempArea.add(combined);
 					buffG.fill(tempArea);
 					renderFogArea(buffG, view, tempArea, visibleArea);
 					renderFogOutline(buffG, view, tempArea);
@@ -1579,7 +1584,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 					Area myCombined = new Area();
 					List<Token> myToks = zone.getTokens();
 					for (Token tok : myToks) {
-						if (!AppUtil.playerOwns(tok)) {
+						if (!AppUtil.playerOwns(tok)) { // Only here if !isGMview() so should the tokens already be in PlayerView.getTokens()?
 							continue;
 						}
 						ExposedAreaMetaData meta = zone.getExposedAreaMetaData(tok.getExposedAreaGUID());

@@ -730,6 +730,15 @@ public class Zone extends BaseModel {
 		return new ZonePoint((int) (gridx * grid.getCellWidth() + grid.getOffsetX()), (int) (gridy * grid.getCellHeight() + grid.getOffsetY()));
 	}
 
+	/**
+	 * Returns the Area of the exposed fog for the current tokens (as determined by view.getTokens()). This means if no
+	 * tokens are current, the return value is the zone's global exposed fog area. If tokens are returned by
+	 * getTokens(), their exposed areas are added to the zone's global area and the result is returned.
+	 * 
+	 * @param view
+	 *            holds whether or not tokens are selected
+	 * @return
+	 */
 	public Area getExposedArea(PlayerView view) {
 		Area combined = new Area(exposedArea);
 
@@ -1094,6 +1103,14 @@ public class Zone extends BaseModel {
 		return getTokensFiltered(new Filter() {
 			public boolean matchToken(Token t) {
 				return t.getType() == Token.Type.PC;
+			}
+		});
+	}
+
+	public List<Token> getPlayerOwnedTokensWithSight(Player p) {
+		return getTokensFiltered(new Filter() {
+			public boolean matchToken(Token t) {
+				return t.getType() == Token.Type.PC && t.getHasSight() && AppUtil.playerOwns(t);
 			}
 		});
 	}
