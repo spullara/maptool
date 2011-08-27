@@ -389,10 +389,11 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 			}
 		}
 		if (isResizingToken) {
-			renderer.flush(tokenUnderMouse);
-			MapTool.serverCommand().putToken(renderer.getZone().getId(), tokenUnderMouse);
+			renderer.flush(tokenBeingResized);
+			MapTool.serverCommand().putToken(renderer.getZone().getId(), tokenBeingResized);
 			isResizingToken = false;
 			isResizingRotatedToken = false;
+			tokenBeingResized = null;
 			return;
 		}
 		if (SwingUtilities.isLeftMouseButton(e)) {
