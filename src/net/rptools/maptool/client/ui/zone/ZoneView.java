@@ -62,8 +62,8 @@ public class ZoneView implements ModelChangeListener {
 	public Area getVisibleArea(PlayerView view) {
 		calculateVisibleArea(view);
 		ZoneView.VisibleAreaMeta visible = visibleAreaMap.get(view);
-		if (visible == null)
-			System.out.println("ZoneView: visible == null.  Please report this on our forum @ forum.rptools.net.  Thank you!");
+//		if (visible == null)
+//			System.out.println("ZoneView: visible == null.  Please report this on our forum @ forum.rptools.net.  Thank you!");
 		return visible != null ? visible.visibleArea : new Area();
 	}
 
